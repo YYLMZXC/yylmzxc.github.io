@@ -4,6 +4,20 @@
 html {
   line-height: 1.15;
   -webkit-text-size-adjust: 100%;
+  font-size: 16px; /* 设置基础字体大小 */
+  zoom: 1; /* 确保缩放正常 */
+}
+
+/* 确保在所有浏览器中都能正确缩放 */
+* {
+  box-sizing: border-box;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* 防止页面在缩放时出现意外滚动 */
+html, body {
+  overflow-x: hidden;
 }
 
 body {
@@ -125,22 +139,32 @@ button, input, select, textarea {
   margin: 25px 0 0;
   padding: 0;
   clear: both;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0;
+  width: 100%;
+  max-width: 100%;
 }
 
 #nav-menu a {
   display: block;
   margin-right: -1px;
-  padding: 0 20px;
+  padding: 0 16px;
   border: 1px solid #EEE;
   border-bottom: none;
   height: 32px;
   line-height: 32px;
   color: #444;
   float: left;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  min-width: 0;
 }
 
 #nav-menu a:hover {
   background: #F6F6F6;
+  color: #333;
 }
 
 /* 搜索表单 */
@@ -195,18 +219,23 @@ button, input, select, textarea {
 
 /* 服务器列表样式 */
 .server-list {
-  margin: 20px 0;
+  margin: 2rem 0;
+  width: 100%;
+  max-width: 100%;
+  overflow: visible;
 }
 
 .server-item {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  padding: 12px 15px;
-  margin-bottom: 10px;
+  padding: 1rem;
+  margin-bottom: 1rem;
   background-color: #f8f8f8;
   border-radius: 6px;
   transition: background-color 0.3s ease;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .server-item:hover {
@@ -215,16 +244,22 @@ button, input, select, textarea {
 
 .server-name {
   font-weight: 500;
-  margin-right: 20px;
-  min-width: 180px;
+  margin-right: 1rem;
+  min-width: 120px;
+  flex: 1;
+  word-break: break-all;
+  word-wrap: break-word;
 }
 
 .server-ip {
-  margin-right: 20px;
+  margin-right: 1rem;
   position: relative;
   padding: 4px 8px;
   border-radius: 4px;
   transition: all 0.2s ease;
+  flex: 1;
+  min-width: 150px;
+  word-break: break-all;
 }
 
 .server-ip:hover {
@@ -232,11 +267,12 @@ button, input, select, textarea {
 }
 
 .copy-hint {
-  font-size: 0.8em;
+  font-size: 0.8rem;
   color: #666;
   margin-left: 8px;
   opacity: 0.7;
   transition: all 0.2s ease;
+  display: inline-block;
 }
 
 .server-ip:hover .copy-hint {
@@ -244,7 +280,9 @@ button, input, select, textarea {
 }
 
 .server-group {
-  margin-right: 15px;
+  margin-right: 1rem;
+  flex: 1;
+  min-width: 120px;
 }
 
 .server-note {
@@ -424,32 +462,37 @@ body {
   position: relative;
   min-height: 100vh;
   margin: 0;
-  padding: 0 0 150px 0; /* 底部添加150px的内边距，确保页脚不会与内容重叠 */
+  padding: 0 0 100px 0; /* 底部添加100px的内边距，确保页脚不会与内容重叠 */
   box-sizing: border-box;
+  font-size: 1rem; /* 使用相对单位 */
 }
 
 /* 主要内容区域，确保有足够的底部间距 */
 #body {
-  padding: 20px 0 150px 0; /* 底部添加150px的内边距，增加间距 */
+  padding: 20px 0 80px 0; /* 底部添加80px的内边距，增加间距 */
   position: relative;
   z-index: 1;
+  width: 100%;
+  max-width: 100%; /* 确保内容不超出视口 */
 }
 
-/* 彻底重构页脚样式，确保它不会覆盖任何内容 */
+/* 优化页脚样式，确保它不会覆盖任何内容 */
 #footer {
   position: static; /* 完全静态定位，跟随文档流 */
   width: 100%;
-  padding: 2em 0; /* 增加内边距 */
+  padding: 2rem 1rem; /* 使用相对单位，增加水平内边距 */
   line-height: 1.5;
   text-align: center;
   color: #999;
   border-top: 1px solid #EEE;
   background-color: #fff;
-  font-size: 0.9em;
-  margin-top: 60px; /* 增加与内容的距离 */
+  font-size: 0.9rem;
+  margin-top: 3rem; /* 使用相对单位，增加与内容的距离 */
   box-sizing: border-box;
   clear: both; /* 清除浮动，确保不与内容重叠 */
   z-index: 10; /* 确保页脚在内容之上 */
+  overflow: visible; /* 确保内容不会被隐藏 */
+  display: block;
 }
 
 /* 为移动设备添加更彻底的间距保障 */
@@ -495,31 +538,41 @@ body {
   }
 }
 
-/* 为桌面浏览器（特别是谷歌浏览器）添加额外的间距保障 */
+/* 为桌面浏览器添加额外的间距保障 */
 @media (min-width: 992px) {
+  /* 确保容器在不同缩放比例下都能正常显示 */
+  .container {
+    max-width: 940px;
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+  
   /* 增加服务器列表与页脚之间的距离 */
   .server-list {
-    margin-bottom: 100px !important;
-    padding-bottom: 50px;
+    margin-bottom: 3rem !important;
+    padding-bottom: 2rem;
   }
   
   /* 确保最后一个服务器项有足够的底部间距 */
   .server-item:last-child {
-    margin-bottom: 80px !important; /* 重要：确保最后一个服务器项与页脚有足够距离 */
-    padding-bottom: 20px;
+    margin-bottom: 2rem !important;
+    padding-bottom: 1rem;
   }
   
   /* 确保主内容区域有足够的底部空间 */
   .post-content {
-    padding-bottom: 120px !important;
-    margin-bottom: 40px;
+    padding-bottom: 3rem !important;
+    margin-bottom: 2rem;
+    width: 100%;
+    max-width: 100%;
+    overflow: visible;
   }
   
   /* 确保页脚与内容完全分离 */
   #footer {
     position: static;
-    margin-top: 100px !important;
-    padding: 3em 0 !important;
+    margin-top: 3rem !important;
+    padding: 2rem 2rem !important;
     clear: both;
     float: none;
     display: block;
@@ -527,11 +580,25 @@ body {
     background-color: #fff;
     border-top: 1px solid #EEE;
     z-index: 100;
+    font-size: 0.9rem;
   }
   
   /* 确保主要内容容器有足够空间 */
   #body > .container {
-    margin-bottom: 60px;
+    margin-bottom: 2rem;
+    width: 100%;
+  }
+  
+  /* 确保服务器项在桌面端不会重叠 */
+  .server-item {
+    min-height: auto;
+    overflow: visible;
+  }
+  
+  /* 优化导航菜单在桌面端的显示 */
+  #nav-menu {
+    flex-direction: row;
+    flex-wrap: nowrap;
   }
 }
 
@@ -546,14 +613,42 @@ body {
     flex-direction: column;
     align-items: flex-start;
     gap: 8px;
+    padding: 0.8rem;
   }
   
   .server-name {
     min-width: auto;
+    width: 100%;
+    margin-right: 0;
+  }
+  
+  .server-ip {
+    min-width: auto;
+    width: 100%;
+    margin-right: 0;
+    padding: 4px 6px;
+  }
+  
+  .server-group {
+    min-width: auto;
+    width: 100%;
+    margin-right: 0;
   }
   
   .site-search {
     display: none;
+  }
+  
+  /* 确保导航菜单在移动端正常显示 */
+  #nav-menu {
+    flex-direction: column;
+  }
+  
+  #nav-menu a {
+    float: none;
+    border-bottom: 1px solid #EEE;
+    margin-right: 0;
+    padding: 0 12px;
   }
 }
 
