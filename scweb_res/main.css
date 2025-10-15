@@ -317,46 +317,78 @@ button, input, select, textarea {
   border-radius: 3px;
 }
 
-/* 页脚 - 始终固定在页面最底部 */
+/* 确保body可以正常滚动，不被任何元素遮挡 */
+body {
+  position: relative;
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* 主要内容区域，确保有足够的底部间距 */
+#body {
+  padding: 20px 0 100px 0; /* 底部添加100px的内边距 */
+  position: relative;
+  z-index: 1;
+}
+
+/* 彻底重构页脚样式，确保它不会覆盖任何内容 */
 #footer {
-  position: fixed;
-  bottom: 0;
-  left: 0;
+  position: static; /* 完全静态定位，跟随文档流 */
   width: 100%;
-  padding: 0.8em 0;
+  padding: 1em 0; /* 正常的内边距 */
   line-height: 1.5;
   text-align: center;
   color: #999;
   border-top: 1px solid #EEE;
   background-color: #fff;
-  z-index: 1000;
   font-size: 0.9em;
+  margin-top: 40px; /* 与内容保持足够距离 */
+  box-sizing: border-box;
+  clear: both; /* 清除浮动，确保不与内容重叠 */
 }
 
-/* 为body添加底部内边距，防止内容被固定页脚遮挡 */
-body {
-  padding-bottom: 80px;
-}
-
-/* 移动设备上增加底部内边距，确保内容完全可见 */
+/* 为移动设备添加更彻底的间距保障 */
 @media (max-width: 767px) {
-  body {
-    padding-bottom: 200px; /* 进一步增加底部内边距 */
+  /* 进一步增加内容区域底部内边距 */
+  #body {
+    padding-bottom: 150px;
   }
   
-  /* 确保服务器列表在移动设备上有足够空间 */
+  /* 服务器列表底部添加更大间距 */
   .server-list {
-    margin-bottom: 100px; /* 进一步增加额外的底部间距 */
+    margin-bottom: 100px;
   }
   
-  /* 为最后一个服务器项添加额外的底部间距 */
-  .server-item:last-child {
-    margin-bottom: 30px; /* 确保最后一项与页脚有足够距离 */
-  }
-  
-  /* 确保侧边栏内容也有足够的底部空间 */
+  /* 侧边栏底部添加更大间距 */
   #sidebar {
-    margin-bottom: 100px; /* 侧边栏底部间距 */
+    margin-bottom: 100px;
+    display: block;
+    width: 100%;
+  }
+  
+  /* 确保最后一个服务器项有足够间距 */
+  .server-item:last-child {
+    margin-bottom: 50px;
+  }
+  
+  /* 确保内容容器有足够底部内边距 */
+  .post-content {
+    padding-bottom: 80px;
+    display: block;
+    overflow: visible;
+  }
+  
+  /* 页脚字体调小，减少高度占用 */
+  #footer {
+    font-size: 0.8em;
+    padding: 0.5em 0;
+  }
+  
+  /* 确保所有元素都正确显示，不被隐藏 */
+  * {
+    overflow-anchor: auto;
   }
 }
 
