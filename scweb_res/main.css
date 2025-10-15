@@ -424,13 +424,13 @@ body {
   position: relative;
   min-height: 100vh;
   margin: 0;
-  padding: 0;
+  padding: 0 0 150px 0; /* 底部添加150px的内边距，确保页脚不会与内容重叠 */
   box-sizing: border-box;
 }
 
 /* 主要内容区域，确保有足够的底部间距 */
 #body {
-  padding: 20px 0 100px 0; /* 底部添加100px的内边距 */
+  padding: 20px 0 150px 0; /* 底部添加150px的内边距，增加间距 */
   position: relative;
   z-index: 1;
 }
@@ -439,16 +439,17 @@ body {
 #footer {
   position: static; /* 完全静态定位，跟随文档流 */
   width: 100%;
-  padding: 1em 0; /* 正常的内边距 */
+  padding: 2em 0; /* 增加内边距 */
   line-height: 1.5;
   text-align: center;
   color: #999;
   border-top: 1px solid #EEE;
   background-color: #fff;
   font-size: 0.9em;
-  margin-top: 40px; /* 与内容保持足够距离 */
+  margin-top: 60px; /* 增加与内容的距离 */
   box-sizing: border-box;
   clear: both; /* 清除浮动，确保不与内容重叠 */
+  z-index: 10; /* 确保页脚在内容之上 */
 }
 
 /* 为移动设备添加更彻底的间距保障 */
@@ -491,6 +492,46 @@ body {
   /* 确保所有元素都正确显示，不被隐藏 */
   * {
     overflow-anchor: auto;
+  }
+}
+
+/* 为桌面浏览器（特别是谷歌浏览器）添加额外的间距保障 */
+@media (min-width: 992px) {
+  /* 增加服务器列表与页脚之间的距离 */
+  .server-list {
+    margin-bottom: 100px !important;
+    padding-bottom: 50px;
+  }
+  
+  /* 确保最后一个服务器项有足够的底部间距 */
+  .server-item:last-child {
+    margin-bottom: 80px !important; /* 重要：确保最后一个服务器项与页脚有足够距离 */
+    padding-bottom: 20px;
+  }
+  
+  /* 确保主内容区域有足够的底部空间 */
+  .post-content {
+    padding-bottom: 120px !important;
+    margin-bottom: 40px;
+  }
+  
+  /* 确保页脚与内容完全分离 */
+  #footer {
+    position: static;
+    margin-top: 100px !important;
+    padding: 3em 0 !important;
+    clear: both;
+    float: none;
+    display: block;
+    width: 100%;
+    background-color: #fff;
+    border-top: 1px solid #EEE;
+    z-index: 100;
+  }
+  
+  /* 确保主要内容容器有足够空间 */
+  #body > .container {
+    margin-bottom: 60px;
   }
 }
 
