@@ -4,80 +4,52 @@
 global $servers;
 $servers = array(
     array(
-        'name' => '土豆原版生存服一',
-        'ip' => 'schub.icu',
+        'name' => '土豆服主1服分支',
+        'ip' => 'api.yylmzxc.icu',
         'group' => '826823481',
         'note' => '',
         'type' => 'original'
     ),
     array(
-        'name' => '土豆原版生存服二',
-        'ip' => 'tudouzxc.icu',
+        'name' => '土豆服2服',
+        'ip' => 'yylmzxc.icu',
         'group' => '826823481',
         'note' => '',
         'type' => 'original'
     ),
     array(
-        'name' => '土豆天空之城商店服',
-        'ip' => 'schub.icu:38887',
+        'name' => '土豆服3服',
+        'ip' => 'y.yylmzxc.icu',
         'group' => '826823481',
         'note' => '',
-        'type' => 'store'
+        'type' => 'original'
     ),
     array(
-        'name' => '土豆-混乱生存枪械MOD服',
-        'ip' => 'tudouzxc.icu:38887',
+        'name' => '土豆服4服',
+        'ip' => 't.yylmzxc.icu',
+        'group' => '826823481',
+        'note' => '',
+        'type' => 'original'
+    ),
+    array(
+        'name' => '空岛刷怪9服',
+        'ip' => 'v.yylmzxc.icu',
+        'group' => '826823481',
+        'note' => '',
+        'type' => 'original'
+    ),
+    array(
+        'name' => '测试服',
+        'ip' => 'b.yylmzxc.icu',
+        'group' => '826823481',
+        'note' => '',
+        'type' => 'original'
+    ),
+    array(
+        'name' => 'mod模组测试服',
+        'ip' => 'b.yylmzxc.icu:38887',
         'group' => '826823481',
         'note' => '加群获取MOD',
-        'type' => 'mod'
-    ),
-    array(
-        'name' => '土豆-修仙界MOD服',
-        'ip' => 'tudouzxc.icu:48887',
-        'group' => '826823481',
-        'note' => '加群获取MOD',
-        'type' => 'mod'
-    ),
-    array(
-        'name' => '土豆mod-y1服',
-        'ip' => 'tudouzxc.icu',
-        'group' => '826823481',
-        'note' => '',
-        'type' => 'mod'
-    ),
-    array(
-        'name' => '土豆mod-y2服',
-        'ip' => 'y.tudouzxc.icu:38887',
-        'group' => '826823481',
-        'note' => '',
-        'type' => 'mod'
-    ),
-    array(
-        'name' => '土豆mod-y3服',
-        'ip' => 'y.tudouzxc.icu:48887',
-        'group' => '826823481',
-        'note' => '',
-        'type' => 'mod'
-    ),
-    array(
-        'name' => '土豆mod-y4服',
-        'ip' => 't.tudouzxc.icu',
-        'group' => '826823481',
-        'note' => '',
-        'type' => 'mod'
-    ),
-    array(
-        'name' => '土豆mod-y5服',
-        'ip' => 't.tudouzxc.icu:38887',
-        'group' => '826823481',
-        'note' => '',
-        'type' => 'mod'
-    ),
-    array(
-        'name' => '土豆mod-y6服',
-        'ip' => 't.tudouzxc.icu:48887',
-        'group' => '826823481',
-        'note' => '',
         'type' => 'mod'
     )
 );
