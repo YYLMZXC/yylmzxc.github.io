@@ -278,43 +278,145 @@ button, input, select, textarea {
   box-shadow: 0 2px 6px rgba(0,0,0,0.1);
 }
 
+.server-stats {
+    background-color: rgba(255, 255, 255, 0.9);
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border-left: 4px solid #3498db;
+}
+
+.server-stats h3 {
+    margin: 0 0 10px 0;
+    font-size: 18px;
+    color: #2c3e50;
+}
+
+.server-stats p {
+    margin: 0;
+    color: #7f8c8d;
+    font-size: 14px;
+}
+
+.server-filters {
+    margin-bottom: 25px;
+}
+
+.server-filters h4 {
+    margin: 0 0 10px 0;
+    font-size: 16px;
+    color: #2c3e50;
+}
+
+.filter-link {
+    display: inline-block;
+    padding: 8px 15px;
+    margin-right: 10px;
+    margin-bottom: 10px;
+    background-color: rgba(255, 255, 255, 0.8);
+    color: #7f8c8d;
+    text-decoration: none;
+    border-radius: 20px;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    border: 1px solid #ddd;
+}
+
+.filter-link:hover {
+    background-color: #3498db;
+    color: white;
+    border-color: #3498db;
+}
+
+.filter-link.active {
+    background-color: #3498db;
+    color: white;
+    border-color: #3498db;
+}
+
 /* 服务器列表样式 */
 .server-list {
   margin: 20px 0;
 }
 
 .server-item {
-  padding: 12px 15px;
-  margin-bottom: 10px;
-  background: #f9f9f9;
-  border: 1px solid #eee;
-  border-radius: 4px;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 15px;
+    background-color: rgba(255, 255, 255, 0.8);
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 15px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.server-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
 .server-name {
-  font-weight: bold;
-  min-width: 180px;
+    display: block;
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 8px;
+    color: #333;
+}
+
+.server-type-badge {
+    display: inline-block;
+    padding: 3px 8px;
+    margin-right: 10px;
+    font-size: 12px;
+    font-weight: normal;
+    border-radius: 12px;
+    color: white;
+    vertical-align: middle;
+}
+
+.server-type-badge[data-type="original"] {
+    background-color: #27ae60;
+}
+
+.server-type-badge[data-type="mod"] {
+    background-color: #e74c3c;
+}
+
+.server-type-badge[data-type="store"] {
+    background-color: #f39c12;
 }
 
 .server-ip {
-  color: #3354AA;
-  font-family: monospace;
+    display: block;
+    font-size: 16px;
+    margin-bottom: 5px;
+    color: #666;
+}
+
+.server-ip b {
+    color: #2c3e50;
 }
 
 .server-group {
-  color: #666;
+    display: block;
+    font-size: 14px;
+    color: #7f8c8d;
 }
 
 .server-note {
-  color: #ff6b6b;
-  font-size: 0.9em;
-  background: #fff5f5;
-  padding: 2px 8px;
-  border-radius: 3px;
+    display: block;
+    font-size: 14px;
+    color: #e74c3c;
+    margin-top: 5px;
+    font-style: italic;
+}
+
+.no-servers {
+    background-color: rgba(255, 255, 255, 0.8);
+    border-radius: 10px;
+    padding: 30px;
+    text-align: center;
+    color: #7f8c8d;
+    font-size: 16px;
 }
 
 /* 确保body可以正常滚动，不被任何元素遮挡 */

@@ -9,7 +9,7 @@
     <!-- 使用url函数转换相关路径 -->
     <link rel="stylesheet" href="./scweb_res/main.css">
     <link rel="icon" type="image/x-icon" href="./scweb_res/favicon.ico">
-    <link rel="canonical" href="http://schub.icu/index.html">
+    <link rel="canonical" href="http://schub.icu/index.php">
     <!-- 通过自有函数输出HTML头部信息 -->
     <meta name="description" content="生存战争网是中国最大的SC中文社区，提供游戏攻略、Mod模组、地图存档、材质包、皮肤和家具等资源下载，以及活跃的联机服务器。">
     <meta name="keywords" content="生存战争,SC中文社区,生存战争MOD,生存战争联机版,生存战争服务器,生存战争攻略">
@@ -20,7 +20,7 @@
     <div class="container">
         <div class="row">
             <div class="site-name col-mb-12 col-9">
-                                    <h1 style="font-size:0">生存战争网_SC中文社区<a id="logo" title="生存战争网_SC中文社区" href="http://schub.icu/index.html">
+                                    <h1 style="font-size:0">生存战争网_SC中文社区<a id="logo" title="生存战争网_SC中文社区" href="http://schub.icu/index.php">
                         <img width="220px" height="64px" src="./scweb_res/logo.png" alt="生存战争网">
                     </a></h1>
                              </div>
@@ -35,7 +35,7 @@
             </div>
             <div class="col-mb-12">
                 <nav id="nav-menu" class="clearfix" role="navigation">
-                    <a title="生存战争网_SC中文社区" href="http://schub.icu/index.html">首页</a><a title="生存战争联机服务器地址列表" href="http://schub.icu/online_server.html">联机服务器列表</a><a rel="nofollow" target="_blank" title="生存战争-APImod制作教程" href="https://www.yuque.com/u589148/wf2knt">APImod制作教程</a></nav>
+                    <a title="生存战争网_SC中文社区" href="http://schub.icu/index.php" class="active">首页</a><a title="生存战争联机服务器地址列表" href="http://schub.icu/online_server.php">联机服务器列表</a><a rel="nofollow" target="_blank" title="生存战争-APImod制作教程" href="https://www.yuque.com/u589148/wf2knt">APImod制作教程</a></nav>
             </div>
         </div><!-- end .row -->
     </div>
