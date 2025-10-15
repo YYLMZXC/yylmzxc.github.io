@@ -323,18 +323,31 @@ button, input, select, textarea {
   bottom: 0;
   left: 0;
   width: 100%;
-  padding: 1em 0;
+  padding: 0.8em 0;
   line-height: 1.5;
   text-align: center;
   color: #999;
   border-top: 1px solid #EEE;
   background-color: #fff;
   z-index: 1000;
+  font-size: 0.9em;
 }
 
 /* 为body添加底部内边距，防止内容被固定页脚遮挡 */
 body {
   padding-bottom: 80px;
+}
+
+/* 移动设备上增加底部内边距，确保内容完全可见 */
+@media (max-width: 767px) {
+  body {
+    padding-bottom: 100px; /* 增加底部内边距 */
+  }
+  
+  /* 确保服务器列表在移动设备上有足够空间 */
+  .server-list {
+    margin-bottom: 40px; /* 额外的底部间距 */
+  }
 }
 
 /* 响应式调整 */
