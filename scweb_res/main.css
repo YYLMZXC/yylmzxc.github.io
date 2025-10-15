@@ -341,12 +341,22 @@ body {
 /* 移动设备上增加底部内边距，确保内容完全可见 */
 @media (max-width: 767px) {
   body {
-    padding-bottom: 100px; /* 增加底部内边距 */
+    padding-bottom: 200px; /* 进一步增加底部内边距 */
   }
   
   /* 确保服务器列表在移动设备上有足够空间 */
   .server-list {
-    margin-bottom: 40px; /* 额外的底部间距 */
+    margin-bottom: 100px; /* 进一步增加额外的底部间距 */
+  }
+  
+  /* 为最后一个服务器项添加额外的底部间距 */
+  .server-item:last-child {
+    margin-bottom: 30px; /* 确保最后一项与页脚有足够距离 */
+  }
+  
+  /* 确保侧边栏内容也有足够的底部空间 */
+  #sidebar {
+    margin-bottom: 100px; /* 侧边栏底部间距 */
   }
 }
 
