@@ -1,0 +1,11 @@
+{
+    "name": "大白·简约风格",
+    "brief": "简约的主题，白色的风格，集成原版按钮颜色，非常轻。",
+    "version": "1.3",
+    "bbs_version": "4.0.4",
+    "installed": 0,
+    "enable": 0,
+    "hooks_rank": [],
+    "overwrites_rank": [],
+    "dependencies": []
+}

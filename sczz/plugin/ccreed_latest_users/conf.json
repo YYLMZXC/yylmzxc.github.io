@@ -1,0 +1,11 @@
+{
+    "name": "最新会员",
+    "brief": "在网站首页右侧栏目显示最新注册的一些用户。",
+    "version": "1.0",
+    "bbs_version": "4.0",
+    "installed": 1,
+    "enable": 1,
+    "hooks_rank": [],
+    "overwrites_rank": [],
+    "dependencies": []
+}

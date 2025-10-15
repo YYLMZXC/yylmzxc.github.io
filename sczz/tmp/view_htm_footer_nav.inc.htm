@@ -1,0 +1,16 @@
+<footer class="text-muted small bg-light py-4 mt-3" id="footer">
+	<div class="container">
+		<div class="row">
+			<div class="col">
+				
+				Powered by Xiuno BBS
+				
+			</div>
+			<div class="col text-right">
+				
+				Processed: <b><?php echo substr(microtime(1) - $starttime, 0, 5);?></b>, SQL: <b><?php echo count($db->sqls);?></b>
+				
+			</div>
+		</div>
+	</div>
+</footer>
