@@ -61,6 +61,8 @@
                         <a target="_blank" title="生存战争皮肤大全下载" href="http://schub.icu/sczz/?forum-6.htm"><span>皮肤包</span></a>
                         <a target="_blank" title="生存战争地图存档下载" href="http://schub.icu/sczz/?forum-2.htm"><span>地图包</span></a>
                         <a target="_blank" title="生存战争家具包下载" href="http://schub.icu/sczz/?forum-7.htm"><span>家具包</span></a>
+                        <a target="_blank" title="JIILSCplugins - 服务端插件" href="https://spd.jiil.top/index.html"><span>服务端插件</span></a>
+                        <a target="_blank" title="生存战争模组网" href="https://www.scmod.cn/"><span>模组网</span></a>
                     </div>
                 </div>
             </div>
