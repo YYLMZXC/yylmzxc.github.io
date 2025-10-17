@@ -63,6 +63,7 @@
                         <a target="_blank" title="生存战争家具包下载" href="http://schub.icu/sczz/?forum-7.htm"><span>家具包</span></a>
                         <a target="_blank" title="JIILSCplugins - 服务端插件" href="https://spd.jiil.top/index.html"><span>服务端插件</span></a>
                         <a target="_blank" title="生存战争模组网" href="https://www.scmod.cn/"><span>模组网</span></a>
+                        <a target="_blank" title="备用测试SC中文社区" href="https://test.suancaixianyu.cn/"><span>备用测试SC中文社区</span></a>
                     </div>
                 </div>
             </div>
