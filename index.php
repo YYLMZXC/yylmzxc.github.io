@@ -47,7 +47,7 @@
                 <div class="post-content">
                     <p class="site-address">
                         <span>本站地址：<b>schub.icu</b></span>
-                        <span>短网址：<b>生存战争.top</b></span>
+                        <span>短网址：<b>scnet.top</b></span>
                     </p>
                     
                     <div class="banner-grid">
