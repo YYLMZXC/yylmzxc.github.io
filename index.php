@@ -65,6 +65,7 @@
                         <a target="_blank" title="JIILSCplugins - 服务端插件" href="https://spd.jiil.top/index.html"><span>服务端插件</span></a>
                         <a target="_blank" title="生存战争模组网" href="https://www.scmod.cn/"><span>模组网</span></a>
                         <a target="_blank" title="备用测试SC中文社区" href="https://test.suancaixianyu.cn/"><span>备用测试SC中文社区</span></a>
+                        <a target="_blank" title="JIIL论坛 - 服务端插件社区" href="https://bbs.jiil.top/"><span>JIIL论坛</span></a>
                     </div>
 
                     <h3 style="color: #333; margin: 30px 0 10px 0; border-bottom: 2px solid #ff6b35; padding-bottom: 5px;">🌍 OS海外导航</h3>
