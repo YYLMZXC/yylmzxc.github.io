@@ -13,6 +13,45 @@
     <!-- 通过自有函数输出HTML头部信息 -->
     <meta name="description" content="生存战争网是中国最大的SC中文社区，提供游戏攻略、Mod模组、地图存档、材质包、皮肤和家具等资源下载，以及活跃的联机服务器。">
     <meta name="keywords" content="生存战争,SC中文社区,生存战争MOD,生存战争联机版,生存战争服务器,生存战争攻略">
+    <!-- 基于Cloudflare Workers AI翻译 -->
+    <style>
+        .translate-section {
+            margin-top: 10px;
+            text-align: center;
+        }
+        .translate-select {
+            width: 100%;
+            max-width: 280px;
+            padding: 8px 12px;
+            border: 2px solid #e0e6ed;
+            border-radius: 8px;
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9ff 100%);
+            color: #333;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .translate-select:hover {
+            border-color: #667eea;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+        }
+        .translate-select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        .translate-select option {
+            padding: 8px;
+            background: #ffffff;
+            color: #333;
+        }
+        #google_translate_element {
+            position: absolute;
+            left: -9999px;
+            visibility: hidden;
+        }
+    </style>
 </head>
 <body>
 
@@ -32,6 +71,44 @@
                     <input type="text" id="s" name="ss" class="text" placeholder="输入关键字搜索">
                     <button type="submit" class="submit">搜索</button>
                 </form>
+                <div class="translate-section">
+                    <select class="translate-select" onchange="translatePage(this.value)">
+                        <option value="">🌐 选择语言</option>
+                        <option value="zh-CN">🇨🇳 中文（简体）</option>
+                        <option value="en">🇺🇸 English</option>
+                        <option value="zh-TW">🇹🇼 中文（繁体）</option>
+                        <option value="ja">🇯🇵 日本語</option>
+                        <option value="ko">🇰🇷 한국어</option>
+                        <option value="fr">🇫🇷 Français</option>
+                        <option value="de">🇩🇪 Deutsch</option>
+                        <option value="es">🇪🇸 Español</option>
+                        <option value="it">🇮🇹 Italiano</option>
+                        <option value="pt">🇵🇹 Português</option>
+                        <option value="ru">🇷🇺 Русский</option>
+                        <option value="ar">🇸🇦 العربية</option>
+                        <option value="hi">🇮🇳 हिन्दी</option>
+                        <option value="th">🇹🇭 ไทย</option>
+                        <option value="vi">🇻🇳 Tiếng Việt</option>
+                        <option value="tr">🇹🇷 Türkçe</option>
+                        <option value="nl">🇳🇱 Nederlands</option>
+                        <option value="sv">🇸🇪 Svenska</option>
+                        <option value="no">🇳🇴 Norsk</option>
+                        <option value="da">🇩🇰 Dansk</option>
+                        <option value="fi">🇫🇮 Suomi</option>
+                        <option value="pl">🇵🇱 Polski</option>
+                        <option value="cs">🇨🇿 Čeština</option>
+                        <option value="hu">🇭🇺 Magyar</option>
+                        <option value="ro">🇷🇴 Română</option>
+                        <option value="bg">🇧🇬 Български</option>
+                        <option value="hr">🇭🇷 Hrvatski</option>
+                        <option value="sk">🇸🇰 Slovenčina</option>
+                        <option value="sl">🇸🇮 Slovenščina</option>
+                        <option value="et">🇪🇪 Eesti</option>
+                        <option value="lv">🇱🇻 Latviešu</option>
+                        <option value="lt">🇱🇹 Lietuvių</option>
+                        <option value="el">🇬🇷 Ελληνικά</option>
+                    </select>
+                </div>
             </div>
             <div class="col-mb-12">
                 <nav id="nav-menu" class="clearfix" role="navigation">
@@ -84,6 +161,8 @@
 <footer id="footer">
     <p><br>© 2025 生存战争网</p>
 </footer><!-- end #footer -->
+
+<!-- Cloudflare Workers AI翻译容器 -->
 <script>
   // 百度统计代码
   var _hmt = _hmt || [];
@@ -93,6 +172,127 @@
     var s = document.getElementsByTagName("script")[0];
     s.parentNode.insertBefore(hm, s);
   })();
+</script>
+
+<!-- Cloudflare Workers AI翻译服务 -->
+
+<!-- Cloudflare Workers AI翻译服务 -->
+<script type="text/javascript">
+    // Cloudflare Workers翻译配置
+    var translatorConfig = {
+        from: "zh",      // 源语言：中文
+        workerUrl: "http://localhost:8080/translate-server.php", // 本地测试服务，可替换为Cloudflare Worker URL
+        supportedLanguages: {
+            "": "🌐 选择语言",
+            "zh": "🇨🇳 中文（简体）",
+            "zh-TW": "🇹🇼 中文（繁体）", 
+            "en": "🇺🇸 English",
+            "ja": "🇯🇵 日本語",
+            "ko": "🇰🇷 한국어",
+            "fr": "🇫🇷 Français",
+            "de": "🇩🇪 Deutsch",
+            "es": "🇪🇸 Español",
+            "it": "🇮🇹 Italiano",
+            "pt": "🇵🇹 Português",
+            "ru": "🇷🇺 Русский",
+            "ar": "🇸🇦 العربية",
+            "hi": "🇮🇳 हिन्दी",
+            "th": "🇹🇭 ไทย",
+            "vi": "🇻🇳 Tiếng Việt",
+            "tr": "🇹🇷 Türkçe",
+            "nl": "🇳🇱 Nederlands",
+            "sv": "🇸🇪 Svenska",
+            "no": "🇳🇴 Norsk",
+            "da": "🇩🇰 Dansk",
+            "fi": "🇫🇮 Suomi",
+            "pl": "🇵🇱 Polski",
+            "cs": "🇨🇿 Čeština",
+            "hu": "🇭🇺 Magyar",
+            "ro": "🇷🇴 Română",
+            "bg": "🇧🇬 Български",
+            "hr": "🇭🇷 Hrvatski",
+            "sk": "🇸🇰 Slovenčina",
+            "sl": "🇸🇮 Slovenščina",
+            "et": "🇪🇪 Eesti",
+            "lv": "🇱🇻 Latviešu",
+            "lt": "🇱🇹 Lietuvių",
+            "el": "🇬🇷 Ελληνικά"
+        }
+    };
+
+    // 翻译页面到指定语言
+    async function translatePage(lang) {
+        if (!lang || lang === "") return; // 如果选择的是"选择语言"，不执行翻译
+        
+        console.log('准备使用Cloudflare Worker翻译到:', lang);
+        
+        // 获取页面内容进行翻译
+        var pageContent = document.body.innerHTML;
+        
+        try {
+            // 显示翻译进度提示
+            showTranslationProgress();
+            
+            // 调用Cloudflare Worker翻译API
+            const response = await fetch(`${translatorConfig.workerUrl}/?text=${encodeURIComponent(pageContent)}&from=${translatorConfig.from}&to=${lang}`);
+            
+            if (!response.ok) {
+                throw new Error(`翻译服务错误: ${response.status}`);
+            }
+            
+            const result = await response.json();
+            
+            if (result.error) {
+                throw new Error(result.error);
+            }
+            
+            // 替换页面内容
+            document.body.innerHTML = result.translated_text;
+            
+            // 隐藏翻译进度提示
+            hideTranslationProgress();
+            
+            console.log('Cloudflare Worker翻译成功到:', lang);
+            
+        } catch (error) {
+            console.error('翻译失败:', error);
+            hideTranslationProgress();
+            alert('翻译功能暂时不可用，请稍后重试。错误信息: ' + error.message);
+        }
+    }
+
+    // 显示翻译进度
+    function showTranslationProgress() {
+        var progressDiv = document.createElement('div');
+        progressDiv.id = 'translation-progress';
+        progressDiv.innerHTML = `
+            <div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+                        background: rgba(0,0,0,0.5); z-index: 9999; display: flex; 
+                        justify-content: center; align-items: center;">
+                <div style="background: white; padding: 20px; border-radius: 8px; text-align: center;">
+                    <div style="width: 40px; height: 40px; border: 4px solid #f3f3f3; 
+                                border-top: 4px solid #667eea; border-radius: 50%; 
+                                animation: spin 1s linear infinite; margin: 0 auto 10px;"></div>
+                    <p>正在翻译页面内容，请稍候...</p>
+                </div>
+            </div>
+            <style>
+                @keyframes spin {
+                    0% { transform: rotate(0deg); }
+                    100% { transform: rotate(360deg); }
+                }
+            </style>
+        `;
+        document.body.appendChild(progressDiv);
+    }
+
+    // 隐藏翻译进度
+    function hideTranslationProgress() {
+        var progressDiv = document.getElementById('translation-progress');
+        if (progressDiv) {
+            progressDiv.remove();
+        }
+    }
 </script>
 </body>
 </html>
