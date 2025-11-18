@@ -226,6 +226,29 @@
             siteName.innerHTML = '生存战争网_SC中文社区<a id="logo" title="生存战争网_SC中文社区" href="http://schub.icu/index.php"><img width="220px" height="64px" src="./scweb_res/logo.png" alt="生存战争网"></a>';
         }
         
+        // 更新站点地址和短网址
+        const siteAddress = document.querySelector('.site-address');
+        if (siteAddress) {
+            siteAddress.innerHTML = '<span>本站地址：<b>schub.icu</b></span><span>短网址：<b>scnet.top</b></span>';
+        }
+        
+        // 更新导航标题
+        const cnNavTitle = document.querySelector('.post-content h3:nth-of-type(1)');
+        if (cnNavTitle) {
+            cnNavTitle.textContent = '🌏 CN中文导航';
+        }
+        
+        const osNavTitle = document.querySelector('.post-content h3:nth-of-type(2)');
+        if (osNavTitle) {
+            osNavTitle.textContent = '🌍 OS海外导航';
+        }
+        
+        // 更新页脚版权信息
+        const footer = document.querySelector('#footer p');
+        if (footer) {
+            footer.innerHTML = '<br>© 2025 生存战争网';
+        }
+        
         // 链接文本保持中文（默认状态），不需要额外处理
         updateLinkTexts('zh');
     }
@@ -279,6 +302,29 @@
             siteName.innerHTML = 'SurvivalCraft Web_SC English Community<a id="logo" title="SurvivalCraft Web_SC English Community" href="http://schub.icu/index.php"><img width="220px" height="64px" src="./scweb_res/logo.png" alt="SurvivalCraft Web"></a>';
         }
         
+        // 更新站点地址和短网址
+        const siteAddress = document.querySelector('.site-address');
+        if (siteAddress) {
+            siteAddress.innerHTML = '<span>Site Address: <b>schub.icu</b></span><span>Short URL: <b>scnet.top</b></span>';
+        }
+        
+        // 更新导航标题
+        const cnNavTitle = document.querySelector('.post-content h3:nth-of-type(1)');
+        if (cnNavTitle) {
+            cnNavTitle.textContent = '🌏 CN Chinese Navigation';
+        }
+        
+        const osNavTitle = document.querySelector('.post-content h3:nth-of-type(2)');
+        if (osNavTitle) {
+            osNavTitle.textContent = '🌍 OS Overseas Navigation';
+        }
+        
+        // 更新页脚版权信息
+        const footer = document.querySelector('#footer p');
+        if (footer) {
+            footer.innerHTML = '<br>© 2025 SurvivalCraft Web';
+        }
+        
         // 更新链接文本
         updateLinkTexts('en');
     }
@@ -330,6 +376,29 @@
         const siteName = document.querySelector('.site-name h1');
         if (siteName) {
             siteName.innerHTML = 'SurvivalCraft Web_SC Русское Сообщество<a id="logo" title="SurvivalCraft Web_SC Русское Сообщество" href="http://schub.icu/index.php"><img width="220px" height="64px" src="./scweb_res/logo.png" alt="SurvivalCraft Web"></a>';
+        }
+        
+        // 更新站点地址和短网址
+        const siteAddress = document.querySelector('.site-address');
+        if (siteAddress) {
+            siteAddress.innerHTML = '<span>Адрес Сайта: <b>schub.icu</b></span><span>Короткий URL: <b>scnet.top</b></span>';
+        }
+        
+        // 更新导航标题
+        const cnNavTitle = document.querySelector('.post-content h3:nth-of-type(1)');
+        if (cnNavTitle) {
+            cnNavTitle.textContent = '🌏 CN Китайская Навигация';
+        }
+        
+        const osNavTitle = document.querySelector('.post-content h3:nth-of-type(2)');
+        if (osNavTitle) {
+            osNavTitle.textContent = '🌍 OS Зарубежная Навигация';
+        }
+        
+        // 更新页脚版权信息
+        const footer = document.querySelector('#footer p');
+        if (footer) {
+            footer.innerHTML = '<br>© 2025 SurvivalCraft Web';
         }
         
         // 更新链接文本
