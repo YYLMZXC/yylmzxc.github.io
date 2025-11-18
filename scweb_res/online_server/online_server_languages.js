@@ -148,13 +148,35 @@ const ServerLanguageConfig = {
                     managementNumber: '893387376'
                 }
             },
-            
-            // 页脚
-            footer: '© 2025 SurvivalCraft Web'
+        
+        // 服务器名称翻译
+        serverNames: {
+            '土豆服主1服分支': 'Potato Server 1 Branch',
+            '土豆服2服': 'Potato Server 2',
+            '土豆服3服': 'Potato Server 3',
+            '土豆服4服': 'Potato Server 4',
+            '空岛刷怪9服': 'Sky Block Server 9',
+            '测试服': 'Test Server',
+            'mod模组测试服': 'MOD Test Server'
         },
         
-        ru: {
-            // 页面元信息
+        // 服务器名称翻译
+        serverNames: {
+            '土豆服主1服分支': 'Potato Server 1 Branch',
+            '土豆服2服': 'Potato Server 2',
+            '土豆服3服': 'Potato Server 3',
+            '土豆服4服': 'Potato Server 4',
+            '空岛刷怪9服': 'Sky Block Server 9',
+            '测试服': 'Test Server',
+            'mod模组测试服': 'MOD Test Server'
+        },
+        
+        // 页脚
+        footer: '© 2025 SurvivalCraft Web'
+    },
+    
+    ru: {
+        // 页面元信息
             page: {
                 title: 'Список Серверов SurvivalCraft | SC Русское Сообщество',
                 description: 'Список серверов SurvivalCraft, включая оригинальные выживание серверы, MOD серверы, магазин серверы и другие типы. Присоединяйтесь к нашей QQ группе для получения дополнительной информации.',
@@ -213,10 +235,23 @@ const ServerLanguageConfig = {
                     managementNumber: '893387376'
                 }
             },
+        // 服务器名称翻译
+        serverNames: {
+            '土豆服主1服分支': 'Картофельный Сервер 1 Ветка',
+            '土豆服2服': 'Картофельный Сервер 2',
+            '土豆服3服': 'Картофельный Сервер 3',
+            '土豆服4服': 'Картофельный Сервер 4',
+            '空岛刷怪9服': 'Небесный Остров Сервер 9',
+            '测试服': 'Тестовый Сервер',
+            'mod模组测试服': 'MOD Тестовый Сервер'
+        },
+        
             
             // 页脚
             footer: '© 2025 SurvivalCraft Web'
-        }
+        },
+        
+       
     },
     
     // 获取翻译文本
@@ -240,6 +275,18 @@ const ServerLanguageConfig = {
         return text;
     },
     
+    // 获取服务器名称翻译
+    getServerName: function(serverName, lang) {
+        lang = lang || this.default;
+        const serverNames = this.translations[lang]?.serverNames || this.translations[this.default].serverNames;
+        
+        if (serverNames && serverNames[serverName]) {
+            return serverNames[serverName];
+        }
+        
+        return serverName; // 如果没有翻译，返回原名称
+    },
+    
     // 更新页面文本
     updatePageTexts: function(lang) {
         // 更新所有带有data-i18n属性的元素
@@ -261,6 +308,14 @@ const ServerLanguageConfig = {
             } else {
                 element.textContent = text;
             }
+        });
+        
+        // 更新服务器名称翻译
+        const serverNameElements = document.querySelectorAll('.server-name-text');
+        serverNameElements.forEach(element => {
+            const originalName = element.getAttribute('data-server-name');
+            const translatedName = this.getServerName(originalName, lang);
+            element.textContent = translatedName;
         });
         
         // 更新页面标题

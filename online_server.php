@@ -198,7 +198,9 @@ function add_server($name, $ip, $group, $note = '', $type = 'original') {
                                     <span class="server-type-badge" data-type="<?php echo $server['type']; ?>" data-i18n="server.types.<?php echo $server['type']; ?>">
                                         <?php echo get_server_type_name($server['type']); ?>
                                     </span>
-                                    <?php echo $server['name']; ?>
+                                    <span class="server-name-text" data-server-name="<?php echo htmlspecialchars($server['name'], ENT_QUOTES); ?>">
+                                        <?php echo $server['name']; ?>
+                                    </span>
                                 </span>
                                 <span class="server-ip" data-ip="<?php echo $server['ip']; ?>" title="点击复制IP" data-i18n="server.clickToCopy" data-i18n-attr="title">
                                     <b><?php echo $server['ip']; ?></b> <span class="copy-hint" data-i18n="server.clickToCopy">点击复制</span>
