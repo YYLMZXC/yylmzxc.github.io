@@ -13,7 +13,7 @@
     
     <!-- 资源文件 -->
     <link rel="stylesheet" href="./scweb_res/main.css">
-    <link rel="stylesheet" href="./scweb_res/index/styles.css">
+    <link rel="stylesheet" href="./scweb_res/index/index.css">
     <link rel="icon" type="image/x-icon" href="./scweb_res/favicon.ico">
 </head>
 <body>
@@ -117,7 +117,7 @@
     <script src="https://hm.baidu.com/hm.js?49508fcc51529f79d0f7e42bd08ed491"></script>
     
     <!-- 本地脚本 -->
-    <script src="./scweb_res/languages.js"></script>
-    <script src="./scweb_res/script.js"></script>
+    <script src="./scweb_res/index/index_languages.js"></script>
+    <script src="./scweb_res/index/index_script.js"></script>
 </body>
 </html>
