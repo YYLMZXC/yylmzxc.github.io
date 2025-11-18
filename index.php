@@ -33,6 +33,13 @@
                 <!-- 工具栏 -->
                 <div class="site-tools col-mb-12 col-6">
                     <div class="toolbar">
+                        <!-- 语言选择器 -->
+                        <div class="language-section">
+                            <button class="language-btn" data-lang="zh" title="切换到中文">🇨🇳</button>
+                            <button class="language-btn" data-lang="en" title="Switch to English">🇺🇸</button>
+                            <button class="language-btn" data-lang="ru" title="Переключиться на русский">🇷🇺</button>
+                        </div>
+                        
                         <!-- 搜索功能 -->
                         <form id="searchForm" class="search-form" role="search">
                             <select id="searchSelect" name="category" class="search-select">
@@ -50,13 +57,6 @@
                                    placeholder="输入关键字搜索" data-i18n-placeholder="search.placeholder">
                             <button type="submit" class="search-button" data-i18n="search.submit">搜索</button>
                         </form>
-                        
-                        <!-- 语言选择器 -->
-                        <div class="language-section">
-                            <button class="language-btn" data-lang="zh" title="切换到中文">🇨🇳</button>
-                            <button class="language-btn" data-lang="en" title="Switch to English">🇺🇸</button>
-                            <button class="language-btn" data-lang="ru" title="Переключиться на русский">🇷🇺</button>
-                        </div>
                     </div>
                 </div>
                 
