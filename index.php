@@ -53,25 +53,39 @@
 <header id="header" class="clearfix">
     <div class="container">
         <div class="row">
-            <div class="site-name col-mb-12 col-9">
+            <div class="site-name col-mb-12 col-6">
                                     <h1 style="font-size:0">生存战争网_SC中文社区<a id="logo" title="生存战争网_SC中文社区" href="http://schub.icu/index.php">
                         <img width="220px" height="64px" src="./scweb_res/logo.png" alt="生存战争网">
                     </a></h1>
                              </div>
-            <div class="site-search col-3 kit-hidden-tb">
-                <form id="search" method="post" action="http://schub.icu/sczz/?search--1.htm" role="search">
-<select class="search-select" name="cat" style="border: 1px solid #ccc;"><option>任意分类</option><option value="1">插件版Mod模组下载</option><option value="2">联机版Mod模组下载</option><option value="4">游戏历史全版本下载</option><option value="10">材质包下载</option><option value="11">家具包下载</option><option value="9">皮肤大全下载</option><option value="8">地图存档下载</option><option value="6">攻略教程</option></select>
-
-                    <label for="s" class="sr-only">搜索关键字</label>
-                    <input type="text" id="s" name="ss" class="text" placeholder="输入关键字搜索">
-                    <button type="submit" class="submit">搜索</button>
-                </form>
-                <div class="language-section">
-                    <select class="language-select" onchange="switchLanguage(this.value)">
-                        <option value="zh">🇨🇳 中文</option>
-                        <option value="en">🇺🇸 English</option>
-                        <option value="ru">🇷🇺 Русский</option>
-                    </select>
+            <div class="site-tools col-mb-12 col-6">
+                <div class="toolbar">
+                    <!-- 搜索表单 -->
+                    <form id="search" method="post" action="http://schub.icu/sczz/?search--1.htm" role="search">
+                        <select class="search-select" name="cat" style="border: 1px solid #ccc;">
+                            <option>任意分类</option>
+                            <option value="1">插件版Mod模组下载</option>
+                            <option value="2">联机版Mod模组下载</option>
+                            <option value="4">游戏历史全版本下载</option>
+                            <option value="10">材质包下载</option>
+                            <option value="11">家具包下载</option>
+                            <option value="9">皮肤大全下载</option>
+                            <option value="8">地图存档下载</option>
+                            <option value="6">攻略教程</option>
+                        </select>
+                        <label for="s" class="sr-only">搜索关键字</label>
+                        <input type="text" id="s" name="ss" class="text" placeholder="输入关键字搜索">
+                        <button type="submit" class="submit">搜索</button>
+                    </form>
+                    
+                    <!-- 语言选择器 -->
+                    <div class="language-section">
+                        <select class="language-select" onchange="switchLanguage(this.value)">
+                            <option value="zh">🇨🇳 中文</option>
+                            <option value="en">🇺🇸 English</option>
+                            <option value="ru">🇷🇺 Русский</option>
+                        </select>
+                    </div>
                 </div>
             </div>
             <div class="col-mb-12">
@@ -84,7 +98,7 @@
 <div id="body">
     <div class="container">
         <div class="row">
-            <div class="col-mb-12 col-8" id="main" role="main">
+            <div class="col-mb-12 col-12" id="main" role="main">
                 <div class="post-content">
                     <p class="site-address">
                         <span>本站地址：<b>schub.icu</b></span>
