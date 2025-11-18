@@ -58,18 +58,18 @@ scweb/
 ├── scweb_res/            # 静态资源目录
 │   ├── languages.js      # 多语言配置文件
 │   ├── script.js         # 前端JavaScript
-│   ├── styles.css        # 样式文件
-│   ├── main.css          # 主样式文件
+│   ├── main.css          # 共享主样式文件
 │   ├── logo.png          # 网站Logo
 │   ├── favicon.ico       # 网站图标
-│   └── getCaptcha.jpg    # 验证码图片
+│   ├── getCaptcha.jpg    # 验证码图片
+│   ├── index/            # index.php专用资源
+│   │   └── styles.css    # index专用样式
+│   └── online_server/    # online_server.php专用资源
+│       └── online_server.css # online_server专用样式
 ├── .gitmodules           # Git子模块配置
 ├── .htaccess             # Apache重写规则
-├── index.html            # HTML版首页
 ├── index.php             # PHP版首页
-├── online_server.html    # 服务器列表页面
 ├── online_server.php     # PHP版服务器页面
-├── servers_data.php      # 服务器数据处理
 ├── nginx.htaccess        # Nginx重写规则
 ├── run.bat              # Windows启动脚本
 └── README.md            # 项目说明

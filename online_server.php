@@ -1,3 +1,108 @@
+<?php
+// 服务器数据文件
+// 定义服务器数据数组 - 包含类型信息
+global $servers;
+$servers = array(
+    array(
+        'name' => '土豆服主1服分支',
+        'ip' => 'api.yylmzxc.icu',
+        'group' => '826823481',
+        'note' => '',
+        'type' => 'original'
+    ),
+    array(
+        'name' => '土豆服2服',
+        'ip' => 'yylmzxc.icu',
+        'group' => '826823481',
+        'note' => '',
+        'type' => 'original'
+    ),
+    array(
+        'name' => '土豆服3服',
+        'ip' => 'y.yylmzxc.icu',
+        'group' => '826823481',
+        'note' => '',
+        'type' => 'original'
+    ),
+    array(
+        'name' => '土豆服4服',
+        'ip' => 't.yylmzxc.icu',
+        'group' => '826823481',
+        'note' => '',
+        'type' => 'original'
+    ),
+    array(
+        'name' => '空岛刷怪9服',
+        'ip' => 'v.yylmzxc.icu',
+        'group' => '826823481',
+        'note' => '',
+        'type' => 'original'
+    ),
+    array(
+        'name' => '测试服',
+        'ip' => 'b.yylmzxc.icu',
+        'group' => '826823481',
+        'note' => '',
+        'type' => 'original'
+    ),
+    array(
+        'name' => 'mod模组测试服',
+        'ip' => 'b.yylmzxc.icu:38887',
+        'group' => '826823481',
+        'note' => '加群获取MOD',
+        'type' => 'mod'
+    )
+);
+
+// 获取服务器列表的函数
+function get_servers($type = '') {
+    global $servers;
+    
+    // 如果没有指定类型，返回所有服务器
+    if (empty($type)) {
+        return $servers;
+    }
+    
+    // 根据类型筛选服务器
+    $filtered_servers = array();
+    foreach ($servers as $server) {
+        if (isset($server['type']) && $server['type'] == $type) {
+            $filtered_servers[] = $server;
+        }
+    }
+    
+    return $filtered_servers;
+}
+
+// 获取服务器类型名称的函数
+function get_server_type_name($type) {
+    switch ($type) {
+        case 'original':
+            return '原版';
+        case 'mod':
+            return '模组';
+        case 'store':
+            return '商店';
+        default:
+            return '未知';
+    }
+}
+
+// 添加服务器的函数（用于后续扩展）
+function add_server($name, $ip, $group, $note = '', $type = 'original') {
+    global $servers;
+    
+    $servers[] = array(
+        'name' => $name,
+        'ip' => $ip,
+        'group' => $group,
+        'note' => $note,
+        'type' => $type
+    );
+    
+    return true;
+}
+?>
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -7,36 +112,9 @@
     <meta name="applicable-device" content="pc,mobile">
     <title>生存战争联机服务器列表 | SC中文社区</title>
     <link rel="stylesheet" href="./scweb_res/main.css">
-    <style>
-    /* 加群链接样式 */
-    .join-group {
-      text-align: center;
-      margin: 20px 0;
-      padding: 15px;
-      background-color: #f0f7ff;
-      border-radius: 8px;
-      border: 1px solid #d0e3ff;
-    }
-
-    .group-link {
-      display: inline-block;
-      background-color: #12b7f5;
-      color: white;
-      padding: 8px 16px;
-      border-radius: 4px;
-      text-decoration: none;
-      font-weight: 500;
-      transition: background-color 0.3s ease;
-      margin: 0 5px;
-    }
-
-    .group-link:hover {
-      background-color: #0e98d5;
-      color: white;
-    }
-    </style>
+    <link rel="stylesheet" href="./scweb_res/online_server/online_server.css">
     <link rel="icon" type="image/x-icon" href="./scweb_res/favicon.ico">
-    <link rel="canonical" href="http://schub.icu/online_server.php">
+    <link rel="canonical" href="online_server.php">
     <meta name="description" content="生存战争联机服务器列表，包括原版生存服、MOD服、商店服等多种类型服务器，加入我们的QQ群获取更多信息。">
     <meta name="keywords" content="生存战争联机服务器,生存战争服务器地址,SC联机服,生存战争MOD服,生存战争原版服">
 </head>
@@ -45,7 +123,7 @@
     <div class="container">
         <div class="row">
             <div class="site-name col-mb-12 col-9">
-                                    <h1 style="font-size:0">生存战争网_SC中文社区<a id="logo" title="生存战争网_SC中文社区" href="http://schub.icu/index.php">
+                                    <h1 style="font-size:0">生存战争网_SC中文社区<a id="logo" title="生存战争网_SC中文社区" href="index.html">
                         <img width="220px" height="64px" src="./scweb_res/logo.png" alt="生存战争网">
                     </a></h1>
                              </div>
@@ -60,8 +138,8 @@
             </div>
             <div class="col-mb-12">
                 <nav id="nav-menu" class="clearfix" role="navigation">
-                    <a title="生存战争网_SC中文社区" href="http://schub.icu/index.php">首页</a><a title="生存战争联机服务器地址列表" href="http://schub.icu/online_server.php" class="active">联机服务器列表</a><a rel="nofollow" target="_blank" title="生存战争-APImod制作教程" href="https://www.yuque.com/u589148/wf2knt">APImod制作教程</a></nav>
-            </div>
+                    <a title="生存战争网_SC中文社区" href="index.html">首页</a><a title="生存战争联机服务器地址列表" href="online_server.php" class="active">联机服务器列表</a><a rel="nofollow" target="_blank" title="生存战争-APImod制作教程" href="https://www.yuque.com/u589148/wf2knt">APImod制作教程</a></nav>
+                </div>
         </div><!-- end .row -->
     </div>
 </header><!-- end #header -->
@@ -71,9 +149,6 @@
             <div class="col-mb-12 col-8" id="main" role="main">
                 <div class="post-content">
                     <?php
-                    // 引入服务器数据文件
-                    include_once 'servers_data.php';
-                    
                     // 获取当前选择的服务器类型
                     $selected_type = isset($_GET['type']) ? $_GET['type'] : '';
                     $filtered_servers = get_servers($selected_type);

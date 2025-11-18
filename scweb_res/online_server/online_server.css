@@ -1,0 +1,128 @@
+/* 加群链接样式 */
+.join-group {
+  text-align: center;
+  margin: 20px 0;
+  padding: 15px;
+  background-color: #f0f7ff;
+  border-radius: 8px;
+  border: 1px solid #d0e3ff;
+}
+
+.group-link {
+  display: inline-block;
+  background-color: #12b7f5;
+  color: white;
+  padding: 8px 16px;
+  border-radius: 4px;
+  text-decoration: none;
+  font-weight: 500;
+  transition: background-color 0.3s ease;
+  margin: 0 5px;
+}
+
+.group-link:hover {
+  background-color: #0e98d5;
+  color: white;
+}
+
+/* 服务器样式 */
+.server-stats {
+  margin: 20px 0;
+  padding: 15px;
+  background-color: #f5f5f5;
+  border-radius: 6px;
+}
+
+.server-filters {
+  margin: 20px 0;
+}
+
+.filter-link {
+  display: inline-block;
+  padding: 8px 16px;
+  margin: 0 5px 5px 0;
+  background-color: #f0f0f0;
+  border-radius: 4px;
+  text-decoration: none;
+  color: #333;
+  transition: all 0.3s ease;
+}
+
+.filter-link:hover, .filter-link.active {
+  background-color: #12b7f5;
+  color: white;
+}
+
+.server-list {
+  margin-top: 20px;
+}
+
+.server-item {
+  padding: 15px;
+  margin-bottom: 10px;
+  background-color: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  transition: box-shadow 0.3s ease;
+}
+
+.server-item:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.server-name {
+  font-weight: bold;
+  display: block;
+  margin-bottom: 5px;
+}
+
+.server-type-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  margin-right: 8px;
+  background-color: #12b7f5;
+  color: white;
+  border-radius: 3px;
+  font-size: 12px;
+  font-weight: normal;
+}
+
+.server-type-badge[data-type="mod"] {
+  background-color: #722ed1;
+}
+
+.server-type-badge[data-type="store"] {
+  background-color: #fa8c16;
+}
+
+.server-ip {
+  display: block;
+  margin: 5px 0;
+  color: #12b7f5;
+  cursor: pointer;
+}
+
+.copy-hint {
+  font-size: 12px;
+  color: #999;
+  margin-left: 5px;
+}
+
+.server-group {
+  display: block;
+  margin: 5px 0;
+  color: #666;
+}
+
+.server-note {
+  display: block;
+  margin: 5px 0;
+  color: #999;
+  font-size: 14px;
+}
+
+.no-servers {
+  text-align: center;
+  padding: 40px;
+  color: #999;
+}
