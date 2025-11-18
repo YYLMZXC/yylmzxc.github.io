@@ -346,6 +346,49 @@ class LanguageManager {
             const lang = button.getAttribute('data-lang');
             button.classList.toggle('active', lang === this.currentLang);
         });
+        
+        // 添加波纹效果到语言按钮
+        this.addRippleEffect();
+    }
+
+    // 添加波纹效果
+    addRippleEffect() {
+        const buttons = document.querySelectorAll('.language-btn');
+        
+        buttons.forEach(button => {
+            // 移除之前的事件监听器（避免重复添加）
+            button.removeEventListener('click', this.handleRippleClick);
+        });
+        
+        buttons.forEach(button => {
+            button.addEventListener('click', this.handleRippleClick.bind(this));
+        });
+    }
+
+    // 处理波纹点击事件
+    handleRippleClick(e) {
+        this.createRipple(e);
+    }
+
+    // 创建波纹效果
+    createRipple(e) {
+        const button = e.currentTarget;
+        const circle = document.createElement('span');
+        const diameter = Math.max(button.clientWidth, button.clientHeight);
+        const radius = diameter / 2;
+
+        circle.style.width = circle.style.height = `${diameter}px`;
+        circle.style.left = `${e.clientX - button.offsetLeft - radius}px`;
+        circle.style.top = `${e.clientY - button.offsetTop - radius}px`;
+        circle.classList.add('ripple');
+
+        // 清除之前的波纹效果
+        const rippleElements = button.getElementsByClassName('ripple');
+        while (rippleElements[0]) {
+            rippleElements[0].remove();
+        }
+
+        button.appendChild(circle);
     }
 
     // 处理搜索
