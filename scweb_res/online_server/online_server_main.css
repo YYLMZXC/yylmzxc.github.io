@@ -677,6 +677,35 @@ body {
   /* 侧边栏底部添加更大间距 */
   #sidebar {
     margin-bottom: 100px;
+  }
+}
+
+/* 加群链接样式 */
+.join-group {
+  text-align: center;
+  margin: 20px 0;
+  padding: 15px;
+  background-color: #f0f7ff;
+  border-radius: 8px;
+  border: 1px solid #d0e3ff;
+}
+
+.group-link {
+  display: inline-block;
+  background-color: #12b7f5;
+  color: white;
+  padding: 8px 16px;
+  border-radius: 4px;
+  text-decoration: none;
+  font-weight: 500;
+  transition: background-color 0.3s ease;
+  margin: 0 5px;
+}
+
+.group-link:hover {
+  background-color: #0e98d5;
+  color: white;
+}
     display: block;
     width: 100%;
   }
