@@ -111,7 +111,7 @@ function add_server($name, $ip, $group, $note = '', $type = 'original') {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="applicable-device" content="pc,mobile">
     <title>生存战争联机服务器列表 | SC中文社区</title>
-    <link rel="stylesheet" href="./scweb_res/main.css">
+    <link rel="stylesheet" href="./scweb_res/online_server/online_server_main.css">
     <link rel="stylesheet" href="./scweb_res/online_server/online_server.css">
     <link rel="icon" type="image/x-icon" href="./scweb_res/favicon.ico">
     <link rel="canonical" href="online_server.php">

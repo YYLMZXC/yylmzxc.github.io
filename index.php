@@ -12,7 +12,7 @@
     <meta name="keywords" data-i18n="page.keywords" content="生存战争,SC中文社区,生存战争MOD,生存战争联机版,生存战争服务器,生存战争攻略">
     
     <!-- 资源文件 -->
-    <link rel="stylesheet" href="./scweb_res/main.css">
+    <link rel="stylesheet" href="./scweb_res/index/index_main.css">
     <link rel="stylesheet" href="./scweb_res/index/index.css">
     <link rel="icon" type="image/x-icon" href="./scweb_res/favicon.ico">
 </head>
