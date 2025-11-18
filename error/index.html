@@ -1,67 +1,286 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="utf-8">
-  <title>站点创建成功-phpstudy for windows</title>
-  <meta name="keywords" content="">
-  <meta name="description" content="">
-  <meta name="renderer" content="webkit">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black"> 
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="format-detection" content="telephone=no">
-  <meta HTTP-EQUIV="pragma" CONTENT="no-cache"> 
-  <meta HTTP-EQUIV="Cache-Control" CONTENT="no-store, must-revalidate"> 
-  <meta HTTP-EQUIV="expires" CONTENT="Wed, 26 Feb 1997 08:21:57 GMT"> 
-  <meta HTTP-EQUIV="expires" CONTENT="0">
-  <style>
-    body{
-      font: 16px arial,'Microsoft Yahei','Hiragino Sans GB',sans-serif;
-    }
-    h1{
-      margin: 0;
-      color:#3a87ad;
-      font-size: 26px;
-    }
-    .content{
-      width: 45%;
-      margin: 0 auto;
-     
-    }
-    .content >div{
-      margin-top: 200px;
-      padding: 20px;
-      background: #d9edf7;  
-      border-radius: 12px;
-    }
-    .content dl{
-      color: #2d6a88;
-      line-height: 40px;
-    } 
-    .content div div {
-      padding-bottom: 20px;
-      text-align:center;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>错误页面索引 | scweb</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .header {
+            text-align: center;
+            padding: 3rem 2rem 2rem;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem 3rem;
+        }
+
+        .error-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .error-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 2rem;
+            text-decoration: none;
+            color: inherit;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .error-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+            background: rgba(255, 255, 255, 1);
+        }
+
+        .error-number {
+            font-size: 3rem;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 0.5rem;
+            display: block;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .error-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+        }
+
+        .error-description {
+            color: #7f8c8d;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .client-errors {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .server-errors {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 2rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .section-title {
+            color: white;
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .back-home {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1rem 2rem;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: 600;
+            margin: 2rem auto;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+            text-align: center;
+            display: block;
+            width: fit-content;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .back-home:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .footer {
+            text-align: center;
+            padding: 2rem;
+            color: rgba(255, 255, 255, 0.8);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            margin-top: 3rem;
+        }
+
+        .footer a {
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .header p {
+                font-size: 1rem;
+            }
+            
+            .error-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .container {
+                padding: 0 1rem 2rem;
+            }
+            
+            .client-errors, .server-errors {
+                padding: 1.5rem;
+            }
+        }
+    </style>
 </head>
 <body>
-  <div class="content">
-      <div>
-           <h1>站点创建成功</h1>
-        <dl>
-          <dt>目录说明:</dt>
-          <dd>1：网站目录：/phpstudy安装目录/www/站点域名/</dd>
-          <dd>2：错误提示页面：/phpstudy安装目录/www/站点域名/error/</dd>
-          <dd>3：你可以删除或者修改该目录下的所有文件</dd>
-          <dt>操作注意事项：</dt>
-          <dd>1：新建站点、数据库、FTP可在phpstudy面板操作，数据库可在环境中下载数据库管理软件等；</dd>
-          <dd>2：将网站程序放到站点目录时请使用复制，剪切可能造成程序文件权限不正确；</dd>
-         
-        </dl>
-        <div>使用手册，视频教程，BUG反馈，官网地址： <a href="v.tudouzxc.icu"  target="_blank">v.tudouzxc.icu</a> </div>
-    
-      </div>
-    </div> 
+    <div class="header">
+        <h1>🔧 错误页面索引</h1>
+        <p>这里是所有HTTP错误页面的集合，您可以点击任意卡片查看对应的错误页面详情。</p>
+    </div>
+
+    <div class="container">
+        <!-- 客户端错误 -->
+        <div class="client-errors">
+            <h2 class="section-title">📋 客户端错误 (4xx)</h2>
+            <div class="error-grid">
+                <a href="400.html" class="error-card">
+                    <span class="error-number">400</span>
+                    <h3 class="error-title">Bad Request</h3>
+                    <p class="error-description">请求格式错误或包含无效语法，服务器无法理解请求。</p>
+                </a>
+
+                <a href="403.html" class="error-card">
+                    <span class="error-number">403</span>
+                    <h3 class="error-title">Forbidden</h3>
+                    <p class="error-description">服务器理解请求但拒绝执行，访问被禁止。</p>
+                </a>
+
+                <a href="404.html" class="error-card">
+                    <span class="error-number">404</span>
+                    <h3 class="error-title">Not Found</h3>
+                    <p class="error-description">请求的资源在服务器上不存在或已被移除。</p>
+                </a>
+
+                <a href="501.html" class="error-card">
+                    <span class="error-number">501</span>
+                    <h3 class="error-title">Not Implemented</h3>
+                    <p class="error-description">服务器不支持请求的功能或方法。</p>
+                </a>
+            </div>
+        </div>
+
+        <!-- 服务器错误 -->
+        <div class="server-errors">
+            <h2 class="section-title">⚠️ 服务器错误 (5xx)</h2>
+            <div class="error-grid">
+                <a href="500.html" class="error-card">
+                    <span class="error-number">500</span>
+                    <h3 class="error-title">Internal Server Error</h3>
+                    <p class="error-description">服务器内部错误，无法完成请求。</p>
+                </a>
+
+                <a href="502.html" class="error-card">
+                    <span class="error-number">502</span>
+                    <h3 class="error-title">Bad Gateway</h3>
+                    <p class="error-description">网关或代理服务器收到无效响应。</p>
+                </a>
+
+                <a href="503.html" class="error-card">
+                    <span class="error-number">503</span>
+                    <h3 class="error-title">Service Unavailable</h3>
+                    <p class="error-description">服务器暂时不可用，可能过载或正在维护。</p>
+                </a>
+
+                <a href="504.html" class="error-card">
+                    <span class="error-number">504</span>
+                    <h3 class="error-title">Gateway Timeout</h3>
+                    <p class="error-description">网关或代理服务器等待上游服务器响应时超时。</p>
+                </a>
+
+                <a href="505.html" class="error-card">
+                    <span class="error-number">505</span>
+                    <h3 class="error-title">HTTP Version Not Supported</h3>
+                    <p class="error-description">服务器不支持请求的HTTP协议版本。</p>
+                </a>
+
+                <a href="506.html" class="error-card">
+                    <span class="error-number">506</span>
+                    <h3 class="error-title">Variant Also Negotiates</h3>
+                    <p class="error-description">服务器存在内部配置错误。</p>
+                </a>
+
+                <a href="507.html" class="error-card">
+                    <span class="error-number">507</span>
+                    <h3 class="error-title">Insufficient Storage</h3>
+                    <p class="error-description">服务器无法存储完成请求所必须的内容。</p>
+                </a>
+
+                <a href="509.html" class="error-card">
+                    <span class="error-number">509</span>
+                    <h3 class="error-title">Bandwidth Limit Exceeded</h3>
+                    <p class="error-description">网站流量超出购买方案限制。</p>
+                </a>
+
+                <a href="510.html" class="error-card">
+                    <span class="error-number">510</span>
+                    <h3 class="error-title">Not Extended</h3>
+                    <p class="error-description">获取资源所需要的策略并没有被满足。</p>
+                </a>
+            </div>
+        </div>
+
+        <a href="/" class="back-home">🏠 返回首页</a>
+    </div>
+
+    <div class="footer">
+        <p>如果您需要帮助，请联系我们的技术支持团队</p>
+        <p>访问我们的文档和教程：<a href="https://v.tudouzxc.icu" target="_blank">v.tudouzxc.icu</a></p>
+    </div>
 </body>
 </html>
