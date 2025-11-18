@@ -113,8 +113,7 @@
         <p class="copyright"><br>© 2025 生存战争网</p>
     </footer>
 
-    <!-- 外部脚本 -->
-    <script src="https://hm.baidu.com/hm.js?49508fcc51529f79d0f7e42bd08ed491"></script>
+    
     
     <!-- 本地脚本 -->
     <script src="./scweb_res/index/index_languages.js"></script>
