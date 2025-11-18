@@ -138,11 +138,10 @@ button, input, select, textarea {
 #nav-menu {
   margin: 25px 0 0;
   padding: 0;
-  clear: both;
   display: flex;
   flex-wrap: wrap;
   gap: 0;
-  width: 100%;
+  width: calc(100% - 300px); /* 为右上角翻译按钮留出空间 */
   max-width: 100%;
 }
 
@@ -201,10 +200,62 @@ button, input, select, textarea {
   align-items: center;
 }
 
+/* 右上角语言选择器样式 */
+.language-section-top-right {
+  position: absolute;
+  top: 15px;
+  right: 25%;
+  z-index: 1001;
+  background-color: transparent;
+  margin-right: 10px;
+  transform: translateX(0);
+}
+
+.language-section-top-right .language-selector {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+}
+
+.language-section-top-right .language-btn {
+  padding: 6px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background: white;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.language-section-top-right .language-btn:hover {
+  border-color: #007cba;
+  box-shadow: 0 2px 6px rgba(0, 124, 186, 0.2);
+  background: #f8f9fa;
+}
+
+.language-section-top-right .language-btn.active {
+  background-color: #007bff;
+  color: white;
+  border-color: #007bff;
+}
+
+.language-section-top-right .language-btn.active:hover {
+  background-color: #0056b3;
+  border-color: #0056b3;
+}
+
 /* 响应式设计 */
 @media (max-width: 768px) {
   #top-nav-bar {
     padding: 10px 0;
+  }
+  
+  /* 移动端调整导航菜单宽度 */
+  #nav-menu {
+    width: 100%;
+    margin-bottom: 10px;
   }
   
   .nav-menu {
@@ -216,9 +267,24 @@ button, input, select, textarea {
     font-size: 14px;
   }
   
-  .language-section {
+  /* 移动端右上角翻译按钮调整 */
+  .language-section-top-right {
+    position: relative;
+    top: auto;
+    right: auto;
+    display: flex;
     justify-content: center;
+    width: 100%;
     margin-top: 10px;
+  }
+  
+  .language-section-top-right .language-selector {
+    justify-content: center;
+  }
+  
+  .language-section-top-right .language-btn {
+    padding: 8px 14px;
+    font-size: 13px;
   }
 }
 

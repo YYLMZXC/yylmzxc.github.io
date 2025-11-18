@@ -147,26 +147,25 @@ function add_server($name, $ip, $group, $note = '', $type = 'original') {
     </div>
 </header><!-- end #header -->
 
-<!-- 导航栏 - 翻译按钮优先显示 -->
+<!-- 导航栏 -->
 <nav id="top-nav-bar" class="clearfix" role="navigation">
     <div class="container">
         <div class="row">
-            <!-- 语言选择器优先显示 -->
-            <div class="language-section col-mb-12 col-3">
-                <!-- 语言选择器 -->
+            <!-- 导航菜单 -->
+            <div id="nav-menu" class="nav-menu">
+                <a title="生存战争网_SC中文社区" href="index.php" class="i18n-link" data-i18n="nav.home">首页</a>
+                <a title="生存战争联机服务器地址列表" href="online_server.php" class="active i18n-link" data-i18n="nav.serverList">联机服务器列表</a>
+                <a rel="nofollow" target="_blank" title="生存战争-APImod制作教程" href="https://www.yuque.com/u589148/wf2knt" class="i18n-link" data-i18n="nav.apiTutorial">APImod制作教程</a>
+            </div>
+            
+            <!-- 语言选择器放在右上角 -->
+            <div class="language-section-top-right">
                 <div class="language-selector">
                     <button class="language-btn active" data-lang="zh" title="切换到中文">🇨🇳 中文</button>
                     <button class="language-btn" data-lang="en" title="Switch to English">🇺🇸 English</button>
                     <button class="language-btn" data-lang="ru" title="Переключиться на Русский">🇷🇺 Русский</button>
                 </div>
             </div>
-            
-            <!-- 导航菜单 -->
-<div id="nav-menu" class="nav-menu">
-    <a title="生存战争网_SC中文社区" href="index.php" class="i18n-link" data-i18n="nav.home">首页</a>
-    <a title="生存战争联机服务器地址列表" href="online_server.php" class="active i18n-link" data-i18n="nav.serverList">联机服务器列表</a>
-    <a rel="nofollow" target="_blank" title="生存战争-APImod制作教程" href="https://www.yuque.com/u589148/wf2knt" class="i18n-link" data-i18n="nav.apiTutorial">APImod制作教程</a>
-</div>
         </div><!-- end .row -->
     </div>
 </nav><!-- end #top-nav-bar -->
