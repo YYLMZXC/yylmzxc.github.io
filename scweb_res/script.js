@@ -227,11 +227,14 @@ class LanguageManager {
             shortUrl: document.getElementById('shortUrl')
         };
 
+        // 获取干净的URL地址（不包含查询参数）
+        const cleanUrl = window.location.origin + window.location.pathname;
+
         Object.keys(elements).forEach(key => {
             const element = elements[key];
             if (element && siteData[key]) {
                 if (key === 'currentAddress') {
-                    element.textContent = siteData[key] + window.location.href;
+                    element.textContent = siteData[key] + cleanUrl;
                 } else if (key === 'shortUrl') {
                     element.textContent = siteData[key] + 'https://scnet.top/';
                 }
