@@ -110,20 +110,23 @@ function add_server($name, $ip, $group, $note = '', $type = 'original') {
     <meta name="renderer" content="webkit">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="applicable-device" content="pc,mobile">
-    <title>生存战争联机服务器列表 | SC中文社区</title>
+    <title data-i18n="page.title">生存战争联机服务器列表 | SC中文社区</title>
     <link rel="stylesheet" href="./scweb_res/online_server/online_server_main.css">
     <link rel="stylesheet" href="./scweb_res/online_server/online_server.css">
     <link rel="icon" type="image/x-icon" href="./scweb_res/favicon.ico">
     <link rel="canonical" href="online_server.php">
     <meta name="description" content="生存战争联机服务器列表，包括原版生存服、MOD服、商店服等多种类型服务器，加入我们的QQ群获取更多信息。">
     <meta name="keywords" content="生存战争联机服务器,生存战争服务器地址,SC联机服,生存战争MOD服,生存战争原版服">
+    
+    <!-- 多语言支持 -->
+    <script src="./scweb_res/online_server/online_server_languages.js"></script>
 </head>
 <body>
 <header id="header" class="clearfix">
     <div class="container">
         <div class="row">
             <div class="site-name col-mb-12 col-9">
-                                    <h1 style="font-size:0">生存战争网_SC中文社区<a id="logo" title="生存战争网_SC中文社区" href="index.html">
+                                    <h1 style="font-size:0">生存战争网_SC中文社区<a id="logo" title="生存战争网_SC中文社区" href="index.php">
                         <img width="220px" height="64px" src="./scweb_res/logo.png" alt="生存战争网">
                     </a></h1>
                              </div>
@@ -138,8 +141,20 @@ function add_server($name, $ip, $group, $note = '', $type = 'original') {
             </div>
             <div class="col-mb-12">
                 <nav id="nav-menu" class="clearfix" role="navigation">
-                    <a title="生存战争网_SC中文社区" href="index.html">首页</a><a title="生存战争联机服务器地址列表" href="online_server.php" class="active">联机服务器列表</a><a rel="nofollow" target="_blank" title="生存战争-APImod制作教程" href="https://www.yuque.com/u589148/wf2knt">APImod制作教程</a></nav>
+                    <a title="生存战争网_SC中文社区" href="index.php" data-i18n="nav.home">首页</a>
+                    <a title="生存战争联机服务器地址列表" href="online_server.php" class="active" data-i18n="nav.serverList">联机服务器列表</a>
+                    <a rel="nofollow" target="_blank" title="生存战争-APImod制作教程" href="https://www.yuque.com/u589148/wf2knt" data-i18n="nav.apiTutorial">APImod制作教程</a>
+                </nav>
+            </div>
+            
+            <div class="col-mb-12">
+                <!-- 语言选择器 -->
+                <div class="language-selector">
+                    <button class="language-btn active" data-lang="zh" title="切换到中文">🇨🇳 中文</button>
+                    <button class="language-btn" data-lang="en" title="Switch to English">🇺🇸 English</button>
+                    <button class="language-btn" data-lang="ru" title="Переключиться на Русский">🇷🇺 Русский</button>
                 </div>
+            </div>
         </div><!-- end .row -->
     </div>
 </header><!-- end #header -->
@@ -161,16 +176,19 @@ function add_server($name, $ip, $group, $note = '', $type = 'original') {
                     ?>
                     
                     <div class="server-stats">
-                        <h3>服务器统计</h3>
-                        <p>总计：<?php echo $total_servers; ?> 个服务器 | 原版：<?php echo $original_count; ?> 个 | 模组：<?php echo $mod_count; ?> 个 | 商店：<?php echo $store_count; ?> 个</p>
+                        <h3 data-i18n="stats.title">服务器统计</h3>
+                        <p><span data-i18n="stats.total">总计：</span><?php echo $total_servers; ?> <span data-i18n="stats.servers">个服务器</span> | 
+                           <span data-i18n="stats.original">原版：</span><?php echo $original_count; ?> <span data-i18n="stats.servers">个服务器</span> | 
+                           <span data-i18n="stats.mod">模组：</span><?php echo $mod_count; ?> <span data-i18n="stats.servers">个服务器</span> | 
+                           <span data-i18n="stats.store">商店：</span><?php echo $store_count; ?> <span data-i18n="stats.servers">个服务器</span></p>
                     </div>
                     
                     <div class="server-filters">
-                        <h4>筛选服务器：</h4>
-                        <a href="online_server.php" class="filter-link <?php echo empty($selected_type) ? 'active' : ''; ?>">全部服务器</a>
-                        <a href="online_server.php?type=original" class="filter-link <?php echo $selected_type == 'original' ? 'active' : ''; ?>">原版生存</a>
-                        <a href="online_server.php?type=mod" class="filter-link <?php echo $selected_type == 'mod' ? 'active' : ''; ?>">模组服务器</a>
-                        <a href="online_server.php?type=store" class="filter-link <?php echo $selected_type == 'store' ? 'active' : ''; ?>">商店服务器</a>
+                        <h4 data-i18n="filters.title">筛选服务器：</h4>
+                        <a href="online_server.php" class="filter-link <?php echo empty($selected_type) ? 'active' : ''; ?>" data-i18n="filters.allServers">全部服务器</a>
+                        <a href="online_server.php?type=original" class="filter-link <?php echo $selected_type == 'original' ? 'active' : ''; ?>" data-i18n="filters.originalSurvival">原版生存</a>
+                        <a href="online_server.php?type=mod" class="filter-link <?php echo $selected_type == 'mod' ? 'active' : ''; ?>" data-i18n="filters.modServer">模组服务器</a>
+                        <a href="online_server.php?type=store" class="filter-link <?php echo $selected_type == 'store' ? 'active' : ''; ?>" data-i18n="filters.storeServer">商店服务器</a>
                     </div>
                     
                     <div class="server-list">
@@ -178,15 +196,15 @@ function add_server($name, $ip, $group, $note = '', $type = 'original') {
                             <?php foreach ($filtered_servers as $server): ?>
                             <div class="server-item">
                                 <span class="server-name">
-                                    <span class="server-type-badge" data-type="<?php echo $server['type']; ?>">
+                                    <span class="server-type-badge" data-type="<?php echo $server['type']; ?>" data-i18n="server.types.<?php echo $server['type']; ?>">
                                         <?php echo get_server_type_name($server['type']); ?>
                                     </span>
                                     <?php echo $server['name']; ?>
                                 </span>
-                                <span class="server-ip" data-ip="<?php echo $server['ip']; ?>">
-                                    <b><?php echo $server['ip']; ?></b> <span class="copy-hint">点击复制</span>
+                                <span class="server-ip" data-ip="<?php echo $server['ip']; ?>" title="点击复制IP" data-i18n="server.clickToCopy" data-i18n-attr="title">
+                                    <b><?php echo $server['ip']; ?></b> <span class="copy-hint" data-i18n="server.clickToCopy">点击复制</span>
                                 </span>
-                                <span class="server-group">群号：<?php echo $server['group']; ?></span>
+                                <span class="server-group"><span data-i18n="server.groupNumber">群号：</span><?php echo $server['group']; ?></span>
                                 <?php if (!empty($server['note'])): ?>
                                 <span class="server-note"><?php echo $server['note']; ?></span>
                                 <?php endif; ?>
@@ -194,7 +212,7 @@ function add_server($name, $ip, $group, $note = '', $type = 'original') {
                             <?php endforeach; ?>
                         <?php else: ?>
                             <div class="no-servers">
-                                <p>暂无符合条件的服务器</p>
+                                <p data-i18n="server.noServers">暂无符合条件的服务器</p>
                             </div>
                         <?php endif; ?>
                     </div>
@@ -203,11 +221,19 @@ function add_server($name, $ip, $group, $note = '', $type = 'original') {
             
             <div class="col-mb-12 col-4" id="sidebar" role="complementary">
                 <div class="join-group">
-                    <p>欢迎加入我们的交流群：<a href="https://qm.qq.com/q/IhNyeKSe8C" target="_blank" class="group-link">生存战争34服务器联机交流群</a>（群号：826823481）</p>
+                    <p>
+                        <span data-i18n="server.joinGroup">欢迎加入我们的交流群：</span>
+                        <a href="https://qm.qq.com/q/IhNyeKSe8C" target="_blank" class="group-link" data-i18n="server.groups.main">生存战争34服务器联机交流群</a>
+                        （<span data-i18n="server.groupNumber">群号：</span><span data-i18n="server.groups.mainNumber">826823481</span>）
+                    </p>
                 </div>
                 
                 <div class="join-group" style="background-color: #f0f7ff; margin-top: 20px;">
-                    <p>联机服列表管理办事处：<a href="https://qm.qq.com/q/vvbsoOvoPu" target="_blank" class="group-link">开服申请点击加入</a>（群号：893387376）</p>
+                    <p>
+                        <span data-i18n="server.managementOffice">联机服列表管理办事处：</span>
+                        <a href="https://qm.qq.com/q/vvbsoOvoPu" target="_blank" class="group-link" data-i18n="server.groups.management">开服申请点击加入</a>
+                        （<span data-i18n="server.groupNumber">群号：</span><span data-i18n="server.groups.managementNumber">893387376</span>）
+                    </p>
                 </div>
             </div>
         </div><!-- end .row -->
