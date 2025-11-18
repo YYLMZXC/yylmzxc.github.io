@@ -13,15 +13,15 @@
     <!-- 通过自有函数输出HTML头部信息 -->
     <meta name="description" content="生存战争网是中国最大的SC中文社区，提供游戏攻略、Mod模组、地图存档、材质包、皮肤和家具等资源下载，以及活跃的联机服务器。">
     <meta name="keywords" content="生存战争,SC中文社区,生存战争MOD,生存战争联机版,生存战争服务器,生存战争攻略">
-    <!-- 基于Cloudflare Workers AI翻译 -->
+    <!-- 简单语言切换 -->
     <style>
-        .translate-section {
+        .language-section {
             margin-top: 10px;
             text-align: center;
         }
-        .translate-select {
+        .language-select {
             width: 100%;
-            max-width: 280px;
+            max-width: 180px;
             padding: 8px 12px;
             border: 2px solid #e0e6ed;
             border-radius: 8px;
@@ -32,24 +32,19 @@
             transition: all 0.3s ease;
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
-        .translate-select:hover {
+        .language-select:hover {
             border-color: #667eea;
             box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
         }
-        .translate-select:focus {
+        .language-select:focus {
             outline: none;
             border-color: #667eea;
             box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
-        .translate-select option {
+        .language-select option {
             padding: 8px;
             background: #ffffff;
             color: #333;
-        }
-        #google_translate_element {
-            position: absolute;
-            left: -9999px;
-            visibility: hidden;
         }
     </style>
 </head>
@@ -71,46 +66,12 @@
                     <input type="text" id="s" name="ss" class="text" placeholder="输入关键字搜索">
                     <button type="submit" class="submit">搜索</button>
                 </form>
-                <div class="translate-section">
-                    <select class="translate-select" onchange="translatePage(this.value)">
-                        <option value="">🌐 选择语言</option>
-                        <option value="zh-CN">🇨🇳 中文（简体）</option>
+                <div class="language-section">
+                    <select class="language-select" onchange="switchLanguage(this.value)">
+                        <option value="zh">🇨🇳 中文</option>
                         <option value="en">🇺🇸 English</option>
-                        <option value="zh-TW">🇹🇼 中文（繁体）</option>
-                        <option value="ja">🇯🇵 日本語</option>
-                        <option value="ko">🇰🇷 한국어</option>
-                        <option value="fr">🇫🇷 Français</option>
-                        <option value="de">🇩🇪 Deutsch</option>
-                        <option value="es">🇪🇸 Español</option>
-                        <option value="it">🇮🇹 Italiano</option>
-                        <option value="pt">🇵🇹 Português</option>
                         <option value="ru">🇷🇺 Русский</option>
-                        <option value="ar">🇸🇦 العربية</option>
-                        <option value="hi">🇮🇳 हिन्दी</option>
-                        <option value="th">🇹🇭 ไทย</option>
-                        <option value="vi">🇻🇳 Tiếng Việt</option>
-                        <option value="tr">🇹🇷 Türkçe</option>
-                        <option value="nl">🇳🇱 Nederlands</option>
-                        <option value="sv">🇸🇪 Svenska</option>
-                        <option value="no">🇳🇴 Norsk</option>
-                        <option value="da">🇩🇰 Dansk</option>
-                        <option value="fi">🇫🇮 Suomi</option>
-                        <option value="pl">🇵🇱 Polski</option>
-                        <option value="cs">🇨🇿 Čeština</option>
-                        <option value="hu">🇭🇺 Magyar</option>
-                        <option value="ro">🇷🇴 Română</option>
-                        <option value="bg">🇧🇬 Български</option>
-                        <option value="hr">🇭🇷 Hrvatski</option>
-                        <option value="sk">🇸🇰 Slovenčina</option>
-                        <option value="sl">🇸🇮 Slovenščina</option>
-                        <option value="et">🇪🇪 Eesti</option>
-                        <option value="lv">🇱🇻 Latviešu</option>
-                        <option value="lt">🇱🇹 Lietuvių</option>
-                        <option value="el">🇬🇷 Ελληνικά</option>
                     </select>
-                    <div id="translation-status" style="font-size: 12px; margin-top: 5px; color: #999;">
-                        🔍 正在检查翻译服务...
-                    </div>
                 </div>
             </div>
             <div class="col-mb-12">
@@ -177,259 +138,234 @@
   })();
 </script>
 
-<!-- Cloudflare Workers AI翻译服务 -->
+<!-- 简单语言切换脚本 -->
 
-<!-- Cloudflare Workers AI翻译服务 -->
+<!-- 简单语言切换脚本 -->
 <script type="text/javascript">
-    // Cloudflare Workers翻译配置
-    var translatorConfig = {
-        from: "zh",      // 源语言：中文
-        workerUrl: "https://translation.yylmzxc.workers.dev/", // Cloudflare Workers翻译服务
-        supportedLanguages: {
-            "": "🌐 选择语言",
-            "zh": "🇨🇳 中文（简体）",
-            "zh-TW": "🇹🇼 中文（繁体）", 
-            "en": "🇺🇸 English",
-            "ja": "🇯🇵 日本語",
-            "ko": "🇰🇷 한국어",
-            "fr": "🇫🇷 Français",
-            "de": "🇩🇪 Deutsch",
-            "es": "🇪🇸 Español",
-            "it": "🇮🇹 Italiano",
-            "pt": "🇵🇹 Português",
-            "ru": "🇷🇺 Русский",
-            "ar": "🇸🇦 العربية",
-            "hi": "🇮🇳 हिन्दी",
-            "th": "🇹🇭 ไทย",
-            "vi": "🇻🇳 Tiếng Việt",
-            "tr": "🇹🇷 Türkçe",
-            "nl": "🇳🇱 Nederlands",
-            "sv": "🇸🇪 Svenska",
-            "no": "🇳🇴 Norsk",
-            "da": "🇩🇰 Dansk",
-            "fi": "🇫🇮 Suomi",
-            "pl": "🇵🇱 Polski",
-            "cs": "🇨🇿 Čeština",
-            "hu": "🇭🇺 Magyar",
-            "ro": "🇷🇴 Română",
-            "bg": "🇧🇬 Български",
-            "hr": "🇭🇷 Hrvatski",
-            "sk": "🇸🇰 Slovenčina",
-            "sl": "🇸🇮 Slovenščina",
-            "et": "🇪🇪 Eesti",
-            "lv": "🇱🇻 Latviešu",
-            "lt": "🇱🇹 Lietuvių",
-            "el": "🇬🇷 Ελληνικά"
+    // 语言配置
+    var languageConfig = {
+        current: 'zh',
+        languages: {
+            'zh': '🇨🇳 中文',
+            'en': '🇺🇸 English', 
+            'ru': '🇷🇺 Русский'
         }
     };
 
-    // 翻译页面到指定语言
-    async function translatePage(lang) {
-        if (!lang || lang === "") return; // 如果选择的是"选择语言"，不执行翻译
+    // 简单语言切换函数
+    function switchLanguage(lang) {
+        if (!lang || lang === languageConfig.current) return;
         
-        console.log('准备使用Cloudflare Worker翻译到:', lang);
+        languageConfig.current = lang;
         
-        // 获取页面内容进行翻译（排除script和style标签）
-        const excludeTags = ['script', 'style', 'meta', 'link'];
-        let pageContent = '';
+        // 切换语言属性
+        document.documentElement.lang = lang;
         
-        // 使用DOMParser来安全地提取文本内容
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(document.documentElement.outerHTML, 'text/html');
-        
-        // 移除不需要翻译的元素
-        excludeTags.forEach(tag => {
-            const elements = doc.querySelectorAll(tag);
-            elements.forEach(el => el.remove());
-        });
-        
-        // 获取主要内容文本
-        const translatableElements = doc.querySelectorAll('h1, h2, h3, h4, h5, h6, p, a, span, div, li, td, th, option');
-        translatableElements.forEach(el => {
-            if (el.textContent.trim()) {
-                pageContent += el.textContent.trim() + '\n';
-            }
-        });
-        
-        if (!pageContent.trim()) {
-            alert('没有找到可翻译的内容');
-            return;
+        // 根据语言选择更新内容
+        switch(lang) {
+            case 'zh':
+                setChineseContent();
+                break;
+            case 'en':
+                setEnglishContent();
+                break;
+            case 'ru':
+                setRussianContent();
+                break;
         }
         
-        try {
-            // 显示翻译进度提示
-            showTranslationProgress();
+        console.log('语言已切换到:', languageConfig.languages[lang]);
+    }
+
+    // 设置中文内容
+    function setChineseContent() {
+        document.title = "生存战争网 - 首页 | SC中文社区官方网站";
+        document.querySelector('meta[name="description"]').setAttribute('content', '生存战争网是中国最大的SC中文社区，提供游戏攻略、Mod模组、地图存档、材质包、皮肤和家具等资源下载，以及活跃的联机服务器。');
+        document.querySelector('meta[name="keywords"]').setAttribute('content', '生存战争,SC中文社区,生存战争MOD,生存战争联机版,生存战争服务器,生存战争攻略');
+    }
+
+    // 设置英语内容
+    function setEnglishContent() {
+        document.title = "SurvivalCraft Web - Home | SC English Community Official Website";
+        document.querySelector('meta[name="description"]').setAttribute('content', 'SurvivalCraft Web is the largest SC English community, providing game guides, Mods, map archives, texture packs, skins and furniture downloads, as well as active multiplayer servers.');
+        document.querySelector('meta[name="keywords"]').setAttribute('content', 'SurvivalCraft,SC English Community,SurvivalCraft MOD,SurvivalCraft Online Version,SurvivalCraft Server,SurvivalCraft Guide');
+        
+        // 更新导航菜单
+        const navLinks = document.querySelectorAll('#nav-menu a');
+        if (navLinks.length >= 3) {
+            navLinks[0].textContent = 'Home';
+            navLinks[1].textContent = 'Server List';
+            navLinks[2].textContent = 'API Mod Tutorial';
+        }
+        
+        // 更新搜索提示
+        const searchInput = document.querySelector('#s');
+        if (searchInput) {
+            searchInput.placeholder = 'Enter keywords to search';
+        }
+        
+        // 更新搜索按钮
+        const searchButton = document.querySelector('.submit');
+        if (searchButton) {
+            searchButton.textContent = 'Search';
+        }
+        
+        // 更新分类选项
+        const searchSelect = document.querySelector('.search-select');
+        if (searchSelect) {
+            const options = searchSelect.querySelectorAll('option');
+            options[0].textContent = 'All Categories';
+            if (options.length > 1) {
+                options[1].textContent = 'Plugin Mod Downloads';
+                options[2].textContent = 'Online Mod Downloads';
+                options[3].textContent = 'Game History Downloads';
+                options[4].textContent = 'Texture Pack Downloads';
+                options[5].textContent = 'Furniture Pack Downloads';
+                options[6].textContent = 'Skin Collection Downloads';
+                options[7].textContent = 'Map Archive Downloads';
+                options[8].textContent = 'Game Guides';
+            }
+        }
+        
+        // 更新页面标题
+        const siteName = document.querySelector('.site-name h1');
+        if (siteName) {
+            siteName.innerHTML = 'SurvivalCraft Web_SC English Community<a id="logo" title="SurvivalCraft Web_SC English Community" href="http://schub.icu/index.php"><img width="220px" height="64px" src="./scweb_res/logo.png" alt="SurvivalCraft Web"></a>';
+        }
+        
+        // 更新链接文本
+        updateLinkTexts('en');
+    }
+
+    // 设置俄语内容
+    function setRussianContent() {
+        document.title = "SurvivalCraft Web - Главная | SC Русское Сообщество Официальный Сайт";
+        document.querySelector('meta[name="description"]').setAttribute('content', 'SurvivalCraft Web - крупнейшее SC русское сообщество, предоставляющее игровые руководства, моды, карты, текстуры, скины и мебель, а также активные многопользовательские серверы.');
+        document.querySelector('meta[name="keywords"]').setAttribute('content', 'SurvivalCraft,SC Русское Сообщество,SurvivalCraft MOD,SurvivalCraft Онлайн Версия,SurvivalCraft Сервер,SurvivalCraft Руководство');
+        
+        // 更新导航菜单
+        const navLinks = document.querySelectorAll('#nav-menu a');
+        if (navLinks.length >= 3) {
+            navLinks[0].textContent = 'Главная';
+            navLinks[1].textContent = 'Список Серверов';
+            navLinks[2].textContent = 'API Mod Урок';
+        }
+        
+        // 更新搜索提示
+        const searchInput = document.querySelector('#s');
+        if (searchInput) {
+            searchInput.placeholder = 'Введите ключевые слова для поиска';
+        }
+        
+        // 更新搜索按钮
+        const searchButton = document.querySelector('.submit');
+        if (searchButton) {
+            searchButton.textContent = 'Поиск';
+        }
+        
+        // 更新分类选项
+        const searchSelect = document.querySelector('.search-select');
+        if (searchSelect) {
+            const options = searchSelect.querySelectorAll('option');
+            options[0].textContent = 'Все Категории';
+            if (options.length > 1) {
+                options[1].textContent = 'Плагин Мод Скачать';
+                options[2].textContent = 'Онлайн Мод Скачать';
+                options[3].textContent = 'История Игры Скачать';
+                options[4].textContent = 'Текстура Пак Скачать';
+                options[5].textContent = 'Мебель Пак Скачать';
+                options[6].textContent = 'Скин Коллекция Скачать';
+                options[7].textContent = 'Карта Архив Скачать';
+                options[8].textContent = 'Игровые Руководства';
+            }
+        }
+        
+        // 更新页面标题
+        const siteName = document.querySelector('.site-name h1');
+        if (siteName) {
+            siteName.innerHTML = 'SurvivalCraft Web_SC Русское Сообщество<a id="logo" title="SurvivalCraft Web_SC Русское Сообщество" href="http://schub.icu/index.php"><img width="220px" height="64px" src="./scweb_res/logo.png" alt="SurvivalCraft Web"></a>';
+        }
+        
+        // 更新链接文本
+        updateLinkTexts('ru');
+    }
+
+    // 更新链接文本
+    function updateLinkTexts(lang) {
+        const bannerLinks = document.querySelectorAll('.banner-grid a');
+        
+        if (lang === 'en') {
+            const englishTexts = [
+                'SC Forum',
+                'SC English Community', 
+                'SurvivalCraft Box',
+                'SurvivalCraft Wiki',
+                'Plugin Mod',
+                'Online Mod',
+                'Texture Pack',
+                'Skin Pack', 
+                'Map Pack',
+                'Furniture Pack',
+                'Server Plugin',
+                'Mod Website',
+                'Backup Test Community',
+                'JIIL Forum',
+                'Russian SC Community',
+                'Original SC Community',
+                'International Mod Site',
+                'Official Blog'
+            ];
             
-            console.log('翻译内容长度:', pageContent.length);
-            
-            // 调用Cloudflare Worker翻译API
-            const response = await fetch(`${translatorConfig.workerUrl}?q=${encodeURIComponent(pageContent)}&from=${translatorConfig.from}&to=${lang}`, {
-                method: 'GET',
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
+            bannerLinks.forEach((link, index) => {
+                if (englishTexts[index]) {
+                    link.querySelector('span').textContent = englishTexts[index];
                 }
             });
+        } else if (lang === 'ru') {
+            const russianTexts = [
+                'SC Форум',
+                'SC Русское Сообщество',
+                'SurvivalCraft Box',
+                'SurvivalCraft Вики',
+                'Плагин Мод',
+                'Онлайн Мод',
+                'Текстура Пак',
+                'Скин Пак',
+                'Карта Пак',
+                'Мебель Пак',
+                'Сервер Плагин',
+                'Мод Сайт',
+                'Резервное Тест Сообщество',
+                'JIIL Форум',
+                'Русское SC Сообщество',
+                'Оригинальное SC Сообщество',
+                'Международный Мод Сайт',
+                'Официальный Блог'
+            ];
             
-            if (!response.ok) {
-                console.error('HTTP错误:', response.status, response.statusText);
-                throw new Error(`翻译服务错误: ${response.status} ${response.statusText}`);
-            }
-            
-            const responseText = await response.text();
-            console.log('原始响应:', responseText);
-            
-            let result;
-            try {
-                result = JSON.parse(responseText);
-            } catch (parseError) {
-                console.error('JSON解析错误:', parseError);
-                // 如果直接返回的是翻译文本而不是JSON
-                if (responseText && responseText.trim()) {
-                    result = { translatedText: responseText.trim() };
-                } else {
-                    throw new Error('翻译服务返回了无效的响应格式');
-                }
-            }
-            
-            console.log('解析后的结果:', result);
-            
-            if (result.error) {
-                throw new Error(result.error);
-            }
-            
-            if (!result.translatedText) {
-                throw new Error('翻译服务没有返回翻译结果');
-            }
-            
-            // 使用翻译结果替换页面内容（更安全的方式）
-            translatePageContent(result.translatedText, lang);
-            
-            // 隐藏翻译进度提示
-            hideTranslationProgress();
-            
-            console.log('Cloudflare Worker翻译成功到:', lang);
-            
-        } catch (error) {
-            console.error('翻译失败:', error);
-            hideTranslationProgress();
-            
-            // 提供更详细的错误信息
-            let errorMessage = '翻译功能暂时不可用。\n\n';
-            errorMessage += '错误信息: ' + error.message + '\n';
-            errorMessage += '\n可能的解决方案:\n';
-            errorMessage += '1. 检查网络连接\n';
-            errorMessage += '2. 稍后重试\n';
-            errorMessage += '3. 联系网站管理员检查翻译服务状态';
-            
-            alert(errorMessage);
-        }
-    }
-
-    // 显示翻译进度
-    function showTranslationProgress() {
-        var progressDiv = document.createElement('div');
-        progressDiv.id = 'translation-progress';
-        progressDiv.innerHTML = `
-            <div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-                        background: rgba(0,0,0,0.5); z-index: 9999; display: flex; 
-                        justify-content: center; align-items: center;">
-                <div style="background: white; padding: 20px; border-radius: 8px; text-align: center;">
-                    <div style="width: 40px; height: 40px; border: 4px solid #f3f3f3; 
-                                border-top: 4px solid #667eea; border-radius: 50%; 
-                                animation: spin 1s linear infinite; margin: 0 auto 10px;"></div>
-                    <p>正在翻译页面内容，请稍候...</p>
-                </div>
-            </div>
-            <style>
-                @keyframes spin {
-                    0% { transform: rotate(0deg); }
-                    100% { transform: rotate(360deg); }
-                }
-            </style>
-        `;
-        document.body.appendChild(progressDiv);
-    }
-
-    // 隐藏翻译进度
-    function hideTranslationProgress() {
-        var progressDiv = document.getElementById('translation-progress');
-        if (progressDiv) {
-            progressDiv.remove();
-        }
-    }
-
-    // 安全地替换页面内容
-    function translatePageContent(translatedText, targetLang) {
-        // 保存重要的页面元素
-        const header = document.querySelector('header');
-        const footer = document.querySelector('footer');
-        const styleElements = document.querySelectorAll('style, link[rel="stylesheet"]');
-        const scriptElements = document.querySelectorAll('script');
-        
-        // 翻译文本按行分割
-        const translatedLines = translatedText.split('\n').filter(line => line.trim());
-        
-        // 获取所有可翻译的元素
-        const translatableElements = document.querySelectorAll('h1, h2, h3, h4, h5, h6, p, a, span, div, li, td, th, option');
-        
-        let lineIndex = 0;
-        translatableElements.forEach((el, index) => {
-            if (lineIndex < translatedLines.length && el.textContent.trim()) {
-                const originalText = el.textContent.trim();
-                // 替换文本内容，但保留HTML结构
-                el.innerHTML = el.innerHTML.replace(originalText, translatedLines[lineIndex]);
-                lineIndex++;
-            }
-        });
-        
-        // 设置语言属性
-        document.documentElement.lang = targetLang;
-        document.documentElement.setAttribute('xml:lang', targetLang);
-        
-        console.log('页面内容翻译完成，目标语言:', targetLang);
-    }
-
-    // 测试翻译服务是否可用
-    async function testTranslationService() {
-        try {
-            console.log('测试翻译服务...');
-            const response = await fetch(`${translatorConfig.workerUrl}?q=你好&from=zh&to=en`, {
-                method: 'GET',
-                headers: {
-                    'Accept': 'application/json'
+            bannerLinks.forEach((link, index) => {
+                if (russianTexts[index]) {
+                    link.querySelector('span').textContent = russianTexts[index];
                 }
             });
-            
-            if (response.ok) {
-                const result = await response.text();
-                console.log('翻译服务测试成功:', result);
-                return true;
-            } else {
-                console.error('翻译服务测试失败:', response.status);
-                return false;
-            }
-        } catch (error) {
-            console.error('翻译服务连接失败:', error);
-            return false;
         }
     }
 
-    // 页面加载完成后初始化翻译服务
+    // 初始化语言切换功能
     document.addEventListener('DOMContentLoaded', function() {
-        // 延迟测试翻译服务，避免阻塞页面加载
-        setTimeout(async () => {
-            const isServiceAvailable = await testTranslationService();
-            const statusElement = document.getElementById('translation-status');
-            
-            if (isServiceAvailable) {
-                statusElement.innerHTML = '✅ 翻译服务正常';
-                statusElement.style.color = '#28a745';
-            } else {
-                statusElement.innerHTML = '❌ 翻译服务不可用';
-                statusElement.style.color = '#dc3545';
-            }
-        }, 2000); // 2秒后测试
+        const languageButtons = document.querySelectorAll('.lang-btn');
+        
+        // 语言按钮切换逻辑
+        languageButtons.forEach(btn => {
+            btn.addEventListener('click', function() {
+                const lang = this.dataset.lang;
+                if (lang && lang !== languageConfig.current) {
+                    switchLanguage(lang);
+                }
+            });
+        });
+        
+        console.log('语言切换功能已初始化');
     });
 </script>
 </body>
