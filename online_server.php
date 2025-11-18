@@ -54,6 +54,20 @@ $servers = array(
     )
 );
 
+// 备注内容到键名的映射
+$note_key_mapping = array(
+    '加群获取MOD' => 'modServer',
+    '即将开服' => 'comingSoon', 
+    '测试服务器' => 'testServer',
+    '维护中' => 'maintenance'
+);
+
+// 获取备注键名的函数
+function get_note_key($note) {
+    global $note_key_mapping;
+    return isset($note_key_mapping[$note]) ? $note_key_mapping[$note] : '';
+}
+
 // 获取服务器列表的函数
 function get_servers($type = '') {
     global $servers;
@@ -207,7 +221,12 @@ function add_server($name, $ip, $group, $note = '', $type = 'original') {
                                 </span>
                                 <span class="server-group"><span data-i18n="server.groupNumber">群号：</span><?php echo $server['group']; ?></span>
                                 <?php if (!empty($server['note'])): ?>
-                                <span class="server-note"><?php echo $server['note']; ?></span>
+                                <?php $noteKey = get_note_key($server['note']); ?>
+                                <?php if (!empty($noteKey)): ?>
+                                <span class="server-note" data-i18n="server.notes.<?php echo $noteKey; ?>" data-original-note="<?php echo htmlspecialchars($server['note'], ENT_QUOTES); ?>"><?php echo $server['note']; ?></span>
+                                <?php else: ?>
+                                <span class="server-note" data-original-note="<?php echo htmlspecialchars($server['note'], ENT_QUOTES); ?>"><?php echo $server['note']; ?></span>
+                                <?php endif; ?>
                                 <?php endif; ?>
                             </div>
                             <?php endforeach; ?>

@@ -81,6 +81,14 @@ const ServerLanguageConfig = {
                     mainNumber: '826823481',
                     management: '开服申请点击加入',
                     managementNumber: '893387376'
+                },
+                
+                // 服务器备注信息
+                notes: {
+                    modServer: '加群获取MOD',
+                    comingSoon: '即将开服',
+                    testServer: '测试服务器',
+                    maintenance: '维护中'
                 }
             },
             
@@ -146,19 +154,16 @@ const ServerLanguageConfig = {
                     mainNumber: '826823481',
                     management: 'Apply to Join Server Management',
                     managementNumber: '893387376'
+                },
+                
+                // 服务器备注信息
+                notes: {
+                    modServer: 'Join group to get MOD',
+                    comingSoon: 'Coming soon',
+                    testServer: 'Test server',
+                    maintenance: 'Under maintenance'
                 }
             },
-        
-        // 服务器名称翻译
-        serverNames: {
-            '土豆服主1服分支': 'Potato Server 1 Branch',
-            '土豆服2服': 'Potato Server 2',
-            '土豆服3服': 'Potato Server 3',
-            '土豆服4服': 'Potato Server 4',
-            '空岛刷怪9服': 'Sky Block Server 9',
-            '测试服': 'Test Server',
-            'mod模组测试服': 'MOD Test Server'
-        },
         
         // 服务器名称翻译
         serverNames: {
@@ -233,6 +238,14 @@ const ServerLanguageConfig = {
                     mainNumber: '826823481',
                     management: 'Подать Заявку на Управление Сервером',
                     managementNumber: '893387376'
+                },
+                
+                // 服务器备注信息
+                notes: {
+                    modServer: 'Вступите в группу для получения MOD',
+                    comingSoon: 'Скоро откроется',
+                    testServer: 'Тестовый сервер',
+                    maintenance: 'На техническом обслуживании'
                 }
             },
         // 服务器名称翻译
@@ -316,6 +329,16 @@ const ServerLanguageConfig = {
             const originalName = element.getAttribute('data-server-name');
             const translatedName = this.getServerName(originalName, lang);
             element.textContent = translatedName;
+        });
+        
+        // 更新服务器备注翻译
+        const serverNoteElements = document.querySelectorAll('.server-note[data-i18n^="server.notes."]');
+        serverNoteElements.forEach(element => {
+            const key = element.getAttribute('data-i18n');
+            if (key) {
+                const text = this.getText(key, lang);
+                element.textContent = text;
+            }
         });
         
         // 更新页面标题
