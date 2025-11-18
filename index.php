@@ -182,6 +182,52 @@
         document.title = "生存战争网 - 首页 | SC中文社区官方网站";
         document.querySelector('meta[name="description"]').setAttribute('content', '生存战争网是中国最大的SC中文社区，提供游戏攻略、Mod模组、地图存档、材质包、皮肤和家具等资源下载，以及活跃的联机服务器。');
         document.querySelector('meta[name="keywords"]').setAttribute('content', '生存战争,SC中文社区,生存战争MOD,生存战争联机版,生存战争服务器,生存战争攻略');
+        
+        // 更新导航菜单
+        const navLinks = document.querySelectorAll('#nav-menu a');
+        if (navLinks.length >= 3) {
+            navLinks[0].textContent = '首页';
+            navLinks[1].textContent = '联机服务器列表';
+            navLinks[2].textContent = 'APImod制作教程';
+        }
+        
+        // 更新搜索提示
+        const searchInput = document.querySelector('#s');
+        if (searchInput) {
+            searchInput.placeholder = '输入关键字搜索';
+        }
+        
+        // 更新搜索按钮
+        const searchButton = document.querySelector('.submit');
+        if (searchButton) {
+            searchButton.textContent = '搜索';
+        }
+        
+        // 更新分类选项
+        const searchSelect = document.querySelector('.search-select');
+        if (searchSelect) {
+            const options = searchSelect.querySelectorAll('option');
+            options[0].textContent = '任意分类';
+            if (options.length > 1) {
+                options[1].textContent = '插件版Mod模组下载';
+                options[2].textContent = '联机版Mod模组下载';
+                options[3].textContent = '游戏历史全版本下载';
+                options[4].textContent = '材质包下载';
+                options[5].textContent = '家具包下载';
+                options[6].textContent = '皮肤大全下载';
+                options[7].textContent = '地图存档下载';
+                options[8].textContent = '攻略教程';
+            }
+        }
+        
+        // 更新页面标题
+        const siteName = document.querySelector('.site-name h1');
+        if (siteName) {
+            siteName.innerHTML = '生存战争网_SC中文社区<a id="logo" title="生存战争网_SC中文社区" href="http://schub.icu/index.php"><img width="220px" height="64px" src="./scweb_res/logo.png" alt="生存战争网"></a>';
+        }
+        
+        // 链接文本保持中文（默认状态），不需要额外处理
+        updateLinkTexts('zh');
     }
 
     // 设置英语内容
@@ -294,7 +340,34 @@
     function updateLinkTexts(lang) {
         const bannerLinks = document.querySelectorAll('.banner-grid a');
         
-        if (lang === 'en') {
+        if (lang === 'zh') {
+            const chineseTexts = [
+                '生存战争论坛',
+                'SC中文社区',
+                '生存战争盒子网',
+                '生存战争百科',
+                '插件版Mod(模组)',
+                '联机版Mod(模组)',
+                '材质包',
+                '皮肤包',
+                '地图包',
+                '家具包',
+                '服务端插件',
+                '模组网',
+                '备用测试SC中文社区',
+                'JIIL论坛',
+                '俄语SC社区',
+                '原版SC社区',
+                '海外Mod网站',
+                '正版官网'
+            ];
+            
+            bannerLinks.forEach((link, index) => {
+                if (chineseTexts[index]) {
+                    link.querySelector('span').textContent = chineseTexts[index];
+                }
+            });
+        } else if (lang === 'en') {
             const englishTexts = [
                 'SC Forum',
                 'SC English Community', 
@@ -353,19 +426,20 @@
 
     // 初始化语言切换功能
     document.addEventListener('DOMContentLoaded', function() {
-        const languageButtons = document.querySelectorAll('.lang-btn');
+        console.log('语言切换功能已初始化');
         
-        // 语言按钮切换逻辑
-        languageButtons.forEach(btn => {
+        // 语言按钮点击事件
+        document.querySelectorAll('.lang-btn').forEach(btn => {
             btn.addEventListener('click', function() {
-                const lang = this.dataset.lang;
-                if (lang && lang !== languageConfig.current) {
-                    switchLanguage(lang);
+                const lang = this.getAttribute('data-lang');
+                // 更新下拉选择器的值
+                const select = document.querySelector('.language-select');
+                if (select) {
+                    select.value = lang;
                 }
+                switchLanguage(lang);
             });
         });
-        
-        console.log('语言切换功能已初始化');
     });
 </script>
 </body>
