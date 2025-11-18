@@ -264,7 +264,7 @@ class LanguageManager {
                         '<span style="font-size: 0.8em; color: #666;">https://scnet.top/</span>' +
                         '</a> ' +
                         '<span style="margin: 0 5px;">|</span> ' +
-                        '<span style="margin: 0 5px;">短网址2：</span>' +
+                        '<span style="margin: 0 5px;">' + siteData.shortUrl2 + '</span>' +
                         '<a href="https://schub.icu/" target="_blank" rel="noopener">' +
                         'schub.icu ' +
                         '<span style="font-size: 0.8em; color: #666;">https://schub.icu/</span>' +

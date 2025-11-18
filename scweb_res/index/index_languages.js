@@ -56,7 +56,8 @@ const LanguageConfig = {
             // 站点信息
             site: {
                 currentAddress: '本站地址：',
-                shortUrl: '短网址：'
+                shortUrl: '短网址：',
+                shortUrl2: '短网址2：'
             },
             
             // 导航区块
@@ -127,7 +128,8 @@ const LanguageConfig = {
             // 站点信息
             site: {
                 currentAddress: 'Site Address: ',
-                shortUrl: 'Short URL: '
+                shortUrl: 'Short URL: ',
+                shortUrl2: 'Short URL 2: '
             },
             
             // 导航区块
@@ -198,7 +200,8 @@ const LanguageConfig = {
             // 站点信息
             site: {
                 currentAddress: 'Адрес Сайта: ',
-                shortUrl: 'Короткий URL: '
+                shortUrl: 'Короткий URL: ',
+                shortUrl2: 'Короткий URL 2: '
             },
             
             // 导航区块
