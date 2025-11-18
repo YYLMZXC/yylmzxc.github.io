@@ -278,7 +278,8 @@ class LanguageManager {
 
         links.forEach(link => {
             const translations = this.config.translations[this.currentLang];
-            const linkTitle = translations[link.title] || link.title;
+            const linkKey = link.title.replace('links.', '');
+            const linkTitle = translations.links[linkKey] || link.title;
             
             const a = document.createElement('a');
             a.href = link.url;
