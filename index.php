@@ -43,14 +43,12 @@
                         <form id="searchForm" class="search-form" role="search">
                             <select id="searchSelect" name="category" class="search-select">
                                 <option value="" data-i18n="search.anyCategory">任意分类</option>
-                                <option value="1" data-i18n="search.pluginMod">插件版Mod模组下载</option>
-                                <option value="2" data-i18n="search.onlineMod">联机版Mod模组下载</option>
-                                <option value="4" data-i18n="search.gameHistory">游戏历史全版本下载</option>
-                                <option value="10" data-i18n="search.texturePack">材质包下载</option>
-                                <option value="11" data-i18n="search.furniturePack">家具包下载</option>
-                                <option value="9" data-i18n="search.skinPack">皮肤大全下载</option>
-                                <option value="8" data-i18n="search.mapPack">地图存档下载</option>
-                                <option value="6" data-i18n="search.guides">攻略教程</option>
+                               <option value="1" data-i18n="search.scapi">生存战争api插件版本下载</option>
+                               <option value="2" data-i18n="search.scnet">生存战争net联机版下载</option>
+                                <option value="3" data-i18n="search.furniturePack">家具包下载</option>
+                                <option value="4" data-i18n="search.skinPack">皮肤大全下载</option>
+                                <option value="5" data-i18n="search.mapPack">地图存档下载</option>
+                               
                             </select>
                             <input id="searchInput" type="text" name="keyword" class="search-input" 
                                    placeholder="输入关键字搜索" data-i18n-placeholder="search.placeholder">
