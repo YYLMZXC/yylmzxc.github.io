@@ -108,6 +108,9 @@
                         <option value="lt">🇱🇹 Lietuvių</option>
                         <option value="el">🇬🇷 Ελληνικά</option>
                     </select>
+                    <div id="translation-status" style="font-size: 12px; margin-top: 5px; color: #999;">
+                        🔍 正在检查翻译服务...
+                    </div>
                 </div>
             </div>
             <div class="col-mb-12">
@@ -181,7 +184,7 @@
     // Cloudflare Workers翻译配置
     var translatorConfig = {
         from: "zh",      // 源语言：中文
-        workerUrl: "http://localhost:8080/translate-server.php", // 本地测试服务，可替换为Cloudflare Worker URL
+        workerUrl: "https://translation.yylmzxc.workers.dev/", // Cloudflare Workers翻译服务
         supportedLanguages: {
             "": "🌐 选择语言",
             "zh": "🇨🇳 中文（简体）",
@@ -226,28 +229,81 @@
         
         console.log('准备使用Cloudflare Worker翻译到:', lang);
         
-        // 获取页面内容进行翻译
-        var pageContent = document.body.innerHTML;
+        // 获取页面内容进行翻译（排除script和style标签）
+        const excludeTags = ['script', 'style', 'meta', 'link'];
+        let pageContent = '';
+        
+        // 使用DOMParser来安全地提取文本内容
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(document.documentElement.outerHTML, 'text/html');
+        
+        // 移除不需要翻译的元素
+        excludeTags.forEach(tag => {
+            const elements = doc.querySelectorAll(tag);
+            elements.forEach(el => el.remove());
+        });
+        
+        // 获取主要内容文本
+        const translatableElements = doc.querySelectorAll('h1, h2, h3, h4, h5, h6, p, a, span, div, li, td, th, option');
+        translatableElements.forEach(el => {
+            if (el.textContent.trim()) {
+                pageContent += el.textContent.trim() + '\n';
+            }
+        });
+        
+        if (!pageContent.trim()) {
+            alert('没有找到可翻译的内容');
+            return;
+        }
         
         try {
             // 显示翻译进度提示
             showTranslationProgress();
             
+            console.log('翻译内容长度:', pageContent.length);
+            
             // 调用Cloudflare Worker翻译API
-            const response = await fetch(`${translatorConfig.workerUrl}/?text=${encodeURIComponent(pageContent)}&from=${translatorConfig.from}&to=${lang}`);
+            const response = await fetch(`${translatorConfig.workerUrl}?q=${encodeURIComponent(pageContent)}&from=${translatorConfig.from}&to=${lang}`, {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                }
+            });
             
             if (!response.ok) {
-                throw new Error(`翻译服务错误: ${response.status}`);
+                console.error('HTTP错误:', response.status, response.statusText);
+                throw new Error(`翻译服务错误: ${response.status} ${response.statusText}`);
             }
             
-            const result = await response.json();
+            const responseText = await response.text();
+            console.log('原始响应:', responseText);
+            
+            let result;
+            try {
+                result = JSON.parse(responseText);
+            } catch (parseError) {
+                console.error('JSON解析错误:', parseError);
+                // 如果直接返回的是翻译文本而不是JSON
+                if (responseText && responseText.trim()) {
+                    result = { translatedText: responseText.trim() };
+                } else {
+                    throw new Error('翻译服务返回了无效的响应格式');
+                }
+            }
+            
+            console.log('解析后的结果:', result);
             
             if (result.error) {
                 throw new Error(result.error);
             }
             
-            // 替换页面内容
-            document.body.innerHTML = result.translated_text;
+            if (!result.translatedText) {
+                throw new Error('翻译服务没有返回翻译结果');
+            }
+            
+            // 使用翻译结果替换页面内容（更安全的方式）
+            translatePageContent(result.translatedText, lang);
             
             // 隐藏翻译进度提示
             hideTranslationProgress();
@@ -257,7 +313,16 @@
         } catch (error) {
             console.error('翻译失败:', error);
             hideTranslationProgress();
-            alert('翻译功能暂时不可用，请稍后重试。错误信息: ' + error.message);
+            
+            // 提供更详细的错误信息
+            let errorMessage = '翻译功能暂时不可用。\n\n';
+            errorMessage += '错误信息: ' + error.message + '\n';
+            errorMessage += '\n可能的解决方案:\n';
+            errorMessage += '1. 检查网络连接\n';
+            errorMessage += '2. 稍后重试\n';
+            errorMessage += '3. 联系网站管理员检查翻译服务状态';
+            
+            alert(errorMessage);
         }
     }
 
@@ -293,6 +358,79 @@
             progressDiv.remove();
         }
     }
+
+    // 安全地替换页面内容
+    function translatePageContent(translatedText, targetLang) {
+        // 保存重要的页面元素
+        const header = document.querySelector('header');
+        const footer = document.querySelector('footer');
+        const styleElements = document.querySelectorAll('style, link[rel="stylesheet"]');
+        const scriptElements = document.querySelectorAll('script');
+        
+        // 翻译文本按行分割
+        const translatedLines = translatedText.split('\n').filter(line => line.trim());
+        
+        // 获取所有可翻译的元素
+        const translatableElements = document.querySelectorAll('h1, h2, h3, h4, h5, h6, p, a, span, div, li, td, th, option');
+        
+        let lineIndex = 0;
+        translatableElements.forEach((el, index) => {
+            if (lineIndex < translatedLines.length && el.textContent.trim()) {
+                const originalText = el.textContent.trim();
+                // 替换文本内容，但保留HTML结构
+                el.innerHTML = el.innerHTML.replace(originalText, translatedLines[lineIndex]);
+                lineIndex++;
+            }
+        });
+        
+        // 设置语言属性
+        document.documentElement.lang = targetLang;
+        document.documentElement.setAttribute('xml:lang', targetLang);
+        
+        console.log('页面内容翻译完成，目标语言:', targetLang);
+    }
+
+    // 测试翻译服务是否可用
+    async function testTranslationService() {
+        try {
+            console.log('测试翻译服务...');
+            const response = await fetch(`${translatorConfig.workerUrl}?q=你好&from=zh&to=en`, {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json'
+                }
+            });
+            
+            if (response.ok) {
+                const result = await response.text();
+                console.log('翻译服务测试成功:', result);
+                return true;
+            } else {
+                console.error('翻译服务测试失败:', response.status);
+                return false;
+            }
+        } catch (error) {
+            console.error('翻译服务连接失败:', error);
+            return false;
+        }
+    }
+
+    // 页面加载完成后初始化翻译服务
+    document.addEventListener('DOMContentLoaded', function() {
+        // 延迟测试翻译服务，避免阻塞页面加载
+        setTimeout(async () => {
+            const isServiceAvailable = await testTranslationService();
+            const statusElement = document.getElementById('translation-status');
+            
+            if (isServiceAvailable) {
+                statusElement.innerHTML = '✅ 翻译服务正常';
+                statusElement.style.color = '#28a745';
+            } else {
+                statusElement.innerHTML = '❌ 翻译服务不可用';
+                statusElement.style.color = '#dc3545';
+            }
+        }, 2000); // 2秒后测试
+    });
 </script>
 </body>
 </html>
