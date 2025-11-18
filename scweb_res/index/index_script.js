@@ -227,16 +227,29 @@ class LanguageManager {
             shortUrl: document.getElementById('shortUrl')
         };
 
-        // 获取干净的URL地址（不包含查询参数）
-        const cleanUrl = window.location.origin + window.location.pathname;
+        // 获取当前完整地址
+        const currentUrl = window.location.hostname + (window.location.port ? ':' + window.location.port : '');
 
         Object.keys(elements).forEach(key => {
             const element = elements[key];
             if (element && siteData[key]) {
                 if (key === 'currentAddress') {
-                    element.textContent = siteData[key] + cleanUrl;
+                    // 显示"本站地址：" + 当前完整地址
+                    element.textContent = siteData[key] + currentUrl;
                 } else if (key === 'shortUrl') {
-                    element.textContent = siteData[key] + 'https://scnet.top/';
+                    // 创建分别显示的两个短网址
+                    element.innerHTML = 
+                        siteData[key] + ' ' +
+                        '<a href="https://scnet.top/" target="_blank" rel="noopener">' +
+                        'scnet.top ' +
+                        '<span style="font-size: 0.8em; color: #666;">https://scnet.top/</span>' +
+                        '</a> ' +
+                        '<span style="margin: 0 5px;">|</span> ' +
+                        '<span style="margin: 0 5px;">短网址2：</span>' +
+                        '<a href="https://schub.icu/" target="_blank" rel="noopener">' +
+                        'schub.icu ' +
+                        '<span style="font-size: 0.8em; color: #666;">https://schub.icu/</span>' +
+                        '</a>';
                 }
             }
         });

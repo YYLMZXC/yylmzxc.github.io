@@ -82,8 +82,8 @@
                         <!-- 站点信息 -->
                         <div class="site-info">
                             <p class="site-address">
-                                <span id="currentAddress" data-i18n="site.currentAddress">本站地址：</span><b>schub.icu</b>
-                                <span id="shortUrl" data-i18n="site.shortUrl">短网址：</span><b>scnet.top</b>
+                                <span id="currentAddress" data-i18n="site.currentAddress">本站地址：</span>
+                                <span id="shortUrl" data-i18n="site.shortUrl">短网址：</span>
                             </p>
                         </div>
                         
