@@ -1,66 +1,191 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="utf-8">
-  <title>400 错误 - phpstudy</title>
-  <meta name="keywords" content="">
-  <meta name="description" content="">
-  <meta name="renderer" content="webkit">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black"> 
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="format-detection" content="telephone=no">
-  <meta HTTP-EQUIV="pragma" CONTENT="no-cache"> 
-  <meta HTTP-EQUIV="Cache-Control" CONTENT="no-store, must-revalidate"> 
-  <meta HTTP-EQUIV="expires" CONTENT="Wed, 26 Feb 1997 08:21:57 GMT"> 
-  <meta HTTP-EQUIV="expires" CONTENT="0">
+  <meta charset="UTF-8">
+  <title>400 - 请求错误</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="HTTP 400 错误页面 - 请求语法错误">
   <style>
-    body{
-      font: 16px arial,'Microsoft Yahei','Hiragino Sans GB',sans-serif;
-    }
-    h1{
+    * {
       margin: 0;
-      color:#3a87ad;
-      font-size: 26px;
+      padding: 0;
+      box-sizing: border-box;
     }
-    .content{
-      width: 45%;
-      margin: 0 auto;
-     
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Microsoft YaHei', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #333;
     }
-    .content >div{
-      margin-top: 200px;
-      padding: 20px;
-      background: #d9edf7;  
-      border-radius: 12px;
+    
+    .container {
+      background: white;
+      border-radius: 20px;
+      padding: 3rem;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+      text-align: center;
+      max-width: 500px;
+      width: 90%;
+      margin: 2rem;
     }
-    .content dl{
-      color: #2d6a88;
-      line-height: 40px;
-    } 
-    .content div div {
-      padding-bottom: 20px;
-      text-align:center;
+    
+    .error-icon {
+      font-size: 4rem;
+      color: #e74c3c;
+      margin-bottom: 1rem;
+    }
+    
+    .error-code {
+      font-size: 6rem;
+      font-weight: bold;
+      color: #e74c3c;
+      margin: 1rem 0;
+      line-height: 1;
+    }
+    
+    .error-title {
+      font-size: 1.8rem;
+      color: #2c3e50;
+      margin-bottom: 1rem;
+    }
+    
+    .error-description {
+      color: #7f8c8d;
+      margin-bottom: 2rem;
+      line-height: 1.6;
+    }
+    
+    .error-details {
+      background: #f8f9fa;
+      border-radius: 10px;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+      text-align: left;
+    }
+    
+    .error-details h3 {
+      color: #e74c3c;
+      margin-bottom: 1rem;
+      font-size: 1.1rem;
+    }
+    
+    .error-details ul {
+      list-style: none;
+      padding: 0;
+    }
+    
+    .error-details li {
+      margin-bottom: 0.8rem;
+      padding-left: 1.5rem;
+      position: relative;
+      color: #555;
+    }
+    
+    .error-details li::before {
+      content: "▶";
+      position: absolute;
+      left: 0;
+      color: #e74c3c;
+      font-size: 0.8rem;
+    }
+    
+    .solution {
+      background: #d4edda;
+      border-left: 4px solid #28a745;
+      padding: 1rem;
+      border-radius: 5px;
+      margin: 1rem 0;
+    }
+    
+    .solution h4 {
+      color: #155724;
+      margin-bottom: 0.5rem;
+    }
+    
+    .solution p {
+      color: #155724;
+      margin: 0.5rem 0;
+    }
+    
+    .back-button {
+      display: inline-block;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      text-decoration: none;
+      padding: 12px 30px;
+      border-radius: 25px;
+      font-weight: 500;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      margin: 0.5rem;
+    }
+    
+    .back-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+    }
+    
+    .contact-info {
+      margin-top: 2rem;
+      padding-top: 2rem;
+      border-top: 1px solid #ecf0f1;
+      color: #7f8c8d;
+      font-size: 0.9rem;
+    }
+    
+    @media (max-width: 600px) {
+      .container {
+        padding: 2rem;
+        margin: 1rem;
+      }
+      
+      .error-code {
+        font-size: 4rem;
+      }
+      
+      .error-title {
+        font-size: 1.5rem;
+      }
     }
   </style>
 </head>
 <body>
-  <div class="content">
-      <div>
-           <h1>HTTP 400 - Bad Request</h1>
-        <dl>
-          <dt>错误说明：因为错误的语法导致服务器无法理解请求信息。</dt>
-          <dt>原因1：客户端发起的请求不符合服务器对请求的某些限制，或者请求本身存在一定的错误。</dt>
-		  <dd>解决办法：</dd>
-          <dd>链接中有特殊字符或者链接长度过长导致，请对应修改.</dd>
-          <dt>原因2：request header 或者 cookie 过大所引起</dt>
-		  <dd>解决办法：</dd>
-          <dd>crtl+shift+delete 快捷键清除cookie.</dd>
-        </dl>
-        <div>使用手册，视频教程，BUG反馈，官网地址： <a href="v.tudouzxc.icu"  target="_blank">v.tudouzxc.icu</a> </div>
+  <div class="container">
+    <div class="error-icon">⚠️</div>
+    <div class="error-code">400</div>
+    <h1 class="error-title">请求错误</h1>
+    <p class="error-description">
+      服务器无法处理您的请求，因为请求格式不正确或包含错误参数。
+    </p>
     
+    <div class="error-details">
+      <h3>🔍 可能的原因：</h3>
+      <ul>
+        <li>URL格式错误或包含无效字符</li>
+        <li>请求头信息不完整或格式错误</li>
+        <li>Cookie数据损坏或过大</li>
+        <li>请求体数据格式不符合服务器要求</li>
+      </ul>
+      
+      <div class="solution">
+        <h4>💡 解决方案：</h4>
+        <p>• 检查URL拼写是否正确</p>
+        <p>• 清除浏览器缓存和Cookie（Ctrl+Shift+Delete）</p>
+        <p>• 刷新页面或重新访问</p>
+        <p>• 联系网站管理员</p>
       </div>
-    </div> 
+    </div>
+    
+    <a href="javascript:history.back()" class="back-button">返回上一页</a>
+    <a href="/" class="back-button">返回首页</a>
+    
+    <div class="contact-info">
+      <p>如问题持续存在，请联系技术支持</p>
+      <p>官网：<a href="v.tudouzxc.icu" target="_blank" style="color: #667eea;">v.tudouzxc.icu</a></p>
+    </div>
+  </div>
 </body>
 </html>

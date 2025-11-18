@@ -1,75 +1,254 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="utf-8">
-  <title>404 错误 - phpstudy</title>
-  <meta name="keywords" content="">
-  <meta name="description" content="">
-  <meta name="renderer" content="webkit">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black"> 
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="format-detection" content="telephone=no">
-  <meta HTTP-EQUIV="pragma" CONTENT="no-cache"> 
-  <meta HTTP-EQUIV="Cache-Control" CONTENT="no-store, must-revalidate"> 
-  <meta HTTP-EQUIV="expires" CONTENT="Wed, 26 Feb 1997 08:21:57 GMT"> 
-  <meta HTTP-EQUIV="expires" CONTENT="0">
+  <meta charset="UTF-8">
+  <title>404 - 页面未找到</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="HTTP 404 错误页面 - 页面不存在">
   <style>
-    body{
-      font: 16px arial,'Microsoft Yahei','Hiragino Sans GB',sans-serif;
-    }
-    h1{
+    * {
       margin: 0;
-      color:#3a87ad;
-      font-size: 26px;
+      padding: 0;
+      box-sizing: border-box;
     }
-    .content{
-      width: 45%;
-      margin: 0 auto;
-     
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Microsoft YaHei', sans-serif;
+      background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #333;
     }
-    .content >div{
-      margin-top: 50px;
-      padding: 20px;
-      background: #d9edf7;  
-      border-radius: 12px;
+    
+    .container {
+      background: white;
+      border-radius: 20px;
+      padding: 3rem;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+      text-align: center;
+      max-width: 500px;
+      width: 90%;
+      margin: 2rem;
     }
-    .content dl{
-      color: #2d6a88;
-      line-height: 40px;
-    } 
-    .content div div {
-      padding-bottom: 20px;
-      text-align:center;
+    
+    .error-icon {
+      font-size: 4rem;
+      color: #74b9ff;
+      margin-bottom: 1rem;
+      animation: float 3s ease-in-out infinite;
+    }
+    
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-10px); }
+    }
+    
+    .error-code {
+      font-size: 6rem;
+      font-weight: bold;
+      color: #74b9ff;
+      margin: 1rem 0;
+      line-height: 1;
+    }
+    
+    .error-title {
+      font-size: 1.8rem;
+      color: #2c3e50;
+      margin-bottom: 1rem;
+    }
+    
+    .error-description {
+      color: #7f8c8d;
+      margin-bottom: 2rem;
+      line-height: 1.6;
+    }
+    
+    .error-details {
+      background: #f8f9fa;
+      border-radius: 10px;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+      text-align: left;
+    }
+    
+    .error-details h3 {
+      color: #74b9ff;
+      margin-bottom: 1rem;
+      font-size: 1.1rem;
+    }
+    
+    .error-details ul {
+      list-style: none;
+      padding: 0;
+    }
+    
+    .error-details li {
+      margin-bottom: 0.8rem;
+      padding-left: 1.5rem;
+      position: relative;
+      color: #555;
+    }
+    
+    .error-details li::before {
+      content: "🔍";
+      position: absolute;
+      left: 0;
+      font-size: 0.8rem;
+    }
+    
+    .solution {
+      background: #fff3cd;
+      border-left: 4px solid #ffc107;
+      padding: 1rem;
+      border-radius: 5px;
+      margin: 1rem 0;
+    }
+    
+    .solution h4 {
+      color: #856404;
+      margin-bottom: 0.5rem;
+    }
+    
+    .solution p {
+      color: #856404;
+      margin: 0.5rem 0;
+    }
+    
+    .search-box {
+      margin: 2rem 0;
+      padding: 1rem;
+      background: #f8f9fa;
+      border-radius: 10px;
+    }
+    
+    .search-box input {
+      width: 70%;
+      padding: 12px;
+      border: 2px solid #ddd;
+      border-radius: 25px;
+      outline: none;
+      font-size: 1rem;
+    }
+    
+    .search-box button {
+      padding: 12px 20px;
+      background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%);
+      color: white;
+      border: none;
+      border-radius: 25px;
+      cursor: pointer;
+      margin-left: 10px;
+      font-weight: 500;
+      transition: transform 0.3s ease;
+    }
+    
+    .search-box button:hover {
+      transform: translateY(-2px);
+    }
+    
+    .back-button {
+      display: inline-block;
+      background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%);
+      color: white;
+      text-decoration: none;
+      padding: 12px 30px;
+      border-radius: 25px;
+      font-weight: 500;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      margin: 0.5rem;
+    }
+    
+    .back-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px rgba(116, 185, 255, 0.3);
+    }
+    
+    .contact-info {
+      margin-top: 2rem;
+      padding-top: 2rem;
+      border-top: 1px solid #ecf0f1;
+      color: #7f8c8d;
+      font-size: 0.9rem;
+    }
+    
+    @media (max-width: 600px) {
+      .container {
+        padding: 2rem;
+        margin: 1rem;
+      }
+      
+      .error-code {
+        font-size: 4rem;
+      }
+      
+      .error-title {
+        font-size: 1.5rem;
+      }
+      
+      .search-box input {
+        width: 60%;
+      }
     }
   </style>
 </head>
 <body>
-  <div class="content">
-      <div>
-           <h1>404 - Page Not Found 未找到</h1>
-        <dl>
-          <dt>错误说明：请求的页面不存在</dt>
-          <dt>原因1：访问的文档权限不够</dt>
-		  <dd>解决办法：</dd>
-          <dd>修改文件权限为755，windos系统修改目录权限为可写可读。</dd>
-          <dt>原因2：防火墙的原因</dt>
-		  <dd>解决办法：</dd>
-          <dd>先关闭让防火墙通过WWW服务。</dd>
-		  <dt>原因3：站点根目录无默认访问文件</dt>
-		  <dd>解决办法：</dd>
-          <dd>在根目录中创建index.html或者创建index.php。</dd>
-		  <dt>原因4：站点配置目录不正确</dt>
-		  <dd>解决办法：</dd>
-          <dd>将网站应用程序复制到站点目录中，或者修改站点配置目录指定到应用程序目录中。</dd>
-		  <dt>原因5：站点使用了伪静态</dt>
-		  <dd>解决办法：</dd>
-          <dd>将伪静态规则删除，或者重新编写正确的伪静态规则，或关闭伪静态配置。</dd>
-        </dl>
-        <div>使用手册，视频教程，BUG反馈，官网地址： <a href="v.tudouzxc.icu"  target="_blank">v.tudouzxc.icu</a> </div>
+  <div class="container">
+    <div class="error-icon">🗺️</div>
+    <div class="error-code">404</div>
+    <h1 class="error-title">页面未找到</h1>
+    <p class="error-description">
+      抱歉，您访问的页面不存在或已被移动。让我们帮您找到想要的内容。
+    </p>
     
+    <div class="error-details">
+      <h3>🔍 可能的原因：</h3>
+      <ul>
+        <li>URL地址拼写错误或已失效</li>
+        <li>页面已被删除或移动到其他位置</li>
+        <li>访问了错误的链接</li>
+        <li>网站结构发生变化</li>
+      </ul>
+      
+      <div class="solution">
+        <h4>💡 建议操作：</h4>
+        <p>• 检查URL拼写是否正确</p>
+        <p>• 使用搜索功能查找内容</p>
+        <p>• 返回首页浏览我们的服务</p>
+        <p>• 联系客服获取帮助</p>
       </div>
-    </div> 
+    </div>
+    
+    <div class="search-box">
+      <input type="text" placeholder="输入搜索关键词..." id="searchInput">
+      <button onclick="search()">搜索</button>
+    </div>
+    
+    <a href="javascript:history.back()" class="back-button">返回上一页</a>
+    <a href="/" class="back-button">返回首页</a>
+    
+    <div class="contact-info">
+      <p>找不到您需要的内容？</p>
+      <p>官网：<a href="v.tudouzxc.icu" target="_blank" style="color: #74b9ff;">v.tudouzxc.icu</a></p>
+    </div>
+  </div>
+  
+  <script>
+    function search() {
+      const input = document.getElementById('searchInput');
+      if (input.value.trim()) {
+        // 这里可以添加实际的搜索逻辑
+        window.location.href = '/search?q=' + encodeURIComponent(input.value);
+      }
+    }
+    
+    // 回车键搜索
+    document.getElementById('searchInput').addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        search();
+      }
+    });
+  </script>
 </body>
 </html>

@@ -1,69 +1,251 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="utf-8">
-  <title>504 错误 - phpstudy</title>
-  <meta name="keywords" content="">
-  <meta name="description" content="">
-  <meta name="renderer" content="webkit">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black"> 
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="format-detection" content="telephone=no">
-  <meta HTTP-EQUIV="pragma" CONTENT="no-cache"> 
-  <meta HTTP-EQUIV="Cache-Control" CONTENT="no-store, must-revalidate"> 
-  <meta HTTP-EQUIV="expires" CONTENT="Wed, 26 Feb 1997 08:21:57 GMT"> 
-  <meta HTTP-EQUIV="expires" CONTENT="0">
-  <style>
-    body{
-      font: 16px arial,'Microsoft Yahei','Hiragino Sans GB',sans-serif;
-    }
-    h1{
-      margin: 0;
-      color:#3a87ad;
-      font-size: 26px;
-    }
-    .content{
-      width: 45%;
-      margin: 0 auto;
-     
-    }
-    .content >div{
-      margin-top: 50px;
-      padding: 20px;
-      background: #d9edf7;  
-      border-radius: 12px;
-    }
-    .content dl{
-      color: #2d6a88;
-      line-height: 40px;
-    } 
-    .content div div {
-      padding-bottom: 20px;
-      text-align:center;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>504 - Gateway Timeout | scweb</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .error-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 3rem;
+            max-width: 900px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .error-icon {
+            font-size: 4rem;
+            color: #9b59b6;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .error-code {
+            font-size: 6rem;
+            font-weight: bold;
+            color: #9b59b6;
+            margin-bottom: 0.5rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .error-title {
+            font-size: 1.8rem;
+            color: #2c3e50;
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+
+        .error-description {
+            font-size: 1.1rem;
+            color: #7f8c8d;
+            margin-bottom: 2rem;
+            line-height: 1.8;
+        }
+
+        .reasons-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 2rem;
+            margin: 2rem 0;
+            text-align: left;
+        }
+
+        .reasons-section h3 {
+            color: #2c3e50;
+            margin-bottom: 1.5rem;
+            font-size: 1.3rem;
+            text-align: center;
+        }
+
+        .reason-item {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            border-left: 4px solid #9b59b6;
+        }
+
+        .reason-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .reason-title {
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+        }
+
+        .reason-solution {
+            color: #27ae60;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+
+        .reason-description {
+            color: #7f8c8d;
+            font-size: 0.95rem;
+            line-height: 1.7;
+        }
+
+        .code-block {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 1rem;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            margin: 0.5rem 0;
+            overflow-x: auto;
+        }
+
+        .back-button {
+            display: inline-block;
+            background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
+            color: white;
+            padding: 1rem 2rem;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: 600;
+            margin: 1rem 0.5rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(155, 89, 182, 0.3);
+        }
+
+        .back-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(155, 89, 182, 0.4);
+        }
+
+        .contact-info {
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid #ecf0f1;
+            color: #7f8c8d;
+            font-size: 0.9rem;
+        }
+
+        .contact-info a {
+            color: #9b59b6;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .contact-info a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .error-container {
+                padding: 2rem;
+                margin: 1rem;
+            }
+            
+            .error-code {
+                font-size: 4rem;
+            }
+            
+            .error-title {
+                font-size: 1.5rem;
+            }
+            
+            .reasons-section {
+                padding: 1.5rem;
+            }
+            
+            .reason-item {
+                padding: 1rem;
+            }
+
+            .code-block {
+                font-size: 0.8rem;
+                padding: 0.8rem;
+            }
+        }
+    </style>
 </head>
 <body>
-  <div class="content">
-      <div>
-           <h1>HTTP 504 - Gateway Timeout 网关超时</h1>
-        <dl>
-          <dt>错误说明：网关超时，服务器响应时间，达到超出设定的范围 </dt>
-          <dt>原因1：后端电脑之间 IP 通讯缓慢而产生</dt>
-		  <dd>解决办法：</dd>
-          <dd>如果您的 Web 服务器由某一网站托管， 只有负责那个网站设置的人员才能解决这个问题。</dd>
-          <dt>原因2：由于nginx默认的fastcgi进程响应的缓冲区太小造成的错误</dt>
-		  <dd>解决办法：</dd>
-          <dd>一般默认的fastcgi进程响应的缓冲区是8K，这时可以设置大一点，在nginx.conf里，加入：fastcgi_buffers 8 128k这表示设置fastcgi缓冲区为8块128k大小的空间。当然如果在进行某一项即时的操作, 可能需要nginx的超时参数调大点, 例如设置成60秒:send_timeout 60;经过这两个参数的调整，一般不会再提示“504 Gateway Time-out”错误，问题基本解决。</dd>
-		  <dt>原因3：PHP环境的配置问题</dt>
-		  <dd>解决办法：</dd>
-          <dd>更改php-fpm的几处配置： 把max_children由之前的10改为现在的30，这样就可以保证有充足的php-cgi进程可以被使用； 把request_terminate_timeout由之前的0s改为60s，这样php-cgi进程 处理脚本的超时时间就是60秒，可以防止进程都被挂起，提高利用效率。 接着再更改nginx的几个配置项，减少FastCGI的请求次数，尽量维持buffers不变： fastcgi_buffers由 4 64k 改为 2 256k； fastcgi_buffer_size 由 64k 改为 128K； fastcgi_busy_buffers_size 由 128K 改为 256K； fastcgi_temp_file_write_size 由 128K 改为 256K。 重新加载php-fpm和nginx的配置，再次测试，如果没有出现“504 Gateway Time-out”错误，问题解决。</dd>
-        </dl>
-        <div>使用手册，视频教程，BUG反馈，官网地址： <a href="v.tudouzxc.icu"  target="_blank">v.tudouzxc.icu</a> </div>
-    
-      </div>
-    </div> 
+    <div class="error-container">
+        <span class="error-icon">⏰</span>
+        <div class="error-code">504</div>
+        <h1 class="error-title">Gateway Timeout</h1>
+        <p class="error-description">
+            网关超时，服务器响应时间超出设定的范围，上游服务器响应太慢。
+        </p>
+
+        <div class="reasons-section">
+            <h3>🔍 可能的原因</h3>
+            
+            <div class="reason-item">
+                <div class="reason-title">1. 后端服务器通信缓慢</div>
+                <div class="reason-solution">💡 解决方案：</div>
+                <div class="reason-description">
+                    如果您的 Web 服务器由某一网站托管，只有负责那个网站设置的人员才能解决这个问题。
+                    检查后端服务器性能和网络延迟。
+                </div>
+            </div>
+
+            <div class="reason-item">
+                <div class="reason-title">2. FastCGI 缓冲区设置过小</div>
+                <div class="reason-solution">💡 解决方案：</div>
+                <div class="reason-description">
+                    默认的 fastcgi 进程响应的缓冲区太小，在 nginx.conf 中加入以下配置：
+                    <div class="code-block">fastcgi_buffers 8 128k<br>send_timeout 60;</div>
+                    增加缓冲区大小和超时时间设置。
+                </div>
+            </div>
+
+            <div class="reason-item">
+                <div class="reason-title">3. PHP-FPM 配置优化</div>
+                <div class="reason-solution">💡 解决方案：</div>
+                <div class="reason-description">
+                    调整 PHP-FPM 和 Nginx 配置：
+                    <div class="code-block">
+                        # php-fpm.conf<br>
+                        max_children = 30<br>
+                        request_terminate_timeout = 60s<br><br>
+                        # nginx.conf<br>
+                        fastcgi_buffers 2 256k<br>
+                        fastcgi_buffer_size 128k<br>
+                        fastcgi_busy_buffers_size 256k<br>
+                        fastcgi_temp_file_write_size 256k
+                    </div>
+                    增加进程数、优化缓冲区设置，提高响应效率。
+                </div>
+            </div>
+        </div>
+
+        <div style="margin-top: 2rem;">
+            <a href="javascript:history.back()" class="back-button">← 返回上一页</a>
+            <a href="/" class="back-button">🏠 返回首页</a>
+        </div>
+
+        <div class="contact-info">
+            <p>如果您需要帮助，请联系我们的技术支持团队</p>
+            <p>访问我们的文档和教程：<a href="https://v.tudouzxc.icu" target="_blank">v.tudouzxc.icu</a></p>
+        </div>
+    </div>
 </body>
 </html>

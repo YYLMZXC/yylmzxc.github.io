@@ -1,78 +1,226 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="utf-8">
-  <title>500 错误 - phpstudy</title>
-  <meta name="keywords" content="">
-  <meta name="description" content="">
-  <meta name="renderer" content="webkit">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black"> 
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="format-detection" content="telephone=no">
-  <meta HTTP-EQUIV="pragma" CONTENT="no-cache"> 
-  <meta HTTP-EQUIV="Cache-Control" CONTENT="no-store, must-revalidate"> 
-  <meta HTTP-EQUIV="expires" CONTENT="Wed, 26 Feb 1997 08:21:57 GMT"> 
-  <meta HTTP-EQUIV="expires" CONTENT="0">
-  <style>
-    body{
-      font: 16px arial,'Microsoft Yahei','Hiragino Sans GB',sans-serif;
-    }
-    h1{
-      margin: 0;
-      color:#3a87ad;
-      font-size: 26px;
-    }
-    .content{
-      width: 40%;
-      margin: 0 auto;
-     
-    }
-    .content >div{
-      margin-top: 50px;
-      padding: 20px;
-      background: #d9edf7;  
-      border-radius: 12px;
-    }
-    .content dl{
-      color: #2d6a88;
-      line-height: 40px;
-    } 
-    .content div div {
-      padding-bottom: 20px;
-      text-align:center;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>500 - Internal Server Error | scweb</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .error-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 3rem;
+            max-width: 800px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .error-icon {
+            font-size: 4rem;
+            color: #e74c3c;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .error-code {
+            font-size: 6rem;
+            font-weight: bold;
+            color: #e74c3c;
+            margin-bottom: 0.5rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .error-title {
+            font-size: 1.8rem;
+            color: #2c3e50;
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+
+        .error-description {
+            font-size: 1.1rem;
+            color: #7f8c8d;
+            margin-bottom: 2rem;
+            line-height: 1.8;
+        }
+
+        .reasons-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 2rem;
+            margin: 2rem 0;
+            text-align: left;
+        }
+
+        .reasons-section h3 {
+            color: #2c3e50;
+            margin-bottom: 1.5rem;
+            font-size: 1.3rem;
+            text-align: center;
+        }
+
+        .reason-item {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            border-left: 4px solid #e74c3c;
+        }
+
+        .reason-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .reason-title {
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+        }
+
+        .reason-solution {
+            color: #27ae60;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+
+        .reason-description {
+            color: #7f8c8d;
+            font-size: 0.95rem;
+        }
+
+        .back-button {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1rem 2rem;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: 600;
+            margin: 1rem 0.5rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .back-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .contact-info {
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid #ecf0f1;
+            color: #7f8c8d;
+            font-size: 0.9rem;
+        }
+
+        .contact-info a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .contact-info a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .error-container {
+                padding: 2rem;
+                margin: 1rem;
+            }
+            
+            .error-code {
+                font-size: 4rem;
+            }
+            
+            .error-title {
+                font-size: 1.5rem;
+            }
+            
+            .reasons-section {
+                padding: 1.5rem;
+            }
+            
+            .reason-item {
+                padding: 1rem;
+            }
+        }
+    </style>
 </head>
 <body>
-  <div class="content">
-      <div>
-           <h1>HTTP 500 - Internal Server Error 服务器内部错误</h1>
-        <dl>
-          <dt>错误说明：服务器内部错误，无法完成请求</dt>
-          <dt>原因1：伪静态规则不正确</dt>
-		  <dd>解决办法：</dd>
-          <dd>修改伪静态。</dd>
-          <dt>原因2：php版本与网站程序不兼容</dt>
-		  <dd>解决办法：</dd>
-          <dd>更换PHP版本。</dd>
-		  <dt>原因3：网站无法连接至数据库</dt>
-		  <dd>解决办法：</dd>
-          <dd>正确修改站点的数据库配置文件。</dd>
-		  <dt>原因4：php禁用了某一函数，需要开启</dt>
-		  <dd>解决办法：</dd>
-          <dd>开启相关禁用函数。</dd>
-		  <dt>原因5：站点需要访问站外目录</dt>
-		  <dd>解决办法：</dd>
-          <dd>关闭防跨站处理。</dd>
-		  <dt>原因6：源码本身有BUG</dt>
-		  <dd>解决办法：</dd>
-          <dd>修复源码bug。</dd>
-        </dl>
-        <div>使用手册，视频教程，BUG反馈，官网地址： <a href="v.tudouzxc.icu"  target="_blank">v.tudouzxc.icu</a> </div>
-    
-      </div>
-    </div> 
+    <div class="error-container">
+        <span class="error-icon">⚠️</span>
+        <div class="error-code">500</div>
+        <h1 class="error-title">Internal Server Error</h1>
+        <p class="error-description">
+            服务器内部错误，服务器遇到了一个意外情况，无法完成请求。
+        </p>
+
+        <div class="reasons-section">
+            <h3>🔍 可能的原因</h3>
+            
+            <div class="reason-item">
+                <div class="reason-title">1. 服务器配置错误</div>
+                <div class="reason-solution">💡 解决方案：</div>
+                <div class="reason-description">检查服务器配置文件，确保所有设置正确无误。</div>
+            </div>
+
+            <div class="reason-item">
+                <div class="reason-title">2. 脚本执行错误</div>
+                <div class="reason-solution">💡 解决方案：</div>
+                <div class="reason-description">检查服务器错误日志，定位并修复脚本中的错误。</div>
+            </div>
+
+            <div class="reason-item">
+                <div class="reason-title">3. 数据库连接问题</div>
+                <div class="reason-solution">💡 解决方案：</div>
+                <div class="reason-description">验证数据库连接配置，确保数据库服务正常运行。</div>
+            </div>
+
+            <div class="reason-item">
+                <div class="reason-title">4. 权限问题</div>
+                <div class="reason-solution">💡 解决方案：</div>
+                <div class="reason-description">检查文件和目录权限，确保服务器有适当的访问权限。</div>
+            </div>
+
+            <div class="reason-item">
+                <div class="reason-title">5. 资源耗尽</div>
+                <div class="reason-solution">💡 解决方案：</div>
+                <div class="reason-description">检查服务器资源使用情况，释放不必要的资源占用。</div>
+            </div>
+        </div>
+
+        <div style="margin-top: 2rem;">
+            <a href="javascript:history.back()" class="back-button">← 返回上一页</a>
+            <a href="/" class="back-button">🏠 返回首页</a>
+        </div>
+
+        <div class="contact-info">
+            <p>如果您需要帮助，请联系我们的技术支持团队</p>
+            <p>访问我们的文档和教程：<a href="https://v.tudouzxc.icu" target="_blank">v.tudouzxc.icu</a></p>
+        </div>
+    </div>
 </body>
 </html>
