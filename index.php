@@ -13,7 +13,6 @@
     
     <!-- 资源文件 -->
     <link rel="stylesheet" href="./scweb_res/index/index_main.css">
-    <link rel="stylesheet" href="./scweb_res/index/index.css">
     <link rel="icon" type="image/x-icon" href="./scweb_res/favicon.ico">
 </head>
 <body>
