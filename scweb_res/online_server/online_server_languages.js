@@ -301,27 +301,37 @@ const ServerLanguageConfig = {
     },
     
     // 更新页面文本
-    updatePageTexts: function(lang) {
-        // 更新所有带有data-i18n属性的元素
-        const elements = document.querySelectorAll('[data-i18n]');
-        elements.forEach(element => {
-            const key = element.getAttribute('data-i18n');
-            const text = this.getText(key, lang);
-            
-            if (element.tagName === 'INPUT' || element.tagName === 'TEXTAREA') {
-                if (element.hasAttribute('placeholder')) {
-                    element.setAttribute('placeholder', text);
-                } else {
-                    element.value = text;
-                }
-            } else if (element.hasAttribute('title')) {
-                element.setAttribute('title', text);
-            } else if (element.hasAttribute('alt')) {
-                element.setAttribute('alt', text);
+updatePageTexts: function(lang) {
+    // 1. 处理普通带data-i18n的元素（保留原有逻辑）
+    const elements = document.querySelectorAll('[data-i18n]');
+    elements.forEach(element => {
+        const key = element.getAttribute('data-i18n');
+        const text = this.getText(key, lang);
+        
+        if (element.tagName === 'INPUT' || element.tagName === 'TEXTAREA') {
+            if (element.hasAttribute('placeholder')) {
+                element.setAttribute('placeholder', text);
             } else {
-                element.textContent = text;
+                element.value = text;
             }
-        });
+        } else if (element.hasAttribute('title')) {
+            element.setAttribute('title', text);
+        } else if (element.hasAttribute('alt')) {
+            element.setAttribute('alt', text);
+        } else {
+            element.textContent = text;
+        }
+    });
+
+    // 2. 单独强化处理导航菜单的<a>标签（关键新增逻辑）
+    const navLinks = document.querySelectorAll('.i18n-link');
+    navLinks.forEach(link => {
+        const key = link.getAttribute('data-i18n');
+        const text = this.getText(key, lang);
+        // 强制替换文本，同时兼容部分浏览器的渲染延迟
+        link.textContent = ''; // 清空原有内容
+        link.appendChild(document.createTextNode(text)); // 重新添加文本节点
+    });
         
         // 更新服务器名称翻译
         const serverNameElements = document.querySelectorAll('.server-name-text');
@@ -422,9 +432,7 @@ function initServerLanguages() {
     initLanguageSelector();
 }
 
-// 页面加载完成后初始化
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initServerLanguages);
-} else {
+// 确保在DOM完全加载后再初始化
+document.addEventListener('DOMContentLoaded', function() {
     initServerLanguages();
-}
+});

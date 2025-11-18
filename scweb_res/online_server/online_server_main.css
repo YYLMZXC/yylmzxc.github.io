@@ -146,6 +146,117 @@ button, input, select, textarea {
   max-width: 100%;
 }
 
+/* 新增：顶部导航栏样式 */
+#top-nav-bar {
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #dee2e6;
+  padding: 15px 0;
+  position: relative;
+  z-index: 1000;
+}
+
+.nav-menu-section {
+  display: flex;
+  justify-content: flex-start;
+}
+
+.nav-menu {
+  display: flex;
+  gap: 25px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.nav-menu a {
+  padding: 8px 16px;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+  color: #495057;
+  font-weight: 500;
+  text-decoration: none;
+  border: 1px solid transparent;
+}
+
+.nav-menu a:hover {
+  background-color: #e9ecef;
+  color: #007bff;
+  text-decoration: none;
+}
+
+.nav-menu a.active {
+  background-color: #007bff;
+  color: white;
+  border-color: #007bff;
+}
+
+.nav-menu a.active:hover {
+  background-color: #0056b3;
+  border-color: #0056b3;
+  color: white;
+}
+
+.language-section {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  #top-nav-bar {
+    padding: 10px 0;
+  }
+  
+  .nav-menu {
+    gap: 15px;
+  }
+  
+  .nav-menu a {
+    padding: 6px 12px;
+    font-size: 14px;
+  }
+  
+  .language-section {
+    justify-content: center;
+    margin-top: 10px;
+  }
+}
+
+/* 语言选择器样式 */
+.language-selector {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+}
+
+.language-btn {
+  padding: 6px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background: white;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+.language-btn:hover {
+  border-color: #007cba;
+  box-shadow: 0 0 3px rgba(0, 124, 186, 0.2);
+  background: #f8f9fa;
+}
+
+.language-btn.active {
+  background-color: #007bff;
+  color: white;
+  border-color: #007bff;
+}
+
+.language-btn.active:hover {
+  background-color: #0056b3;
+  border-color: #0056b3;
+}
+
 /* 语言选择器样式 */
 .language-section {
   text-align: center;
