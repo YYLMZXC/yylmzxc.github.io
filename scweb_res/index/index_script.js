@@ -59,6 +59,16 @@ class LanguageManager {
         return localStorage.getItem('preferredLanguage');
     }
 
+    // 获取URL中的语言参数
+    getUrlLanguage() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const lang = urlParams.get('lang');
+        if (lang && this.config && this.config.supported.includes(lang)) {
+            return lang;
+        }
+        return null;
+    }
+
     // 获取浏览器语言
     getBrowserLanguage() {
         const browserLang = navigator.language || navigator.userLanguage;
@@ -75,6 +85,15 @@ class LanguageManager {
 
     // 初始化界面
     initializeInterface() {
+        // 优先级：URL参数 > 本地存储 > 浏览器语言
+        const urlLang = this.getUrlLanguage();
+        if (urlLang) {
+            this.currentLang = urlLang;
+            this.saveLanguage(urlLang);
+        } else {
+            this.currentLang = this.getSavedLanguage() || this.getBrowserLanguage() || 'zh';
+        }
+        
         this.updatePageContent();
         this.updateLanguageButtons();
     }

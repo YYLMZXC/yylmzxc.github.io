@@ -143,15 +143,7 @@ function add_server($name, $ip, $group, $note = '', $type = 'original') {
                         <img width="220px" height="64px" src="./scweb_res/logo.png" alt="生存战争网">
                     </a></h1>
                              </div>
-            <div class="site-search col-3 kit-hidden-tb">
-                <form id="search" method="post" action="http://schub.icu/sczz/?search--1.htm" role="search">
-<select class="search-select" name="cat" style="border: 1px solid #ccc;"><option>任意分类</option><option value="1">插件版Mod模组下载</option><option value="2">联机版Mod模组下载</option><option value="4">游戏历史全版本下载</option><option value="10">材质包下载</option><option value="11">家具包下载</option><option value="9">皮肤大全下载</option><option value="8">地图存档下载</option><option value="6">攻略教程</option></select>
 
-                    <label for="s" class="sr-only">搜索关键字</label>
-                    <input type="text" id="s" name="ss" class="text" placeholder="输入关键字搜索">
-                    <button type="submit" class="submit">搜索</button>
-                </form>
-            </div>
             <div class="col-mb-12">
                 <nav id="nav-menu" class="clearfix" role="navigation">
                     <a title="生存战争网_SC中文社区" href="index.php" data-i18n="nav.home">首页</a>

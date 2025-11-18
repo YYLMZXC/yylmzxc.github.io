@@ -406,11 +406,17 @@ function setLanguage(lang) {
 
 // 初始化语言
 function initServerLanguages() {
-    // 获取保存的语言设置，如果没有则使用默认语言
-    const savedLang = localStorage.getItem('serverLanguage') || ServerLanguageConfig.default;
+    // 优先级：URL参数 > 本地存储 > 默认语言
+    const urlParams = new URLSearchParams(window.location.search);
+    let lang = urlParams.get('lang');
+    
+    if (!lang) {
+        // 获取保存的语言设置，如果没有则使用默认语言
+        lang = localStorage.getItem('serverLanguage') || ServerLanguageConfig.default;
+    }
     
     // 设置初始语言
-    setLanguage(savedLang);
+    setLanguage(lang);
     
     // 初始化语言选择器
     initLanguageSelector();
