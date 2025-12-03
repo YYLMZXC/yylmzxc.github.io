@@ -218,10 +218,23 @@ function add_server($name, $ip, $group, $note = '', $type = 'original') {
                                 <span class="server-ip" data-ip="<?php echo $server['ip']; ?>" title="点击复制IP" data-i18n="server.clickToCopy" data-i18n-attr="title">
                                     <b><?php echo $server['ip']; ?></b> <span class="copy-hint" data-i18n="server.clickToCopy">点击复制</span>
                                 </span>
-                                <span class="server-ping" data-ip="<?php echo $server['ip']; ?>">
-                                    <span class="ping-icon">🔄</span>
-                                    <span class="ping-text" data-i18n="server.ping">检测延迟...</span>
-                                </span>
+                                <div class="server-latency">
+                                    <!-- Ping延迟 -->
+                                    <span class="latency-item ping-latency" data-ip="<?php echo $server['ip']; ?>">
+                                        <span class="latency-icon">📶</span>
+                                        <span class="latency-text" data-i18n="server.ping">Ping检测...</span>
+                                    </span>
+                                    <!-- TCP延迟 -->
+                                    <span class="latency-item tcp-latency" data-ip="<?php echo $server['ip']; ?>">
+                                        <span class="latency-icon">🔌</span>
+                                        <span class="latency-text" data-i18n="server.tcp">TCP检测...</span>
+                                    </span>
+                                    <!-- UDP延迟 -->
+                                    <span class="latency-item udp-latency" data-ip="<?php echo $server['ip']; ?>">
+                                        <span class="latency-icon">�</span>
+                                        <span class="latency-text" data-i18n="server.udp">UDP检测...</span>
+                                    </span>
+                                </div>
                                 <span class="server-group" data-group="<?php echo $server['group']; ?>" title="点击复制群号" data-i18n="server.clickToCopy" data-i18n-attr="title">
                                     <span data-i18n="server.groupNumber">群号：</span><b><?php echo $server['group']; ?></b> <span class="copy-hint" data-i18n="server.clickToCopy">点击复制</span>
                                 </span>
@@ -323,125 +336,165 @@ function add_server($name, $ip, $group, $note = '', $type = 'original') {
     });
   });
   
-  // 服务器Ping功能
-  function pingServer(ip, element) {
+  // 服务器延迟检测功能
+  // 通用延迟检测函数
+  function detectLatency(ip, element, type) {
     var xhr = new XMLHttpRequest();
-    // 使用相对路径确保与当前页面协议一致
-    var pingUrl = window.location.protocol + '//' + window.location.host + '/ping_server.php?ip=' + encodeURIComponent(ip);
+    var endpoint = '';
     
-    xhr.open('GET', pingUrl, true);
+    // 根据检测类型选择不同的端点
+    switch(type) {
+      case 'ping':
+        endpoint = 'ping_server.php';
+        break;
+      case 'tcp':
+        endpoint = 'tcp_server.php';
+        break;
+      case 'udp':
+        endpoint = 'udp_server.php';
+        break;
+      default:
+        return;
+    }
+    
+    // 使用相对路径确保与当前页面协议一致
+    var url = window.location.protocol + '//' + window.location.host + '/' + endpoint + '?ip=' + encodeURIComponent(ip);
+    
+    xhr.open('GET', url, true);
     
     xhr.onload = function() {
       if (xhr.status === 200) {
         try {
           var result = JSON.parse(xhr.responseText);
-          updatePingResult(element, result);
+          updateLatencyResult(element, result, type);
         } catch (e) {
-          console.error('解析Ping结果失败:', e);
-          updatePingError(element, '解析失败');
+          console.error(type + '解析失败:', e);
+          updateLatencyError(element, '解析失败', type);
         }
       } else {
-        updatePingError(element, '连接错误 (' + xhr.status + ')');
+        updateLatencyError(element, '连接错误 (' + xhr.status + ')', type);
       }
     };
     
     xhr.onerror = function(e) {
-      console.error('XHR错误:', e);
-      updatePingError(element, '网络错误');
+      console.error(type + 'XHR错误:', e);
+      updateLatencyError(element, '网络错误', type);
     };
     
-    xhr.timeout = 20000; // 增加超时时间到20秒
+    xhr.timeout = 10000; // 超时时间10秒
     xhr.ontimeout = function() {
-      updatePingError(element, '请求超时');
+      updateLatencyError(element, '请求超时', type);
     };
     
     xhr.send();
   }
   
-  function updatePingResult(element, result) {
-    var pingIcon = element.querySelector('.ping-icon');
-    var pingText = element.querySelector('.ping-text');
-    
-    // 停止旋转动画
-    pingIcon.style.animation = 'none';
+  // 更新延迟检测结果
+  function updateLatencyResult(element, result, type) {
+    var latencyIcon = element.querySelector('.latency-icon');
+    var latencyText = element.querySelector('.latency-text');
     
     if (result.success) {
-      // 始终显示延迟信息，即使是-1
-      pingIcon.textContent = '📶';
+      // 显示延迟信息
       if (result.latency >= 0) {
-        // 有有效延迟值
+        // 设置图标
+        switch(type) {
+          case 'ping':
+            latencyIcon.textContent = '📶';
+            break;
+          case 'tcp':
+            latencyIcon.textContent = '�';
+            break;
+          case 'udp':
+            latencyIcon.textContent = '📡';
+            break;
+        }
+        
+        // 显示延迟值
         if (result.latency < 1) {
-          pingText.textContent = '<1 ms';
+          latencyText.textContent = '<1 ms';
         } else {
           // 保留2位小数显示延迟
-          pingText.textContent = parseFloat(result.latency).toFixed(2) + ' ms';
+          latencyText.textContent = parseFloat(result.latency).toFixed(2) + ' ms';
         }
         
         // 根据延迟设置样式
-        element.classList.remove('ping-low', 'ping-medium', 'ping-high', 'ping-timeout');
+        element.classList.remove(type + '-low', type + '-medium', type + '-high', type + '-timeout');
         if (result.latency < 100) {
-          element.classList.add('ping-low');
+          element.classList.add(type + '-low');
         } else if (result.latency < 300) {
-          element.classList.add('ping-medium');
+          element.classList.add(type + '-medium');
         } else {
-          element.classList.add('ping-high');
+          element.classList.add(type + '-high');
         }
       } else {
-        // 延迟值为-1（默认值）
-        pingText.textContent = '连接中...';
-        element.classList.remove('ping-low', 'ping-medium', 'ping-high', 'ping-timeout');
-        element.classList.add('ping-low');
+        // 延迟值无效
+        latencyText.textContent = '连接中...';
+        element.classList.remove(type + '-low', type + '-medium', type + '-high', type + '-timeout');
       }
     } else {
-      // 显示详细错误信息
+      // 显示错误信息
       var errorMsg = result.error || '无法连接';
-      if (result.errors && result.errors.length > 0) {
-        errorMsg = result.errors[0];
-      }
-      // 添加网络诊断提示
-      if (errorMsg.includes('连接被拒绝') || errorMsg.includes('10061')) {
-        errorMsg += ' (端口可能未开放)';
-      } else if (errorMsg.includes('连接超时') || errorMsg.includes('10060')) {
-        errorMsg += ' (网络延迟或防火墙阻止)';
-      }
-      updatePingError(element, errorMsg);
+      updateLatencyError(element, errorMsg, type);
     }
   }
   
-  function updatePingError(element, error) {
-    var pingIcon = element.querySelector('.ping-icon');
-    var pingText = element.querySelector('.ping-text');
+  // 更新延迟检测错误
+  function updateLatencyError(element, error, type) {
+    var latencyIcon = element.querySelector('.latency-icon');
+    var latencyText = element.querySelector('.latency-text');
     
-    // 停止旋转动画
-    pingIcon.style.animation = 'none';
-    pingIcon.textContent = '❌';
+    // 设置错误图标
+    latencyIcon.textContent = '❌';
     
     // 设置错误文本
-    pingText.textContent = error;
+    latencyText.textContent = error;
     
     // 设置错误样式
-    element.classList.remove('ping-low', 'ping-medium', 'ping-high');
-    element.classList.add('ping-timeout');
+    element.classList.remove(type + '-low', type + '-medium', type + '-high');
+    element.classList.add(type + '-timeout');
   }
   
-  // 页面加载完成后执行Ping
+  // 页面加载完成后执行延迟检测
   document.addEventListener('DOMContentLoaded', function() {
-    // 为每个服务器执行Ping（添加延迟避免同时发送太多请求）
-    var pingElements = document.querySelectorAll('.server-ping');
-    pingElements.forEach(function(element, index) {
+    // 为每个服务器执行三种延迟检测
+    var serverItems = document.querySelectorAll('.server-item');
+    serverItems.forEach(function(item, index) {
       setTimeout(function() {
-        var ip = element.getAttribute('data-ip');
-        pingServer(ip, element);
-      }, index * 500); // 每个请求间隔500毫秒
+        var ip = item.querySelector('.server-ip').getAttribute('data-ip');
+        
+        // 执行Ping延迟检测
+        var pingElement = item.querySelector('.ping-latency');
+        detectLatency(ip, pingElement, 'ping');
+        
+        // 执行TCP延迟检测
+        var tcpElement = item.querySelector('.tcp-latency');
+        detectLatency(ip, tcpElement, 'tcp');
+        
+        // 执行UDP延迟检测
+        var udpElement = item.querySelector('.udp-latency');
+        detectLatency(ip, udpElement, 'udp');
+      }, index * 500); // 每个服务器请求间隔500毫秒
     });
     
-    // 每隔30秒自动刷新一次Ping结果
+    // 每隔30秒自动刷新一次延迟结果
     setInterval(function() {
-      pingElements.forEach(function(element, index) {
+      serverItems.forEach(function(item, index) {
         setTimeout(function() {
-          var ip = element.getAttribute('data-ip');
-          pingServer(ip, element);
-        }, index * 500); // 每个请求间隔500毫秒
+          var ip = item.querySelector('.server-ip').getAttribute('data-ip');
+          
+          // 执行Ping延迟检测
+          var pingElement = item.querySelector('.ping-latency');
+          detectLatency(ip, pingElement, 'ping');
+          
+          // 执行TCP延迟检测
+          var tcpElement = item.querySelector('.tcp-latency');
+          detectLatency(ip, tcpElement, 'tcp');
+          
+          // 执行UDP延迟检测
+          var udpElement = item.querySelector('.udp-latency');
+          detectLatency(ip, udpElement, 'udp');
+        }, index * 500); // 每个服务器请求间隔500毫秒
       });
     }, 30000);
   });

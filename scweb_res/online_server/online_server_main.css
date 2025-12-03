@@ -1020,3 +1020,142 @@ body {
     display: block;
   }
 }
+
+/* 服务器延迟检测样式 */
+.server-latency {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 10px 0;
+  width: 100%;
+}
+
+.latency-item {
+  display: flex;
+  align-items: center;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-weight: 500;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  min-width: 120px;
+  background-color: rgba(255, 255, 255, 0.9);
+  border: 1px solid #e0e0e0;
+}
+
+.latency-icon {
+  margin-right: 6px;
+  font-size: 16px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* 停止旋转动画 */
+.latency-item.ping-low .latency-icon,
+.latency-item.ping-medium .latency-icon,
+.latency-item.ping-high .latency-icon,
+.latency-item.ping-timeout .latency-icon,
+.latency-item.tcp-low .latency-icon,
+.latency-item.tcp-medium .latency-icon,
+.latency-item.tcp-high .latency-icon,
+.latency-item.tcp-timeout .latency-icon,
+.latency-item.udp-low .latency-icon,
+.latency-item.udp-medium .latency-icon,
+.latency-item.udp-high .latency-icon,
+.latency-item.udp-timeout .latency-icon {
+  animation: none;
+}
+
+/* Ping延迟样式 */
+.ping-low {
+  color: #27ae60;
+  background-color: rgba(39, 174, 96, 0.1) !important;
+  border-color: #27ae60 !important;
+}
+
+.ping-medium {
+  color: #f39c12;
+  background-color: rgba(243, 156, 18, 0.1) !important;
+  border-color: #f39c12 !important;
+}
+
+.ping-high {
+  color: #e74c3c;
+  background-color: rgba(231, 76, 60, 0.1) !important;
+  border-color: #e74c3c !important;
+}
+
+.ping-timeout {
+  color: #95a5a6;
+  background-color: rgba(149, 165, 166, 0.1) !important;
+  border-color: #95a5a6 !important;
+}
+
+/* TCP延迟样式 */
+.tcp-low {
+  color: #3498db;
+  background-color: rgba(52, 152, 219, 0.1) !important;
+  border-color: #3498db !important;
+}
+
+.tcp-medium {
+  color: #9b59b6;
+  background-color: rgba(155, 89, 182, 0.1) !important;
+  border-color: #9b59b6 !important;
+}
+
+.tcp-high {
+  color: #e67e22;
+  background-color: rgba(230, 126, 34, 0.1) !important;
+  border-color: #e67e22 !important;
+}
+
+.tcp-timeout {
+  color: #95a5a6;
+  background-color: rgba(149, 165, 166, 0.1) !important;
+  border-color: #95a5a6 !important;
+}
+
+/* UDP延迟样式 */
+.udp-low {
+  color: #16a085;
+  background-color: rgba(22, 160, 133, 0.1) !important;
+  border-color: #16a085 !important;
+}
+
+.udp-medium {
+  color: #f1c40f;
+  background-color: rgba(241, 196, 15, 0.1) !important;
+  border-color: #f1c40f !important;
+}
+
+.udp-high {
+  color: #c0392b;
+  background-color: rgba(192, 57, 43, 0.1) !important;
+  border-color: #c0392b !important;
+}
+
+.udp-timeout {
+  color: #95a5a6;
+  background-color: rgba(149, 165, 166, 0.1) !important;
+  border-color: #95a5a6 !important;
+}
+
+/* 响应式设计 */
+@media (max-width: 767px) {
+  .server-latency {
+    flex-direction: column;
+    width: 100%;
+    gap: 5px;
+  }
+  
+  .latency-item {
+    width: 100%;
+    min-width: auto;
+    justify-content: flex-start;
+  }
+}
