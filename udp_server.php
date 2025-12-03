@@ -29,8 +29,8 @@ if (empty($target)) {
 }
 
 // 默认端口和超时设置
-$defaultPort = 53; // DNS端口，常用且大多数服务器开放
-$timeout = 2; // 超时时间（秒）
+$defaultPort = 28887; // SC服务器默认UDP端口
+$timeout = 10; // 超时时间（秒）
 
 /**
  * 解析目标地址和端口
