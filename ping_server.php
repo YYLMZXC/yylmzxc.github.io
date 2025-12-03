@@ -49,11 +49,13 @@ $host = trim($host);
 $host = trim($host);
 
 /**
- * 测试DNS解析（支持多DNS服务器和重试机制）
+ * 测试DNS解析（增强版）
  * @param string $host 主机名
+ * @param int $timeout 超时时间（秒）
+ * @param int $retries 重试次数
  * @return array 包含解析结果的数组
  */
-function testDnsResolution($host) {
+function testDnsResolution($host, $timeout = 5, $retries = 2) {
     $result = array(
         'success' => false,
         'ip' => null,
@@ -77,8 +79,13 @@ function testDnsResolution($host) {
     
     // 常用公共DNS服务器列表
     $publicDnsServers = array(
-        '8.8.8.8',     // Google DNS
-        '8.8.4.4',     // Google DNS
+        '223.5.5.5',   // 阿里云DNS - 国内访问速度快，稳定性强
+        '223.6.6.6',   // 阿里云DNS - 支持DNS防劫持
+        '119.29.29.29', // 腾讯云DNS - 依托腾讯骨干网络，解析延迟低
+        '182.254.116.116', // 腾讯云DNS - 具备恶意网站拦截等安全防护功能   
+        '180.76.76.76', // 百度公共DNS - 针对国内网站优化解析
+         '8.8.8.8',     // Google DNS
+        '8.8.4.4',     // Google DNS      
         '114.114.114.114', // 114 DNS
         '114.114.115.115', // 114 DNS
         '202.96.128.86',   // 联通DNS
@@ -91,73 +98,129 @@ function testDnsResolution($host) {
     
     // 尝试多种解析方法
     $resolveMethods = array(
-        'gethostbyname' => function($h) {
+        'gethostbyname' => function($h) use ($timeout) {
+            // 保存原始超时设置
+            $originalTimeout = ini_get('default_socket_timeout');
+            // 设置更长的超时时间
+            ini_set('default_socket_timeout', $timeout);
+            
             $ip = @gethostbyname($h);
+            
+            // 恢复原始超时设置
+            ini_set('default_socket_timeout', $originalTimeout);
+            
             return $ip !== $h ? $ip : false;
         },
-        'gethostbynamel' => function($h) {
+        'gethostbynamel' => function($h) use ($timeout) {
             if (!function_exists('gethostbynamel')) return false;
+            
+            // 保存原始超时设置
+            $originalTimeout = ini_get('default_socket_timeout');
+            // 设置更长的超时时间
+            ini_set('default_socket_timeout', $timeout);
+            
             $ips = @gethostbynamel($h);
+            
+            // 恢复原始超时设置
+            ini_set('default_socket_timeout', $originalTimeout);
+            
             return is_array($ips) && count($ips) > 0 ? $ips[0] : false;
         },
-        'dns_get_record' => function($h) {
+        'dns_get_record' => function($h) use ($timeout) {
             if (!function_exists('dns_get_record')) return false;
+            
+            // 保存原始超时设置
+            $originalTimeout = ini_get('default_socket_timeout');
+            // 设置更长的超时时间
+            ini_set('default_socket_timeout', $timeout);
+            
             $records = @dns_get_record($h, DNS_A);
+            
+            // 恢复原始超时设置
+            ini_set('default_socket_timeout', $originalTimeout);
+            
             return is_array($records) && count($records) > 0 ? $records[0]['ip'] : false;
         }
     );
     
-    // 尝试所有解析方法
-    $resolvedIp = false;
-    foreach ($resolveMethods as $methodName => $methodFunc) {
+    // 多次尝试解析，增加成功率
+    for ($retry = 0; $retry <= $retries; $retry++) {
+        if ($retry > 0) {
+            $result['debug'][] = "DNS解析重试 #$retry";
+        }
+        
+        // 尝试所有解析方法
+        $resolvedIp = false;
+        foreach ($resolveMethods as $methodName => $methodFunc) {
+            if ($resolvedIp) break;
+            
+            $result['debug'][] = "使用{$methodName}方法解析主机名: {$host}";
+
+            $startTime = microtime(true);
+            $ip = $methodFunc($host);
+            $resolveTime = microtime(true) - $startTime;
+            
+            if ($ip) {
+                $resolvedIp = $ip;
+                $result['success'] = true;
+                $result['ip'] = $ip;
+                $result['debug'][] = "{$methodName}解析成功，IP地址: {$ip}，耗时: " . round($resolveTime * 1000) . "ms";
+
+                break;
+            } else {
+                $result['debug'][] = "{$methodName}解析失败，耗时: " . round($resolveTime * 1000) . "ms";
+            }
+        }
+        
         if ($resolvedIp) break;
         
-       $result['debug'][] = "使用{$methodName}方法解析主机名: {$host}";
-
-        $startTime = microtime(true);
-        $ip = $methodFunc($host);
-        $resolveTime = microtime(true) - $startTime;
-        
-        if ($ip) {
-            $resolvedIp = $ip;
-            $result['success'] = true;
-            $result['ip'] = $ip;
-            $result['debug'][] = "{$methodName}解析成功，IP地址: {$ip}，耗时: " . round($resolveTime * 1000) . "ms";
-
-            break;
-        } else {
-           $result['debug'][] = "{$methodName}解析失败，耗时: " . round($resolveTime * 1000) . "ms";
-
+        // 如果当前重试失败，并且还有重试次数，等待一段时间后再试
+        if ($retry < $retries) {
+            $waitTime = 1; // 等待1秒后重试
+            $result['debug'][] = "DNS解析失败，$waitTime 秒后重试...";
+            sleep($waitTime);
         }
     }
     
     // 如果所有方法都失败，尝试直接使用fsockopen（某些环境下可以绕过系统DNS）
-    if (!$resolvedIp) {
+    if (!$result['success']) {
         $result['debug'][] = "所有DNS解析方法失败，尝试直接使用fsockopen连接（可能绕过系统DNS）";
-        $startTime = microtime(true);
-        $socket = @fsockopen($host, 80, $errno, $errstr, 10);
-        $connectTime = microtime(true) - $startTime;
         
-        if ($socket) {
-            // 获取连接的对等方IP
-            $peerName = @stream_socket_get_name($socket, true);
-            if ($peerName) {
-                // 提取IP地址部分
-                $ip = explode(':', $peerName)[0];
-                $result['success'] = true;
-                $result['ip'] = $ip;
-              $result['debug'][] = "fsockopen连接成功，获取到IP: {$ip}，耗时: " . round($connectTime * 1000) . "ms";
-
+        // 多次尝试fsockopen连接
+        for ($retry = 0; $retry <= $retries; $retry++) {
+            $startTime = microtime(true);
+            $socket = @fsockopen($host, 80, $errno, $errstr, $timeout);
+            $connectTime = microtime(true) - $startTime;
+            
+            if ($socket) {
+                // 获取连接的对等方IP
+                $peerName = @stream_socket_get_name($socket, true);
+                if ($peerName) {
+                    // 提取IP地址部分
+                    $ip = explode(':', $peerName)[0];
+                    $result['success'] = true;
+                    $result['ip'] = $ip;
+                    $result['debug'][] = "fsockopen连接成功，获取到IP: {$ip}，耗时: " . round($connectTime * 1000) . "ms";
+                }
+                fclose($socket);
+                break;
+            } else {
+                $result['debug'][] = "fsockopen连接失败，错误: $errno - $errstr";
+                
+                // 如果当前重试失败，并且还有重试次数，等待一段时间后再试
+                if ($retry < $retries) {
+                    $waitTime = 1;
+                    $result['debug'][] = "fsockopen连接失败，$waitTime 秒后重试...";
+                    sleep($waitTime);
+                }
             }
-            fclose($socket);
-        } else {
-            $result['debug'][] = "fsockopen连接失败，错误: $errno - $errstr";
         }
     }
     
     // 如果还是失败，设置错误信息
     if (!$result['success']) {
-        $result['error'] = "无法解析主机名 '$host'，已尝试所有可用DNS解析方法";
+        $result['error'] = "无法解析主机名 '$host'，已尝试所有可用DNS解析方法和直接连接";
+        $result['debug'][] = "所有DNS解析和直接连接尝试都失败了";
     }
     
     return $result;
@@ -303,6 +366,10 @@ function testConnectionLatency($host, $timeout = 10, $count = 2) {
     // 使用专门的DNS解析测试函数
     $dnsResult = testDnsResolution($host);
     $ipAddress = $dnsResult['ip'];
+    // 如果DNS解析失败，使用主机名作为备选
+    if (empty($ipAddress)) {
+        $ipAddress = $host;
+    }
     
     // 添加DNS解析结果到调试信息
     $debugInfo[] = "DNS解析结果: " . ($dnsResult['success'] ? "成功" : "失败");
@@ -310,11 +377,14 @@ function testConnectionLatency($host, $timeout = 10, $count = 2) {
         $debugInfo[] = "DNS调试: " . $debugLine;
     }
     
+    // DNS解析失败时的处理（不再直接判定为失败）
     if (!$dnsResult['success']) {
-        $errors[] = "无法解析主机名: $host";
-        if (isset($dnsResult['error'])) {
-            $errors[] = "DNS解析错误: " . $dnsResult['error'];
-        }
+        $debugInfo[] = "DNS解析失败，但将继续尝试直接连接到主机";
+        // 不再记录DNS解析错误，因为即使DNS解析失败，fsockopen可能仍然能够连接
+        // $errors[] = "无法解析主机名: $host";
+        // if (isset($dnsResult['error'])) {
+        //     $errors[] = "DNS解析错误: " . $dnsResult['error'];
+        // }
     } else {
         if (filter_var($host, FILTER_VALIDATE_IP)) {
             $debugInfo[] = "输入的是IP地址，无需解析";
@@ -374,6 +444,18 @@ function testConnectionLatency($host, $timeout = 10, $count = 2) {
             $latencies[] = $latency;
             $successCount++;
             $totalTime += $latency;
+            
+            // 获取实际连接的IP地址
+            $peerName = @stream_socket_get_name($socket, true);
+            if ($peerName) {
+                // 提取IP地址部分
+                $actualIp = explode(':', $peerName)[0];
+                if (empty($ipAddress) || $ipAddress !== $actualIp) {
+                    $ipAddress = $actualIp;
+                    $debugInfo[] = "获取到实际连接的IP地址: $ipAddress";
+                }
+            }
+            
             $debugInfo[] = "连接成功，延迟: " . round($latency) . "ms，连接耗时: " . round($connectionDuration) . "ms";
             
             // 关闭连接
