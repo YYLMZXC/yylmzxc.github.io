@@ -66,6 +66,10 @@ const ServerLanguageConfig = {
                 joinGroup: '欢迎加入我们的交流群：',
                 managementOffice: '联机服列表管理办事处：',
                 noServers: '暂无符合条件的服务器',
+                ping: '检测延迟...',
+                pingTimeout: '超时',
+                pingUnreachable: '无法连接',
+                pingUnit: 'ms',
                 
                 // 服务器类型
                 types: {
@@ -139,6 +143,10 @@ const ServerLanguageConfig = {
                 joinGroup: 'Welcome to join our discussion group: ',
                 managementOffice: 'Server List Management Office: ',
                 noServers: 'No servers found',
+                ping: 'Testing latency...',
+                pingTimeout: 'Timeout',
+                pingUnreachable: 'Unreachable',
+                pingUnit: 'ms',
                 
                 // 服务器类型
                 types: {
@@ -223,6 +231,10 @@ const ServerLanguageConfig = {
                 joinGroup: 'Добро пожаловать в нашу группу обсуждения: ',
                 managementOffice: 'Управление Списком Серверов: ',
                 noServers: 'Серверы не найдены',
+                ping: 'Проверка задержки...',
+                pingTimeout: 'Тайм-аут',
+                pingUnreachable: 'Недоступно',
+                pingUnit: 'мс',
                 
                 // 服务器类型
                 types: {

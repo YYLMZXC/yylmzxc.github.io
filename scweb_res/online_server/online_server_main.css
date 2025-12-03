@@ -547,6 +547,49 @@ button, input, select, textarea {
   opacity: 1;
 }
 
+/* 服务器Ping显示样式 */
+.server-ping {
+  display: flex;
+  align-items: center;
+  margin-right: 1rem;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  min-width: 120px;
+}
+
+.ping-icon {
+  margin-right: 6px;
+  font-size: 1rem;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.ping-low {
+  color: #27ae60;
+  background-color: rgba(39, 174, 96, 0.1);
+}
+
+.ping-medium {
+  color: #f39c12;
+  background-color: rgba(243, 156, 18, 0.1);
+}
+
+.ping-high {
+  color: #e74c3c;
+  background-color: rgba(231, 76, 60, 0.1);
+}
+
+.ping-timeout {
+  color: #95a5a6;
+  background-color: rgba(149, 165, 166, 0.1);
+}
+
 .server-group {
   margin-right: 1rem;
   flex: 1;

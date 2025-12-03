@@ -35,7 +35,6 @@ const LanguageConfig = {
             nav: {
                 home: '首页',
                 serverList: '联机服务器列表',
-                pluginMod: '插件版Mod下载',
                 apiTutorial: 'APImod制作教程'
             },
             
@@ -108,7 +107,6 @@ const LanguageConfig = {
             nav: {
                 home: 'Home',
                 serverList: 'Server List',
-                pluginMod: 'Plugin Mod Downloads',
                 apiTutorial: 'API Mod Tutorial'
             },
             
@@ -181,7 +179,6 @@ const LanguageConfig = {
             nav: {
                 home: 'Главная',
                 serverList: 'Список Серверов',
-                pluginMod: 'Плагин Мод Скачать',
                 apiTutorial: 'API Mod Урок'
             },
             
@@ -250,7 +247,7 @@ const LanguageConfig = {
             { title: 'links.scCommunity', url: 'https://www.schub.top/', external: true },
             { title: 'links.scBox', url: 'https://web.schz.top', external: true },
             { title: 'links.scWiki', url: 'https://www.yuque.com/u589148/sc', external: true },
-            { title: 'links.pluginMod', url: '/mod_plugin.php', external: false },
+            { title: 'links.pluginMod', url: 'http://schub.icu/sczz/?forum-3.htm', external: true },
             { title: 'links.onlineMod', url: 'http://schub.icu/sczz/?forum-4.htm', external: true },
             { title: 'links.texturePack', url: 'http://schub.icu/sczz/?forum-5.htm', external: true },
             { title: 'links.skinPack', url: 'http://schub.icu/sczz/?forum-6.htm', external: true },
