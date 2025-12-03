@@ -265,15 +265,14 @@ textarea {
 
 /* 语言选择器容器 */
 .language-section-top-right {
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
+    position: relative;
+    z-index: 1001;
+    background-color: transparent;
 }
 
 .language-selector {
     display: flex;
-    gap: 8px;
-    align-items: center;
+    gap: 15px;
     flex-wrap: wrap;
 }
 
@@ -305,86 +304,37 @@ textarea {
 
 /* ==== 组件样式 ==== */
 /* 语言选择器按钮 */
-.language-btn {
+.language-section-top-right .language-btn {
+    padding: 4px 48px;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    background: white;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    text-align: center;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 44px;
-    height: 44px;
-    border: 2px solid #e0e6ed;
-    border-radius: 12px;
-    background: linear-gradient(135deg, #ffffff 0%, #f8f9ff 100%);
-    font-size: 18px;
-    cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: var(--shadow-light);
-    position: relative;
-    overflow: hidden;
 }
 
-.language-btn::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-    transition: left 0.5s;
+.language-section-top-right .language-btn:hover {
+    border-color: #007cba;
+    box-shadow: 0 2px 4px rgba(0, 124, 186, 0.2);
+    background: #f8f9fa;
 }
 
-.language-btn:hover::before {
-    left: 100%;
-}
-
-.language-btn:hover {
-    border-color: var(--primary-color);
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.25);
-    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+.language-section-top-right .language-btn.active {
+    background-color: #007bff;
     color: white;
+    border-color: #007bff;
 }
 
-.language-btn:focus {
-    outline: none;
-    border-color: var(--primary-color);
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.15);
-    transform: translateY(-1px);
-}
-
-.language-btn:active {
-    transform: translateY(0);
-    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);
-}
-
-.language-btn.active {
-    border-color: var(--primary-color);
-    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
-    color: white;
-    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
-    transform: translateY(-1px);
-}
-
-.language-btn.active:hover {
-    background: linear-gradient(135deg, var(--primary-dark) 0%, var(--secondary-dark) 100%);
-    transform: translateY(-2px);
-}
-
-/* 语言按钮波纹效果 */
-.language-btn .ripple {
-    position: absolute;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.6);
-    transform: scale(0);
-    animation: ripple 0.6s linear;
-    pointer-events: none;
-}
-
-@keyframes ripple {
-    to {
-        transform: scale(4);
-        opacity: 0;
-    }
+.language-section-top-right .language-btn.active:hover {
+    background-color: #0056b3;
+    border-color: #0056b3;
 }
 
 /* 兼容旧版select样式 */
@@ -645,10 +595,19 @@ textarea {
         position: relative;
         top: auto;
         right: auto;
-        width: 100%;
-        text-align: center;
-        margin: 0;
+        display: flex;
         justify-content: center;
+        width: 100%;
+        margin-top: 10px;
+    }
+    
+    .language-section-top-right .language-selector {
+        justify-content: center;
+    }
+    
+    .language-section-top-right .language-btn {
+        padding: 6px 36px;
+        font-size: 13px;
     }
     
     #body > .container {
