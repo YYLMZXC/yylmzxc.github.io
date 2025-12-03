@@ -101,6 +101,21 @@ function get_server_type_name($type) {
             return '未知';
     }
 }
+
+// 添加服务器的函数（用于后续扩展）
+function add_server($name, $ip, $group, $note = '', $type = 'original') {
+    global $servers;
+    
+    $servers[] = array(
+        'name' => $name,
+        'ip' => $ip,
+        'group' => $group,
+        'note' => $note,
+        'type' => $type
+    );
+    
+    return true;
+}
 ?>
 <!DOCTYPE html>
 <html lang="zh-CN">
@@ -216,7 +231,7 @@ function get_server_type_name($type) {
                                     </span>
                                     <!-- UDP延迟 -->
                                     <span class="latency-item udp-latency" data-ip="<?php echo $server['ip']; ?>">
-                                        <span class="latency-icon">📡</span>
+                                        <span class="latency-icon">�</span>
                                         <span class="latency-text" data-i18n="server.udp">UDP检测...</span>
                                     </span>
                                 </div>
@@ -388,7 +403,7 @@ function get_server_type_name($type) {
             latencyIcon.textContent = '📶';
             break;
           case 'tcp':
-            latencyIcon.textContent = '🔌';
+            latencyIcon.textContent = '�';
             break;
           case 'udp':
             latencyIcon.textContent = '📡';
