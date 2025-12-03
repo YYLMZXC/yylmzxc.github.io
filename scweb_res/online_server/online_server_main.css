@@ -846,18 +846,21 @@ body {
   margin: 0 5px;
 }
 
+.group-link {
+  display: block;
+  width: 100%;
+}
+
 .group-link:hover {
   background-color: #0e98d5;
   color: white;
 }
-    display: block;
-    width: 100%;
-  }
-  
-  /* 确保最后一个服务器项有足够间距 */
-  .server-item:last-child {
-    margin-bottom: 50px;
-  }
+
+/* 确保最后一个服务器项有足够间距 */
+.server-item:last-child {
+  margin-bottom: 50px;
+}
+
   
   /* 确保内容容器有足够底部内边距 */
   .post-content {
@@ -876,7 +879,7 @@ body {
   * {
     overflow-anchor: auto;
   }
-}
+/* 修复：移除多余的大括号，避免语法错误 */
 
 /* 为桌面浏览器添加额外的间距保障 */
 @media (min-width: 992px) {
