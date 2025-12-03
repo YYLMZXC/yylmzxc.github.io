@@ -21,6 +21,7 @@ if (isset($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS']) === 'on') {
 
 // 获取请求参数
 $ip = isset($_GET['ip']) ? $_GET['ip'] : '';
+$port = isset($_GET['port']) ? intval($_GET['port']) : null;
 
 // 验证IP格式
 if (empty($ip)) {
@@ -31,19 +32,18 @@ if (empty($ip)) {
     exit;
 }
 
-// 解析IP（移除端口部分）
-if (preg_match('/^(\[[0-9a-fA-F:.]+\]|(?:[0-9]{1,3}\.){3}[0-9]{1,3})(?::[0-9]+)?$/', $ip, $matches)) {
-    // 提取纯IP地址部分（支持IPv4和IPv6）
-    $host = $matches[1];
-    // 移除IPv6地址的方括号
-    $host = str_replace(array('[', ']'), '', $host);
+// 解析IP和端口（如果有）
+if (strpos($ip, ':') !== false && substr_count($ip, ':') === 1 && $port === null) {
+    // 格式：ip:port
+    list($host, $port) = explode(':', $ip);
+    $port = intval($port);
 } else {
-    // 只有IP或格式不正确，直接使用
+    // 只有IP，没有端口
     $host = $ip;
+    if ($port === null) {
+        $port = 28887; // 默认端口
+    }
 }
-
-// 移除可能的空格
-$host = trim($host);
 
 // 移除可能的空格
 $host = trim($host);
@@ -287,13 +287,14 @@ function getSystemDnsServers() {
 }
 
 /**
- * 测试服务器在线状态（不依赖特定端口）
+ * 使用fsockopen测试服务器连接延迟
  * @param string $host 主机名或IP地址
+ * @param int $port 端口号
  * @param int $timeout 超时时间（秒）
  * @param int $count 测试次数
- * @return array 包含测试结果的数组
+ * @return array 包含延迟信息的数组
  */
-function testConnectionLatency($host, $timeout = 10, $count = 2) {
+function testConnectionLatency($host, $port, $timeout = 10, $count = 2) {
     $latencies = array();
     $successCount = 0;
     $totalTime = 0;
@@ -342,7 +343,7 @@ function testConnectionLatency($host, $timeout = 10, $count = 2) {
     $debugInfo[] = "fsockopen函数可用，开始连接测试";
     
     for ($i = 0; $i < $count; $i++) {
-        $debugInfo[] = "第 " . ($i + 1) . " 次连接尝试: $host";
+        $debugInfo[] = "第 " . ($i + 1) . " 次连接尝试: $host:$port";
         
         // 如果已经有多次失败，考虑提前终止
         if ($i > 1 && $successCount === 0) {
@@ -354,15 +355,14 @@ function testConnectionLatency($host, $timeout = 10, $count = 2) {
         // 记录开始时间
         $startTime = microtime(true);
         
-        // 尝试连接（使用80端口进行基本连接测试，这是常用的HTTP端口）
-        $testPort = 80;
-        $debugInfo[] = "尝试连接到 $host:$testPort (解析后的IP: $ipAddress)，超时时间: $timeout 秒";
+        // 尝试连接
+        $debugInfo[] = "尝试连接到 $host:$port (解析后的IP: $ipAddress)，超时时间: $timeout 秒";
         
         // 记录连接前的时间
         $connectionStartTime = microtime(true);
         
-        // 尝试连接到常用端口（80）来检测服务器是否在线
-        $socket = @fsockopen($host, $testPort, $errno, $errstr, $timeout);
+        // 尝试连接
+        $socket = @fsockopen($host, $port, $errno, $errstr, $timeout);
         
         // 计算连接耗时
         $connectionDuration = (microtime(true) - $connectionStartTime) * 1000;
@@ -434,19 +434,76 @@ function testConnectionLatency($host, $timeout = 10, $count = 2) {
 }
 
 // 执行连接测试
-$testResults = testConnectionLatency($host);
+$testResults = testConnectionLatency($host, $port);
+
+// 检测端口支持情况
+function checkPortSupport($host, $port) {
+    $result = array(
+        'supported' => false,
+        'status' => 'unknown',
+        'message' => ''
+    );
+    
+    if (function_exists('fsockopen')) {
+        $socket = @fsockopen($host, $port, $errno, $errstr, 5);
+        
+        if ($socket) {
+            $result['supported'] = true;
+            $result['status'] = 'open';
+            $result['message'] = '端口已开放，可以连接';
+            fclose($socket);
+        } else {
+            $result['supported'] = false;
+            if ($errno == 111 || $errno == 61 || $errno == 10061) {
+                $result['status'] = 'closed';
+                $result['message'] = '端口被拒绝访问，可能未开放或被防火墙阻止';
+            } elseif ($errno == 110 || $errno == 10060) {
+                $result['status'] = 'timeout';
+                $result['message'] = '连接超时，可能网络不可达或端口未响应';
+            } else {
+                $result['status'] = 'error';
+                $result['message'] = '连接错误: ' . $errstr . ' (错误号: ' . $errno . ')';
+            }
+        }
+    } else {
+        $result['status'] = 'unavailable';
+        $result['message'] = '服务器不支持fsockopen函数，无法检测端口状态';
+    }
+    
+    return $result;
+}
+
+// 执行端口支持检测
+$portCheckResult = checkPortSupport($host, $port);
+
+// 检查常用端口是否开放（用于对比）
+$common_ports = array(80, 443, 53);
+$common_port_status = array();
+foreach ($common_ports as $test_port) {
+    $test_socket = @fsockopen($host, $test_port, $test_errno, $test_errstr, 2);
+    $common_port_status[$test_port] = array(
+        'open' => $test_socket !== false,
+        'error' => $test_socket === false ? $test_errstr : '',
+        'errno' => $test_socket === false ? $test_errno : 0
+    );
+    if ($test_socket) {
+        fclose($test_socket);
+    }
+}
 
 // 准备响应数据
 $response = array(
     'success' => $testResults['successCount'] > 0,
     'ip' => $ip,
     'host' => $host,
+    'port' => $port,
     'latency' => $testResults['avgLatency'],
     'minLatency' => $testResults['minLatency'],
     'successCount' => $testResults['successCount'],
     'totalCount' => $testResults['totalCount'],
     'resolvedIp' => $testResults['resolvedIp'],
     'errors' => $testResults['errors'],
+    'portCheck' => $portCheckResult,
     'phpVersion' => phpversion(),
     'https' => isset($_SERVER['HTTPS']) ? $_SERVER['HTTPS'] : 'off',
     'serverProtocol' => isset($_SERVER['SERVER_PROTOCOL']) ? $_SERVER['SERVER_PROTOCOL'] : '',
@@ -455,11 +512,13 @@ $response = array(
     'remoteIp' => isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '',
     'diagnostics' => array(
         'server' => $host,
+        'port' => $port,
         'timestamp' => date('Y-m-d H:i:s'),
         'php_version' => phpversion(),
         'execution_time_limit' => ini_get('max_execution_time'),
         'socket_timeout' => ini_get('default_socket_timeout'),
-        'resolved_ip' => $testResults['resolvedIp']
+        'resolved_ip' => $testResults['resolvedIp'],
+        'common_ports' => $common_port_status
     )
 );
 
