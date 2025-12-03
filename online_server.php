@@ -222,7 +222,9 @@ function add_server($name, $ip, $group, $note = '', $type = 'original') {
                                     <span class="ping-icon">🔄</span>
                                     <span class="ping-text" data-i18n="server.ping">检测延迟...</span>
                                 </span>
-                                <span class="server-group"><span data-i18n="server.groupNumber">群号：</span><?php echo $server['group']; ?></span>
+                                <span class="server-group" data-group="<?php echo $server['group']; ?>" title="点击复制群号" data-i18n="server.clickToCopy" data-i18n-attr="title">
+                                    <span data-i18n="server.groupNumber">群号：</span><b><?php echo $server['group']; ?></b> <span class="copy-hint" data-i18n="server.clickToCopy">点击复制</span>
+                                </span>
                                 <?php if (!empty($server['note'])): ?>
                                 <?php $noteKey = get_note_key($server['note']); ?>
                                 <?php if (!empty($noteKey)): ?>
@@ -281,6 +283,29 @@ function add_server($name, $ip, $group, $note = '', $type = 'original') {
     element.addEventListener('click', function() {
       var ip = this.getAttribute('data-ip');
       navigator.clipboard.writeText(ip).then(function() {
+        // 显示复制成功提示
+        var hint = element.querySelector('.copy-hint');
+        var originalText = hint.textContent;
+        hint.textContent = '已复制!';
+        hint.style.color = '#008000';
+        
+        // 2秒后恢复原提示
+        setTimeout(function() {
+          hint.textContent = originalText;
+          hint.style.color = '';
+        }, 2000);
+      }).catch(function(err) {
+        console.error('复制失败:', err);
+      });
+    });
+  });
+  
+  // 点击复制群号功能
+  document.querySelectorAll('.server-group').forEach(function(element) {
+    element.style.cursor = 'pointer';
+    element.addEventListener('click', function() {
+      var group = this.getAttribute('data-group');
+      navigator.clipboard.writeText(group).then(function() {
         // 显示复制成功提示
         var hint = element.querySelector('.copy-hint');
         var originalText = hint.textContent;
