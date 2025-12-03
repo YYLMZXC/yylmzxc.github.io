@@ -3,10 +3,9 @@
  * 服务器Ping工具（智能分阶段检测版）
  * 核心规则：
  * 1. 150秒内每秒检测1次延迟，成功立即返回，全程无中间错误输出
- * 2. 第10秒起：新增系统Ping命令检测（补充fsockopen不足）
- * 3. 第30秒起：每8秒更换一次DNS服务器（循环使用公共DNS）
- * 4. 第110秒起：自动排查网络错误（端口不可达、DNS失效、网络阻塞等）
- * 5. 150秒超时后：返回失败结果+可能原因分析
+ * 2. 第12秒起：同时启用系统Ping检测 + 开始更换DNS（每10秒切换1次）
+ * 3. 第110秒起：自动排查网络错误（DNS、连通性、端口状态）
+ * 4. 150秒超时后：返回失败结果+可能原因分析
  */
 
 // 基础响应头配置
@@ -38,7 +37,7 @@ if (preg_match('/^(\[[0-9a-fA-F:.]+\]|(?:[0-9]{1,3}\.){3}[0-9]{1,3})(?::[0-9]+)?
 }
 $host = trim($host);
 
-// 公共DNS服务器列表（按优先级排序）
+// 公共DNS服务器列表（按优先级排序，循环使用）
 $dnsServers = [
     '223.5.5.5',    // 阿里云DNS
     '223.6.6.6',    // 阿里云DNS
@@ -52,9 +51,9 @@ $dnsServers = [
     '208.67.222.222' // OpenDNS
 ];
 
-// 检测端口配置（分阶段扩展）
-$basicPorts = [80, 443, 8080, 8888]; // 基础端口（0-10秒）
-$extendedPorts = [21, 22, 25, 53, 110, 143, 3306, 3389, 5432, 8000]; // 扩展端口（10秒后）
+// 检测端口配置（12秒后自动扩展）
+$basicPorts = [80, 443, 8080, 8888]; // 基础端口（0-12秒）
+$extendedPorts = [21, 22, 25, 53, 110, 143, 3306, 3389, 5432, 8000]; // 扩展端口（12秒后）
 $allPorts = array_merge($basicPorts, $extendedPorts);
 
 /**
@@ -68,7 +67,7 @@ function silentDnsResolve($host, $dnsServer = null) {
         return $host;
     }
 
-    // 方法1：指定DNS解析
+    // 方法1：指定DNS解析（优先）
     if ($dnsServer && function_exists('dns_get_record')) {
         $origTimeout = ini_get('default_socket_timeout');
         ini_set('default_socket_timeout', 1);
@@ -152,6 +151,8 @@ function alternativeNetDetection($host, $port, $timeout) {
  * @return array 错误排查结果
  */
 function networkTroubleshoot($host, $resolvedIp, $dnsServers) {
+    global $allPorts;  // 这里必须加
+
     $troubleResult = [
         'dnsStatus' => 'unknown',
         'networkStatus' => 'unknown',
@@ -159,7 +160,7 @@ function networkTroubleshoot($host, $resolvedIp, $dnsServers) {
         'details' => []
     ];
 
-    // 1. 检测DNS解析状态
+    // DNS检测
     $dnsSuccess = false;
     foreach ($dnsServers as $dns) {
         $ip = silentDnsResolve($host, $dns);
@@ -169,20 +170,12 @@ function networkTroubleshoot($host, $resolvedIp, $dnsServers) {
         }
     }
     $troubleResult['dnsStatus'] = $dnsSuccess ? 'available' : 'unavailable';
-    if (!$dnsSuccess) {
-        $troubleResult['possibleReasons'][] = 'DNS解析失败（所有公共DNS均无法解析目标主机）';
-        $troubleResult['details'][] = '目标主机名可能不存在，或DNS服务异常';
-    }
 
-    // 2. 检测网络连通性（ICMP/Ping）
+    // Ping检测
     $pingResult = systemPingDetection($host);
     $troubleResult['networkStatus'] = $pingResult !== false ? 'reachable' : 'unreachable';
-    if ($pingResult === false) {
-        $troubleResult['possibleReasons'][] = '网络不可达（Ping命令无响应）';
-        $troubleResult['details'][] = '可能是目标主机禁用ICMP，或网络路由中断';
-    }
 
-    // 3. 检测端口开放状态（常用端口批量检测）
+    // 端口检测
     $portTestResult = [];
     foreach ($allPorts as $port) {
         $result = @fsockopen($resolvedIp ?: $host, $port, $errno, $errstr, 0.5);
@@ -195,7 +188,6 @@ function networkTroubleshoot($host, $resolvedIp, $dnsServers) {
         $troubleResult['details'][] = '可能是目标主机防火墙拦截，或服务未启动';
     }
 
-    // 4. 汇总可能原因（去重）
     $troubleResult['possibleReasons'] = array_unique($troubleResult['possibleReasons']);
     if (empty($troubleResult['possibleReasons'])) {
         $troubleResult['possibleReasons'][] = '未知网络错误（DNS和网络连通性正常，但端口连接失败）';
@@ -204,8 +196,9 @@ function networkTroubleshoot($host, $resolvedIp, $dnsServers) {
     return $troubleResult;
 }
 
+
 /**
- * 核心：150秒分阶段持续检测
+ * 核心：150秒分阶段持续检测（按需求调整时间节点）
  * @param string $host 目标主机
  * @param int $maxTotalTime 最大检测时间（150秒）
  * @return array 最终结果
@@ -218,12 +211,11 @@ function continuousLatencyTest($host, $maxTotalTime = 150) {
     $successResult = null;
     $dnsIndex = 0; // 当前DNS索引
     $lastDnsSwitchTime = $startTimestamp; // 上次DNS切换时间
-    $dnsSwitchInterval = 8; // DNS切换间隔（8秒）
-    $dnsStartSwitchTime = $startTimestamp + 30; // 第30秒开始切换DNS
-    $pingEnabledTime = $startTimestamp + 10; // 第10秒开始启用Ping检测
+    $dnsSwitchInterval = 10; // DNS切换间隔（10秒）
+    $featureEnableTime = $startTimestamp + 12; // 第12秒启用Ping+DNS切换+扩展端口
     $troubleshootTime = $startTimestamp + 110; // 第110秒开始错误排查
     $currentDns = null; // 当前使用的DNS
-    $pingEnabled = false; // 是否启用Ping检测
+    $advancedFeaturesEnabled = false; // 是否启用高级特性（Ping+DNS切换+扩展端口）
     $troubleshootDone = false; // 是否已完成错误排查
     $troubleshootResult = []; // 错误排查结果
 
@@ -232,13 +224,17 @@ function continuousLatencyTest($host, $maxTotalTime = 150) {
         $currentTime = microtime(true);
         $elapsedTime = $currentTime - $startTimestamp;
 
-        // 2. 第10秒启用Ping检测
-        if ($elapsedTime >= 10 && !$pingEnabled) {
-            $pingEnabled = true;
+        // 2. 第12秒启用高级特性：Ping检测 + DNS切换 + 扩展端口
+        if ($elapsedTime >= 12 && !$advancedFeaturesEnabled) {
+            $advancedFeaturesEnabled = true;
+            // 首次切换DNS（第12秒立即执行一次）
+            $currentDns = $dnsServers[$dnsIndex % count($dnsServers)];
+            $dnsIndex++;
+            $lastDnsSwitchTime = $currentTime;
         }
 
-        // 3. 第30秒开始DNS切换（每8秒1次）
-        if ($elapsedTime >= 30) {
+        // 3. 高级特性启用后：每10秒切换一次DNS
+        if ($advancedFeaturesEnabled) {
             $timeSinceLastSwitch = $currentTime - $lastDnsSwitchTime;
             if ($timeSinceLastSwitch >= $dnsSwitchInterval) {
                 $currentDns = $dnsServers[$dnsIndex % count($dnsServers)];
@@ -259,21 +255,21 @@ function continuousLatencyTest($host, $maxTotalTime = 150) {
             $resolvedIp = silentDnsResolve($host, $currentDns);
         }
 
-        // 6. 选择检测端口（10秒后扩展端口）
-        $targetPorts = $elapsedTime >= 10 ? $allPorts : $basicPorts;
+        // 6. 选择检测端口（12秒后扩展为全端口）
+        $targetPorts = $advancedFeaturesEnabled ? $allPorts : $basicPorts;
 
-        // 7. 多方法检测延迟（按优先级）
+        // 7. 多方法检测延迟（按优先级执行，成功立即返回）
         $detectionMethods = [];
 
-        // 方法1：Ping检测（10秒后启用）
-        if ($pingEnabled) {
+        // 方法1：Ping检测（12秒后启用）
+        if ($advancedFeaturesEnabled) {
             $detectionMethods[] = function() use ($host) {
                 $latency = systemPingDetection($host);
                 return $latency !== false ? ['method' => 'ping', 'latency' => $latency] : false;
             };
         }
 
-        // 方法2：基础fsockopen检测
+        // 方法2：基础fsockopen检测（全程启用）
         $detectionMethods[] = function() use ($host, $resolvedIp, $targetPorts, $elapsedTime, $maxTotalTime) {
             $remainingTime = $maxTotalTime - $elapsedTime;
             $connTimeout = min(1.5, $remainingTime);
@@ -289,20 +285,22 @@ function continuousLatencyTest($host, $maxTotalTime = 150) {
             return false;
         };
 
-        // 方法3：备用stream_socket_client检测
-        $detectionMethods[] = function() use ($host, $resolvedIp, $targetPorts, $elapsedTime, $maxTotalTime) {
-            $remainingTime = $maxTotalTime - $elapsedTime;
-            $connTimeout = min(1.5, $remainingTime);
-            foreach ($targetPorts as $port) {
-                $latency = alternativeNetDetection($resolvedIp ?: $host, $port, $connTimeout);
-                if ($latency !== false) {
-                    return ['method' => 'stream_socket_client', 'port' => $port, 'latency' => $latency];
+        // 方法3：备用stream_socket_client检测（12秒后启用）
+        if ($advancedFeaturesEnabled) {
+            $detectionMethods[] = function() use ($host, $resolvedIp, $targetPorts, $elapsedTime, $maxTotalTime) {
+                $remainingTime = $maxTotalTime - $elapsedTime;
+                $connTimeout = min(1.5, $remainingTime);
+                foreach ($targetPorts as $port) {
+                    $latency = alternativeNetDetection($resolvedIp ?: $host, $port, $connTimeout);
+                    if ($latency !== false) {
+                        return ['method' => 'stream_socket_client', 'port' => $port, 'latency' => $latency];
+                    }
                 }
-            }
-            return false;
-        };
+                return false;
+            };
+        }
 
-        // 8. 执行所有检测方法，成功则立即返回
+        // 8. 执行检测方法，成功则立即返回
         foreach ($detectionMethods as $method) {
             $result = $method();
             if ($result) {
@@ -317,7 +315,7 @@ function continuousLatencyTest($host, $maxTotalTime = 150) {
                     'timestamp' => date('Y-m-d H:i:s'),
                     'elapsedTime' => round($elapsedTime, 2),
                     'dnsSwitchCount' => $dnsIndex,
-                    'pingEnabled' => $pingEnabled
+                    'advancedFeaturesEnabled' => $advancedFeaturesEnabled
                 ];
                 break 2; // 跳出所有循环，立即返回
             }
@@ -329,11 +327,11 @@ function continuousLatencyTest($host, $maxTotalTime = 150) {
         }
     }
 
-    // 10. 150秒超时：返回失败结果+错误排查
+    // 10. 150秒超时：返回失败结果+错误排查信息
     if (!$successResult) {
         // 若未执行错误排查（如提前超时），补充执行
         if (!$troubleshootDone) {
-            $troubleshootResult = networkTroubleshoot($host, $resolvedIp, $dnsServers);
+            $troubleResult = networkTroubleshoot($host, $resolvedIp, $dnsServers);
         }
 
         return [
@@ -342,16 +340,16 @@ function continuousLatencyTest($host, $maxTotalTime = 150) {
             'resolvedIp' => $resolvedIp ?: '未解析',
             'lastUsedDns' => $currentDns ?: '系统默认DNS',
             'error' => '150秒内未成功检测到延迟',
-            'possibleReasons' => $troubleshootResult['possibleReasons'] ?? ['未知错误'],
+            'possibleReasons' => $troubleResult['possibleReasons'] ?? ['未知错误'],
             'networkDiagnostics' => [
-                'dnsStatus' => $troubleshootResult['dnsStatus'] ?? 'unknown',
-                'networkStatus' => $troubleshootResult['networkStatus'] ?? 'unknown',
+                'dnsStatus' => $troubleResult['dnsStatus'] ?? 'unknown',
+                'networkStatus' => $troubleResult['networkStatus'] ?? 'unknown',
                 'testedPortsCount' => count($allPorts),
                 'dnsSwitchCount' => $dnsIndex,
-                'pingDetectionEnabled' => $pingEnabled,
+                'pingDetectionEnabled' => $advancedFeaturesEnabled,
                 'troubleshootDone' => $troubleshootDone
             ],
-            'details' => $troubleshootResult['details'] ?? [],
+            'details' => $troubleResult['details'] ?? [],
             'timestamp' => date('Y-m-d H:i:s'),
             'totalTime' => $maxTotalTime
         ];
