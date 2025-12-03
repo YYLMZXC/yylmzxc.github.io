@@ -522,7 +522,7 @@ if ($testResults['successCount'] === 0) {
     // 添加网络环境诊断信息
     $response['networkDiagnostics'] = array(
         'phpVersion' => phpversion(),
-        'serverIp' => $_SERVER['SERVER_ADDR'],
+        'serverIp' => isset($_SERVER['SERVER_ADDR']) ? $_SERVER['SERVER_ADDR'] : '未知',
         'serverHostname' => gethostname(),
         'targetHost' => $host,
         'targetPort' => $port,
