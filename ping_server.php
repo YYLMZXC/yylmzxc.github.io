@@ -51,11 +51,11 @@ $host = trim($host);
 /**
  * 测试DNS解析（增强版）
  * @param string $host 主机名
- * @param int $timeout 超时时间（秒）
+ * @param int $baseTimeout 基础超时时间（秒）
  * @param int $retries 重试次数
  * @return array 包含解析结果的数组
  */
-function testDnsResolution($host, $timeout = 5, $retries = 2) {
+function testDnsResolution($host, $baseTimeout = 1, $retries = 3) {
     $result = array(
         'success' => false,
         'ip' => null,
@@ -77,77 +77,81 @@ function testDnsResolution($host, $timeout = 5, $retries = 2) {
     $result['dnsServers'] = $systemDns;
     $result['debug'][] = "系统DNS服务器: " . implode(', ', $systemDns);
     
-    // 常用公共DNS服务器列表
+    // 常用公共DNS服务器列表（国内DNS优先）
     $publicDnsServers = array(
         '223.5.5.5',   // 阿里云DNS - 国内访问速度快，稳定性强
         '223.6.6.6',   // 阿里云DNS - 支持DNS防劫持
         '119.29.29.29', // 腾讯云DNS - 依托腾讯骨干网络，解析延迟低
         '182.254.116.116', // 腾讯云DNS - 具备恶意网站拦截等安全防护功能   
         '180.76.76.76', // 百度公共DNS - 针对国内网站优化解析
-         '8.8.8.8',     // Google DNS
-        '8.8.4.4',     // Google DNS      
         '114.114.114.114', // 114 DNS
         '114.114.115.115', // 114 DNS
         '202.96.128.86',   // 联通DNS
-        '202.96.134.133'    // 联通DNS
+        '202.96.134.133',   // 联通DNS
+        '8.8.8.8',     // Google DNS（备用）
+        '8.8.4.4',     // Google DNS（备用）
     );
     
     // 合并系统DNS和公共DNS，去重
     $allDnsServers = array_unique(array_merge($systemDns, $publicDnsServers));
     $result['debug'][] = "可用DNS服务器列表: " . implode(', ', $allDnsServers);
     
-    // 尝试多种解析方法
-    $resolveMethods = array(
-        'gethostbyname' => function($h) use ($timeout) {
-            // 保存原始超时设置
-            $originalTimeout = ini_get('default_socket_timeout');
-            // 设置更长的超时时间
-            ini_set('default_socket_timeout', $timeout);
-            
-            $ip = @gethostbyname($h);
-            
-            // 恢复原始超时设置
-            ini_set('default_socket_timeout', $originalTimeout);
-            
-            return $ip !== $h ? $ip : false;
-        },
-        'gethostbynamel' => function($h) use ($timeout) {
-            if (!function_exists('gethostbynamel')) return false;
-            
-            // 保存原始超时设置
-            $originalTimeout = ini_get('default_socket_timeout');
-            // 设置更长的超时时间
-            ini_set('default_socket_timeout', $timeout);
-            
-            $ips = @gethostbynamel($h);
-            
-            // 恢复原始超时设置
-            ini_set('default_socket_timeout', $originalTimeout);
-            
-            return is_array($ips) && count($ips) > 0 ? $ips[0] : false;
-        },
-        'dns_get_record' => function($h) use ($timeout) {
-            if (!function_exists('dns_get_record')) return false;
-            
-            // 保存原始超时设置
-            $originalTimeout = ini_get('default_socket_timeout');
-            // 设置更长的超时时间
-            ini_set('default_socket_timeout', $timeout);
-            
-            $records = @dns_get_record($h, DNS_A);
-            
-            // 恢复原始超时设置
-            ini_set('default_socket_timeout', $originalTimeout);
-            
-            return is_array($records) && count($records) > 0 ? $records[0]['ip'] : false;
-        }
-    );
-    
     // 多次尝试解析，增加成功率
     for ($retry = 0; $retry <= $retries; $retry++) {
+        // 动态调整超时时间：初始使用短超时，随着重试次数增加而增加
+        // 使用指数增长：baseTimeout * (2^retry)，但不超过30秒
+        $currentTimeout = min($baseTimeout * (1 << $retry), 30);
+        
         if ($retry > 0) {
-            $result['debug'][] = "DNS解析重试 #$retry";
+            $result['debug'][] = "DNS解析重试 #$retry，当前超时时间: {$currentTimeout}秒";
         }
+        
+        // 尝试多种解析方法，按优先级顺序快速尝试
+        $resolveMethods = array(
+            'gethostbyname' => function($h) use ($currentTimeout) {
+                // 保存原始超时设置
+                $originalTimeout = ini_get('default_socket_timeout');
+                // 设置当前超时时间
+                ini_set('default_socket_timeout', $currentTimeout);
+                
+                $ip = @gethostbyname($h);
+                
+                // 恢复原始超时设置
+                ini_set('default_socket_timeout', $originalTimeout);
+                
+                return $ip !== $h ? $ip : false;
+            },
+            'gethostbynamel' => function($h) use ($currentTimeout) {
+                if (!function_exists('gethostbynamel')) return false;
+                
+                // 保存原始超时设置
+                $originalTimeout = ini_get('default_socket_timeout');
+                // 设置当前超时时间
+                ini_set('default_socket_timeout', $currentTimeout);
+                
+                $ips = @gethostbynamel($h);
+                
+                // 恢复原始超时设置
+                ini_set('default_socket_timeout', $originalTimeout);
+                
+                return is_array($ips) && count($ips) > 0 ? $ips[0] : false;
+            },
+            'dns_get_record' => function($h) use ($currentTimeout) {
+                if (!function_exists('dns_get_record')) return false;
+                
+                // 保存原始超时设置
+                $originalTimeout = ini_get('default_socket_timeout');
+                // 设置当前超时时间
+                ini_set('default_socket_timeout', $currentTimeout);
+                
+                $records = @dns_get_record($h, DNS_A);
+                
+                // 恢复原始超时设置
+                ini_set('default_socket_timeout', $originalTimeout);
+                
+                return is_array($records) && count($records) > 0 ? $records[0]['ip'] : false;
+            }
+        );
         
         // 尝试所有解析方法
         $resolvedIp = false;
@@ -165,7 +169,6 @@ function testDnsResolution($host, $timeout = 5, $retries = 2) {
                 $result['success'] = true;
                 $result['ip'] = $ip;
                 $result['debug'][] = "{$methodName}解析成功，IP地址: {$ip}，耗时: " . round($resolveTime * 1000) . "ms";
-
                 break;
             } else {
                 $result['debug'][] = "{$methodName}解析失败，耗时: " . round($resolveTime * 1000) . "ms";
@@ -174,11 +177,12 @@ function testDnsResolution($host, $timeout = 5, $retries = 2) {
         
         if ($resolvedIp) break;
         
-        // 如果当前重试失败，并且还有重试次数，等待一段时间后再试
+        // 如果当前重试失败，并且还有重试次数，使用指数退避策略等待后再试
         if ($retry < $retries) {
-            $waitTime = 1; // 等待1秒后重试
-            $result['debug'][] = "DNS解析失败，$waitTime 秒后重试...";
-            sleep($waitTime);
+            // 指数退避：等待时间随着重试次数指数增长，但不超过3秒
+            $waitTime = min(0.1 * (1 << $retry), 3);
+            $result['debug'][] = "DNS解析失败，" . round($waitTime, 1) . "秒后重试...";
+            usleep($waitTime * 1000000); // 使用usleep实现毫秒级等待
         }
     }
     
@@ -352,19 +356,22 @@ function getSystemDnsServers() {
 /**
  * 测试服务器在线状态（不依赖特定端口）
  * @param string $host 主机名或IP地址
- * @param int $timeout 超时时间（秒）
- * @param int $count 测试次数
+ * @param int $baseTimeout 基础超时时间（秒）
+ * @param int $maxTotalTime 最大总测试时间（秒）
  * @return array 包含测试结果的数组
  */
-function testConnectionLatency($host, $timeout = 10, $count = 2) {
+function testConnectionLatency($host, $baseTimeout = 1, $maxTotalTime = 30) {
     $latencies = array();
     $successCount = 0;
     $totalTime = 0;
     $errors = array();
     $debugInfo = array();
+    $testStartTime = microtime(true);
+    $testCount = 0;
+    $lastAttemptTime = $testStartTime;
     
-    // 使用专门的DNS解析测试函数
-    $dnsResult = testDnsResolution($host);
+    // 使用专门的DNS解析测试函数，使用动态超时策略
+    $dnsResult = testDnsResolution($host, 1, 5); // 基础超时1秒，最多重试5次
     $ipAddress = $dnsResult['ip'];
     // 如果DNS解析失败，使用主机名作为备选
     if (empty($ipAddress)) {
@@ -381,58 +388,58 @@ function testConnectionLatency($host, $timeout = 10, $count = 2) {
     if (!$dnsResult['success']) {
         $debugInfo[] = "DNS解析失败，但将继续尝试直接连接到主机";
         // 不再记录DNS解析错误，因为即使DNS解析失败，fsockopen可能仍然能够连接
-        // $errors[] = "无法解析主机名: $host";
-        // if (isset($dnsResult['error'])) {
-        //     $errors[] = "DNS解析错误: " . $dnsResult['error'];
-        // }
-    } else {
-        if (filter_var($host, FILTER_VALIDATE_IP)) {
-            $debugInfo[] = "输入的是IP地址，无需解析";
-        } else {
-            $debugInfo[] = "主机名解析成功，IP地址: $ipAddress";
-        }
     }
     
     // 检查fsockopen是否可用
     if (!function_exists('fsockopen')) {
-        $errors[] = "服务器不支持fsockopen函数";
+        // 在30秒之前不显示fsockopen不可用的错误
         $debugInfo[] = "fsockopen函数不可用";
         return array(
             'successCount' => 0,
-            'totalCount' => $count,
+            'totalCount' => $testCount,
             'latencies' => array(),
             'avgLatency' => -1,
             'minLatency' => -1,
-            'errors' => $errors,
+            'errors' => array(), // 在30秒之前不返回错误
             'resolvedIp' => $ipAddress,
             'debugInfo' => $debugInfo
         );
     }
     
-    $debugInfo[] = "fsockopen函数可用，开始连接测试";
+    $debugInfo[] = "fsockopen函数可用，开始连接测试，最大总测试时间: {$maxTotalTime}秒";
     
-    for ($i = 0; $i < $count; $i++) {
-        $debugInfo[] = "第 " . ($i + 1) . " 次连接尝试: $host";
-        
-        // 如果已经有多次失败，考虑提前终止
-        if ($i > 1 && $successCount === 0) {
-            $debugInfo[] = "已连续 " . ($i + 1) . " 次连接失败，提前终止测试";
-            $errors[] = "连续连接失败，提前终止测试";
-            break;
+    // 持续测试直到获取到延迟或达到最大总时间
+    while (microtime(true) - $testStartTime < $maxTotalTime) {
+        // 确保每秒只检测一次
+        $timeSinceLastAttempt = microtime(true) - $lastAttemptTime;
+        if ($timeSinceLastAttempt < 1) {
+            // 等待到下一秒
+            $waitTime = (1 - $timeSinceLastAttempt) * 1000000; // 转换为微秒
+            usleep((int)$waitTime); // 显式转换为整数
         }
+        
+        $testCount++;
+        // 计算已用时间
+        $elapsedTime = microtime(true) - $testStartTime;
+        // 更新最后尝试时间
+        $lastAttemptTime = microtime(true);
+        // 动态调整超时时间：确保不超过剩余时间
+        $currentTimeout = min($baseTimeout * (1 + $testCount * 0.5), $maxTotalTime - $elapsedTime, 15);
+        
+        $debugInfo[] = "第 " . $testCount . " 次连接尝试: " . $host . "，当前超时时间: " . round($currentTimeout, 1) . "秒，已用时间: " . round($elapsedTime, 1) . "秒";
         
         // 记录开始时间
         $startTime = microtime(true);
         
         // 尝试连接（使用80端口进行基本连接测试，这是常用的HTTP端口）
         $testPort = 80;
-        $debugInfo[] = "尝试连接到 $host:$testPort (解析后的IP: $ipAddress)，超时时间: $timeout 秒";
+        $debugInfo[] = "尝试连接到 $host:$testPort (解析后的IP: $ipAddress)";
         
         // 记录连接前的时间
         $connectionStartTime = microtime(true);
         
         // 尝试连接到常用端口（80）来检测服务器是否在线
-        $socket = @fsockopen($host, $testPort, $errno, $errstr, $timeout);
+        $socket = @fsockopen($host, $testPort, $errno, $errstr, $currentTimeout);
         
         // 计算连接耗时
         $connectionDuration = (microtime(true) - $connectionStartTime) * 1000;
@@ -461,37 +468,55 @@ function testConnectionLatency($host, $timeout = 10, $count = 2) {
             // 关闭连接
             fclose($socket);
             
-            // 如果已经有2次成功连接，考虑减少后续测试次数
-            if ($successCount >= 2) {
-                $debugInfo[] = "已成功连接 " . $successCount . " 次，满足基本测试需求";
-                // 可以选择继续测试或提前结束
-                // break; // 取消注释以提前结束
+            // 如果已经成功获取到延迟，就立即返回结果
+            if ($successCount >= 1) {
+                $debugInfo[] = "已成功获取延迟，满足测试需求，结束测试";
+                break;
             }
         } else {
-            // 连接失败，记录详细错误信息
-            $errors[] = "尝试 $i: 失败 ($errno: $errstr)，耗时: " . round($connectionDuration) . "ms";
+            // 连接失败，只记录到调试信息，30秒之前不返回错误
             $debugInfo[] = "连接失败，错误号: $errno, 错误信息: $errstr, 耗时: " . round($connectionDuration) . "ms";
             
             // 记录错误号的具体含义
             $errorMeaning = getSocketErrorMeaning($errno);
             $debugInfo[] = "错误号 $errno 含义: $errorMeaning";
             
-            // 如果是连接被拒绝错误，可能是服务器未开启对应端口，提前终止
+            // 尝试其他常用端口
             if ($errno == 111 || $errno == 61 || $errno == 10061) { // Connection refused (Windows: 10061)
-                $debugInfo[] = "连接被拒绝，可能是服务器未开启该端口或防火墙阻止了连接";
-                $errors[] = "端口连接被拒绝，可能服务器未开启该端口或防火墙设置问题";
+                $debugInfo[] = "连接被拒绝，可能是服务器未开启该端口或防火墙阻止了连接，继续尝试其他端口";
+                // 尝试其他常用端口
+                $alternativePorts = array(443, 8080, 8888, 8000);
+                foreach ($alternativePorts as $altPort) {
+                    if (microtime(true) - $testStartTime >= $maxTotalTime) break;
+                    $testCount++;
+                    $debugInfo[] = "尝试连接到备用端口 $altPort";
+                    $altSocket = @fsockopen($host, $altPort, $altErrno, $altErrstr, min($currentTimeout, 5));
+                    if ($altSocket) {
+                        $altEndTime = microtime(true);
+                        $altLatency = ($altEndTime - $startTime) * 1000;
+                        $latencies[] = $altLatency;
+                        $successCount++;
+                        $totalTime += $altLatency;
+                        $debugInfo[] = "备用端口 $altPort 连接成功，延迟: " . round($altLatency) . "ms";
+                        fclose($altSocket);
+                        break;
+                    }
+                }
+                
+                // 如果备用端口连接成功，立即返回结果
+                if ($successCount >= 1) {
+                    $debugInfo[] = "已成功获取延迟，满足测试需求，结束测试";
+                    break;
+                }
             } elseif ($errno == 10060) { // Connection timed out
-                $debugInfo[] = "连接超时，可能是网络延迟过高、路由问题或服务器防火墙阻止了连接";
-                $errors[] = "连接超时，可能是网络延迟过高、路由问题或防火墙设置问题";
+                $debugInfo[] = "连接超时，可能是网络延迟过高，继续尝试";
             }
         }
         
-        // 每次测试之间动态延迟
-        if ($i < $count - 1) {
-            // 随着失败次数增加，逐渐增加延迟
-            $delay = 100000 * ($i + 1); // 100ms, 200ms, 300ms...
-            $debugInfo[] = "等待 " . round($delay / 1000) . " 毫秒后进行下一次尝试";
-            usleep($delay);
+        // 如果已经成功获取到延迟，就不再等待
+        if ($successCount < 1) {
+            // 确保每秒只检测一次，已经在循环开始处处理了时间间隔
+            $debugInfo[] = "等待到下一秒后进行下一次尝试";
         }
     }
     
@@ -501,15 +526,22 @@ function testConnectionLatency($host, $timeout = 10, $count = 2) {
     // 计算最小延迟 - 使用number_format保留2位小数，避免将极小延迟四舍五入为0
     $minLatency = $successCount > 0 ? round(min($latencies), 2) : -1;
     
-    $debugInfo[] = "测试完成，成功次数: $successCount/$count";
+    $totalElapsedTime = microtime(true) - $testStartTime;
+    $debugInfo[] = "测试完成，共尝试: " . $testCount . " 次，成功次数: " . $successCount . "，总耗时: " . round($totalElapsedTime, 1) . "秒";
+    
+    // 只有在超过30秒后才返回错误信息
+    $returnErrors = array();
+    if ($totalElapsedTime >= $maxTotalTime && $successCount === 0) {
+        $returnErrors = $errors;
+    }
     
     return array(
         'successCount' => $successCount,
-        'totalCount' => $count,
+        'totalCount' => $testCount,
         'latencies' => $latencies,
         'avgLatency' => $avgLatency,
         'minLatency' => $minLatency,
-        'errors' => $errors,
+        'errors' => $returnErrors, // 在30秒之前不返回错误
         'resolvedIp' => $ipAddress,
         'debugInfo' => $debugInfo
     );
@@ -550,8 +582,8 @@ if (isset($testResults['debugInfo'])) {
     $response['debugInfo'] = $testResults['debugInfo'];
 }
 
-// 如果没有成功连接，添加错误信息
-if ($testResults['successCount'] === 0) {
+// 如果没有成功连接且超过了30秒，才添加错误信息
+if ($testResults['successCount'] === 0 && !empty($testResults['errors'])) {
     if (!empty($testResults['errors'])) {
         $response['error'] = implode('; ', $testResults['errors']);
     } else {
@@ -576,7 +608,9 @@ if ($testResults['successCount'] === 0) {
         'targetPort' => $port,
         'resolvedIp' => $testResults['resolvedIp'],
         'testTimestamp' => date('Y-m-d H:i:s'),
-        'errorCode' => isset($testResults['errors'][0]) ? preg_match('/\((\d+):/', $testResults['errors'][0], $matches) ? $matches[1] : 'unknown' : 'unknown'
+        'errorCode' => isset($testResults['errors'][0]) 
+            ? (preg_match('/\((\d+):/', $testResults['errors'][0], $matches) ? $matches[1] : 'unknown') 
+            : 'unknown'
     );
 }
 
