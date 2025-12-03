@@ -78,13 +78,6 @@
             <div class="row">
                 <div class="col-mb-12 col-12" id="main" role="main">
                     <div class="post-content">
-                        <!-- 站点信息 -->
-                        <div class="site-info">
-                            <p class="site-address">
-                                <span id="currentAddress">本站地址：</span>
-                                <span id="shortUrl">短网址：</span>
-                            </p>
-                        </div>
                         
                         <!-- 中文导航区块 -->
                         <section class="nav-section">
@@ -109,6 +102,13 @@
 
     <!-- 页脚 -->
     <footer id="footer">
+        <!-- 站点信息 -->
+        <div class="site-info">
+            <p class="site-address">
+                <span id="currentAddress">本站地址：</span>
+                <span id="shortUrl">短网址：</span>
+            </p>
+        </div>
         <p class="copyright">© 2025 生存战争网</p>
     </footer>
 

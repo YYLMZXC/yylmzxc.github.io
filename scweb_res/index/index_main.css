@@ -706,6 +706,16 @@ textarea {
     #footer {
         margin: 20px 0 0 0;
         padding: 15px 0;
+        text-align: center;
+    }
+    
+    .site-info {
+        margin-bottom: 10px;
+    }
+    
+    .site-address {
+        font-size: 13px;
+        margin: 0;
     }
     
     .copyright {
@@ -727,6 +737,10 @@ textarea {
     #footer {
         margin: 15px 0 0 0;
         padding: 12px 0;
+    }
+    
+    .site-address {
+        font-size: 12px;
     }
     
     .copyright {
