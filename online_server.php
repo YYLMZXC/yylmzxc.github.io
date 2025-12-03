@@ -350,7 +350,7 @@ function add_server($name, $ip, $group, $note = '', $type = 'original') {
       updatePingError(element, '网络错误');
     };
     
-    xhr.timeout = 5000; // 增加超时时间到5秒
+    xhr.timeout = 15000; // 增加超时时间到15秒
     xhr.ontimeout = function() {
       updatePingError(element, '请求超时');
     };

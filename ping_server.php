@@ -135,7 +135,7 @@ function testDnsResolution($host) {
     if (!$resolvedIp) {
         $result['debug'][] = "所有DNS解析方法失败，尝试直接使用fsockopen连接（可能绕过系统DNS）";
         $startTime = microtime(true);
-        $socket = @fsockopen($host, 80, $errno, $errstr, 2);
+        $socket = @fsockopen($host, 80, $errno, $errstr, 10);
         $connectTime = microtime(true) - $startTime;
         
         if ($socket) {
@@ -203,7 +203,7 @@ function getSystemDnsServers() {
  * @param int $count 测试次数
  * @return array 包含延迟信息的数组
  */
-function testConnectionLatency($host, $port, $timeout = 2, $count = 2) {
+function testConnectionLatency($host, $port, $timeout = 10, $count = 2) {
     $latencies = array();
     $successCount = 0;
     $totalTime = 0;

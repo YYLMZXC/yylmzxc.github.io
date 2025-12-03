@@ -53,7 +53,7 @@ echo '<h2>网络功能测试</h2>';
 
 // 测试DNS解析
 echo 'DNS解析测试:' . PHP_EOL;
-$testDomains = array('api.yylmzxc.icu', 'yylmzxc.icu', 'baidu.com', 'google.com');
+$testDomains = array('api.yylmzxc.icu', 'yylmzxc.icu', 'y.yylmzxc.icu', 't.yylmzxc.icu', 'v.yylmzxc.icu', 'b.yylmzxc.icu', 'baidu.com', 'google.com');
 foreach ($testDomains as $domain) {
     $startTime = microtime(true);
     $ip = @gethostbyname($domain);
@@ -73,12 +73,19 @@ if (function_exists('fsockopen')) {
     $testServers = array(
         array('host' => '8.8.8.8', 'port' => 53, 'name' => 'Google DNS'),
         array('host' => '114.114.114.114', 'port' => 53, 'name' => '114 DNS'),
-        array('host' => 'baidu.com', 'port' => 80, 'name' => 'Baidu HTTP')
+        array('host' => 'baidu.com', 'port' => 80, 'name' => 'Baidu HTTP'),
+        array('host' => 'api.yylmzxc.icu', 'port' => 28887, 'name' => '土豆服主1服分支'),
+        array('host' => 'yylmzxc.icu', 'port' => 28887, 'name' => '土豆服2服'),
+        array('host' => 'y.yylmzxc.icu', 'port' => 28887, 'name' => '土豆服3服'),
+        array('host' => 't.yylmzxc.icu', 'port' => 28887, 'name' => '土豆服4服'),
+        array('host' => 'v.yylmzxc.icu', 'port' => 28887, 'name' => '空岛刷怪9服'),
+        array('host' => 'b.yylmzxc.icu', 'port' => 28887, 'name' => '测试服'),
+        array('host' => 'b.yylmzxc.icu', 'port' => 38887, 'name' => 'mod模组测试服')
     );
     
     foreach ($testServers as $server) {
         $startTime = microtime(true);
-        $socket = @fsockopen($server['host'], $server['port'], $errno, $errstr, 2);
+        $socket = @fsockopen($server['host'], $server['port'], $errno, $errstr, 10);
         $connectTime = microtime(true) - $startTime;
         
         if ($socket) {
@@ -98,7 +105,7 @@ echo 'cURL测试:' . PHP_EOL;
 if (function_exists('curl_init')) {
     $ch = curl_init('http://www.baidu.com');
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_TIMEOUT, 5);
+    curl_setopt($ch, CURLOPT_TIMEOUT, 15);
     
     $startTime = microtime(true);
     $result = curl_exec($ch);
