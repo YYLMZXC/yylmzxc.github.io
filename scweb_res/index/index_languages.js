@@ -1,46 +1,41 @@
 /**
  * 多语言配置文件
- * Multi-language Configuration
+ * Multi-language Configuration File
  * 
- * 这个文件包含所有支持的语言数据
- * This file contains all supported language data
+ * 维护说明：
+ * 1. 新增语言时需在 supported 数组中添加语言代码
+ * 2. 每个语言包需保持 translations 结构一致
+ * 3. navigation 中的链接需与 translations.links 对应
  */
-
-// 语言配置
 const LanguageConfig = {
-    // 默认语言
+    // 基础配置
     default: 'zh',
-    
-    // 支持的语言
     supported: ['zh', 'en', 'ru'],
     
-    // 语言显示名称
+    // 语言显示名称（带国旗图标）
     names: {
         'zh': '🇨🇳 中文',
         'en': '🇺🇸 English',
         'ru': '🇷🇺 Русский'
     },
     
-    // 页面内容翻译
+    // 翻译主数据（按语言分组）
     translations: {
         zh: {
-            // 页面元信息
             page: {
                 title: '生存战争网 - 首页 | SC中文社区官方网站',
                 description: '生存战争网是中国最大的SC中文社区，提供游戏攻略、Mod模组、地图存档、材质包、皮肤和家具等资源下载，以及活跃的联机服务器。',
                 keywords: '生存战争,SC中文社区,生存战争MOD,生存战争联机版,生存战争服务器,生存战争攻略'
             },
-            
-            // 导航菜单
             nav: {
                 home: '首页',
                 serverList: '联机服务器列表',
                 apiTutorial: 'APImod制作教程'
             },
-            
-            // 搜索功能
             search: {
                 anyCategory: '任意分类',
+                scapi: '生存战争api插件版本下载',
+                scnet: '生存战争net联机版下载',
                 pluginMod: '插件版Mod模组下载',
                 onlineMod: '联机版Mod模组下载',
                 gameHistory: '游戏历史全版本下载',
@@ -52,23 +47,17 @@ const LanguageConfig = {
                 placeholder: '输入关键字搜索',
                 submit: '搜索'
             },
-            
-            // 站点信息
             site: {
                 currentAddress: '本站地址：',
                 shortUrl: '短网址：',
                 shortUrl2: '短网址2：'
             },
-            
-            // 导航区块
             sections: {
                 cnNavigation: '🌏 CN中文导航',
                 osNavigation: '🌍 OS海外导航'
             },
-            
-            // 导航链接
             links: {
-                // CN中文导航
+                // 中文导航
                 scForum: '生存战争论坛',
                 scCommunity: 'SC中文社区',
                 scBox: '生存战争盒子网',
@@ -83,36 +72,30 @@ const LanguageConfig = {
                 modWebsite: '模组网',
                 backupCommunity: '备用测试SC中文社区',
                 jiilForum: 'JIIL论坛',
-                
-                // OS海外导航
+                // 海外导航
                 russianScCommunity: '俄语SC社区',
                 originalScCommunity: '原版SC社区',
                 internationalModSite: '海外Mod网站',
                 officialBlog: '正版官网'
             },
-            
-            // 页脚
             footer: '© 2025 生存战争网'
         },
         
         en: {
-            // 页面元信息
             page: {
                 title: 'SurvivalCraft Web - Home | SC English Community Official Website',
                 description: 'SurvivalCraft Web is the largest SC English community, providing game guides, Mods, map archives, texture packs, skins and furniture downloads, as well as active multiplayer servers.',
                 keywords: 'SurvivalCraft,SC English Community,SurvivalCraft MOD,SurvivalCraft Online Version,SurvivalCraft Server,SurvivalCraft Guide'
             },
-            
-            // 导航菜单
             nav: {
                 home: 'Home',
                 serverList: 'Server List',
                 apiTutorial: 'API Mod Tutorial'
             },
-            
-            // 搜索功能
             search: {
                 anyCategory: 'All Categories',
+                scapi: 'SurvivalCraft API Plugin Downloads',
+                scnet: 'SurvivalCraft Net Online Version Downloads',
                 pluginMod: 'Plugin Mod Downloads',
                 onlineMod: 'Online Mod Downloads',
                 gameHistory: 'Game History Downloads',
@@ -124,23 +107,17 @@ const LanguageConfig = {
                 placeholder: 'Enter keywords to search',
                 submit: 'Search'
             },
-            
-            // 站点信息
             site: {
                 currentAddress: 'Site Address: ',
                 shortUrl: 'Short URL: ',
                 shortUrl2: 'Short URL 2: '
             },
-            
-            // 导航区块
             sections: {
                 cnNavigation: '🌏 CN Chinese Navigation',
                 osNavigation: '🌍 OS Overseas Navigation'
             },
-            
-            // 导航链接
             links: {
-                // CN中文导航
+                // 中文导航
                 scForum: 'SC Forum',
                 scCommunity: 'SC English Community',
                 scBox: 'SurvivalCraft Box',
@@ -155,36 +132,30 @@ const LanguageConfig = {
                 modWebsite: 'Mod Website',
                 backupCommunity: 'Backup Test Community',
                 jiilForum: 'JIIL Forum',
-                
-                // OS海外导航
+                // 海外导航
                 russianScCommunity: 'Russian SC Community',
                 originalScCommunity: 'Original SC Community',
                 internationalModSite: 'International Mod Site',
                 officialBlog: 'Official Blog'
             },
-            
-            // 页脚
             footer: '© 2025 SurvivalCraft Web'
         },
         
         ru: {
-            // 页面元信息
             page: {
                 title: 'SurvivalCraft Web - Главная | SC Русское Сообщество Официальный Сайт',
                 description: 'SurvivalCraft Web - крупнейшее SC русское сообщество, предоставляющее игровые руководства, моды, карты, текстуры, скины и мебель, а также активные многопользовательские серверы.',
                 keywords: 'SurvivalCraft,SC Русское Сообщество,SurvivalCraft MOD,SurvivalCraft Онлайн Версия,SurvivalCraft Сервер,SurvivalCraft Руководство'
             },
-            
-            // 导航菜单
             nav: {
                 home: 'Главная',
                 serverList: 'Список Серверов',
                 apiTutorial: 'API Mod Урок'
             },
-            
-            // 搜索功能
             search: {
                 anyCategory: 'Все Категории',
+                scapi: 'Скачать SurvivalCraft API Плагин',
+                scnet: 'Скачать SurvivalCraft Net Онлайн Версию',
                 pluginMod: 'Плагин Мод Скачать',
                 onlineMod: 'Онлайн Мод Скачать',
                 gameHistory: 'История Игры Скачать',
@@ -196,23 +167,17 @@ const LanguageConfig = {
                 placeholder: 'Введите ключевые слова для поиска',
                 submit: 'Поиск'
             },
-            
-            // 站点信息
             site: {
                 currentAddress: 'Адрес Сайта: ',
                 shortUrl: 'Короткий URL: ',
                 shortUrl2: 'Короткий URL 2: '
             },
-            
-            // 导航区块
             sections: {
                 cnNavigation: '🌏 CN Китайская Навигация',
                 osNavigation: '🌍 OS Зарубежная Навигация'
             },
-            
-            // 导航链接
             links: {
-                // CN中文导航
+                // 中文导航
                 scForum: 'SC Форум',
                 scCommunity: 'SC Русское Сообщество',
                 scBox: 'SurvivalCraft Box',
@@ -227,20 +192,17 @@ const LanguageConfig = {
                 modWebsite: 'Мод Сайт',
                 backupCommunity: 'Резервное Тест Сообщество',
                 jiilForum: 'JIIL Форум',
-                
-                // OS海外导航
+                // 海外导航
                 russianScCommunity: 'Русское SC Сообщество',
                 originalScCommunity: 'Оригинальное SC Сообщество',
                 internationalModSite: 'Международный Мод Сайт',
                 officialBlog: 'Официальный Блог'
             },
-            
-            // 页脚
             footer: '© 2025 SurvivalCraft Web'
         }
     },
     
-    // 导航数据
+    // 导航链接配置（与translations.links对应）
     navigation: {
         cn: [
             { title: 'links.scForum', url: 'http://schub.icu/sczz/', external: true },
@@ -267,12 +229,10 @@ const LanguageConfig = {
     }
 };
 
-// 如果在浏览器环境中，设置为全局变量
+// 跨环境导出
 if (typeof window !== 'undefined') {
     window.LanguageConfig = LanguageConfig;
 }
-
-// 如果在Node.js环境中，导出模块
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = LanguageConfig;
 }

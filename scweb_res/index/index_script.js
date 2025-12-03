@@ -1,9 +1,7 @@
 /**
  * 多语言网站交互脚本
  * Multi-language Website Interaction Script
- * 
- * 处理语言切换、搜索表单、导航等交互功能
- * Handles language switching, search forms, navigation, etc.
+ * 功能：语言切换、搜索处理、导航渲染、响应式适配
  */
 
 class LanguageManager {
@@ -13,169 +11,108 @@ class LanguageManager {
         this.init();
     }
 
-    // 初始化
+    /** 初始化入口 */
     async init() {
         try {
-            // 等待语言配置加载
-            await this.waitForLanguageConfig();
+            await this.loadLanguageConfig();
+            this.setInitialLanguage();
+            this.renderPageContent();
+            this.bindEventListeners();
             
-            // 获取用户语言偏好
-            this.currentLang = this.getSavedLanguage() || this.getBrowserLanguage() || 'zh';
-            
-            // 初始化界面
-            this.initializeInterface();
-            
-            // 绑定事件
-            this.bindEvents();
-            
-            console.log(`LanguageManager initialized with language: ${this.currentLang}`);
+            console.log(`[LanguageManager] 初始化完成，当前语言：${this.currentLang}`);
         } catch (error) {
-            console.error('LanguageManager initialization failed:', error);
+            console.error('[LanguageManager] 初始化失败：', error);
         }
     }
 
-    // 等待语言配置加载
-    waitForLanguageConfig() {
-        return new Promise((resolve) => {
-            if (window.LanguageConfig) {
-                this.config = window.LanguageConfig;
-                resolve();
-            } else {
-                const checkConfig = () => {
-                    if (window.LanguageConfig) {
-                        this.config = window.LanguageConfig;
-                        resolve();
-                    } else {
-                        setTimeout(checkConfig, 50);
-                    }
-                };
-                checkConfig();
-            }
+    /** 加载语言配置 */
+    async loadLanguageConfig() {
+        if (window.LanguageConfig) {
+            this.config = window.LanguageConfig;
+            return;
+        }
+
+        // 轮询等待配置加载（最多10秒）
+        return new Promise((resolve, reject) => {
+            const timeout = setTimeout(() => {
+                reject(new Error('语言配置加载超时'));
+            }, 10000);
+
+            const checkConfig = () => {
+                if (window.LanguageConfig) {
+                    clearTimeout(timeout);
+                    this.config = window.LanguageConfig;
+                    resolve();
+                } else {
+                    setTimeout(checkConfig, 50);
+                }
+            };
+
+            checkConfig();
         });
     }
 
-    // 获取保存的语言设置
-    getSavedLanguage() {
-        return localStorage.getItem('preferredLanguage');
+    /** 设置初始语言（优先级：URL参数 > 本地存储 > 浏览器语言 > 默认语言） */
+    setInitialLanguage() {
+        const urlLang = this.getUrlLanguage();
+        const savedLang = this.getSavedLanguage();
+        const browserLang = this.getBrowserLanguage();
+        
+        if (urlLang) {
+            this.currentLang = urlLang;
+            this.saveLanguage(urlLang);
+        } else if (savedLang) {
+            this.currentLang = savedLang;
+        } else if (browserLang) {
+            this.currentLang = browserLang;
+        } else {
+            this.currentLang = this.config.default || 'zh';
+        }
     }
 
-    // 获取URL中的语言参数
+    /** 从URL获取语言参数 */
     getUrlLanguage() {
         const urlParams = new URLSearchParams(window.location.search);
         const lang = urlParams.get('lang');
-        if (lang && this.config && this.config.supported.includes(lang)) {
-            return lang;
-        }
-        return null;
+        return lang && this.config.supported.includes(lang) ? lang : null;
     }
 
-    // 获取浏览器语言
+    /** 从本地存储获取语言 */
+    getSavedLanguage() {
+        const savedLang = localStorage.getItem('preferredLanguage');
+        return savedLang && this.config.supported.includes(savedLang) ? savedLang : null;
+    }
+
+    /** 获取浏览器语言 */
     getBrowserLanguage() {
-        const browserLang = navigator.language || navigator.userLanguage;
+        const browserLang = navigator.language || navigator.userLanguage || '';
         if (browserLang.startsWith('zh')) return 'zh';
         if (browserLang.startsWith('en')) return 'en';
         if (browserLang.startsWith('ru')) return 'ru';
         return null;
     }
 
-    // 保存语言设置
+    /** 保存语言到本地存储 */
     saveLanguage(lang) {
         localStorage.setItem('preferredLanguage', lang);
     }
 
-    // 初始化界面
-    initializeInterface() {
-        // 优先级：URL参数 > 本地存储 > 浏览器语言
-        const urlLang = this.getUrlLanguage();
-        if (urlLang) {
-            this.currentLang = urlLang;
-            this.saveLanguage(urlLang);
-        } else {
-            this.currentLang = this.getSavedLanguage() || this.getBrowserLanguage() || 'zh';
-        }
-        
-        this.updatePageContent();
+    /** 渲染页面所有内容 */
+    renderPageContent() {
+        const translations = this.config.translations[this.currentLang];
+        if (!translations) return;
+
+        this.updatePageMetadata(translations.page);
+        this.updateNavigationMenu(translations.nav);
+        this.updateSearchForm(translations.search);
+        this.updateSiteInfo(translations.site);
+        this.updateSectionTitles(translations.sections);
+        this.renderNavigationLinks();
+        this.updateFooter(translations.footer);
         this.updateLanguageButtons();
     }
 
-    // 绑定事件
-    bindEvents() {
-        // 语言切换按钮
-        document.addEventListener('click', (e) => {
-            if (e.target.matches('[data-lang]')) {
-                const lang = e.target.getAttribute('data-lang');
-                if (this.config.supported.includes(lang)) {
-                    this.switchLanguage(lang);
-                }
-            }
-        });
-
-        // 搜索表单
-        const searchForm = document.getElementById('searchForm');
-        if (searchForm) {
-            searchForm.addEventListener('submit', this.handleSearch.bind(this));
-        }
-
-        // 百度统计 (如果存在)
-        if (typeof _hmt !== 'undefined') {
-            this.setupBaiduAnalytics();
-        }
-
-        // 页面可见性变化
-        document.addEventListener('visibilitychange', this.handleVisibilityChange.bind(this));
-    }
-
-    // 切换语言
-    switchLanguage(newLang) {
-        if (!this.config.supported.includes(newLang) || newLang === this.currentLang) {
-            return;
-        }
-
-        const oldLang = this.currentLang;
-        this.currentLang = newLang;
-        this.saveLanguage(newLang);
-
-        // 添加切换动画效果
-        document.body.classList.add('lang-switching');
-        
-        setTimeout(() => {
-            this.updatePageContent();
-            this.updateLanguageButtons();
-            document.body.classList.remove('lang-switching');
-        }, 150);
-
-        console.log(`Language switched from ${oldLang} to ${newLang}`);
-    }
-
-    // 更新页面内容
-    updatePageContent() {
-        if (!this.config) return;
-
-        const translations = this.config.translations[this.currentLang];
-        
-        // 更新页面标题和元信息
-        this.updatePageMetadata(translations.page);
-        
-        // 更新导航菜单
-        this.updateNavigation(translations.nav);
-        
-        // 更新搜索表单
-        this.updateSearchForm(translations.search);
-        
-        // 更新站点信息
-        this.updateSiteInfo(translations.site);
-        
-        // 更新导航区块
-        this.updateNavigationSections(translations.sections);
-        
-        // 更新导航链接
-        this.updateNavigationLinks();
-        
-        // 更新页脚
-        this.updateFooter(translations.footer);
-    }
-
-    // 更新页面元信息
+    /** 更新页面元信息（标题、描述、关键词） */
     updatePageMetadata(pageData) {
         if (pageData.title) {
             document.title = pageData.title;
@@ -189,7 +126,7 @@ class LanguageManager {
         }
     }
 
-    // 更新meta标签
+    /** 更新单个meta标签 */
     updateMetaTag(name, content, attribute = 'name') {
         let meta = document.querySelector(`meta[${attribute}="${name}"]`);
         if (meta) {
@@ -202,124 +139,115 @@ class LanguageManager {
         }
     }
 
-    // 更新导航菜单
-    updateNavigation(navData) {
-        const elements = {
-            homeLink: document.getElementById('homeLink'),
-            serverListLink: document.getElementById('serverListLink'),
-            apiTutorialLink: document.getElementById('apiTutorialLink')
+    /** 更新导航菜单文本 */
+    updateNavigationMenu(navData) {
+        const navElements = {
+            homeLink: 'home',
+            serverListLink: 'serverList',
+            apiTutorialLink: 'apiTutorial'
         };
 
-        Object.keys(elements).forEach(key => {
-            const element = elements[key];
-            const dataKey = key.replace(/Link$/, '');
+        Object.entries(navElements).forEach(([elementId, dataKey]) => {
+            const element = document.getElementById(elementId);
             if (element && navData[dataKey]) {
                 element.textContent = navData[dataKey];
             }
         });
     }
 
-    // 更新搜索表单
+    /** 更新搜索表单 */
     updateSearchForm(searchData) {
-        // 更新搜索选项
+        // 更新下拉选项
         const selectElement = document.getElementById('searchSelect');
         if (selectElement) {
             Array.from(selectElement.options).forEach(option => {
-                const value = option.value;
-                if (searchData[value]) {
+                const value = option.value || option.dataset.i18n?.replace('search.', '');
+                if (value && searchData[value]) {
                     option.textContent = searchData[value];
                 }
             });
         }
 
-        // 更新搜索占位符
+        // 更新输入框占位符
         const searchInput = document.getElementById('searchInput');
         if (searchInput && searchData.placeholder) {
             searchInput.placeholder = searchData.placeholder;
         }
+
+        // 更新搜索按钮文本
+        const searchButton = document.querySelector('.search-button');
+        if (searchButton && searchData.submit) {
+            searchButton.textContent = searchData.submit;
+        }
     }
 
-    // 更新站点信息
+    /** 更新站点信息 */
     updateSiteInfo(siteData) {
-        const elements = {
-            currentAddress: document.getElementById('currentAddress'),
-            shortUrl: document.getElementById('shortUrl')
-        };
-
-        // 获取当前完整地址
         const currentUrl = window.location.hostname + (window.location.port ? ':' + window.location.port : '');
-
-        Object.keys(elements).forEach(key => {
-            const element = elements[key];
-            if (element && siteData[key]) {
-                if (key === 'currentAddress') {
-                    // 显示"本站地址：" + 当前完整地址
-                    element.textContent = siteData[key] + currentUrl;
-                } else if (key === 'shortUrl') {
-                    // 创建分别显示的两个短网址
-                    element.innerHTML = 
-                        siteData[key] + ' ' +
-                        '<a href="https://scnet.top/" target="_blank" rel="noopener">' +
-                        'scnet.top ' +
-                        '<span style="font-size: 0.8em; color: #666;">https://scnet.top/</span>' +
-                        '</a> ' +
-                        '<span style="margin: 0 5px;">|</span> ' +
-                        '<span style="margin: 0 5px;">' + siteData.shortUrl2 + '</span>' +
-                        '<a href="https://schub.icu/" target="_blank" rel="noopener">' +
-                        'schub.icu ' +
-                        '<span style="font-size: 0.8em; color: #666;">https://schub.icu/</span>' +
-                        '</a>';
-                }
-            }
-        });
-    }
-
-    // 更新导航区块
-    updateNavigationSections(sectionsData) {
-        const cnSection = document.getElementById('cnNavigationTitle');
-        const osSection = document.getElementById('osNavigationTitle');
         
-        if (cnSection && sectionsData.cnNavigation) {
-            cnSection.textContent = sectionsData.cnNavigation;
-        }
-        if (osSection && sectionsData.osNavigation) {
-            osSection.textContent = sectionsData.osNavigation;
-        }
-    }
-
-    // 更新导航链接
-    updateNavigationLinks() {
-        if (!this.config) return;
-
-        // 更新CN导航
-        const cnLinks = this.config.navigation.cn;
-        const cnContainer = document.getElementById('cnNavigationLinks');
-        if (cnContainer && cnLinks) {
-            this.renderNavigationLinks(cnContainer, cnLinks);
+        // 更新当前地址
+        const currentAddressEl = document.getElementById('currentAddress');
+        if (currentAddressEl && siteData.currentAddress) {
+            currentAddressEl.textContent = siteData.currentAddress + currentUrl;
         }
 
-        // 更新OS导航
-        const osLinks = this.config.navigation.os;
-        const osContainer = document.getElementById('osNavigationLinks');
-        if (osContainer && osLinks) {
-            this.renderNavigationLinks(osContainer, osLinks);
+        // 更新短网址
+        const shortUrlEl = document.getElementById('shortUrl');
+        if (shortUrlEl && siteData.shortUrl && siteData.shortUrl2) {
+            shortUrlEl.innerHTML = `
+                ${siteData.shortUrl}
+                <a href="https://scnet.top/" target="_blank" rel="noopener">
+                    scnet.top <span style="font-size: 0.8em; color: #666;">https://scnet.top/</span>
+                </a>
+                <span style="margin: 0 5px;">|</span>
+                ${siteData.shortUrl2}
+                <a href="https://schub.icu/" target="_blank" rel="noopener">
+                    schub.icu <span style="font-size: 0.8em; color: #666;">https://schub.icu/</span>
+                </a>
+            `;
         }
     }
 
-    // 渲染导航链接
-    renderNavigationLinks(container, links) {
-        container.innerHTML = '';
+    /** 更新区块标题 */
+    updateSectionTitles(sectionsData) {
+        const cnTitleEl = document.getElementById('cnNavigationTitle');
+        const osTitleEl = document.getElementById('osNavigationTitle');
+        
+        if (cnTitleEl && sectionsData.cnNavigation) {
+            cnTitleEl.textContent = sectionsData.cnNavigation;
+        }
+        if (osTitleEl && sectionsData.osNavigation) {
+            osTitleEl.textContent = sectionsData.osNavigation;
+        }
+    }
+
+    /** 渲染导航链接 */
+    renderNavigationLinks() {
+        const translations = this.config.translations[this.currentLang];
+        
+        // 渲染中文导航
+        this.renderLinkGroup('cnNavigationLinks', this.config.navigation.cn, translations.links);
+        
+        // 渲染海外导航
+        this.renderLinkGroup('osNavigationLinks', this.config.navigation.os, translations.links);
+    }
+
+    /** 渲染单个链接组 */
+    renderLinkGroup(containerId, links, translations) {
+        const container = document.getElementById(containerId);
+        if (!container || !links || !translations) return;
+
         const fragment = document.createDocumentFragment();
-
+        
         links.forEach(link => {
-            const translations = this.config.translations[this.currentLang];
             const linkKey = link.title.replace('links.', '');
-            const linkTitle = translations.links[linkKey] || link.title;
+            const linkText = translations[linkKey] || linkKey;
             
             const a = document.createElement('a');
             a.href = link.url;
-            a.textContent = linkTitle;
+            a.textContent = linkText;
             a.className = 'nav-link';
+            
             if (link.external) {
                 a.target = '_blank';
                 a.rel = 'noopener noreferrer';
@@ -328,200 +256,215 @@ class LanguageManager {
             fragment.appendChild(a);
         });
 
+        container.innerHTML = '';
         container.appendChild(fragment);
     }
 
-    // 更新页脚
+    /** 更新页脚 */
     updateFooter(footerText) {
-        const footer = document.querySelector('footer .copyright');
-        if (footer) {
-            footer.textContent = footerText;
+        const footerEl = document.querySelector('footer .copyright');
+        if (footerEl) {
+            footerEl.textContent = footerText;
         }
     }
 
-    // 更新语言按钮
+    /** 更新语言按钮状态 */
     updateLanguageButtons() {
-        const buttons = document.querySelectorAll('[data-lang]');
-        buttons.forEach(button => {
+        document.querySelectorAll('[data-lang]').forEach(button => {
             const lang = button.getAttribute('data-lang');
             button.classList.toggle('active', lang === this.currentLang);
         });
         
-        // 添加波纹效果到语言按钮
-        this.addRippleEffect();
+        this.initRippleEffect();
     }
 
-    // 添加波纹效果
-    addRippleEffect() {
-        const buttons = document.querySelectorAll('.language-btn');
-        
-        buttons.forEach(button => {
-            // 移除之前的事件监听器（避免重复添加）
-            button.removeEventListener('click', this.handleRippleClick);
-        });
-        
-        buttons.forEach(button => {
-            button.addEventListener('click', this.handleRippleClick.bind(this));
+    /** 初始化波纹效果 */
+    initRippleEffect() {
+        document.querySelectorAll('.language-btn').forEach(button => {
+            button.removeEventListener('click', this.createRipple.bind(this));
+            button.addEventListener('click', this.createRipple.bind(this));
         });
     }
 
-    // 处理波纹点击事件
-    handleRippleClick(e) {
-        this.createRipple(e);
-    }
-
-    // 创建波纹效果
+    /** 创建波纹效果 */
     createRipple(e) {
         const button = e.currentTarget;
+        
+        // 清除现有波纹
+        const existingRipple = button.querySelector('.ripple');
+        if (existingRipple) existingRipple.remove();
+        
+        // 创建新波纹
         const circle = document.createElement('span');
         const diameter = Math.max(button.clientWidth, button.clientHeight);
         const radius = diameter / 2;
-
+        
         circle.style.width = circle.style.height = `${diameter}px`;
         circle.style.left = `${e.clientX - button.offsetLeft - radius}px`;
         circle.style.top = `${e.clientY - button.offsetTop - radius}px`;
         circle.classList.add('ripple');
-
-        // 清除之前的波纹效果
-        const rippleElements = button.getElementsByClassName('ripple');
-        while (rippleElements[0]) {
-            rippleElements[0].remove();
-        }
-
+        
         button.appendChild(circle);
     }
 
-    // 处理搜索
-    handleSearch(e) {
+    /** 切换语言 */
+    switchLanguage(newLang) {
+        if (!this.config.supported.includes(newLang) || newLang === this.currentLang) return;
+
+        const oldLang = this.currentLang;
+        this.currentLang = newLang;
+        this.saveLanguage(newLang);
+
+        // 添加切换动画
+        document.body.classList.add('lang-switching');
+        
+        setTimeout(() => {
+            this.renderPageContent();
+            document.body.classList.remove('lang-switching');
+            console.log(`[LanguageManager] 语言切换：${oldLang} → ${newLang}`);
+        }, 150);
+    }
+
+    /** 处理搜索提交 */
+    handleSearchSubmit(e) {
         e.preventDefault();
         const formData = new FormData(e.target);
         const category = formData.get('category');
-        const keyword = formData.get('keyword');
+        const keyword = formData.get('keyword').trim();
         
-        console.log('Search submitted:', { category, keyword });
-        
-        // 这里可以添加实际的搜索逻辑
-        // 例如跳转到搜索页面或执行AJAX搜索
-        if (keyword.trim()) {
-            alert(`搜索: ${keyword} (分类: ${category})`);
+        if (!keyword) {
+            alert(this.config.translations[this.currentLang].search.placeholder || '请输入搜索关键词');
+            return;
         }
+        
+        console.log('[Search] 搜索提交：', { category, keyword });
+        // 实际项目中可替换为：window.location.href = `search.php?category=${category}&keyword=${encodeURIComponent(keyword)}`;
+        alert(`搜索关键词：${keyword}\n分类：${category || '任意分类'}`);
     }
 
-    // 设置百度统计
-    setupBaiduAnalytics() {
-        // 百度统计代码已经通过<script>标签引入，这里可以添加额外的统计逻辑
-        console.log('Baidu Analytics initialized');
-    }
+    /** 绑定所有事件监听器 */
+    bindEventListeners() {
+        // 语言切换按钮
+        document.addEventListener('click', (e) => {
+            if (e.target.matches('[data-lang]')) {
+                this.switchLanguage(e.target.getAttribute('data-lang'));
+            }
+        });
 
-    // 页面可见性变化处理
-    handleVisibilityChange() {
-        if (!document.hidden && this.config) {
-            // 页面变为可见时，可以更新一些动态内容
-            console.log('Page became visible, language:', this.currentLang);
+        // 搜索表单提交
+        const searchForm = document.getElementById('searchForm');
+        if (searchForm) {
+            searchForm.addEventListener('submit', this.handleSearchSubmit.bind(this));
         }
+
+        // 百度统计初始化
+        if (typeof _hmt !== 'undefined') {
+            console.log('[Analytics] 百度统计已初始化');
+        }
+
+        // 页面可见性变化
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden) {
+                console.log('[Page] 页面激活，当前语言：', this.currentLang);
+            }
+        });
     }
 }
 
-// 搜索功能类
+/** 搜索管理器（扩展搜索功能） */
 class SearchManager {
     constructor() {
         this.init();
     }
 
     init() {
-        this.bindSearchEvents();
+        this.bindSearchInputEvents();
     }
 
-    bindSearchEvents() {
-        // 搜索建议功能（如果有输入框）
+    /** 绑定搜索输入事件 */
+    bindSearchInputEvents() {
         const searchInput = document.getElementById('searchInput');
-        if (searchInput) {
-            searchInput.addEventListener('input', this.handleSearchInput.bind(this));
-        }
-    }
+        if (!searchInput) return;
 
-    handleSearchInput(e) {
-        const value = e.target.value;
-        // 这里可以添加搜索建议逻辑
-        console.log('Search input:', value);
+        // 防抖处理输入事件
+        const debouncedInput = Utils.debounce((value) => {
+            console.log('[Search] 输入内容：', value);
+            // 可添加搜索建议逻辑
+        }, 300);
+
+        searchInput.addEventListener('input', (e) => {
+            debouncedInput(e.target.value.trim());
+        });
     }
 }
 
-// 工具函数
+/** 工具函数集合 */
 const Utils = {
-    // 平滑滚动到元素
-    scrollToElement(elementId) {
+    /** 平滑滚动到元素 */
+    scrollToElement(elementId, behavior = 'smooth') {
         const element = document.getElementById(elementId);
         if (element) {
-            element.scrollIntoView({ 
-                behavior: 'smooth',
-                block: 'start'
-            });
+            element.scrollIntoView({ behavior, block: 'start' });
         }
     },
 
-    // 复制文本到剪贴板
+    /** 复制文本到剪贴板 */
     copyToClipboard(text) {
         if (navigator.clipboard) {
-            navigator.clipboard.writeText(text).then(() => {
-                console.log('Text copied to clipboard');
-            });
-        } else {
-            // 降级处理
-            const textArea = document.createElement('textarea');
-            textArea.value = text;
-            document.body.appendChild(textArea);
-            textArea.select();
-            document.execCommand('copy');
-            document.body.removeChild(textArea);
+            return navigator.clipboard.writeText(text)
+                .then(() => console.log('[Utils] 文本已复制到剪贴板'))
+                .catch(err => console.error('[Utils] 复制失败：', err));
         }
+
+        // 降级处理（兼容旧浏览器）
+        const textArea = document.createElement('textarea');
+        textArea.value = text;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+        console.log('[Utils] 文本已复制到剪贴板（降级模式）');
     },
 
-    // 防抖函数
-    debounce(func, wait) {
-        let timeout;
-        return function executedFunction(...args) {
-            const later = () => {
-                clearTimeout(timeout);
-                func(...args);
-            };
-            clearTimeout(timeout);
-            timeout = setTimeout(later, wait);
+    /** 防抖函数 */
+    debounce(func, wait = 300) {
+        let timeoutId;
+        return function(...args) {
+            clearTimeout(timeoutId);
+            timeoutId = setTimeout(() => func.apply(this, args), wait);
         };
     },
 
-    // 节流函数
-    throttle(func, limit) {
-        let inThrottle;
-        return function() {
-            const args = arguments;
-            const context = this;
-            if (!inThrottle) {
-                func.apply(context, args);
-                inThrottle = true;
-                setTimeout(() => inThrottle = false, limit);
+    /** 节流函数 */
+    throttle(func, limit = 300) {
+        let lastCall = 0;
+        return function(...args) {
+            const now = Date.now();
+            if (now - lastCall >= limit) {
+                lastCall = now;
+                func.apply(this, args);
             }
         };
     }
 };
 
-// 初始化应用
-document.addEventListener('DOMContentLoaded', function() {
-    // 初始化语言管理器
+/** 页面加载完成后初始化应用 */
+document.addEventListener('DOMContentLoaded', () => {
+    // 初始化核心模块
     const languageManager = new LanguageManager();
-    
-    // 初始化搜索管理器
     const searchManager = new SearchManager();
     
-    // 将管理器设置为全局变量（可选）
-    window.languageManager = languageManager;
-    window.searchManager = searchManager;
-    window.Utils = Utils;
+    // 暴露到全局（方便调试和外部调用）
+    window.app = {
+        languageManager,
+        searchManager,
+        Utils
+    };
     
-    console.log('SCWeb application initialized');
+    console.log('[App] 生存战争网应用初始化完成');
 });
 
-// 页面卸载时的清理工作
-window.addEventListener('beforeunload', function() {
-    console.log('Page unloading...');
+/** 页面卸载清理 */
+window.addEventListener('beforeunload', () => {
+    console.log('[App] 页面即将卸载');
 });
