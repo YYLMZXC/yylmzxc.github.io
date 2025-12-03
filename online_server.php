@@ -215,9 +215,6 @@ function add_server($name, $ip, $group, $note = '', $type = 'original') {
                                         <?php echo $server['name']; ?>
                                     </span>
                                 </span>
-                                <span class="server-ip" data-ip="<?php echo $server['ip']; ?>" title="点击复制IP" data-i18n="server.clickToCopy" data-i18n-attr="title">
-                                    <b><?php echo $server['ip']; ?></b> <span class="copy-hint" data-i18n="server.clickToCopy">点击复制</span>
-                                </span>
                                 <div class="server-latency">
                                     <!-- Ping延迟 -->
                                     <span class="latency-item ping-latency" data-ip="<?php echo $server['ip']; ?>">
@@ -226,17 +223,20 @@ function add_server($name, $ip, $group, $note = '', $type = 'original') {
                                     </span>
                                     <!-- TCP延迟 -->
                                     <span class="latency-item tcp-latency" data-ip="<?php echo $server['ip']; ?>">
-                                        <span class="latency-icon">🔌</span>
+                                        <span class="latency-icon">📶</span>
                                         <span class="latency-text" data-i18n="server.tcp">TCP检测...</span>
                                     </span>
                                     <!-- UDP延迟 -->
                                     <span class="latency-item udp-latency" data-ip="<?php echo $server['ip']; ?>">
-                                        <span class="latency-icon">�</span>
+                                        <span class="latency-icon">📶</span>
                                         <span class="latency-text" data-i18n="server.udp">UDP检测...</span>
                                     </span>
                                 </div>
-                                <span class="server-group" data-group="<?php echo $server['group']; ?>" title="点击复制群号" data-i18n="server.clickToCopy" data-i18n-attr="title">
-                                    <span data-i18n="server.groupNumber">群号：</span><b><?php echo $server['group']; ?></b> <span class="copy-hint" data-i18n="server.clickToCopy">点击复制</span>
+                                <div class="server-group" data-group="<?php echo $server['group']; ?>" title="点击复制群号" data-i18n="server.clickToCopy" data-i18n-attr="title">
+                                    <div><span data-i18n="server.groupNumber">群号：</span><b><?php echo $server['group']; ?></b> <span class="copy-hint" data-i18n="server.clickToCopy">点击复制</span></div>
+                                </div>
+                                <span class="server-ip" data-ip="<?php echo $server['ip']; ?>" title="点击复制IP" data-i18n="server.clickToCopy" data-i18n-attr="title">
+                                    <span>IP：</span><b><?php echo $server['ip']; ?></b> <span class="copy-hint" data-i18n="server.clickToCopy">点击复制</span>
                                 </span>
                                 <?php if (!empty($server['note'])): ?>
                                 <?php $noteKey = get_note_key($server['note']); ?>
@@ -403,10 +403,10 @@ function add_server($name, $ip, $group, $note = '', $type = 'original') {
             latencyIcon.textContent = '📶';
             break;
           case 'tcp':
-            latencyIcon.textContent = '�';
+            latencyIcon.textContent = '📶';
             break;
           case 'udp':
-            latencyIcon.textContent = '📡';
+            latencyIcon.textContent = '📶';
             break;
         }
         

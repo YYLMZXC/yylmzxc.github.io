@@ -549,9 +549,10 @@ button, input, select, textarea {
 
 /* 服务器Ping显示样式 */
 .server-ping {
-  display: flex;
-  align-items: center;
   margin-right: 1rem;
+  margin-bottom: 5px;
+  display: inline-flex;
+  align-items: center;
   padding: 4px 8px;
   border-radius: 4px;
   font-weight: 500;
@@ -594,12 +595,16 @@ button, input, select, textarea {
   margin-right: 1rem;
   flex: 1;
   min-width: 120px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
 
 .server-note {
   color: #999;
   font-size: 0.9em;
-  margin-left: auto;
+  width: 100%;
+  display: block;
 }
 
 /* 横幅网格样式 */
@@ -696,6 +701,9 @@ button, input, select, textarea {
     margin-bottom: 15px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
 }
 
 .server-item:hover {
@@ -707,8 +715,9 @@ button, input, select, textarea {
     display: block;
     font-size: 18px;
     font-weight: bold;
-    margin-bottom: 8px;
+    margin-bottom: 12px;
     color: #333;
+    width: 100%;
 }
 
 .server-type-badge {
@@ -734,21 +743,43 @@ button, input, select, textarea {
     background-color: #f39c12;
 }
 
-.server-ip {
+.server-latency {
     display: block;
-    font-size: 16px;
-    margin-bottom: 5px;
-    color: #666;
+    margin-bottom: 12px;
+    font-size: 14px;
+    color: #555;
+    width: 100%;
 }
 
-.server-ip b {
-    color: #2c3e50;
+.latency-item {
+    margin-right: 1rem;
+    margin-bottom: 5px;
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 8px;
+    border-radius: 4px;
+    background-color: rgba(0, 0, 0, 0.05);
 }
 
 .server-group {
     display: block;
-    font-size: 14px;
-    color: #7f8c8d;
+    font-size: 16px;
+    color: #666;
+    margin-bottom: 12px;
+    width: 100%;
+}
+
+.server-ip {
+    display: block;
+    font-size: 16px;
+    margin-bottom: 12px;
+    color: #666;
+    width: 100%;
+}
+
+.server-group b,
+.server-ip b {
+    color: #2c3e50;
 }
 
 .server-note {
