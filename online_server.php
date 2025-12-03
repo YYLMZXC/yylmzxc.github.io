@@ -350,7 +350,7 @@ function add_server($name, $ip, $group, $note = '', $type = 'original') {
       updatePingError(element, '网络错误');
     };
     
-    xhr.timeout = 15000; // 增加超时时间到15秒
+    xhr.timeout = 20000; // 增加超时时间到20秒
     xhr.ontimeout = function() {
       updatePingError(element, '请求超时');
     };
@@ -397,6 +397,12 @@ function add_server($name, $ip, $group, $note = '', $type = 'original') {
       var errorMsg = result.error || '无法连接';
       if (result.errors && result.errors.length > 0) {
         errorMsg = result.errors[0];
+      }
+      // 添加网络诊断提示
+      if (errorMsg.includes('连接被拒绝') || errorMsg.includes('10061')) {
+        errorMsg += ' (端口可能未开放)';
+      } else if (errorMsg.includes('连接超时') || errorMsg.includes('10060')) {
+        errorMsg += ' (网络延迟或防火墙阻止)';
       }
       updatePingError(element, errorMsg);
     }

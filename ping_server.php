@@ -476,6 +476,21 @@ function checkPortSupport($host, $port) {
 // 执行端口支持检测
 $portCheckResult = checkPortSupport($host, $port);
 
+// 检查常用端口是否开放（用于对比）
+$common_ports = array(80, 443, 53);
+$common_port_status = array();
+foreach ($common_ports as $test_port) {
+    $test_socket = @fsockopen($host, $test_port, $test_errno, $test_errstr, 2);
+    $common_port_status[$test_port] = array(
+        'open' => $test_socket !== false,
+        'error' => $test_socket === false ? $test_errstr : '',
+        'errno' => $test_socket === false ? $test_errno : 0
+    );
+    if ($test_socket) {
+        fclose($test_socket);
+    }
+}
+
 // 准备响应数据
 $response = array(
     'success' => $testResults['successCount'] > 0,
@@ -494,7 +509,17 @@ $response = array(
     'serverProtocol' => isset($_SERVER['SERVER_PROTOCOL']) ? $_SERVER['SERVER_PROTOCOL'] : '',
     'serverSoftware' => isset($_SERVER['SERVER_SOFTWARE']) ? $_SERVER['SERVER_SOFTWARE'] : '',
     'serverIp' => isset($_SERVER['SERVER_ADDR']) ? $_SERVER['SERVER_ADDR'] : '',
-    'remoteIp' => isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : ''
+    'remoteIp' => isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '',
+    'diagnostics' => array(
+        'server' => $host,
+        'port' => $port,
+        'timestamp' => date('Y-m-d H:i:s'),
+        'php_version' => phpversion(),
+        'execution_time_limit' => ini_get('max_execution_time'),
+        'socket_timeout' => ini_get('default_socket_timeout'),
+        'resolved_ip' => $testResults['resolvedIp'],
+        'common_ports' => $common_port_status
+    )
 );
 
 // 添加调试信息（仅在测试环境中启用）
