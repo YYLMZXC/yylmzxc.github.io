@@ -124,25 +124,48 @@ if (function_exists('curl_init')) {
 echo PHP_EOL;
 
 // DNS服务器配置
-echo '<h2>DNS服务器配置</h2>';
-if (function_exists('shell_exec')) {
-    // 尝试获取DNS服务器配置
-    if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
-        // Windows系统
-        $dnsConfig = shell_exec('ipconfig /all | findstr /i DNS');
-    } else {
-        // Linux/Unix系统
-        $dnsConfig = shell_exec('cat /etc/resolv.conf');
-    }
-    
-    if ($dnsConfig) {
-        echo 'DNS配置: ' . PHP_EOL . $dnsConfig . PHP_EOL;
-    } else {
-        echo '无法获取DNS配置' . PHP_EOL;
-    }
-} else {
-    echo 'shell_exec函数不可用，无法获取DNS配置' . PHP_EOL;
-}
+ echo '<h2>DNS服务器配置</h2>';
+ if (function_exists('shell_exec')) {
+     // 尝试获取DNS服务器配置
+     if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
+         // Windows系统
+         $dnsConfig = shell_exec('ipconfig /all | findstr /i DNS');
+     } else {
+         // Linux/Unix系统
+         $dnsConfig = shell_exec('cat /etc/resolv.conf');
+     }
+     
+     if ($dnsConfig) {
+         echo 'DNS配置: ' . PHP_EOL . $dnsConfig . PHP_EOL;
+     } else {
+         echo '无法获取DNS配置' . PHP_EOL;
+     }
+ } else {
+     echo 'shell_exec函数不可用，无法获取DNS配置' . PHP_EOL;
+ }
+ echo PHP_EOL;
+
+// 网络路由和防火墙检查
+ echo '<h2>网络路由和防火墙检查</h2>';
+ if (function_exists('shell_exec')) {
+     // 测试到主要游戏服务器的网络路由
+     echo '网络路由测试:' . PHP_EOL;
+     $testHosts = array('api.yylmzxc.icu', 'yylmzxc.icu', 'y.yylmzxc.icu', 't.yylmzxc.icu', 'v.yylmzxc.icu', 'b.yylmzxc.icu');
+     foreach ($testHosts as $host) {
+         // 使用ping测试网络连通性
+         if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
+             // Windows系统
+             $pingResult = shell_exec('ping -n 2 -w 3000 ' . $host . ' 2>&1');
+         } else {
+             // Linux/Unix系统
+             $pingResult = shell_exec('ping -c 2 -W 3 ' . $host . ' 2>&1');
+         }
+         echo PHP_EOL . '=== ' . $host . ' ===' . PHP_EOL;
+         echo $pingResult . PHP_EOL;
+     }
+ } else {
+     echo 'shell_exec函数不可用，无法执行网络路由测试' . PHP_EOL;
+ }
 echo PHP_EOL;
 
 echo '</pre>';

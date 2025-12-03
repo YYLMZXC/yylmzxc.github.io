@@ -164,6 +164,97 @@ function testDnsResolution($host) {
 }
 
 /**
+ * 获取socket错误号的含义
+ * @param int $errno socket错误号
+ * @return string 错误号的含义
+ */
+function getSocketErrorMeaning($errno) {
+    $errorMessages = array(
+        // 通用错误
+        1 => '操作不允许',
+        2 => '没有这样的文件或目录',
+        3 => '没有这样的进程',
+        4 => '中断的系统调用',
+        5 => '输入/输出错误',
+        6 => '没有这样的设备或地址',
+        7 => '参数列表太长',
+        8 => '执行格式错误',
+        9 => '错误的文件描述符',
+        10 => '没有子进程',
+        
+        // Socket相关错误
+        97 => '地址族不支持协议',
+        98 => '地址已在使用',
+        99 => '无法分配请求的地址',
+        100 => '网络已关闭',
+        101 => '网络不可达',
+        102 => '网络重置',
+        103 => '连接中止',
+        104 => '连接重置',
+        105 => '网络已关闭',
+        106 => '传输端点已连接',
+        107 => '传输端点未连接',
+        108 => '关闭的文件描述符',
+        109 => '信息已不存在',
+        110 => '连接超时',
+        111 => '连接被拒绝',
+        112 => '主机不可达',
+        113 => '无路由到主机',
+        
+        // Windows系统特定错误
+        10004 => '操作被中断',
+        10009 => '错误的文件描述符',
+        10013 => '权限被拒绝',
+        10014 => '指针地址无效',
+        10022 => '无效的参数',
+        10024 => '打开的文件过多',
+        10035 => '操作将被阻塞',
+        10036 => '操作正在进行中',
+        10037 => '操作已完成',
+        10038 => '在非套接字上的操作',
+        10039 => '地址无效',
+        10040 => '消息太长',
+        10041 => '协议类型错误',
+        10042 => '协议不支持的操作',
+        10043 => '协议不可用',
+        10044 => '协议错误',
+        10045 => '套接字类型错误',
+        10046 => '不支持的操作',
+        10047 => '地址族与协议不匹配',
+        10048 => '地址已在使用',
+        10049 => '无法分配请求的地址',
+        10050 => '网络不可达',
+        10051 => '网络已关闭',
+        10052 => '连接被中止',
+        10053 => '连接中止',
+        10054 => '连接重置',
+        10055 => '没有可用的缓冲区空间',
+        10056 => '套接字已连接',
+        10057 => '套接字未连接',
+        10058 => '套接字已关闭',
+        10059 => '无法发送更多数据',
+        10060 => '连接超时',
+        10061 => '连接被拒绝',
+        10062 => '地址已使用',
+        10063 => '名称太长',
+        10064 => '主机不可达',
+        10065 => '无路由到主机',
+        10066 => '目录不为空',
+        10067 => '进程数太多',
+        10068 => '用户数太多',
+        10069 => '磁盘空间不足',
+        10070 => '文件太大',
+        10071 => '虚拟内存不足',
+        10091 => '网络子系统不可用',
+        10092 => '协议族不可用',
+        10093 => '进程尚未准备好',
+        10101 => '软件导致连接中止'
+    );
+    
+    return isset($errorMessages[$errno]) ? $errorMessages[$errno] : '未知错误';
+}
+
+/**
  * 获取系统DNS服务器列表
  * @return array DNS服务器列表
  */
@@ -265,7 +356,16 @@ function testConnectionLatency($host, $port, $timeout = 10, $count = 2) {
         $startTime = microtime(true);
         
         // 尝试连接
+        $debugInfo[] = "尝试连接到 $host:$port (解析后的IP: $ipAddress)，超时时间: $timeout 秒";
+        
+        // 记录连接前的时间
+        $connectionStartTime = microtime(true);
+        
+        // 尝试连接
         $socket = @fsockopen($host, $port, $errno, $errstr, $timeout);
+        
+        // 计算连接耗时
+        $connectionDuration = (microtime(true) - $connectionStartTime) * 1000;
         
         if ($socket) {
             // 连接成功，计算延迟
@@ -274,7 +374,7 @@ function testConnectionLatency($host, $port, $timeout = 10, $count = 2) {
             $latencies[] = $latency;
             $successCount++;
             $totalTime += $latency;
-            $debugInfo[] = "连接成功，延迟: " . round($latency) . "ms";
+            $debugInfo[] = "连接成功，延迟: " . round($latency) . "ms，连接耗时: " . round($connectionDuration) . "ms";
             
             // 关闭连接
             fclose($socket);
@@ -286,15 +386,21 @@ function testConnectionLatency($host, $port, $timeout = 10, $count = 2) {
                 // break; // 取消注释以提前结束
             }
         } else {
-            // 连接失败，记录错误
-            $errors[] = "尝试 $i: 失败 ($errno: $errstr)";
-            $debugInfo[] = "连接失败，错误号: $errno, 错误信息: $errstr";
+            // 连接失败，记录详细错误信息
+            $errors[] = "尝试 $i: 失败 ($errno: $errstr)，耗时: " . round($connectionDuration) . "ms";
+            $debugInfo[] = "连接失败，错误号: $errno, 错误信息: $errstr, 耗时: " . round($connectionDuration) . "ms";
+            
+            // 记录错误号的具体含义
+            $errorMeaning = getSocketErrorMeaning($errno);
+            $debugInfo[] = "错误号 $errno 含义: $errorMeaning";
             
             // 如果是连接被拒绝错误，可能是服务器未开启对应端口，提前终止
-            if ($errno == 111 || $errno == 61) { // Connection refused
-                $debugInfo[] = "连接被拒绝，端口可能未开放，提前终止测试";
-                $errors[] = "端口连接被拒绝，可能服务器未开启该端口";
-                break;
+            if ($errno == 111 || $errno == 61 || $errno == 10061) { // Connection refused (Windows: 10061)
+                $debugInfo[] = "连接被拒绝，可能是服务器未开启该端口或防火墙阻止了连接";
+                $errors[] = "端口连接被拒绝，可能服务器未开启该端口或防火墙设置问题";
+            } elseif ($errno == 10060) { // Connection timed out
+                $debugInfo[] = "连接超时，可能是网络延迟过高、路由问题或服务器防火墙阻止了连接";
+                $errors[] = "连接超时，可能是网络延迟过高、路由问题或防火墙设置问题";
             }
         }
         
@@ -370,6 +476,18 @@ if ($testResults['successCount'] === 0) {
         'disable_functions' => ini_get('disable_functions'),
         'dns_get_record_available' => function_exists('dns_get_record') ? 'yes' : 'no',
         'gethostbynamel_available' => function_exists('gethostbynamel') ? 'yes' : 'no'
+    );
+    
+    // 添加网络环境诊断信息
+    $response['networkDiagnostics'] = array(
+        'phpVersion' => phpversion(),
+        'serverIp' => $_SERVER['SERVER_ADDR'],
+        'serverHostname' => gethostname(),
+        'targetHost' => $host,
+        'targetPort' => $port,
+        'resolvedIp' => $testResults['resolvedIp'],
+        'testTimestamp' => date('Y-m-d H:i:s'),
+        'errorCode' => isset($testResults['errors'][0]) ? preg_match('/\((\d+):/', $testResults['errors'][0], $matches) ? $matches[1] : 'unknown' : 'unknown'
     );
 }
 
