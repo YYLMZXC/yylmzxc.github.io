@@ -207,18 +207,18 @@ const LanguageConfig = {
         cn: [
             { title: 'links.scForum', url: 'http://schub.icu/sczz/', external: true },
             { title: 'links.scCommunity', url: 'https://www.schub.top/', external: true },
+            { title: 'links.backupCommunity', url: 'https://test.suancaixianyu.cn/', external: true },
             { title: 'links.scBox', url: 'https://web.schz.top', external: true },
             { title: 'links.scWiki', url: 'https://www.yuque.com/u589148/sc', external: true },
+            { title: 'links.serverPlugin', url: 'https://spd.jiil.top/index.html', external: true },
+            { title: 'links.modWebsite', url: 'https://www.scmod.cn/', external: true },
+            { title: 'links.jiilForum', url: 'https://bbs.jiil.top/', external: true },
             { title: 'links.pluginMod', url: 'http://schub.icu/sczz/?forum-3.htm', external: true },
             { title: 'links.onlineMod', url: 'http://schub.icu/sczz/?forum-4.htm', external: true },
             { title: 'links.texturePack', url: 'http://schub.icu/sczz/?forum-5.htm', external: true },
             { title: 'links.skinPack', url: 'http://schub.icu/sczz/?forum-6.htm', external: true },
             { title: 'links.mapPack', url: 'http://schub.icu/sczz/?forum-2.htm', external: true },
-            { title: 'links.furniturePack', url: 'http://schub.icu/sczz/?forum-7.htm', external: true },
-            { title: 'links.serverPlugin', url: 'https://spd.jiil.top/index.html', external: true },
-            { title: 'links.modWebsite', url: 'https://www.scmod.cn/', external: true },
-            { title: 'links.backupCommunity', url: 'https://test.suancaixianyu.cn/', external: true },
-            { title: 'links.jiilForum', url: 'https://bbs.jiil.top/', external: true }
+            { title: 'links.furniturePack', url: 'http://schub.icu/sczz/?forum-7.htm', external: true }
         ],
         os: [
             { title: 'links.russianScCommunity', url: 'https://vk.com/fans_club_survivalcraft', external: true },
