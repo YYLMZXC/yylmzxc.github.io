@@ -138,6 +138,88 @@ button, input, select, textarea {
   max-height: 64px;
 }
 
+/* 导航菜单 */
+#nav-menu {
+  margin: 25px 0 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0;
+  width: calc(100% - 300px); /* 为右上角翻译按钮留出空间 */
+  max-width: 100%;
+}
+
+/* 新增：顶部导航栏样式 */
+#top-nav-bar {
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #dee2e6;
+  padding: 15px 0;
+  position: relative;
+  z-index: 1000;
+}
+
+.nav-menu-section {
+  display: flex;
+  justify-content: flex-start;
+}
+
+.nav-menu {
+  display: flex;
+  gap: 25px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.nav-menu a {
+  padding: 8px 16px;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+  color: #495057;
+  font-weight: 500;
+  text-decoration: none;
+  border: 1px solid transparent;
+}
+
+.nav-menu a:hover {
+  background-color: #e9ecef;
+  color: #007bff;
+  text-decoration: none;
+}
+
+.nav-menu a.active {
+  background-color: #007bff;
+  color: white;
+  border-color: #007bff;
+}
+
+.nav-menu a.active:hover {
+  background-color: #0056b3;
+  border-color: #0056b3;
+  color: white;
+}
+
+/* 语言选择器放在右上角 */
+.language-section-top-right {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.language-selector {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.language-selector .language-btn {
+  width: auto;
+  height: auto;
+  padding: 6px 12px;
+  font-size: 14px;
+  border-radius: 6px;
+}
+
 #body {
   padding: 20px 0;
 }
