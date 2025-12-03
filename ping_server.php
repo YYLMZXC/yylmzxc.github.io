@@ -7,6 +7,13 @@
 // 设置响应头
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
+header('Access-Control-Allow-Headers: Content-Type, Authorization');
+
+// 确保在HTTPS环境下也能正常工作
+if (isset($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS']) === 'on') {
+    header('Strict-Transport-Security: max-age=31536000; includeSubDomains');
+}
 
 // 获取请求参数
 $ip = isset($_GET['ip']) ? $_GET['ip'] : '';
@@ -45,10 +52,33 @@ $host = trim($host);
  * @param int $count 测试次数
  * @return array 包含延迟信息的数组
  */
-function testConnectionLatency($host, $port, $timeout = 1, $count = 3) {
+function testConnectionLatency($host, $port, $timeout = 2, $count = 2) {
     $latencies = array();
     $successCount = 0;
     $totalTime = 0;
+    $errors = array();
+    
+    // 添加调试信息：检查主机名解析
+    $ipAddress = @gethostbyname($host);
+    if ($ipAddress === $host && !filter_var($host, FILTER_VALIDATE_IP)) {
+        $errors[] = "无法解析主机名: $host";
+    } else {
+        // 主机名解析成功
+    }
+    
+    // 检查fsockopen是否可用
+    if (!function_exists('fsockopen')) {
+        $errors[] = "服务器不支持fsockopen函数";
+        return array(
+            'successCount' => 0,
+            'totalCount' => $count,
+            'latencies' => array(),
+            'avgLatency' => -1,
+            'minLatency' => -1,
+            'errors' => $errors,
+            'resolvedIp' => $ipAddress
+        );
+    }
     
     for ($i = 0; $i < $count; $i++) {
         // 记录开始时间
@@ -67,6 +97,9 @@ function testConnectionLatency($host, $port, $timeout = 1, $count = 3) {
             
             // 关闭连接
             fclose($socket);
+        } else {
+            // 连接失败，记录错误
+            $errors[] = "尝试 $i: 失败 ($errno: $errstr)";
         }
         
         // 每次测试之间短暂延迟
@@ -86,7 +119,9 @@ function testConnectionLatency($host, $port, $timeout = 1, $count = 3) {
         'totalCount' => $count,
         'latencies' => $latencies,
         'avgLatency' => $avgLatency,
-        'minLatency' => $minLatency
+        'minLatency' => $minLatency,
+        'errors' => $errors,
+        'resolvedIp' => $ipAddress
     );
 }
 
@@ -102,12 +137,21 @@ $response = array(
     'latency' => $testResults['avgLatency'],
     'minLatency' => $testResults['minLatency'],
     'successCount' => $testResults['successCount'],
-    'totalCount' => $testResults['totalCount']
+    'totalCount' => $testResults['totalCount'],
+    'resolvedIp' => $testResults['resolvedIp'],
+    'errors' => $testResults['errors'],
+    'phpVersion' => phpversion(),
+    'https' => isset($_SERVER['HTTPS']) ? $_SERVER['HTTPS'] : 'off',
+    'serverProtocol' => isset($_SERVER['SERVER_PROTOCOL']) ? $_SERVER['SERVER_PROTOCOL'] : ''
 );
 
 // 如果没有成功连接，添加错误信息
 if ($testResults['successCount'] === 0) {
-    $response['error'] = '无法连接到服务器';
+    if (!empty($testResults['errors'])) {
+        $response['error'] = implode('; ', $testResults['errors']);
+    } else {
+        $response['error'] = '无法连接到服务器';
+    }
 }
 
 // 返回JSON响应

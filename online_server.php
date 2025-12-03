@@ -326,7 +326,8 @@ function add_server($name, $ip, $group, $note = '', $type = 'original') {
   // 服务器Ping功能
   function pingServer(ip, element) {
     var xhr = new XMLHttpRequest();
-    var pingUrl = 'ping_server.php?ip=' + encodeURIComponent(ip);
+    // 使用相对路径确保与当前页面协议一致
+    var pingUrl = window.location.protocol + '//' + window.location.host + '/ping_server.php?ip=' + encodeURIComponent(ip);
     
     xhr.open('GET', pingUrl, true);
     
@@ -337,20 +338,21 @@ function add_server($name, $ip, $group, $note = '', $type = 'original') {
           updatePingResult(element, result);
         } catch (e) {
           console.error('解析Ping结果失败:', e);
-          updatePingError(element, '无法连接');
+          updatePingError(element, '解析失败');
         }
       } else {
-        updatePingError(element, '无法连接');
+        updatePingError(element, '连接错误 (' + xhr.status + ')');
       }
     };
     
-    xhr.onerror = function() {
-      updatePingError(element, '无法连接');
+    xhr.onerror = function(e) {
+      console.error('XHR错误:', e);
+      updatePingError(element, '网络错误');
     };
     
-    xhr.timeout = 2000;
+    xhr.timeout = 5000; // 增加超时时间到5秒
     xhr.ontimeout = function() {
-      updatePingError(element, '超时');
+      updatePingError(element, '请求超时');
     };
     
     xhr.send();
@@ -390,7 +392,12 @@ function add_server($name, $ip, $group, $note = '', $type = 'original') {
         element.classList.add('ping-low');
       }
     } else {
-      updatePingError(element, result.error || '无法连接');
+      // 显示详细错误信息
+      var errorMsg = result.error || '无法连接';
+      if (result.errors && result.errors.length > 0) {
+        errorMsg = result.errors[0];
+      }
+      updatePingError(element, errorMsg);
     }
   }
   
@@ -412,17 +419,22 @@ function add_server($name, $ip, $group, $note = '', $type = 'original') {
   
   // 页面加载完成后执行Ping
   document.addEventListener('DOMContentLoaded', function() {
-    // 为每个服务器执行Ping
-    document.querySelectorAll('.server-ping').forEach(function(element) {
-      var ip = element.getAttribute('data-ip');
-      pingServer(ip, element);
+    // 为每个服务器执行Ping（添加延迟避免同时发送太多请求）
+    var pingElements = document.querySelectorAll('.server-ping');
+    pingElements.forEach(function(element, index) {
+      setTimeout(function() {
+        var ip = element.getAttribute('data-ip');
+        pingServer(ip, element);
+      }, index * 500); // 每个请求间隔500毫秒
     });
     
     // 每隔30秒自动刷新一次Ping结果
     setInterval(function() {
-      document.querySelectorAll('.server-ping').forEach(function(element) {
-        var ip = element.getAttribute('data-ip');
-        pingServer(ip, element);
+      pingElements.forEach(function(element, index) {
+        setTimeout(function() {
+          var ip = element.getAttribute('data-ip');
+          pingServer(ip, element);
+        }, index * 500); // 每个请求间隔500毫秒
       });
     }, 30000);
   });

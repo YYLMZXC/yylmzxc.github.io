@@ -1,0 +1,40 @@
+# 启用RewriteEngine
+RewriteEngine On
+
+# 确保在HTTPS环境下运行
+# 如果您的服务器已经配置了强制HTTPS，可以注释掉下面的规则
+# RewriteCond %{HTTPS} off
+# RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# 确保ping_server.php可以被访问
+<Files "ping_server.php">
+    # 设置CORS头部
+    Header set Access-Control-Allow-Origin "*"
+    Header set Access-Control-Allow-Methods "GET, POST, OPTIONS"
+    Header set Access-Control-Allow-Headers "Content-Type, Authorization"
+</Files>
+
+# 设置安全头部
+<IfModule mod_headers.c>
+    # HSTS头部
+    Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+    
+    # X-Content-Type-Options
+    Header always set X-Content-Type-Options "nosniff"
+    
+    # X-Frame-Options
+    Header always set X-Frame-Options "SAMEORIGIN"
+    
+    # X-XSS-Protection
+    Header always set X-XSS-Protection "1; mode=block"
+</IfModule>
+
+# 优化性能
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/plain text/html text/xml text/css application/javascript application/json
+</IfModule>
+
+# 设置缓存控制
+<FilesMatch "\.(js|css|png|jpg|jpeg|gif|ico)$">
+    Header set Cache-Control "max-age=31536000, public"
+</FilesMatch>
