@@ -436,6 +436,46 @@ function testConnectionLatency($host, $port, $timeout = 10, $count = 2) {
 // 执行连接测试
 $testResults = testConnectionLatency($host, $port);
 
+// 检测端口支持情况
+function checkPortSupport($host, $port) {
+    $result = array(
+        'supported' => false,
+        'status' => 'unknown',
+        'message' => ''
+    );
+    
+    if (function_exists('fsockopen')) {
+        $socket = @fsockopen($host, $port, $errno, $errstr, 5);
+        
+        if ($socket) {
+            $result['supported'] = true;
+            $result['status'] = 'open';
+            $result['message'] = '端口已开放，可以连接';
+            fclose($socket);
+        } else {
+            $result['supported'] = false;
+            if ($errno == 111 || $errno == 61 || $errno == 10061) {
+                $result['status'] = 'closed';
+                $result['message'] = '端口被拒绝访问，可能未开放或被防火墙阻止';
+            } elseif ($errno == 110 || $errno == 10060) {
+                $result['status'] = 'timeout';
+                $result['message'] = '连接超时，可能网络不可达或端口未响应';
+            } else {
+                $result['status'] = 'error';
+                $result['message'] = '连接错误: ' . $errstr . ' (错误号: ' . $errno . ')';
+            }
+        }
+    } else {
+        $result['status'] = 'unavailable';
+        $result['message'] = '服务器不支持fsockopen函数，无法检测端口状态';
+    }
+    
+    return $result;
+}
+
+// 执行端口支持检测
+$portCheckResult = checkPortSupport($host, $port);
+
 // 准备响应数据
 $response = array(
     'success' => $testResults['successCount'] > 0,
@@ -448,6 +488,7 @@ $response = array(
     'totalCount' => $testResults['totalCount'],
     'resolvedIp' => $testResults['resolvedIp'],
     'errors' => $testResults['errors'],
+    'portCheck' => $portCheckResult,
     'phpVersion' => phpversion(),
     'https' => isset($_SERVER['HTTPS']) ? $_SERVER['HTTPS'] : 'off',
     'serverProtocol' => isset($_SERVER['SERVER_PROTOCOL']) ? $_SERVER['SERVER_PROTOCOL'] : '',
