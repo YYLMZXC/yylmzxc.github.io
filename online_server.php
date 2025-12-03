@@ -19,7 +19,7 @@ $servers = array(
     ),
     array(
         'name' => '土豆服3服',
-        'ip' => 'y.yylmzxc.icu',
+        'ip' => 'y.yylmzxc.icu:28887',
         'group' => '826823481',
         'note' => '',
         'type' => 'original'
