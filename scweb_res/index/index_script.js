@@ -188,7 +188,7 @@ class LanguageManager {
         // 更新当前地址
         const currentAddressEl = document.getElementById('currentAddress');
         if (currentAddressEl && siteData.currentAddress) {
-            currentAddressEl.textContent = siteData.currentAddress + currentUrl;
+            currentAddressEl.innerHTML = `${siteData.currentAddress + currentUrl}<br>`;
         }
 
         // 更新短网址
@@ -199,7 +199,7 @@ class LanguageManager {
                 <a href="https://scnet.top/" target="_blank" rel="noopener">
                     scnet.top <span style="font-size: 0.8em; color: #666;">https://scnet.top/</span>
                 </a>
-                <span style="margin: 0 5px;">|</span>
+                <br>
                 ${siteData.shortUrl2}
                 <a href="https://schub.icu/" target="_blank" rel="noopener">
                     schub.icu <span style="font-size: 0.8em; color: #666;">https://schub.icu/</span>

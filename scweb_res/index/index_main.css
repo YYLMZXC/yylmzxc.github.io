@@ -305,7 +305,7 @@ textarea {
 /* ==== 组件样式 ==== */
 /* 语言选择器按钮 */
 .language-section-top-right .language-btn {
-    padding: 4px 48px;
+    padding: 6px 24px;
     border: 1px solid #ddd;
     border-radius: 3px;
     background: white;
@@ -315,9 +315,8 @@ textarea {
     white-space: nowrap;
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
     text-align: center;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
+    display: inline-block;
+    min-width: 100px;
 }
 
 .language-section-top-right .language-btn:hover {
@@ -500,10 +499,12 @@ textarea {
     font-size: 14px;
     color: #666;
     margin: 20px 0;
-    padding: 12px;
+    padding: 12px 20px;
     background: var(--light-bg);
     border-radius: 6px;
     border-left: 4px solid #007cba;
+    max-width: 100%;
+    box-sizing: border-box;
 }
 
 .site-address span {
@@ -513,6 +514,11 @@ textarea {
 .site-address b {
     color: #333;
     font-weight: 600;
+}
+
+.site-address div {
+    margin: 3px 0;
+    line-height: 1.4;
 }
 
 /* 页脚 */
@@ -606,8 +612,9 @@ textarea {
     }
     
     .language-section-top-right .language-btn {
-        padding: 6px 36px;
+        padding: 6px 20px;
         font-size: 13px;
+        min-width: 90px;
     }
     
     #body > .container {
@@ -655,7 +662,9 @@ textarea {
     
     .site-address {
         font-size: 13px;
-        padding: 10px;
+        padding: 10px 15px;
+        max-width: 100%;
+        box-sizing: border-box;
     }
     
     .nav-section h3 {
