@@ -385,7 +385,7 @@ function add_server($name, $ip, $group, $note = '', $type = 'original') {
         }
       } else {
         // 延迟值为-1（默认值）
-        pingText.textContent = '在线 (' + result.latency + ' ms)';
+        pingText.textContent = '连接中...';
         element.classList.remove('ping-low', 'ping-medium', 'ping-high', 'ping-timeout');
         element.classList.add('ping-low');
       }

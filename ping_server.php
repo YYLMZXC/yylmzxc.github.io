@@ -10,6 +10,7 @@ header('Access-Control-Allow-Origin: *');
 
 // 获取请求参数
 $ip = isset($_GET['ip']) ? $_GET['ip'] : '';
+$port = isset($_GET['port']) ? intval($_GET['port']) : null;
 
 // 验证IP格式
 if (empty($ip)) {
@@ -21,97 +22,93 @@ if (empty($ip)) {
 }
 
 // 解析IP和端口（如果有）
-if (strpos($ip, ':') !== false && substr_count($ip, ':') === 1) {
+if (strpos($ip, ':') !== false && substr_count($ip, ':') === 1 && $port === null) {
     // 格式：ip:port
     list($host, $port) = explode(':', $ip);
     $port = intval($port);
 } else {
     // 只有IP，没有端口
     $host = $ip;
-    $port = 28887; // 默认端口
+    if ($port === null) {
+        $port = 28887; // 默认端口
+    }
 }
 
 // 移除可能的空格
 $host = trim($host);
 
-// 执行ping命令
-function ping($host, $timeout = 2) {
-    // 根据操作系统选择ping命令格式
-    $os = strtolower(PHP_OS);
-    $command = '';
+/**
+ * 使用fsockopen测试服务器连接延迟
+ * @param string $host 主机名或IP地址
+ * @param int $port 端口号
+ * @param int $timeout 超时时间（秒）
+ * @param int $count 测试次数
+ * @return array 包含延迟信息的数组
+ */
+function testConnectionLatency($host, $port, $timeout = 1, $count = 3) {
+    $latencies = array();
+    $successCount = 0;
+    $totalTime = 0;
     
-    if (strpos($os, 'win') !== false) {
-        // Windows系统 - 增加超时时间
-        $command = "ping -n 1 -w " . ($timeout * 1000) . " " . escapeshellarg($host);
-    } else {
-        // Linux/Unix系统
-        $command = "ping -c 1 -W " . $timeout . " " . escapeshellarg($host);
-    }
-    
-    // 执行ping命令并获取输出
-    $output = array();
-    $return_var = 0;
-    $full_output = '';
-    // 使用2>&1捕获stderr
-    exec($command . ' 2>&1', $output, $return_var);
-    
-    // 解析输出获取延迟
-    $latency = -1;
-    $output_str = implode("\n", $output);
-    
-    // 详细调试信息
-    error_log("=== Ping Debug Info ===");
-    error_log("Command: $command");
-    error_log("Return Var: $return_var");
-    error_log("Output Lines: " . count($output));
-    error_log("Full Output: $output_str");
-    error_log("Output Contains '时间<': " . (strpos($output_str, '时间<') !== false ? 'Yes' : 'No'));
-    error_log("Output Contains '时间=': " . (strpos($output_str, '时间=') !== false ? 'Yes' : 'No'));
-    
-    // 删除重复的解析逻辑，只保留下面的简化版
-    
-    // 改进的英文格式延迟解析逻辑
-    if ($return_var === 0) {
-        // 遍历每一行输出
-        foreach ($output as $line) {
-            // 检查是否包含time信息
-            if (stripos($line, 'time<1ms') !== false) {
-                $latency = 0;
-                break;
-            } elseif (preg_match('/time=(\d+)/i', $line, $matches)) {
-                $latency = intval($matches[1]);
-                break;
-            }
+    for ($i = 0; $i < $count; $i++) {
+        // 记录开始时间
+        $startTime = microtime(true);
+        
+        // 尝试连接
+        $socket = @fsockopen($host, $port, $errno, $errstr, $timeout);
+        
+        if ($socket) {
+            // 连接成功，计算延迟
+            $endTime = microtime(true);
+            $latency = ($endTime - $startTime) * 1000; // 转换为毫秒
+            $latencies[] = $latency;
+            $successCount++;
+            $totalTime += $latency;
+            
+            // 关闭连接
+            fclose($socket);
         }
         
-        // 如果没有找到，尝试从统计信息中获取
-        if ($latency === -1) {
-            foreach ($output as $line) {
-                if (preg_match('/Minimum\s*=\s*(\d+)/i', $line, $matches)) {
-                    $latency = intval($matches[1]);
-                    break;
-                }
-            }
+        // 每次测试之间短暂延迟
+        if ($i < $count - 1) {
+            usleep(100000); // 100毫秒
         }
     }
     
-    // 添加调试信息
-    error_log("Latency parsed: $latency");
+    // 计算平均延迟
+    $avgLatency = $successCount > 0 ? round($totalTime / $successCount) : -1;
     
-    return $latency;
+    // 计算最小延迟
+    $minLatency = $successCount > 0 ? round(min($latencies)) : -1;
+    
+    return array(
+        'successCount' => $successCount,
+        'totalCount' => $count,
+        'latencies' => $latencies,
+        'avgLatency' => $avgLatency,
+        'minLatency' => $minLatency
+    );
 }
 
-// 执行ping并获取延迟
-$latency = ping($host);
+// 执行连接测试
+$testResults = testConnectionLatency($host, $port);
 
 // 准备响应数据
 $response = array(
-    'success' => true,
+    'success' => $testResults['successCount'] > 0,
     'ip' => $ip,
     'host' => $host,
     'port' => $port,
-    'latency' => $latency
+    'latency' => $testResults['avgLatency'],
+    'minLatency' => $testResults['minLatency'],
+    'successCount' => $testResults['successCount'],
+    'totalCount' => $testResults['totalCount']
 );
+
+// 如果没有成功连接，添加错误信息
+if ($testResults['successCount'] === 0) {
+    $response['error'] = '无法连接到服务器';
+}
 
 // 返回JSON响应
 echo json_encode($response);
