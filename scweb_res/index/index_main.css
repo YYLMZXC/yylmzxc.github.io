@@ -81,18 +81,60 @@ button, input, select, textarea {
 }
 
 /* 移动端网格 */
-.col-mb-1 { width: 8.33333%; }
-.col-mb-2 { width: 16.66667%; }
-.col-mb-3 { width: 25%; }
-.col-mb-4 { width: 33.33333%; }
-.col-mb-5 { width: 41.66667%; }
-.col-mb-6 { width: 50%; }
-.col-mb-7 { width: 58.33333%; }
-.col-mb-8 { width: 66.66667%; }
-.col-mb-9 { width: 75%; }
-.col-mb-10 { width: 83.33333%; }
-.col-mb-11 { width: 91.66667%; }
-.col-mb-12 { width: 100%; }
+.col-mb-1, .col-mb-2, .col-mb-3, .col-mb-4, .col-mb-5, .col-mb-6,
+.col-mb-7, .col-mb-8, .col-mb-9, .col-mb-10, .col-mb-11, .col-mb-12 {
+  width: 100%; /* 在移动端默认所有列都占满宽度 */
+}
+
+/* 移动端特定样式优化 */
+@media (max-width: 767px) {
+  .container {
+    padding-left: 15px;
+    padding-right: 15px;
+  }
+  
+  /* 语言选择器在移动端居中 */
+  .language-section-top-right {
+    position: relative;
+    top: auto;
+    right: auto;
+    width: 100%;
+    text-align: center;
+    margin: 10px 0;
+  }
+  
+  /* 调整导航菜单间距 */
+  .nav-menu {
+    gap: 10px;
+  }
+  
+  /* 调整搜索表单元素大小 */
+  .search-select, .search-input, .search-button {
+    font-size: 13px;
+    padding: 7px 10px;
+  }
+  
+  /* 确保所有主要内容区块在移动端居中 */
+  #body > .container {
+    text-align: center;
+  }
+  
+  /* 横幅网格在移动端居中 */
+  .banner-grid {
+    justify-items: center;
+  }
+  
+  /* 导航区块标题居中 */
+  .nav-section h3 {
+    text-align: center;
+  }
+  
+  /* 确保所有a标签内的内容居中 */
+  a {
+    display: inline-block;
+    text-align: center;
+  }
+}
 
 /* 平板网格 */
 @media (min-width: 768px) {
