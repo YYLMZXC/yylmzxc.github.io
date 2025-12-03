@@ -49,7 +49,7 @@ if (strpos($ip, ':') !== false && substr_count($ip, ':') === 1 && $port === null
 $host = trim($host);
 
 /**
- * 测试DNS解析
+ * 测试DNS解析（支持多DNS服务器和重试机制）
  * @param string $host 主机名
  * @return array 包含解析结果的数组
  */
@@ -58,10 +58,11 @@ function testDnsResolution($host) {
         'success' => false,
         'ip' => null,
         'error' => null,
-        'debug' => array()
+        'debug' => array(),
+        'dnsServers' => array()
     );
     
-    // 检查输入是否是IP地址
+    // 检查输入是否是IP地址（直接跳过DNS解析）
     if (filter_var($host, FILTER_VALIDATE_IP)) {
         $result['success'] = true;
         $result['ip'] = $host;
@@ -69,62 +70,129 @@ function testDnsResolution($host) {
         return $result;
     }
     
-    // 尝试使用gethostbyname解析
-    $result['debug'][] = "使用gethostbyname解析主机名: $host";
-    $startTime = microtime(true);
-    $ip = @gethostbyname($host);
-    $resolveTime = microtime(true) - $startTime;
-    $result['debug'][] = "gethostbyname解析耗时: " . round($resolveTime * 1000) . "ms";
+    // 获取当前系统DNS服务器
+    $systemDns = getSystemDnsServers();
+    $result['dnsServers'] = $systemDns;
+    $result['debug'][] = "系统DNS服务器: " . implode(', ', $systemDns);
     
-    if ($ip !== $host) {
-        $result['success'] = true;
-        $result['ip'] = $ip;
-        $result['debug'][] = "gethostbyname解析成功，IP地址: $ip";
-    } else {
-        $result['error'] = "gethostbyname解析失败";
-        $result['debug'][] = "gethostbyname解析失败，返回值: $ip";
-        
-        // 尝试使用gethostbynamel解析多个IP
-        if (function_exists('gethostbynamel')) {
-            $result['debug'][] = "尝试使用gethostbynamel解析主机名: $host";
-            $startTime = microtime(true);
-            $ips = @gethostbynamel($host);
-            $resolveTime = microtime(true) - $startTime;
-            $result['debug'][] = "gethostbynamel解析耗时: " . round($resolveTime * 1000) . "ms";
-            
-            if (is_array($ips) && count($ips) > 0) {
-                $result['success'] = true;
-                $result['ip'] = $ips[0];
-                $result['debug'][] = "gethostbynamel解析成功，IP地址列表: " . implode(', ', $ips);
-            } else {
-                $result['debug'][] = "gethostbynamel解析失败";
-            }
-        } else {
-            $result['debug'][] = "gethostbynamel函数不可用";
+    // 常用公共DNS服务器列表
+    $publicDnsServers = array(
+        '8.8.8.8',     // Google DNS
+        '8.8.4.4',     // Google DNS
+        '114.114.114.114', // 114 DNS
+        '114.114.115.115', // 114 DNS
+        '202.96.128.86',   // 联通DNS
+        '202.96.134.133'    // 联通DNS
+    );
+    
+    // 合并系统DNS和公共DNS，去重
+    $allDnsServers = array_unique(array_merge($systemDns, $publicDnsServers));
+    $result['debug'][] = "可用DNS服务器列表: " . implode(', ', $allDnsServers);
+    
+    // 尝试多种解析方法
+    $resolveMethods = array(
+        'gethostbyname' => function($h) {
+            $ip = @gethostbyname($h);
+            return $ip !== $h ? $ip : false;
+        },
+        'gethostbynamel' => function($h) {
+            if (!function_exists('gethostbynamel')) return false;
+            $ips = @gethostbynamel($h);
+            return is_array($ips) && count($ips) > 0 ? $ips[0] : false;
+        },
+        'dns_get_record' => function($h) {
+            if (!function_exists('dns_get_record')) return false;
+            $records = @dns_get_record($h, DNS_A);
+            return is_array($records) && count($records) > 0 ? $records[0]['ip'] : false;
         }
+    );
+    
+    // 尝试所有解析方法
+    $resolvedIp = false;
+    foreach ($resolveMethods as $methodName => $methodFunc) {
+        if ($resolvedIp) break;
         
-        // 尝试使用dns_get_record解析
-        if (function_exists('dns_get_record')) {
-            $result['debug'][] = "尝试使用dns_get_record解析主机名: $host";
-            $startTime = microtime(true);
-            $records = @dns_get_record($host, DNS_A);
-            $resolveTime = microtime(true) - $startTime;
-            $result['debug'][] = "dns_get_record解析耗时: " . round($resolveTime * 1000) . "ms";
-            
-            if (is_array($records) && count($records) > 0) {
-                $result['success'] = true;
-                $result['ip'] = $records[0]['ip'];
-                $result['debug'][] = "dns_get_record解析成功，IP地址: " . $records[0]['ip'];
-                $result['debug'][] = "DNS记录: " . print_r($records, true);
-            } else {
-                $result['debug'][] = "dns_get_record解析失败";
-            }
+       $result['debug'][] = "使用{$methodName}方法解析主机名: {$host}";
+
+        $startTime = microtime(true);
+        $ip = $methodFunc($host);
+        $resolveTime = microtime(true) - $startTime;
+        
+        if ($ip) {
+            $resolvedIp = $ip;
+            $result['success'] = true;
+            $result['ip'] = $ip;
+            $result['debug'][] = "{$methodName}解析成功，IP地址: {$ip}，耗时: " . round($resolveTime * 1000) . "ms";
+
+            break;
         } else {
-            $result['debug'][] = "dns_get_record函数不可用";
+           $result['debug'][] = "{$methodName}解析失败，耗时: " . round($resolveTime * 1000) . "ms";
+
         }
     }
     
+    // 如果所有方法都失败，尝试直接使用fsockopen（某些环境下可以绕过系统DNS）
+    if (!$resolvedIp) {
+        $result['debug'][] = "所有DNS解析方法失败，尝试直接使用fsockopen连接（可能绕过系统DNS）";
+        $startTime = microtime(true);
+        $socket = @fsockopen($host, 80, $errno, $errstr, 2);
+        $connectTime = microtime(true) - $startTime;
+        
+        if ($socket) {
+            // 获取连接的对等方IP
+            $peerName = @stream_socket_get_name($socket, true);
+            if ($peerName) {
+                // 提取IP地址部分
+                $ip = explode(':', $peerName)[0];
+                $result['success'] = true;
+                $result['ip'] = $ip;
+              $result['debug'][] = "fsockopen连接成功，获取到IP: {$ip}，耗时: " . round($connectTime * 1000) . "ms";
+
+            }
+            fclose($socket);
+        } else {
+            $result['debug'][] = "fsockopen连接失败，错误: $errno - $errstr";
+        }
+    }
+    
+    // 如果还是失败，设置错误信息
+    if (!$result['success']) {
+        $result['error'] = "无法解析主机名 '$host'，已尝试所有可用DNS解析方法";
+    }
+    
     return $result;
+}
+
+/**
+ * 获取系统DNS服务器列表
+ * @return array DNS服务器列表
+ */
+function getSystemDnsServers() {
+    $dnsServers = array();
+    
+    // 根据操作系统获取DNS服务器
+    if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
+        // Windows系统
+        $output = @shell_exec('ipconfig /all 2>&1');
+        if (preg_match_all('/DNS Servers\s+:\s+([\d\.]+)/i', $output, $matches)) {
+            $dnsServers = $matches[1];
+        }
+    } else {
+        // Linux/Unix系统
+        $resolvConf = @file_get_contents('/etc/resolv.conf');
+        if ($resolvConf) {
+            if (preg_match_all('/nameserver\s+([\d\.]+)/i', $resolvConf, $matches)) {
+                $dnsServers = $matches[1];
+            }
+        }
+    }
+    
+    // 如果没有获取到DNS服务器，返回默认值
+    if (empty($dnsServers)) {
+        $dnsServers = array('8.8.8.8', '114.114.114.114');
+    }
+    
+    return array_unique($dnsServers);
 }
 
 /**
