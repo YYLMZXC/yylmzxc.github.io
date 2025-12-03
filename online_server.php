@@ -370,10 +370,11 @@ function add_server($name, $ip, $group, $note = '', $type = 'original') {
       pingIcon.textContent = '📶';
       if (result.latency >= 0) {
         // 有有效延迟值
-        if (result.latency === 0) {
+        if (result.latency < 1) {
           pingText.textContent = '<1 ms';
         } else {
-          pingText.textContent = result.latency + ' ms';
+          // 保留2位小数显示延迟
+          pingText.textContent = parseFloat(result.latency).toFixed(2) + ' ms';
         }
         
         // 根据延迟设置样式
