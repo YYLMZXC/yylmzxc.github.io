@@ -103,12 +103,12 @@ def main():
     
     # 如果没有tencent_cnb远程，添加它
     if "tencent_cnb" not in output:
-        success, _ = run_command(f"git remote add tencent_xnb {tencent_xnb_url}")
+        success, _ = run_command(f"git remote add tencent_cnb {tencent_cnb_url}")
         if not success:
             print("添加腾讯cnb远程失败，但继续尝试")
     else:
-        # 更新tencent_xnb远程URL
-        success, _ = run_command(f"git remote set-url tencent_xnb {tencent_xnb_url}")
+        # 更新tencent_cnb远程URL
+        success, _ = run_command(f"git remote set-url tencent_cnb {tencent_cnb_url}")
         if not success:
             print("更新腾讯cnb远程URL失败，但继续尝试")
     
@@ -128,9 +128,9 @@ def main():
     else:
         print("推送到GitHub失败")
     
-    # 推送到腾讯xnb
+    # 推送到腾讯cnb
     print(f"推送到腾讯cnb的{branch_name}分支...")
-    success, _ = run_command(f"git push tencent_xnb {branch_name}")
+    success, _ = run_command(f"git push tencent_cnb {branch_name}")
     if success:
         print("成功推送到腾讯cnb")
     else:
