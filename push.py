@@ -68,7 +68,7 @@ def main():
     # 设置远程仓库
     gitee_url = "https://gitee.com/yylmzxc/scweb.git"
     github_url = "https://github.com/YYLMZXC/yylmzxc.github.io.git"
-    tencent_xnb_url = "https://cnb.cool/YYLMZXC/scweb"  # 添加腾讯xnb远程仓库URL
+    tencent_cnb_url = "https://cnb.cool/YYLMZXC/scweb"  # 添加腾讯xnb远程仓库URL
     
     # 检查并更新远程仓库配置
     print("配置远程仓库...")
@@ -101,16 +101,16 @@ def main():
         if not success:
             print("更新github远程URL失败，但继续尝试")
     
-    # 如果没有tencent_xnb远程，添加它
-    if "tencent_xnb" not in output:
+    # 如果没有tencent_cnb远程，添加它
+    if "tencent_cnb" not in output:
         success, _ = run_command(f"git remote add tencent_xnb {tencent_xnb_url}")
         if not success:
-            print("添加腾讯xnb远程失败，但继续尝试")
+            print("添加腾讯cnb远程失败，但继续尝试")
     else:
         # 更新tencent_xnb远程URL
         success, _ = run_command(f"git remote set-url tencent_xnb {tencent_xnb_url}")
         if not success:
-            print("更新腾讯xnb远程URL失败，但继续尝试")
+            print("更新腾讯cnb远程URL失败，但继续尝试")
     
     # 推送到Gitee
     print(f"推送到Gitee的{branch_name}分支...")
@@ -129,12 +129,12 @@ def main():
         print("推送到GitHub失败")
     
     # 推送到腾讯xnb
-    print(f"推送到腾讯xnb的{branch_name}分支...")
+    print(f"推送到腾讯cnb的{branch_name}分支...")
     success, _ = run_command(f"git push tencent_xnb {branch_name}")
     if success:
-        print("成功推送到腾讯xnb")
+        print("成功推送到腾讯cnb")
     else:
-        print("推送到腾讯xnb失败")
+        print("推送到腾讯cnb失败")
     
     print("推送完成！")
 
