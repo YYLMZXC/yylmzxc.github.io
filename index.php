@@ -12,7 +12,7 @@
     <meta name="keywords" content="生存战争,SC中文社区,生存战争MOD,生存战争联机版,生存战争服务器,生存战争攻略">
     
     <!-- 资源引用 -->
-    <link rel="stylesheet" href="./scweb_res/index/index_main.css">
+    <link rel="stylesheet" href="./scweb_res/index/index_main.css?v=<?php echo filemtime('./scweb_res/index/index_main.css'); ?>">
     <link rel="icon" type="image/x-icon" href="./scweb_res/favicon.ico">
     <link rel="canonical" href="<?php echo 'https://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']; ?>">
 </head>
@@ -113,7 +113,7 @@
     </footer>
 
     <!-- 脚本引用（确保加载顺序） -->
-    <script src="./scweb_res/index/index_languages.js"></script>
-    <script src="./scweb_res/index/index_script.js"></script>
+    <script src="./scweb_res/index/index_languages.js?v=<?php echo filemtime('./scweb_res/index/index_languages.js'); ?>"></script>
+    <script src="./scweb_res/index/index_script.js?v=<?php echo filemtime('./scweb_res/index/index_script.js'); ?>"></script>
 </body>
 </html>
