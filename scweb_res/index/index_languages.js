@@ -60,6 +60,7 @@ const LanguageConfig = {
                 // 中文导航
                 scForum: '生存战争论坛',
                 scCommunity: 'SC中文社区',
+                scKey: '生存战争登录钥匙',
                 scBox: '生存战争盒子网',
                 scWiki: '生存战争百科',
                 pluginMod: '插件版Mod(模组)',
@@ -208,6 +209,7 @@ const LanguageConfig = {
             { title: 'links.scForum', url: 'http://schub.icu/sczz/', external: true },
             { title: 'links.scCommunity', url: 'https://www.schub.top/', external: true },
             { title: 'links.backupCommunity', url: 'https://test.suancaixianyu.cn/', external: true },
+            { title: 'links.scKey', url: 'https://sckey.net', external: true },
             { title: 'links.scBox', url: 'https://web.schz.top', external: true },
             { title: 'links.scWiki', url: 'https://www.yuque.com/u589148/sc', external: true },
             { title: 'links.serverPlugin', url: 'https://spd.jiil.top/index.html', external: true },
