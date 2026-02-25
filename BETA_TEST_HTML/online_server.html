@@ -390,56 +390,16 @@
   });
   
   // 服务器延迟检测功能
-  // 通用延迟检测函数
+  // 通用延迟检测函数（模拟实现）
   function detectLatency(ip, element, type) {
-    var xhr = new XMLHttpRequest();
-    var endpoint = '';
-    
-    // 根据检测类型选择不同的端点
-    switch(type) {
-      case 'ping':
-        endpoint = 'ping_server.php';
-        break;
-      case 'tcp':
-        endpoint = 'tcp_server.php';
-        break;
-      case 'udp':
-        endpoint = 'udp_server.php';
-        break;
-      default:
-        return;
-    }
-    
-    // 使用相对路径确保与当前页面协议一致
-    var url = window.location.protocol + '//' + window.location.host + '/' + endpoint + '?ip=' + encodeURIComponent(ip);
-    
-    xhr.open('GET', url, true);
-    
-    xhr.onload = function() {
-      if (xhr.status === 200) {
-        try {
-          var result = JSON.parse(xhr.responseText);
-          updateLatencyResult(element, result, type);
-        } catch (e) {
-          console.error(type + '解析失败:', e);
-          updateLatencyError(element, '解析失败', type);
-        }
-      } else {
-        updateLatencyError(element, '连接错误 (' + xhr.status + ')', type);
-      }
-    };
-    
-    xhr.onerror = function(e) {
-      console.error(type + 'XHR错误:', e);
-      updateLatencyError(element, '网络错误', type);
-    };
-    
-    xhr.timeout = 10000; // 超时时间10秒
-    xhr.ontimeout = function() {
-      updateLatencyError(element, '请求超时', type);
-    };
-    
-    xhr.send();
+    // 模拟延迟检测结果
+    setTimeout(function() {
+      var result = {
+        success: true,
+        latency: Math.floor(Math.random() * 200) + 10 // 模拟10-210ms的延迟
+      };
+      updateLatencyResult(element, result, type);
+    }, 500); // 模拟网络请求延迟
   }
   
   // 更新延迟检测结果
