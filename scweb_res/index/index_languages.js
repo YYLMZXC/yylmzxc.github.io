@@ -59,7 +59,8 @@ const LanguageConfig = {
             links: {
                 // 中文导航
                 scForum: '生存战争论坛',
-                scCommunity: 'SC中文社区',
+                scCommunity: 'SC中文社区cn路线',
+                scOldAddress: 'SC中文社区旧地址',
                 scKey: '生存战争登录钥匙',
                 scBox: '生存战争盒子网',
                 scWiki: '生存战争百科',
@@ -71,7 +72,7 @@ const LanguageConfig = {
                 furniturePack: '家具包',
                 serverPlugin: '服务端插件',
                 modWebsite: '模组网',
-                backupCommunity: '备用测试SC中文社区',
+                backupCommunity: 'SC中文社区os路线',
                 jiilForum: 'JIIL论坛',
                 // 海外导航
                 russianScCommunity: '俄语SC社区',
@@ -120,7 +121,9 @@ const LanguageConfig = {
             links: {
                 // 中文导航
                 scForum: 'SC Forum',
-                scCommunity: 'SC English Community',
+                scCommunity: 'SC Chinese Community cn Route',
+                scOldAddress: 'SC Old Address',
+                scKey: 'SurvivalCraft Key',
                 scBox: 'SurvivalCraft Box',
                 scWiki: 'SurvivalCraft Wiki',
                 pluginMod: 'Plugin Mod',
@@ -131,7 +134,7 @@ const LanguageConfig = {
                 furniturePack: 'Furniture Pack',
                 serverPlugin: 'Server Plugin',
                 modWebsite: 'Mod Website',
-                backupCommunity: 'Backup Test Community',
+                backupCommunity: 'SC Chinese Community os Route',
                 jiilForum: 'JIIL Forum',
                 // 海外导航
                 russianScCommunity: 'Russian SC Community',
@@ -180,7 +183,8 @@ const LanguageConfig = {
             links: {
                 // 中文导航
                 scForum: 'SC Форум',
-                scCommunity: 'SC Русское Сообщество',
+                scCommunity: 'SC Китайское Сообщество cn Маршрут',
+                scOldAddress: 'SC Старый Адрес',
                 scBox: 'SurvivalCraft Box',
                 scWiki: 'SurvivalCraft Вики',
                 pluginMod: 'Плагин Мод',
@@ -191,7 +195,7 @@ const LanguageConfig = {
                 furniturePack: 'Мебель Пак',
                 serverPlugin: 'Сервер Плагин',
                 modWebsite: 'Мод Сайт',
-                backupCommunity: 'Резервное Тест Сообщество',
+                backupCommunity: 'SC Китайское Сообщество os Маршрут',
                 jiilForum: 'JIIL Форум',
                 // 海外导航
                 russianScCommunity: 'Русское SC Сообщество',
@@ -207,8 +211,9 @@ const LanguageConfig = {
     navigation: {
         cn: [
             { title: 'links.scForum', url: 'http://schub.icu/sczz/', external: true },
-            { title: 'links.scCommunity', url: 'https://www.schub.top/', external: true },
-            { title: 'links.backupCommunity', url: 'https://test.suancaixianyu.cn/', external: true },
+            { title: 'links.scCommunity', url: 'https://test.suancaixianyu.cn/', external: true },
+            { title: 'links.scOldAddress', url: 'https://www.schub.top/', external: true },
+            { title: 'links.backupCommunity', url: 'https://www.scbbs.top/', external: true },
             { title: 'links.scKey', url: 'https://sckey.net', external: true },
             { title: 'links.scBox', url: 'https://web.schz.top', external: true },
             { title: 'links.scWiki', url: 'https://www.yuque.com/u589148/sc', external: true },
