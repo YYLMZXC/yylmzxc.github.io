@@ -16,9 +16,8 @@
 
 ### 环境要求
 
-- PHP 7.4 或更高版本
-- Apache Web服务器（推荐）
 - 现代浏览器（支持ES6+）
+- 可选：Apache或Nginx Web服务器（用于生产环境）
 
 ### 安装步骤
 
@@ -30,23 +29,23 @@
 
 2. **启动开发服务器**
    
-   使用PHP内置服务器：
+   使用Python内置HTTP服务器：
    ```bash
-   php -S localhost:8000
+   python -m http.server 8000
    ```
    
-   或使用提供的批处理文件：
-   - 80端口：`RUN80.BAT`
-   - 443端口：`RUN443.BAT`
-   - 8080端口：`run8080.bat`
+   或直接使用浏览器打开：
+   ```bash
+   # 直接在浏览器中打开 index.html
+   start index.html
+   ```
 
 3. **访问网站**
    
    打开浏览器访问：
-   - PHP内置服务器：`http://localhost:8000`
-   - 80端口：`http://localhost`
-   - 443端口：`https://localhost`
-   - 8080端口：`http://localhost:8080`
+   - 开发服务器：`http://localhost:8000`
+   - 首页：`index.html`
+   - 服务器页面：`online_server.html`
 
 ## 📁 项目结构
 
@@ -54,50 +53,56 @@
 scweb/
 ├── .github/              # GitHub配置
 │   └── workflows/        # CI/CD配置
-├── BETA_TEST/            # 测试相关文件
-│   ├── README.md
-│   ├── online_server.php
-│   ├── php_network_check.php
-│   └── ping_server.php
-├── DeployServerConfiguration/  # 部署服务器配置
-│   ├── README.md
-│   ├── RUN443.BAT
-│   ├── httpd-scweb.conf
-│   └── httpd.conf
 ├── error/                # 错误页面
 │   ├── 400.html          # 400错误页
 │   ├── 403.html          # 403错误页
 │   ├── 404.html          # 404错误页
-│   └── ...               # 其他HTTP错误页
-├── mod_server/           # 游戏mod服务器下载模块
-│   ├── 156server/        # 156服务器配置
-│   ├── 232server/        # 232服务器配置
-│   └── 67server/         # 67服务器配置
+│   └── ...               # 其他HTTP错误页（500-510）
+├── old/                  # 旧版本文件备份
+│   ├── DeployServerConfiguration/  # 旧部署配置
+│   │   ├── README.md
+│   │   ├── RUN443.BAT
+│   │   ├── httpd-scweb.conf
+│   │   └── httpd.conf
+│   ├── mod_server/       # 旧游戏mod服务器模块
+│   │   ├── 156server/    # 156服务器配置
+│   │   ├── 232server/    # 232服务器配置
+│   │   ├── 67server/     # 67服务器配置
+│   │   └── README.md
+│   ├── scweb_res/        # 旧静态资源备份
+│   │   ├── index/        # 旧首页资源
+│   │   ├── online_server/ # 旧服务器页面资源
+│   │   └── ...           # 其他资源文件
+│   ├── RUN443.BAT        # 旧HTTPS启动脚本
+│   ├── RUN80.BAT         # 旧HTTP启动脚本
+│   ├── httpd-scweb.conf  # 旧Apache配置（443端口）
+│   ├── httpd-scweb80.conf # 旧Apache配置（80端口）
+│   ├── index.php         # 旧PHP版首页
+│   ├── online_server.php # 旧PHP版服务器页面
+│   ├── ping_server.php   # 旧服务器状态检查
+│   ├── run8080.bat       # 旧8080端口启动脚本
+│   ├── tcp_server.php    # 旧TCP服务器
+│   └── udp_server.php    # 旧UDP服务器
 ├── scweb_res/            # 静态资源目录
 │   ├── favicon.ico       # 网站图标
 │   ├── getCaptcha.jpg    # 验证码图片
 │   ├── logo.png          # 网站Logo
-│   ├── index/            # index.php专用资源
+│   ├── index/            # index页面专用资源
 │   │   ├── index_languages.js  # 首页多语言配置
 │   │   ├── index_main.css      # 首页主样式
 │   │   └── index_script.js     # 首页JavaScript
-│   └── online_server/    # online_server.php专用资源
+│   └── online_server/    # online_server页面专用资源
 │       ├── online_server_languages.js  # 服务器页面多语言配置
-│       └── online_server_main.css      # 服务器页面主样式
+│       ├── online_server_main.css      # 服务器页面主样式
+│       └── online_server_script.js     # 服务器页面JavaScript
 ├── .gitmodules           # Git子模块配置
 ├── README.md             # 项目说明
-├── RUN443.BAT            # HTTPS服务器启动脚本
-├── RUN80.BAT             # HTTP服务器启动脚本
+├── README.md.bak         # 项目说明备份
 ├── git_push_run.bat      # Git推送运行脚本
-├── httpd-scweb.conf      # Apache配置文件（443端口）
-├── httpd-scweb80.conf    # Apache配置文件（80端口）
-├── index.php             # PHP版首页
-├── online_server.php     # PHP版服务器页面
-├── ping_server.php       # 服务器状态检查
+├── index.html            # HTML版首页
+├── online_server.html    # HTML版服务器页面
 ├── push.py               # 推送相关脚本
-├── run8080.bat           # 8080端口服务器启动脚本
-├── tcp_server.php        # TCP服务器
-└── udp_server.php        # UDP服务器
+└── scweb.zip             # 项目压缩包
 ```
 
 ## 🌍 多语言支持
@@ -129,14 +134,14 @@ scweb/
 
 ## 📝 主要功能
 
-### 1. 首页 (index.php)
+### 1. 首页 (index.html)
 - 网站介绍和最新动态
 - 搜索功能（支持多种分类）
 - CN中文导航区块
 - OS海外导航区块
 - 站点信息显示
 
-### 2. 联机服务器 (online_server.php)
+### 2. 联机服务器 (online_server.html)
 - 服务器列表
 - 服务器状态显示（在线/离线）
 - 服务器信息详情（IP、端口、版本等）
@@ -152,25 +157,26 @@ scweb/
 - 地图存档下载
 - 攻略教程
 
-### 4. 服务器管理模块 (mod_server/)
-- 多服务器配置支持（156server、232server、67server）
-- 不同端口配置（28880、28881、28882）
-- 服务器状态监测和管理
+### 4. 错误页面 (error/)
+- 完整的HTTP错误页面支持（400-510）
+- 统一的错误页面样式
 
-### 5. 网络服务模块
-- TCP服务器 (tcp_server.php)
-- UDP服务器 (udp_server.php)
-- 服务器状态检查 (ping_server.php)
+### 5. 旧版本模块 (old/)
+- 保留历史版本的PHP文件
+- 包含旧版服务器管理模块（mod_server）
+- 包含旧版网络服务模块（tcp_server、udp_server）
 
 ## 🛠️ 技术栈
 
-- **后端**: PHP 7.4+
 - **前端**: HTML5, CSS3, JavaScript (ES6+)
 - **样式**: 自定义CSS + 响应式设计
 - **国际化**: 自定义多语言解决方案
-- **服务器**: Apache, PHP内置服务器
-- **网络协议**: TCP, UDP
+- **服务器**: Apache, Nginx, Python内置HTTP服务器
 - **统计分析**: 百度统计
+
+### 历史技术栈（旧版本）
+- **后端**: PHP 7.4+
+- **网络协议**: TCP, UDP
 
 ## 📱 响应式设计
 
@@ -233,4 +239,4 @@ scweb/
 
 ---
 
-*最后更新：2025年12月*
+*最后更新：2026年5月*
