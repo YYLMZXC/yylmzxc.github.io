@@ -1,10 +1,15 @@
 const ServerList = {
     apiUrl: 'https://api.sckey.net/server/serverlist',
     serverVersion: 'beta26.05.15',
-    timeout: 10000,
+    timeout: 15000,
     currentFilter: 'all',
     useCorsProxy: true,
-    corsProxy: 'https://api.allorigins.win/raw?url=',
+    corsProxies: [
+        'https://api.allorigins.win/raw?url=',
+        'https://cors-anywhere.herokuapp.com/',
+        'https://proxy.cors.sh/'
+    ],
+    currentProxyIndex: 0,
     
     getNetworkType: function(ip) {
         if (!ip) return '其他';
@@ -66,120 +71,116 @@ const ServerList = {
         const serverStatsElement = document.querySelector('.server-stats');
         
         const apiUrl = `${this.apiUrl}?version=${encodeURIComponent(this.serverVersion)}`;
-        const fullUrl = this.useCorsProxy ? this.corsProxy + encodeURIComponent(apiUrl) : apiUrl;
         console.log('=== 开始加载服务器列表 ===');
         console.log('API地址:', apiUrl);
-        console.log('请求地址:', fullUrl);
         
         serverListElement.innerHTML = '<div class="loading">正在连接服务器...</div>';
         serverStatsElement.innerHTML = '<h3>服务器统计</h3><p>加载中...</p>';
         
-        try {
-            console.log('尝试建立网络连接...');
-            
-            const controller = new AbortController();
-            const timeoutId = setTimeout(() => {
-                console.log('请求超时');
-                controller.abort();
-            }, this.timeout);
-            
-            console.log('发送请求...');
-            const response = await fetch(fullUrl, {
-                method: 'GET',
-                mode: 'cors',
-                signal: controller.signal,
-                headers: {
-                    'Accept': 'application/json'
-                }
-            });
-            
-            clearTimeout(timeoutId);
-            console.log('收到响应，状态码:', response.status);
-            
-            if (!response.ok) {
-                console.log('HTTP错误:', response.status, response.statusText);
-                throw new Error(`HTTP错误: ${response.status} ${response.statusText}`);
-            }
-            
-            console.log('解析JSON数据...');
-            const data = await response.json();
-            console.log('服务器响应数据:', JSON.stringify(data, null, 2));
-            
-            let servers = [];
-            if (data && data.data && data.data.list && Array.isArray(data.data.list)) {
-                servers = data.data.list;
-                console.log('从 data.data.list 获取服务器列表，数量:', servers.length);
-            } else if (data && data.list && Array.isArray(data.list)) {
-                servers = data.list;
-                console.log('从 data.list 获取服务器列表，数量:', servers.length);
-            } else if (data && data.servers && Array.isArray(data.servers)) {
-                servers = data.servers;
-                console.log('从 data.servers 获取服务器列表，数量:', servers.length);
-            } else if (Array.isArray(data)) {
-                servers = data;
-                console.log('直接获取服务器列表，数量:', servers.length);
-            }
-            
-            if (!servers || servers.length === 0) {
-                console.log('服务器列表为空');
-                serverStatsElement.innerHTML = '<h3>服务器统计</h3><p>暂无服务器</p>';
-                serverListElement.innerHTML = '<div class="no-servers">暂无服务器</div>';
-                return;
-            }
-            
-            console.log('成功加载', servers.length, '个服务器');
-            
-            serverStatsElement.innerHTML = `
-                <h3>服务器统计</h3>
-                <p>
-                    总计: <b>${servers.length}</b> 个服务器
-                </p>
-            `;
-            
-            let html = '';
-            servers.forEach((server, index) => {
-                console.log('服务器', index + 1, ':', server.name, '-', server.ip);
-                html += this.generateServerItem(server);
-            });
-            
-            serverListElement.innerHTML = html;
-            this.initCopyHandlers();
-            this.initFilterButtons();
-            
-            setTimeout(() => {
-                this.detectLatency();
-            }, 500);
-            
-            console.log('=== 服务器列表加载完成 ===');
-            
-        } catch (error) {
-            console.error('=== 加载失败 ===');
-            console.error('错误类型:', error.name);
-            console.error('错误信息:', error.message);
-            console.error('错误详情:', error);
-            
+        const data = await this.fetchWithRetry(apiUrl);
+        if (!data) {
             serverStatsElement.innerHTML = '<h3>服务器统计</h3><p>加载失败</p>';
-            
-            let errorMsg = '加载服务器列表失败';
-            if (error.name === 'AbortError') {
-                errorMsg = '请求超时，请检查网络连接';
-            } else if (error.message && error.message.includes('CORS')) {
-                errorMsg = '跨域访问被阻止，请尝试使用其他浏览器';
-            } else if (error.message && error.message.includes('fetch')) {
-                errorMsg = '网络连接失败，请检查网络连接';
-            } else if (error.message && error.message.includes('HTTP')) {
-                errorMsg = '服务器响应错误: ' + error.message;
-            }
-            
-            serverListElement.innerHTML = `
-                <div class="no-servers">
-                    <p>${errorMsg}</p>
-                    <p style="font-size: 12px; color: #999; margin-top: 10px;">
-                        调试信息: 请按F12打开开发者工具查看控制台获取详细错误信息
-                    </p>
-                </div>
-            `;
+            serverListElement.innerHTML = '<div class="no-servers">无法连接到服务器</div>';
+            return;
         }
+        
+        console.log('服务器响应数据:', JSON.stringify(data, null, 2));
+        
+        let servers = [];
+        if (data && data.data && data.data.list && Array.isArray(data.data.list)) {
+            servers = data.data.list;
+            console.log('从 data.data.list 获取服务器列表，数量:', servers.length);
+        } else if (data && data.list && Array.isArray(data.list)) {
+            servers = data.list;
+            console.log('从 data.list 获取服务器列表，数量:', servers.length);
+        } else if (data && data.servers && Array.isArray(data.servers)) {
+            servers = data.servers;
+            console.log('从 data.servers 获取服务器列表，数量:', servers.length);
+        } else if (Array.isArray(data)) {
+            servers = data;
+            console.log('直接获取服务器列表，数量:', servers.length);
+        }
+        
+        if (!servers || servers.length === 0) {
+            console.log('服务器列表为空');
+            serverStatsElement.innerHTML = '<h3>服务器统计</h3><p>暂无服务器</p>';
+            serverListElement.innerHTML = '<div class="no-servers">暂无服务器</div>';
+            return;
+        }
+        
+        console.log('成功加载', servers.length, '个服务器');
+        
+        serverStatsElement.innerHTML = `
+            <h3>服务器统计</h3>
+            <p>
+                总计: <b>${servers.length}</b> 个服务器
+            </p>
+        `;
+        
+        let html = '';
+        servers.forEach((server, index) => {
+            console.log('服务器', index + 1, ':', server.name, '-', server.ip);
+            html += this.generateServerItem(server);
+        });
+        
+        serverListElement.innerHTML = html;
+        this.initCopyHandlers();
+        this.initFilterButtons();
+        
+        setTimeout(() => {
+            this.detectLatency();
+        }, 500);
+        
+        console.log('=== 服务器列表加载完成 ===');
+    },
+    
+    fetchWithRetry: async function(apiUrl) {
+        const proxies = this.useCorsProxy ? this.corsProxies : [''];
+        const totalAttempts = proxies.length + 1;
+        
+        for (let attempt = 0; attempt < totalAttempts; attempt++) {
+            try {
+                const proxy = attempt < proxies.length ? proxies[attempt] : '';
+                const fullUrl = proxy ? proxy + encodeURIComponent(apiUrl) : apiUrl;
+                
+                console.log(`尝试连接 (${attempt + 1}/${totalAttempts})...`);
+                console.log('请求地址:', fullUrl);
+                
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => {
+                    console.log('请求超时');
+                    controller.abort();
+                }, this.timeout);
+                
+                const response = await fetch(fullUrl, {
+                    method: 'GET',
+                    mode: 'cors',
+                    signal: controller.signal,
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                });
+                
+                clearTimeout(timeoutId);
+                console.log('收到响应，状态码:', response.status);
+                
+                if (!response.ok) {
+                    console.log('HTTP错误:', response.status, response.statusText);
+                    throw new Error(`HTTP错误: ${response.status}`);
+                }
+                
+                return await response.json();
+                
+            } catch (error) {
+                console.log(`尝试 ${attempt + 1} 失败:`, error.message);
+                if (attempt < totalAttempts - 1) {
+                    console.log('尝试下一个代理...');
+                }
+            }
+        }
+        
+        console.error('所有尝试都失败了');
+        return null;
     },
     
     initCopyHandlers: function() {
