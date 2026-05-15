@@ -50,7 +50,8 @@ const LanguageConfig = {
             site: {
                 currentAddress: '本站地址：',
                 shortUrl: '短网址：',
-                shortUrl2: '短网址2：'
+                shortUrl2: '短网址2：',
+                shortUrl3: '短网址3：'
             },
             sections: {
                 cnNavigation: '🌏 CN中文导航',
@@ -113,7 +114,8 @@ const LanguageConfig = {
             site: {
                 currentAddress: 'Site Address: ',
                 shortUrl: 'Short URL: ',
-                shortUrl2: 'Short URL 2: '
+                shortUrl2: 'Short URL 2: ',
+                shortUrl3: 'Short URL 3: '
             },
             sections: {
                 cnNavigation: '🌏 CN Chinese Navigation',
@@ -176,7 +178,8 @@ const LanguageConfig = {
             site: {
                 currentAddress: 'Адрес Сайта: ',
                 shortUrl: 'Короткий URL: ',
-                shortUrl2: 'Короткий URL 2: '
+                shortUrl2: 'Короткий URL 2: ',
+                shortUrl3: 'Короткий URL 3: '
             },
             sections: {
                 cnNavigation: '🌏 CN Китайская Навигация',

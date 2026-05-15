@@ -311,16 +311,21 @@ class LanguageManager {
 
         // 更新短网址
         const shortUrlEl = document.getElementById('shortUrl');
-        if (shortUrlEl && siteData.shortUrl && siteData.shortUrl2) {
+        if (shortUrlEl && siteData.shortUrl) {
             shortUrlEl.innerHTML = `
                 ${siteData.shortUrl}
                 <a href="https://scnet.top/" target="_blank" rel="noopener">
                     scnet.top <span style="font-size: 0.8em; color: #666;">https://scnet.top/</span>
                 </a>
                 <br>
-                ${siteData.shortUrl2}
+                ${siteData.shortUrl2 || '短网址2：'}
                 <a href="https://schub.icu/" target="_blank" rel="noopener">
                     schub.icu <span style="font-size: 0.8em; color: #666;">https://schub.icu/</span>
+                </a>
+                <br>
+                ${siteData.shortUrl3 || '短网址3：'}
+                <a href="https://scwz.top/" target="_blank" rel="noopener">
+                    scwz.top <span style="font-size: 0.8em; color: #666;">https://scwz.top/</span>
                 </a>
             `;
         }
