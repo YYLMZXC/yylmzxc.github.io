@@ -11,6 +11,7 @@ const ServerList = {
     timeout: 15000,
     currentFilter: 'all',
     useCorsProxy: true,
+    cacheExpireMinutes: 10,
     corsProxies: [
         'https://api.allorigins.win/raw?url=',
         'https://cors-anywhere.herokuapp.com/',
@@ -72,7 +73,7 @@ const ServerList = {
         `;
     },
     
-    loadServerList: async function(filter = this.currentFilter) {
+    loadServerList: async function(filter = this.currentFilter, forceRefresh = false) {
         this.currentFilter = filter;
         const serverListElement = document.getElementById('serverList');
         const serverStatsElement = document.querySelector('.server-stats');
@@ -84,8 +85,24 @@ const ServerList = {
         serverListElement.innerHTML = '<div class="loading">正在连接服务器...</div>';
         serverStatsElement.innerHTML = '<h3>服务器统计</h3><p>加载中...</p>';
         
+        if (!forceRefresh) {
+            const cachedServers = this.getCachedData();
+            if (cachedServers) {
+                console.log('使用缓存数据');
+                this.displayServers(cachedServers);
+                this.fetchAndUpdateCache(apiUrl);
+                return;
+            }
+        }
+        
         const data = await this.fetchWithRetry(apiUrl);
         if (!data) {
+            const cachedServers = this.getCachedData();
+            if (cachedServers) {
+                console.log('API请求失败，使用缓存数据');
+                this.displayServers(cachedServers);
+                return;
+            }
             serverStatsElement.innerHTML = '<h3>服务器统计</h3><p>加载失败</p>';
             serverListElement.innerHTML = '<div class="no-servers">无法连接到服务器</div>';
             return;
@@ -115,6 +132,14 @@ const ServerList = {
             return;
         }
         
+        this.saveToCache(servers);
+        this.displayServers(servers);
+    },
+    
+    displayServers: function(servers) {
+        const serverListElement = document.getElementById('serverList');
+        const serverStatsElement = document.querySelector('.server-stats');
+        
         console.log('成功加载', servers.length, '个服务器');
         
         serverStatsElement.innerHTML = `
@@ -139,6 +164,72 @@ const ServerList = {
         }, 500);
         
         console.log('=== 服务器列表加载完成 ===');
+    },
+    
+    fetchAndUpdateCache: async function(apiUrl) {
+        try {
+            const data = await this.fetchWithRetry(apiUrl);
+            if (data) {
+                let servers = [];
+                if (data && data.data && data.data.list && Array.isArray(data.data.list)) {
+                    servers = data.data.list;
+                } else if (data && data.list && Array.isArray(data.list)) {
+                    servers = data.list;
+                } else if (data && data.servers && Array.isArray(data.servers)) {
+                    servers = data.servers;
+                } else if (Array.isArray(data)) {
+                    servers = data;
+                }
+                
+                if (servers && servers.length > 0) {
+                    this.saveToCache(servers);
+                    this.displayServers(servers);
+                    console.log('缓存已更新');
+                }
+            }
+        } catch (e) {
+            console.log('后台更新缓存失败:', e.message);
+        }
+    },
+    
+    getCacheKey: function() {
+        return `sc_server_list_${this.serverVersion}`;
+    },
+    
+    getCachedData: function() {
+        try {
+            const cacheKey = this.getCacheKey();
+            const cached = localStorage.getItem(cacheKey);
+            if (!cached) return null;
+            
+            const data = JSON.parse(cached);
+            const now = Date.now();
+            
+            if (data.timestamp && (now - data.timestamp) < this.cacheExpireMinutes * 60 * 1000) {
+                console.log(`使用缓存数据，缓存时间: ${new Date(data.timestamp).toLocaleString()}`);
+                return data.servers;
+            } else {
+                console.log('缓存已过期');
+                localStorage.removeItem(cacheKey);
+                return null;
+            }
+        } catch (e) {
+            console.error('读取缓存失败:', e);
+            return null;
+        }
+    },
+    
+    saveToCache: function(servers) {
+        try {
+            const cacheKey = this.getCacheKey();
+            localStorage.setItem(cacheKey, JSON.stringify({
+                servers: servers,
+                timestamp: Date.now()
+            }));
+            console.log('数据已保存到缓存');
+        } catch (e) {
+            console.error('保存缓存失败:', e);
+        }
     },
     
     fetchWithRetry: async function(apiUrl) {
