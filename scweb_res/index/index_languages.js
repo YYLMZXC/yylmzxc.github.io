@@ -72,6 +72,7 @@ const LanguageConfig = {
                 furniturePack: '家具包',
                 serverPlugin: '服务端插件',
                 modWebsite: '模组网',
+                scLauncher: 'SC启动器',
                 backupCommunity: 'SC中文社区os路线',
                 jiilForum: 'JIIL论坛',
                 // 海外导航
@@ -134,6 +135,7 @@ const LanguageConfig = {
                 furniturePack: 'Furniture Pack',
                 serverPlugin: 'Server Plugin',
                 modWebsite: 'Mod Website',
+                scLauncher: 'SC Launcher',
                 backupCommunity: 'SC Chinese Community os Route',
                 jiilForum: 'JIIL Forum',
                 // 海外导航
@@ -195,6 +197,7 @@ const LanguageConfig = {
                 furniturePack: 'Мебель Пак',
                 serverPlugin: 'Сервер Плагин',
                 modWebsite: 'Мод Сайт',
+                scLauncher: 'SC Лаунчер',
                 backupCommunity: 'SC Китайское Сообщество os Маршрут',
                 jiilForum: 'JIIL Форум',
                 // 海外导航
@@ -219,6 +222,7 @@ const LanguageConfig = {
             { title: 'links.scWiki', url: 'https://www.yuque.com/u589148/sc', external: true },
             { title: 'links.serverPlugin', url: 'https://spd.jiil.top/index.html', external: true },
             { title: 'links.modWebsite', url: 'https://www.scmod.cn/', external: true },
+            { title: 'links.scLauncher', url: 'https://sc.btos.top/', external: true },
             { title: 'links.jiilForum', url: 'https://bbs.jiil.top/', external: true },
             { title: 'links.pluginMod', url: 'http://schub.icu/sczz/?forum-3.htm', external: true },
             { title: 'links.onlineMod', url: 'http://schub.icu/sczz/?forum-4.htm', external: true },
