@@ -279,6 +279,23 @@ const ServerList = {
         return null;
     },
     
+    toggleProxy: function() {
+        this.useCorsProxy = !this.useCorsProxy;
+        const proxyBtn = document.getElementById('proxyBtn');
+        
+        if (this.useCorsProxy) {
+            proxyBtn.textContent = '🌐 代理模式';
+            proxyBtn.classList.add('proxy-active');
+            console.log('切换到代理模式');
+        } else {
+            proxyBtn.textContent = '🔗 直连模式';
+            proxyBtn.classList.remove('proxy-active');
+            console.log('切换到直连模式');
+        }
+        
+        this.loadServerList(this.currentFilter, true);
+    },
+    
     onVersionChange: function(selectElement) {
         const newVersion = selectElement.value;
         console.log('版本变更为:', newVersion);

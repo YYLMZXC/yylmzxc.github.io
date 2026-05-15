@@ -309,6 +309,33 @@ button, input, select, textarea {
   border-color: #3354AA;
 }
 
+.proxy-btn {
+  padding: 8px 15px;
+  border: 1px solid #ddd;
+  border-radius: 20px;
+  background: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 14px;
+  color: #333;
+}
+
+.proxy-btn:hover {
+  border-color: #3354AA;
+  background-color: #f8f9fa;
+}
+
+.proxy-btn.proxy-active {
+  background-color: #27ae60;
+  border-color: #27ae60;
+  color: white;
+}
+
+.proxy-btn.proxy-active:hover {
+  background-color: #2ecc71;
+  border-color: #2ecc71;
+}
+
 .filter-btn {
   padding: 8px 20px;
   border: 1px solid #ddd;
