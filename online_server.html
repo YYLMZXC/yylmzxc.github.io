@@ -51,6 +51,13 @@
             <div class="col-mb-12 col-8" id="main" role="main">
                 <div class="post-content">
                     <div class="server-filters">
+                        <select class="version-selector" id="versionSelector" onchange="ServerList.onVersionChange(this)">
+                            <option value="beta26.05.15" selected>beta26.05.15</option>
+                            <option value="dev26.04.12">dev26.04.12</option>
+                            <option value="dev26.03.26">dev26.03.26</option>
+                            <option value="dev26.03.25">dev26.03.25</option>
+                            <option value="dev26.03.23">dev26.03.23</option>
+                        </select>
                         <button class="filter-btn active" data-filter="all">全部</button>
                         <button class="filter-btn" data-filter="recommend">推荐</button>
                         <button class="filter-btn" data-filter="community">社区</button>

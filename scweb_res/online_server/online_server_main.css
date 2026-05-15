@@ -292,6 +292,23 @@ button, input, select, textarea {
   align-items: center;
 }
 
+.version-selector {
+  padding: 8px 15px;
+  border: 1px solid #ddd;
+  border-radius: 20px;
+  background: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 14px;
+  color: #333;
+  outline: none;
+  min-width: 140px;
+}
+
+.version-selector:hover {
+  border-color: #3354AA;
+}
+
 .filter-btn {
   padding: 8px 20px;
   border: 1px solid #ddd;

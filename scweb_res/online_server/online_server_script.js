@@ -1,6 +1,13 @@
 const ServerList = {
     apiUrl: 'https://api.sckey.net/server/serverlist',
     serverVersion: 'beta26.05.15',
+    versions: [
+        { value: 'beta26.05.15', label: 'beta26.05.15' },
+        { value: 'dev26.04.12', label: 'dev26.04.12' },
+        { value: 'dev26.03.26', label: 'dev26.03.26' },
+        { value: 'dev26.03.25', label: 'dev26.03.25' },
+        { value: 'dev26.03.23', label: 'dev26.03.23' }
+    ],
     timeout: 15000,
     currentFilter: 'all',
     useCorsProxy: true,
@@ -181,6 +188,12 @@ const ServerList = {
         
         console.error('所有尝试都失败了');
         return null;
+    },
+    
+    onVersionChange: function(selectElement) {
+        this.serverVersion = selectElement.value;
+        console.log('版本变更为:', this.serverVersion);
+        this.loadServerList();
     },
     
     initCopyHandlers: function() {
