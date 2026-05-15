@@ -1,8 +1,88 @@
 /**
  * 多语言网站交互脚本
  * Multi-language Website Interaction Script
- * 功能：语言切换、搜索处理、导航渲染、响应式适配
+ * 功能：语言切换、主题切换、搜索处理、导航渲染、响应式适配
  */
+
+class ThemeManager {
+    constructor() {
+        this.currentTheme = 'light';
+        this.init();
+    }
+
+    init() {
+        this.setInitialTheme();
+        this.bindEventListeners();
+        console.log(`[ThemeManager] 初始化完成，当前主题：${this.currentTheme}`);
+    }
+
+    setInitialTheme() {
+        const savedTheme = this.getSavedTheme();
+        if (savedTheme) {
+            this.currentTheme = savedTheme;
+        } else if (this.getSystemTheme() === 'dark') {
+            this.currentTheme = 'dark';
+        }
+        this.applyTheme(this.currentTheme);
+        this.updateThemeButtons();
+    }
+
+    getSavedTheme() {
+        const saved = localStorage.getItem('preferredTheme');
+        return saved === 'dark' || saved === 'light' ? saved : null;
+    }
+
+    getSystemTheme() {
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            return 'dark';
+        }
+        return 'light';
+    }
+
+    saveTheme(theme) {
+        localStorage.setItem('preferredTheme', theme);
+    }
+
+    applyTheme(theme) {
+        const body = document.body;
+        
+        if (theme === 'dark') {
+            body.classList.add('dark');
+            body.classList.remove('light');
+        } else {
+            body.classList.add('light');
+            body.classList.remove('dark');
+        }
+    }
+
+    switchTheme(newTheme) {
+        if (newTheme !== 'dark' && newTheme !== 'light') return;
+        if (newTheme === this.currentTheme) return;
+
+        const oldTheme = this.currentTheme;
+        this.currentTheme = newTheme;
+        this.saveTheme(newTheme);
+        this.applyTheme(newTheme);
+        this.updateThemeButtons();
+
+        console.log(`[ThemeManager] 主题切换：${oldTheme} → ${newTheme}`);
+    }
+
+    updateThemeButtons() {
+        document.querySelectorAll('[data-theme]').forEach(button => {
+            const theme = button.getAttribute('data-theme');
+            button.classList.toggle('active', theme === this.currentTheme);
+        });
+    }
+
+    bindEventListeners() {
+        document.addEventListener('click', (e) => {
+            if (e.target.matches('[data-theme]')) {
+                this.switchTheme(e.target.getAttribute('data-theme'));
+            }
+        });
+    }
+}
 
 class LanguageManager {
     constructor() {
@@ -451,11 +531,13 @@ const Utils = {
 /** 页面加载完成后初始化应用 */
 document.addEventListener('DOMContentLoaded', () => {
     // 初始化核心模块
+    const themeManager = new ThemeManager();
     const languageManager = new LanguageManager();
     const searchManager = new SearchManager();
     
     // 暴露到全局（方便调试和外部调用）
     window.app = {
+        themeManager,
         languageManager,
         searchManager,
         Utils
