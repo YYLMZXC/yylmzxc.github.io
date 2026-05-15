@@ -282,9 +282,23 @@ const ServerList = {
     },
     
     onVersionChange: function(selectElement) {
-        this.serverVersion = selectElement.value;
-        console.log('版本变更为:', this.serverVersion);
-        this.loadServerList();
+        const newVersion = selectElement.value;
+        console.log('版本变更为:', newVersion);
+        
+        const oldVersion = this.serverVersion;
+        this.serverVersion = newVersion;
+        
+        if (oldVersion !== newVersion) {
+            const cachedServers = this.getCachedData();
+            if (cachedServers) {
+                console.log('该版本有缓存，直接显示');
+                this.displayServers(cachedServers);
+                this.fetchAndUpdateCache(`${this.apiUrl}?version=${encodeURIComponent(newVersion)}`);
+            } else {
+                console.log('该版本无缓存，从API获取');
+                this.loadServerList(this.currentFilter, false);
+            }
+        }
     },
     
     initCopyHandlers: function() {
