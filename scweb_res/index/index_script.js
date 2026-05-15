@@ -7,6 +7,7 @@
 class ThemeManager {
     constructor() {
         this.currentTheme = 'light';
+        this.isTransitioning = false;
         this.init();
     }
 
@@ -28,8 +29,13 @@ class ThemeManager {
     }
 
     getSavedTheme() {
-        const saved = localStorage.getItem('preferredTheme');
-        return saved === 'dark' || saved === 'light' ? saved : null;
+        try {
+            const saved = localStorage.getItem('preferredTheme');
+            return saved === 'dark' || saved === 'light' ? saved : null;
+        } catch (e) {
+            console.warn('[ThemeManager] localStorage 不可用:', e);
+            return null;
+        }
     }
 
     getSystemTheme() {
@@ -40,7 +46,11 @@ class ThemeManager {
     }
 
     saveTheme(theme) {
-        localStorage.setItem('preferredTheme', theme);
+        try {
+            localStorage.setItem('preferredTheme', theme);
+        } catch (e) {
+            console.warn('[ThemeManager] 无法保存主题到 localStorage:', e);
+        }
     }
 
     applyTheme(theme) {
@@ -58,12 +68,27 @@ class ThemeManager {
     switchTheme(newTheme) {
         if (newTheme !== 'dark' && newTheme !== 'light') return;
         if (newTheme === this.currentTheme) return;
+        if (this.isTransitioning) return;
 
+        this.isTransitioning = true;
         const oldTheme = this.currentTheme;
         this.currentTheme = newTheme;
+        
         this.saveTheme(newTheme);
-        this.applyTheme(newTheme);
-        this.updateThemeButtons();
+        
+        const body = document.body;
+        body.classList.add('theme-transitioning');
+        
+        setTimeout(() => {
+            this.applyTheme(newTheme);
+            this.updateThemeButtons();
+            
+            setTimeout(() => {
+                body.classList.remove('theme-transitioning');
+                this.isTransitioning = false;
+                this.showThemeToast(newTheme);
+            }, 300);
+        }, 50);
 
         console.log(`[ThemeManager] 主题切换：${oldTheme} → ${newTheme}`);
     }
@@ -73,6 +98,19 @@ class ThemeManager {
             const theme = button.getAttribute('data-theme');
             button.classList.toggle('active', theme === this.currentTheme);
         });
+    }
+
+    showThemeToast(theme) {
+        const toast = document.createElement('div');
+        toast.className = 'theme-toast';
+        toast.textContent = theme === 'dark' ? '🌙 已切换到黑夜模式' : '☀️ 已切换到白天模式';
+        document.body.appendChild(toast);
+        
+        setTimeout(() => toast.classList.add('show'), 10);
+        setTimeout(() => {
+            toast.classList.remove('show');
+            setTimeout(() => toast.remove(), 300);
+        }, 2000);
     }
 
     bindEventListeners() {
