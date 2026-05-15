@@ -36,7 +36,7 @@ const ServerList = {
     generateServerItem: function(server) {
         const networkType = this.getNetworkType(server.ip);
         const hasPort = server.ip.includes(':');
-        const displayIp = hasPort ? server.ip : server.ip + ':38886';
+        const displayIp = hasPort ? server.ip : server.ip + ':28887';
         
         return `
             <div class="server-item">
@@ -367,7 +367,7 @@ const ServerList = {
                 if (!ip) return;
                 
                 const host = ip.split(':')[0].replace(/\[|\]/g, '');
-                const port = ip.split(':')[1] || '38886';
+                const port = ip.split(':')[1] || '28887';
                 
                 const pingUrl = `https://api.sckey.net/server/ping?host=${encodeURIComponent(host)}&port=${encodeURIComponent(port)}`;
                 const fullPingUrl = this.useCorsProxy ? this.corsProxy + encodeURIComponent(pingUrl) : pingUrl;
