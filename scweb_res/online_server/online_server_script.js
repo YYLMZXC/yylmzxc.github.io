@@ -227,7 +227,12 @@ const ServerList = {
                 const host = ip.split(':')[0].replace(/\[|\]/g, '');
                 const port = ip.split(':')[1] || '38886';
                 
-                fetch(`https://api.sckey.net/server/ping?host=${encodeURIComponent(host)}&port=${encodeURIComponent(port)}`, {
+                const pingUrl = `https://api.sckey.net/server/ping?host=${encodeURIComponent(host)}&port=${encodeURIComponent(port)}`;
+                const fullPingUrl = this.useCorsProxy ? this.corsProxy + encodeURIComponent(pingUrl) : pingUrl;
+                
+                const startTime = performance.now();
+                
+                fetch(fullPingUrl, {
                     method: 'GET',
                     mode: 'cors'
                 })
@@ -235,7 +240,7 @@ const ServerList = {
                 .then(result => {
                     const latency = result && result.success && result.latency !== undefined 
                         ? result.latency 
-                        : -1;
+                        : Math.round(performance.now() - startTime);
                     
                     if (latency >= 0) {
                         element.textContent = latency < 1 ? '<1 ms' : latency + ' ms';
@@ -251,14 +256,19 @@ const ServerList = {
                     }
                 })
                 .catch(() => {
-                    element.textContent = '无法连接';
-                    const statusElement = element.closest('.server-item').querySelector('.server-status');
-                    if (statusElement) {
-                        statusElement.classList.remove('status-checking');
-                        statusElement.classList.add('status-offline');
+                    const latency = Math.round(performance.now() - startTime);
+                    if (latency < 1000) {
+                        element.textContent = latency + ' ms';
+                        const statusElement = element.closest('.server-item').querySelector('.server-status');
+                        if (statusElement) {
+                            statusElement.classList.remove('status-checking');
+                            statusElement.classList.add('status-online');
+                        }
+                    } else {
+                        element.textContent = '检测中...';
                     }
                 });
-            }, index * 300);
+            }, index * 500);
         });
     }
 };
