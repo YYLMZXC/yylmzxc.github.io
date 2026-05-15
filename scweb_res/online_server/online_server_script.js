@@ -4,9 +4,7 @@ const ServerList = {
     versions: [
         { value: 'beta26.05.15', label: 'beta26.05.15' },
         { value: 'dev26.04.12', label: 'dev26.04.12' },
-        { value: 'dev26.03.26', label: 'dev26.03.26' },
-        { value: 'dev26.03.25', label: 'dev26.03.25' },
-        { value: 'dev26.03.23', label: 'dev26.03.23' }
+        { value: 'dev26.03.25', label: 'dev26.03.25' }
     ],
     timeout: 15000,
     currentFilter: 'all',
