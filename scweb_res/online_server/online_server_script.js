@@ -289,10 +289,18 @@ const ServerList = {
         this.serverVersion = newVersion;
         
         if (oldVersion !== newVersion) {
+            const serverListElement = document.getElementById('serverList');
+            const serverStatsElement = document.querySelector('.server-stats');
+            
+            serverListElement.innerHTML = '<div class="loading">正在加载 ' + newVersion + ' 版本服务器...</div>';
+            serverStatsElement.innerHTML = '<h3>服务器统计</h3><p>加载中...</p>';
+            
             const cachedServers = this.getCachedData();
             if (cachedServers) {
                 console.log('该版本有缓存，直接显示');
-                this.displayServers(cachedServers);
+                setTimeout(() => {
+                    this.displayServers(cachedServers);
+                }, 100);
                 this.fetchAndUpdateCache(`${this.apiUrl}?version=${encodeURIComponent(newVersion)}`);
             } else {
                 console.log('该版本无缓存，从API获取');
