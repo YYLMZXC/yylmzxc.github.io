@@ -97,7 +97,7 @@ const ServerLanguageConfig = {
             },
             
             // 页脚
-            footer: '© 2025 生存战争网'
+            footer: '© 2026 生存战争网'
         },
         
         en: {
@@ -185,7 +185,7 @@ const ServerLanguageConfig = {
         },
         
         // 页脚
-        footer: '© 2025 SurvivalCraft Web'
+        footer: '© 2026 SurvivalCraft Web'
     },
     
     ru: {
@@ -273,7 +273,7 @@ const ServerLanguageConfig = {
         
             
             // 页脚
-            footer: '© 2025 SurvivalCraft Web'
+            footer: '© 2026 SurvivalCraft Web'
         },
         
        

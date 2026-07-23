@@ -278,7 +278,7 @@ function add_server($name, $ip, $group, $note = '', $type = 'original') {
     </div>
 </div><!-- end #body -->
 <footer id="footer">
-		<p><br>© 2025 生存战争网</p>
+		<p><br>© 2026 生存战争网</p>
 	</footer><!-- end #footer -->
 <script>
   // 百度统计代码

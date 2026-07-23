@@ -81,7 +81,7 @@ const LanguageConfig = {
                 internationalModSite: '海外Mod网站',
                 officialBlog: '正版官网'
             },
-            footer: '© 2025 生存战争网'
+            footer: '© 2026 生存战争网'
         },
         
         en: {
@@ -144,7 +144,7 @@ const LanguageConfig = {
                 internationalModSite: 'International Mod Site',
                 officialBlog: 'Official Blog'
             },
-            footer: '© 2025 SurvivalCraft Web'
+            footer: '© 2026 SurvivalCraft Web'
         },
         
         ru: {
@@ -206,7 +206,7 @@ const LanguageConfig = {
                 internationalModSite: 'Международный Мод Сайт',
                 officialBlog: 'Официальный Блог'
             },
-            footer: '© 2025 SurvivalCraft Web'
+            footer: '© 2026 SurvivalCraft Web'
         }
     },
     
