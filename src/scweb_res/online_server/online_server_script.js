@@ -508,8 +508,21 @@ const ServerList = {
         
         if (!ip) return;
         
-        const host = ip.split(':')[0].replace(/\[|\]/g, '');
-        const port = ip.split(':')[1] || '28887';
+        let host, port;
+        const ipv6Match = ip.match(/^\[([^\]]+)\](?::(\d+))?$/);
+        if (ipv6Match) {
+            host = ipv6Match[1];
+            port = ipv6Match[2] || '28887';
+        } else {
+            const lastColon = ip.lastIndexOf(':');
+            if (lastColon !== -1) {
+                host = ip.substring(0, lastColon);
+                port = ip.substring(lastColon + 1) || '28887';
+            } else {
+                host = ip;
+                port = '28887';
+            }
+        }
         
         const pingUrl = `https://api.sckey.net/server/ping?host=${encodeURIComponent(host)}&port=${encodeURIComponent(port)}`;
         const fullPingUrl = this.useCorsProxy ? (this.corsProxies[0] || '') + encodeURIComponent(pingUrl) : pingUrl;
@@ -594,7 +607,6 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log('=== 页面加载完成，开始初始化 ===');
     ServerList.initVersionSelector();
     ServerList.loadServerList();
-    ServerList.initFilterButtons();
     
     setInterval(() => {
         ServerList.detectLatency();
