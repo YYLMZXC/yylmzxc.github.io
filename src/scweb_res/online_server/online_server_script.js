@@ -667,7 +667,12 @@ class OnlineServerManager {
                     throw new Error(`HTTP错误: ${response.status}`);
                 }
 
-                return await response.json();
+                const text = await response.text();
+                try {
+                    return JSON.parse(text);
+                } catch {
+                    return text;
+                }
 
             } catch (error) {
                 console.log(`尝试 ${attempt + 1} 失败:`, error.message);
@@ -678,7 +683,7 @@ class OnlineServerManager {
         }
 
         console.error('所有尝试都失败了');
-        return null;
+        throw new Error('所有代理均无法连接');
     }
 
     /**
@@ -797,25 +802,44 @@ class OnlineServerManager {
 
     /**
      * 检测所有服务器的延迟
-     * 遍历页面上所有延迟显示元素，逐个检测
+     * 遍历页面上所有延迟显示元素，分批检测以避免并发过载
      */
     detectLatency() {
         const latencyElements = document.querySelectorAll('.latency-value');
+        const servers = [];
+        
         latencyElements.forEach((element) => {
             const serverId = element.getAttribute('data-server-id');
             if (serverId) {
-                this.detectLatencyForServer(serverId);
+                servers.push(serverId);
             }
         });
+
+        const batchSize = 3;
+        let index = 0;
+
+        const processBatch = () => {
+            if (index >= servers.length) return;
+            const batch = servers.slice(index, index + batchSize);
+            index += batchSize;
+            batch.forEach((serverId) => {
+                this.detectLatencyForServer(serverId);
+            });
+            if (index < servers.length) {
+                setTimeout(processBatch, 500);
+            }
+        };
+
+        processBatch();
     }
 
     /**
      * 检测单个服务器的延迟
-     * 通过 ping API 检测服务器延迟，支持 CORS 代理
+     * 通过 ping API 检测服务器延迟，支持 CORS 代理回退
      * 同时更新服务器状态指示灯（在线/离线/检测中）
      * @param {string} serverId - 服务器 ID
      */
-    detectLatencyForServer(serverId) {
+    async detectLatencyForServer(serverId) {
         const latencyElement = document.querySelector(`.latency-value[data-server-id="${serverId}"]`);
         if (!latencyElement) return;
 
@@ -838,113 +862,53 @@ class OnlineServerManager {
         const serverItem = latencyElement.closest('.server-item');
         const statusElement = serverItem ? serverItem.querySelector('.server-status') : null;
 
-        const setServerStatus = (latency, isOnline) => {
+        const setOnline = (latency) => {
             latencyElement.textContent = latency < 1 ? '<1 ms' : latency + ' ms';
             if (statusElement) {
-                statusElement.classList.remove('status-checking', 'status-online', 'status-offline');
-                statusElement.classList.add(isOnline ? 'status-online' : 'status-offline');
+                statusElement.classList.remove('status-checking', 'status-offline');
+                statusElement.classList.add('status-online');
+                statusElement.title = `在线，延迟 ${latency}ms`;
             }
         };
 
-        const tryWebSocketLatency = () => {
-            return new Promise((resolve) => {
-                const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
-                const wsUrl = `${wsProtocol}//${host}:${port}`;
-                const wsStartTime = performance.now();
-                let resolved = false;
-
-                const resolveWs = (result) => {
-                    if (resolved) return;
-                    resolved = true;
-                    resolve(result);
-                };
-
-                try {
-                    const ws = new WebSocket(wsUrl);
-                    ws.onopen = () => {
-                        const wsLatency = Math.round(performance.now() - wsStartTime);
-                        ws.close();
-                        resolveWs({ latency: wsLatency, online: wsLatency < 3000 });
-                    };
-                    ws.onerror = () => {
-                        resolveWs({ latency: -1, online: false });
-                    };
-                    ws.onclose = () => {
-                        if (!resolved) {
-                            resolveWs({ latency: Math.round(performance.now() - wsStartTime), online: false });
-                        }
-                    };
-
-                    setTimeout(() => {
-                        resolveWs({ latency: Math.round(performance.now() - wsStartTime), online: false });
-                        try { ws.close(); } catch(e) {}
-                    }, 5000);
-                } catch (e) {
-                    resolveWs({ latency: -1, online: false });
-                }
-            });
-        };
-
-        const tryPingWithFallback = async () => {
-            const proxies = this.corsProxies;
-            const allAttempts = this.useCorsProxy ? proxies : ['', ...proxies];
-            const startTime = performance.now();
-
-            for (let attempt = 0; attempt < allAttempts.length; attempt++) {
-                try {
-                    const proxy = allAttempts[attempt];
-                    const fullUrl = proxy ? proxy + encodeURIComponent(pingUrl) : pingUrl;
-
-                    const response = await fetch(fullUrl, {
-                        method: 'GET',
-                        mode: 'cors'
-                    });
-
-                    if (!response.ok) throw new Error('Ping failed');
-                    const result = await response.json();
-                    const latency = result && result.success && result.latency !== undefined
-                        ? result.latency
-                        : Math.round(performance.now() - startTime);
-
-                    if (latency >= 0) {
-                        setServerStatus(latency, latency < 500);
-                        return;
-                    }
-                } catch (e) {
-                    if (attempt >= allAttempts.length - 1) {
-                        tryWebSocketLatency().then(wsResult => {
-                            if (wsResult.latency >= 0) {
-                                setServerStatus(Math.max(0, wsResult.latency), wsResult.online);
-                            } else {
-                                latencyElement.textContent = '-';
-                                if (statusElement) {
-                                    statusElement.classList.remove('status-checking');
-                                    statusElement.classList.add('status-offline');
-                                }
-                            }
-                        });
-                    }
-                }
+        const setOffline = (reason) => {
+            latencyElement.textContent = reason || this.getServerText('offline');
+            if (statusElement) {
+                statusElement.classList.remove('status-checking', 'status-online');
+                statusElement.classList.add('status-offline');
+                statusElement.title = reason || this.getServerText('offline');
             }
         };
 
-        tryPingWithFallback();
-
-        setTimeout(() => {
-            if (latencyElement.textContent === this.getServerText('checking') + '...') {
-                tryWebSocketLatency().then(wsResult => {
-                    if (wsResult.latency >= 0) {
-                        setServerStatus(Math.max(0, wsResult.latency), wsResult.online);
-                    } else {
-                        latencyElement.textContent = '-';
-                        if (statusElement) {
-                            statusElement.classList.remove('status-checking');
-                            statusElement.classList.add('status-offline');
-                        }
-                    }
-                });
+        const setChecking = () => {
+            latencyElement.textContent = this.getServerText('checking') + '...';
+            if (statusElement) {
+                statusElement.classList.remove('status-online', 'status-offline');
+                statusElement.classList.add('status-checking');
+                statusElement.title = this.getServerText('checking') + '...';
             }
-        }, 3000);
+        };
+
+        setChecking();
+
+        try {
+            const result = await this.fetchWithRetry(pingUrl);
+            
+            if (result && result.online === false) {
+                setOffline(this.getServerText('offline'));
+                return;
+            }
+
+            if (result && result.latency !== undefined) {
+                setOnline(result.latency);
+            } else {
+                setOnline(Math.round(performance.now()));
+            }
+
+        } catch (error) {
+            console.warn(`服务器 ${host}:${port} 检测失败:`, error.message);
+            setOffline(this.getServerText('unreachable'));
+        }
     }
 }
 

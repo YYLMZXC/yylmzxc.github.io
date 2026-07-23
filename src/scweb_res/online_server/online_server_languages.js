@@ -78,7 +78,12 @@ const ServerLanguageConfig = {
                 groupServer: '群组服',
                 childServer: '子服务器',
                 groupNumber: '（群号：',
-                groupNumberEnd: '）'
+                groupNumberEnd: '）',
+                unreachable: '不可达',
+                offline: '离线',
+                checking: '检测中',
+                undetectable: '无法检测',
+                pingFailed: 'Ping失败'
             },
             groups: {
                 group1: '生存战争34服务器联机交流群',
@@ -146,7 +151,12 @@ const ServerLanguageConfig = {
                 groupServer: 'Group Server',
                 childServer: 'Child Server',
                 groupNumber: ' (Group No.: ',
-                groupNumberEnd: ')'
+                groupNumberEnd: ')',
+                unreachable: 'Unreachable',
+                offline: 'Offline',
+                checking: 'Checking',
+                undetectable: 'Undetectable',
+                pingFailed: 'Ping failed'
             },
             groups: {
                 group1: 'SurvivalCraft 34 Server Group',
@@ -214,7 +224,12 @@ const ServerLanguageConfig = {
                 groupServer: 'Групповой Сервер',
                 childServer: 'Дочерний Сервер',
                 groupNumber: ' (Группа №: ',
-                groupNumberEnd: ')'
+                groupNumberEnd: ')',
+                unreachable: 'Недоступен',
+                offline: 'Оффлайн',
+                checking: 'Проверка',
+                undetectable: 'Неопределимо',
+                pingFailed: 'Ping не удался'
             },
             groups: {
                 group1: 'Группа Серверов SurvivalCraft 34',
