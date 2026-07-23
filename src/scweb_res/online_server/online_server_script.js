@@ -762,11 +762,21 @@ class OnlineServerManager {
         throw new Error('所有代理均无法连接');
     }
 
+    /**
+     * 从 URL 中提取 version 参数值
+     * @param {string} url - URL 字符串
+     * @returns {string} 版本号，默认返回 this.serverVersion
+     */
     extractVersion(url) {
         const match = url.match(/version=([^&]+)/);
         return match ? decodeURIComponent(match[1]) : this.serverVersion;
     }
 
+    /**
+     * 从 URL 中提取 host 和 port 参数
+     * @param {string} url - URL 字符串
+     * @returns {Object} { host, port }
+     */
     extractPingParams(url) {
         const hostMatch = url.match(/host=([^&]+)/);
         const portMatch = url.match(/port=([^&]+)/);
