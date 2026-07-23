@@ -25,8 +25,9 @@ const ServerLanguageConfig = {
             },
             filters: {
                 all: '全部',
-                recommend: '推荐',
-                community: '社区'
+                lobby: '大厅服',
+                premium: '精品服',
+                community: '社区服'
             },
             server: {
                 clickToCopy: '点击复制',
@@ -61,7 +62,8 @@ const ServerLanguageConfig = {
             },
             filters: {
                 all: 'All',
-                recommend: 'Featured',
+                lobby: 'Lobby',
+                premium: 'Premium',
                 community: 'Community'
             },
             server: {
@@ -97,7 +99,8 @@ const ServerLanguageConfig = {
             },
             filters: {
                 all: 'Все',
-                recommend: 'Рекомендованные',
+                lobby: 'Лобби',
+                premium: 'Премиум',
                 community: 'Сообщество'
             },
             server: {

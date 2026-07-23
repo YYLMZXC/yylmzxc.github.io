@@ -77,13 +77,28 @@ const ServerList = {
             }).join('');
         }
         
+        // 根据等级生成标签
+        let serverTags = '';
+        if (server.publishType === 0) {
+            serverTags += '<span class="server-tag featured">推荐</span>';
+        }
+        if (server.level === 1) {
+            serverTags += '<span class="server-tag" style="background-color: #3498db;">大厅服</span>';
+        } else if (server.level === 2) {
+            serverTags += '<span class="server-tag" style="background-color: #f39c12;">精品服</span>';
+        } else if (server.level === 3) {
+            serverTags += '<span class="server-tag" style="background-color: #27ae60;">社区服</span>';
+        }
+        if (server.groupJoinMode) {
+            serverTags += '<span class="server-tag" style="background-color: #9b59b6;">群组服</span>';
+        }
+        
         return `
             <div class="server-item" data-server-id="${serverId}" data-server-index="${index}">
                 <div class="server-header">
                     <span class="server-status status-checking" title="检查中">●</span>
                     <span class="server-name">${server.name || '未知服务器'}</span>
-                    ${server.publishType === 0 ? '<span class="server-tag featured">推荐</span>' : ''}
-                    ${server.groupJoinMode ? `<span class="server-tag community" style="background-color: #9b59b6;">群组服</span>` : ''}
+                    ${serverTags}
                 </div>
                 
                 <div class="server-info">
@@ -198,15 +213,30 @@ const ServerList = {
         
         console.log('成功加载', servers.length, '个服务器');
         
+        // 根据筛选条件过滤服务器
+        let filteredServers = servers;
+        if (this.currentFilter !== 'all') {
+            filteredServers = servers.filter(server => {
+                if (this.currentFilter === 'lobby') {
+                    return server.level === 1;
+                } else if (this.currentFilter === 'premium') {
+                    return server.level === 2;
+                } else if (this.currentFilter === 'community') {
+                    return server.level === 3;
+                }
+                return true;
+            });
+        }
+        
         serverStatsElement.innerHTML = `
             <h3>服务器统计</h3>
             <p>
-                总计: <b>${servers.length}</b> 个服务器
+                总计: <b>${filteredServers.length}</b> 个服务器
             </p>
         `;
         
         let html = '';
-        servers.forEach((server, index) => {
+        filteredServers.forEach((server, index) => {
             console.log('服务器', index + 1, ':', server.name, '-', server.ip);
             html += this.generateServerItem(server, index);
         });
