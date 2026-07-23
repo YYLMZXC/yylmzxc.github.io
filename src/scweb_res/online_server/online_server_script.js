@@ -2,18 +2,22 @@
  * 生存战争网 - 联机服务器列表管理器
  * 负责获取、缓存、搜索、排序、筛选和显示 SC 联机服务器列表
  * 
+ * 代理架构（按优先级）：
+ * 1. 自建 PHP 代理（当前域名 + scnet.top/schub.icu/scwz.top）
+ * 2. 直连 API
+ * 3. 公共 CORS 代理（需手动开启）
+ * 
  * 主要功能:
- * - 从远程 API 异步获取服务器列表数据，支持 CORS 代理回退
+ * - 从远程 API 异步获取服务器列表数据，支持多级代理回退
  * - localStorage 缓存机制，减少重复请求
  * - 多维度搜索（名称/IP/版本/模式/国家）和排序
- * - 服务器延迟检测（WebSocket 连接测试）
+ * - 服务器延迟检测（通过自建代理转发 ping 请求）
  * - 收藏服务器功能（localStorage 持久化）
  * - 主题、语言、站点信息的响应式初始化
  */
 
 class OnlineServerManager {
     constructor() {
-        // API 配置
         this.apiUrl = 'https://api.sckey.net/server/serverlist';
         this.serverVersion = 'x26.07.20';
         this.versions = [
@@ -25,11 +29,13 @@ class OnlineServerManager {
         this.currentFilter = 'all';
         this.useCorsProxy = false;
         this.cacheExpireMinutes = 10;
-        // CORS 代理列表，用于绕过浏览器跨域限制
+
+        this.selfHostedProxies = this.getSelfHostedProxies();
+        console.log('[OnlineServerManager] 自建代理列表:', this.selfHostedProxies);
+
         this.corsProxies = [
             'https://corsproxy.io/?',
             'https://api.allorigins.win/raw?url=',
-            'https://cors-anywhere.herokuapp.com/',
             'https://proxy.cors.sh/'
         ];
         this.currentProxyIndex = 0;
@@ -37,6 +43,34 @@ class OnlineServerManager {
         this.currentStatus = 'loading';
 
         this.init();
+    }
+
+    getSelfHostedProxies() {
+        const hostname = window.location.hostname;
+        const isLocalhost = hostname === 'localhost' || hostname === '127.0.0.1';
+
+        const remoteDomains = [
+            'https://scnet.top',
+            'https://schub.icu',
+            'https://scwz.top'
+        ];
+
+        let selfProxies = [];
+
+        if (isLocalhost) {
+            const localProxyPort = 8080;
+            selfProxies.push(`http://${hostname}:${localProxyPort}/proxy.php`);
+        } else {
+            const protocol = window.location.protocol;
+            const currentDomain = `${protocol}//${window.location.host}`;
+            selfProxies.push(`${currentDomain}/proxy.php`);
+        }
+
+        remoteDomains.forEach(domain => {
+            selfProxies.push(`${domain}/proxy.php`);
+        });
+
+        return selfProxies;
     }
 
     /**
@@ -629,26 +663,58 @@ class OnlineServerManager {
 
     /**
      * 带重试的 HTTP 请求
-     * 先尝试直连，失败后依次回退到 CORS 代理列表中的各代理
+     * 优先使用自建代理，失败后回退到直连和公共 CORS 代理
      * 每个请求都有超时保护
      * @param {string} apiUrl - 请求地址
-     * @returns {Object|null} JSON 响应数据或 null
+     * @returns {Object} JSON 响应数据
      */
     async fetchWithRetry(apiUrl) {
-        const proxies = this.corsProxies;
-        const allAttempts = this.useCorsProxy ? proxies : ['', ...proxies];
-        const totalAttempts = allAttempts.length;
+        const attempts = [];
+
+        this.selfHostedProxies.forEach(proxy => {
+            attempts.push({ type: 'self', url: proxy, targetUrl: apiUrl });
+        });
+
+        attempts.push({ type: 'direct', url: apiUrl });
+
+        if (this.useCorsProxy) {
+            this.corsProxies.forEach(proxy => {
+                attempts.push({ type: 'public', url: proxy, targetUrl: apiUrl });
+            });
+        }
+
+        const totalAttempts = attempts.length;
 
         for (let attempt = 0; attempt < totalAttempts; attempt++) {
-            try {
-                const proxy = allAttempts[attempt];
-                const fullUrl = proxy ? proxy + encodeURIComponent(apiUrl) : apiUrl;
+            const { type, url, targetUrl } = attempts[attempt];
 
-                console.log(`尝试连接 (${attempt + 1}/${totalAttempts})${proxy ? ' [代理]' : ' [直连]'}...`);
+            let fullUrl;
+            let logLabel;
+
+            if (type === 'self') {
+                if (targetUrl.includes('serverlist')) {
+                    const versionParam = this.extractVersion(targetUrl);
+                    fullUrl = `${url}?action=serverlist&version=${encodeURIComponent(versionParam)}`;
+                } else if (targetUrl.includes('ping')) {
+                    const params = this.extractPingParams(targetUrl);
+                    fullUrl = `${url}?action=ping&host=${encodeURIComponent(params.host)}&port=${encodeURIComponent(params.port)}`;
+                } else {
+                    fullUrl = `${url}?url=${encodeURIComponent(targetUrl)}`;
+                }
+                logLabel = ' [自建代理]';
+            } else if (type === 'direct') {
+                fullUrl = url;
+                logLabel = ' [直连]';
+            } else {
+                fullUrl = url + encodeURIComponent(targetUrl);
+                logLabel = ' [公共代理]';
+            }
+
+            try {
+                console.log(`尝试连接 (${attempt + 1}/${totalAttempts})${logLabel}...`);
 
                 const controller = new AbortController();
                 const timeoutId = setTimeout(() => {
-                    console.log('请求超时');
                     controller.abort();
                 }, this.timeout);
 
@@ -660,17 +726,27 @@ class OnlineServerManager {
                 });
 
                 clearTimeout(timeoutId);
-                console.log('收到响应，状态码:', response.status);
 
                 if (!response.ok) {
-                    console.log('HTTP错误:', response.status, response.statusText);
                     throw new Error(`HTTP错误: ${response.status}`);
                 }
 
                 const text = await response.text();
+
                 try {
-                    return JSON.parse(text);
-                } catch {
+                    const parsed = JSON.parse(text);
+
+                    if (parsed.success === false && parsed.code !== undefined) {
+                        console.warn(`代理返回错误:`, parsed.msg);
+                        throw new Error(parsed.msg || '代理请求失败');
+                    }
+
+                    console.log(`✓ 成功 (${attempt + 1}/${totalAttempts})${logLabel}`);
+                    return parsed;
+                } catch (e) {
+                    if (e.message && !e.message.includes('Unexpected token')) {
+                        throw e;
+                    }
                     return text;
                 }
 
@@ -686,6 +762,20 @@ class OnlineServerManager {
         throw new Error('所有代理均无法连接');
     }
 
+    extractVersion(url) {
+        const match = url.match(/version=([^&]+)/);
+        return match ? decodeURIComponent(match[1]) : this.serverVersion;
+    }
+
+    extractPingParams(url) {
+        const hostMatch = url.match(/host=([^&]+)/);
+        const portMatch = url.match(/port=([^&]+)/);
+        return {
+            host: hostMatch ? decodeURIComponent(hostMatch[1]) : '',
+            port: portMatch ? decodeURIComponent(portMatch[1]) : ''
+        };
+    }
+
     /**
      * 切换 CORS 代理模式
      * 在直连模式和代理模式之间切换，并强制刷新服务器列表
@@ -697,11 +787,11 @@ class OnlineServerManager {
         if (this.useCorsProxy) {
             proxyBtn.textContent = '🌐 ' + (this.getServerText('proxyMode') || '代理模式');
             proxyBtn.classList.add('proxy-active');
-            console.log('切换到代理模式');
+            console.log('启用公共CORS代理作为后备');
         } else {
             proxyBtn.textContent = '🔗 ' + (this.getServerText('directMode') || '直连模式');
             proxyBtn.classList.remove('proxy-active');
-            console.log('切换到直连模式');
+            console.log('仅使用自建代理和直连');
         }
 
         this.loadServerList(this.currentFilter, true);
