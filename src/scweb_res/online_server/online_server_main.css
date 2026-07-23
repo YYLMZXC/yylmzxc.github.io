@@ -233,18 +233,24 @@
     margin-bottom: 20px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     border-left: 4px solid #3498db;
+    overflow: hidden;
 }
 
 .server-stats h3 {
     margin: 0 0 10px 0;
     font-size: 18px;
     color: #2c3e50;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .server-stats p {
     margin: 0;
     color: #7f8c8d;
     font-size: 14px;
+    word-break: break-word;
+    overflow-wrap: break-word;
 }
 
 /* ==== 服务器列表 ==== */
@@ -294,6 +300,10 @@
     font-size: 18px;
     font-weight: bold;
     color: #333;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
 }
 
 .server-tag {
@@ -420,6 +430,14 @@
     background-color: #f0f7ff;
     border-radius: 8px;
     border: 1px solid #d0e3ff;
+    overflow: hidden;
+}
+
+.join-group p {
+    margin: 0;
+    line-height: 1.6;
+    word-break: break-word;
+    overflow-wrap: break-word;
 }
 
 .join-group-default {
