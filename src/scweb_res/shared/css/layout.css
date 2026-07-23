@@ -4,6 +4,21 @@
  * 以及主题/语言选择器、搜索框等全局 UI 元素的布局定义
  */
 
+/* ===== 页面布局（使页脚贴底） ===== */
+html, body {
+    height: 100%;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+#body {
+    flex: 1 0 auto;
+}
+
 /* ===== Header（头部） ===== */
 #header {
     padding: 10px 0;
@@ -174,6 +189,7 @@
     text-align: center;
     background: var(--light-bg);
     border-top: 1px solid var(--border-light);
+    flex-shrink: 0;
 }
 
 .copyright {
