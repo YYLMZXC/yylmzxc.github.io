@@ -17,6 +17,8 @@ class OnlineServerManager {
             'https://proxy.cors.sh/'
         ];
         this.currentProxyIndex = 0;
+        this.lastFilteredCount = null;
+        this.currentStatus = 'loading';
 
         this.languageConfig = window.ServerLanguageConfig;
         this.currentLang = this.languageConfig.default;
@@ -27,6 +29,7 @@ class OnlineServerManager {
     init() {
         this.initTheme();
         this.initLanguage();
+        this.initSiteInfo();
         this.initVersionSelector();
         this.bindEvents();
         this.initSidebarTranslations();
@@ -37,6 +40,41 @@ class OnlineServerManager {
         }, 30000);
 
         console.log('[OnlineServerManager] 初始化完成');
+    }
+
+    initSiteInfo() {
+        const currentUrl = window.location.hostname + (window.location.port ? ':' + window.location.port : '');
+
+        const currentAddressEl = document.getElementById('currentAddress');
+        if (currentAddressEl) {
+            const translations = this.languageConfig.translations[this.currentLang];
+            const prefix = translations && translations.siteInfo && translations.siteInfo.currentAddress
+                ? translations.siteInfo.currentAddress
+                : '本站地址：';
+            currentAddressEl.textContent = prefix + currentUrl;
+        }
+
+        const shortUrlEl = document.getElementById('shortUrl');
+        if (shortUrlEl) {
+            const translations = this.languageConfig.translations[this.currentLang];
+            const prefix = translations && translations.siteInfo && translations.siteInfo.shortUrl
+                ? translations.siteInfo.shortUrl
+                : '短网址：';
+            shortUrlEl.innerHTML = `
+                ${prefix}
+                <a href="https://scnet.top/" target="_blank" rel="noopener">
+                    scnet.top <span style="font-size: 0.8em; color: #666;">https://scnet.top/</span>
+                </a>
+                <br>
+                <a href="https://schub.icu/" target="_blank" rel="noopener">
+                    schub.icu <span style="font-size: 0.8em; color: #666;">https://schub.icu/</span>
+                </a>
+                <br>
+                <a href="https://scwz.top/" target="_blank" rel="noopener">
+                    scwz.top <span style="font-size: 0.8em; color: #666;">https://scwz.top/</span>
+                </a>
+            `;
+        }
     }
 
     initTheme() {
@@ -91,6 +129,10 @@ class OnlineServerManager {
             if (statsEl && translations.stats.title) {
                 statsEl.textContent = translations.stats.title;
             }
+            const statsPEl = document.querySelector('.server-stats p');
+            if (statsPEl) {
+                this.updateStatsParagraph(statsPEl);
+            }
         }
 
         if (translations.server) {
@@ -99,15 +141,52 @@ class OnlineServerManager {
         }
 
         if (translations.footer) {
-            const footerEl = document.querySelector('#footer p');
+            const footerEl = document.querySelector('.copyright');
             if (footerEl) {
                 footerEl.textContent = translations.footer;
+            }
+        }
+
+        if (translations.siteInfo) {
+            const currentAddressEl = document.getElementById('currentAddress');
+            if (currentAddressEl && translations.siteInfo.currentAddress) {
+                const baseUrl = window.location.hostname + (window.location.port ? ':' + window.location.port : '');
+                currentAddressEl.textContent = translations.siteInfo.currentAddress + baseUrl;
+            }
+            const shortUrlEl = document.getElementById('shortUrl');
+            if (shortUrlEl && translations.siteInfo.shortUrl) {
+                shortUrlEl.innerHTML = shortUrlEl.innerHTML.replace(/^.*?(?=<a)/s, translations.siteInfo.shortUrl + '\n');
             }
         }
 
         document.querySelectorAll('.language-btn').forEach(button => {
             button.classList.toggle('active', button.getAttribute('data-lang') === lang);
         });
+    }
+
+    updateStatsParagraph(pEl) {
+        const connectingText = this.getCurrentServerText('connecting');
+        const loadingText = this.getCurrentServerText('loading');
+        const loadFailedText = this.getCurrentServerText('loadFailed');
+        const totalText = this.getCurrentStatsText('total');
+
+        switch (this.currentStatus) {
+            case 'connecting':
+                pEl.textContent = connectingText;
+                break;
+            case 'loading':
+                pEl.textContent = loadingText;
+                break;
+            case 'loadFailed':
+                pEl.textContent = loadFailedText;
+                break;
+            case 'ready':
+                const count = this.lastFilteredCount !== null ? this.lastFilteredCount : 0;
+                pEl.innerHTML = `${totalText}: <b>${count}</b>`;
+                break;
+            default:
+                pEl.textContent = loadingText;
+        }
     }
 
     updateDynamicContentByAttr() {
@@ -181,6 +260,12 @@ class OnlineServerManager {
         const translations = this.languageConfig.translations[this.currentLang];
         if (!translations || !translations.server) return key;
         return translations.server[key] || key;
+    }
+
+    getCurrentStatsText(key) {
+        const translations = this.languageConfig.translations[this.currentLang];
+        if (!translations || !translations.stats) return key;
+        return translations.stats[key] || key;
     }
 
     initVersionSelector() {
@@ -329,15 +414,16 @@ class OnlineServerManager {
         const connectingText = this.getCurrentServerText('connecting');
         const loadingText = this.getCurrentServerText('loading');
         const loadFailedText = this.getCurrentServerText('loadFailed');
-        const totalText = this.getCurrentServerText('total');
+        const totalText = this.getCurrentStatsText('total');
         const noServersText = this.getCurrentServerText('noServers');
-        const statsTitle = this.getCurrentServerText('title');
+        const statsTitle = this.getCurrentStatsText('title');
 
         console.log('=== 开始加载服务器列表 ===');
         console.log('API地址:', apiUrl);
 
         serverListElement.innerHTML = `<div class="loading">${connectingText}</div>`;
         serverStatsElement.innerHTML = `<h3>${statsTitle}</h3><p>${loadingText}</p>`;
+        this.currentStatus = 'connecting';
 
         if (!forceRefresh) {
             const cachedServers = this.getCachedData();
@@ -357,8 +443,9 @@ class OnlineServerManager {
                 this.displayServers(cachedServers);
                 return;
             }
+            this.currentStatus = 'loadFailed';
             serverStatsElement.innerHTML = `<h3>${statsTitle}</h3><p>${loadFailedText}</p>`;
-            serverListElement.innerHTML = `<div class="no-servers">无法连接到服务器</div>`;
+            serverListElement.innerHTML = `<div class="no-servers">${this.getCurrentServerText('loadFailedCannotConnect')}</div>`;
             return;
         }
 
@@ -381,7 +468,8 @@ class OnlineServerManager {
 
         if (!servers || servers.length === 0) {
             console.log('服务器列表为空');
-            serverStatsElement.innerHTML = `<h3>${statsTitle}</h3><p>暂无服务器</p>`;
+            this.currentStatus = 'loadFailed';
+            serverStatsElement.innerHTML = `<h3>${statsTitle}</h3><p>${noServersText}</p>`;
             serverListElement.innerHTML = `<div class="no-servers">${noServersText}</div>`;
             return;
         }
@@ -394,8 +482,8 @@ class OnlineServerManager {
         const serverListElement = document.getElementById('serverList');
         const serverStatsElement = document.querySelector('.server-stats');
 
-        const totalText = this.getCurrentServerText('total');
-        const statsTitle = this.getCurrentServerText('title');
+        const totalText = this.getCurrentStatsText('total');
+        const statsTitle = this.getCurrentStatsText('title');
 
         console.log('成功加载', servers.length, '个服务器');
 
@@ -408,6 +496,9 @@ class OnlineServerManager {
                 return true;
             });
         }
+
+        this.lastFilteredCount = filteredServers.length;
+        this.currentStatus = 'ready';
 
         serverStatsElement.innerHTML = `
             <h3>${statsTitle}</h3>

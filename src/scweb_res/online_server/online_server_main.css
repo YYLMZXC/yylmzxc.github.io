@@ -1,71 +1,124 @@
 /* ========================================
    生存战争网 联机服务器页面样式
    页面特有样式（公共样式在 shared/css/ 中）
+   头部/导航/页脚 结构与 index.html 保持一致
 ======================================== */
 
 /* ==== 页面布局 ==== */
 #header {
-    padding-top: 35px;
-    border-bottom: 1px solid #EEE;
+    padding: 20px 0;
+    border-bottom: 1px solid #eee;
+    position: relative;
+}
+
+#header .row.align-items-center {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.site-name {
+    flex: 0 0 auto;
 }
 
 #logo img {
     max-height: 64px;
 }
 
-#nav-menu {
-    margin: 25px 0 0;
-    padding: 0;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0;
-    width: calc(100% - 300px);
-    max-width: 100%;
-}
-
+/* ==== 顶部导航栏 ==== */
 #top-nav-bar {
-    background-color: #f8f9fa;
-    border-bottom: 1px solid #dee2e6;
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+    border-bottom: 1px solid var(--border-light);
     padding: 15px 0;
     position: relative;
     z-index: 1000;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+#top-nav-bar .row.align-items-center {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 15px;
 }
 
 .nav-menu {
     display: flex;
-    gap: 25px;
+    gap: 12px;
     flex-wrap: wrap;
     align-items: center;
+    margin-right: auto;
+    padding: 8px 12px;
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 12px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
 }
 
 .nav-menu a {
-    padding: 8px 16px;
-    border-radius: 4px;
-    transition: all 0.3s ease;
+    padding: 10px 20px;
+    border-radius: 8px;
     color: #495057;
     font-weight: 500;
-    text-decoration: none;
-    border: 1px solid transparent;
+    border: 2px solid transparent;
+    position: relative;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.nav-menu a::after {
+    content: '';
+    position: absolute;
+    bottom: 4px;
+    left: 50%;
+    width: 0;
+    height: 2px;
+    background: linear-gradient(90deg, #007bff, #667eea);
+    transform: translateX(-50%);
+    transition: width 0.3s ease;
 }
 
 .nav-menu a:hover {
-    background-color: #e9ecef;
-    color: #007bff;
+    background-color: rgba(102, 126, 234, 0.08);
+    color: #667eea;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+}
+
+.nav-menu a:hover::after {
+    width: 60%;
 }
 
 .nav-menu a.active {
-    background-color: #007bff;
+    background: linear-gradient(135deg, #007bff 0%, #667eea 100%);
     color: white;
-    border-color: #007bff;
+    border-color: rgba(255, 255, 255, 0.3);
+    box-shadow: 0 4px 16px rgba(102, 126, 234, 0.35);
+    transform: translateY(-2px);
+}
+
+.nav-menu a.active::after {
+    width: 80%;
+    background: rgba(255, 255, 255, 0.6);
+}
+
+.nav-menu a.active:hover {
+    background: linear-gradient(135deg, #0069d9 0%, #5a6fd8 100%);
+    transform: translateY(-2px);
+}
+
+/* ==== 主题/语言 容器 ==== */
+.theme-section {
+    position: relative;
+    z-index: 1001;
+    background-color: transparent;
 }
 
 .language-section-top-right {
-    position: absolute;
-    top: 15px;
-    right: 25%;
+    position: relative;
     z-index: 1001;
     background-color: transparent;
-    margin-right: 10px;
 }
 
 #body {
@@ -414,110 +467,149 @@
     color: white;
 }
 
-/* ==== 页脚 ==== */
-#footer {
-    position: static;
-    width: 100%;
-    padding: 2rem 1rem;
-    line-height: 1.5;
+/* ==== 站点信息 (与 index 保持一致) ==== */
+.site-info {
+    margin-bottom: 20px;
+}
+
+.site-address {
     text-align: center;
-    color: #999;
-    border-top: 1px solid #EEE;
-    background-color: #fff;
-    font-size: 0.9rem;
-    margin-top: 3rem;
+    font-size: 14px;
+    color: #666;
+    margin: 20px 0;
+    padding: 12px 20px;
+    background: var(--light-bg);
+    border-radius: 6px;
+    border-left: 4px solid #007cba;
+    max-width: 100%;
     box-sizing: border-box;
+}
+
+.site-address span {
+    margin-right: 8px;
+}
+
+/* ==== 页脚 (与 index 保持一致) ==== */
+#footer {
     clear: both;
-    z-index: 10;
+    width: 100%;
+    margin: 40px 0 0 0;
+    padding: 20px 0;
+    text-align: center;
+    background: var(--light-bg);
+    border-top: 1px solid var(--border-light);
+}
+
+.copyright {
+    font-size: 14px;
+    color: #666;
+    line-height: 1.5;
 }
 
 /* ==== 响应式设计 ==== */
-@media (max-width: 768px) {
-    #top-nav-bar {
-        padding: 10px 0;
+@media (max-width: 767px) {
+    .container {
+        padding-left: 15px;
+        padding-right: 15px;
     }
-    
-    #nav-menu {
-        width: 100%;
-        margin-bottom: 10px;
+
+    #header .row.align-items-center,
+    #top-nav-bar .row.align-items-center {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
     }
-    
+
+    .site-name {
+        text-align: center;
+    }
+
     .nav-menu {
-        gap: 15px;
+        gap: 10px;
+        justify-content: center;
+        margin-right: 0;
     }
-    
-    .nav-menu a {
-        padding: 6px 12px;
-        font-size: 14px;
-    }
-    
+
+    .theme-section,
     .language-section-top-right {
         position: relative;
         top: auto;
         right: auto;
         display: flex;
         justify-content: center;
-        width: 100%;
+        width: auto;
         margin-top: 10px;
     }
-    
+
+    .theme-section .theme-selector,
     .language-section-top-right .language-selector {
         justify-content: center;
     }
-    
+
+    .theme-section .theme-btn,
     .language-section-top-right .language-btn {
         padding: 8px 14px;
         font-size: 13px;
     }
-}
 
-@media (max-width: 767px) {
     #body {
-        padding-bottom: 150px;
+        padding-bottom: 30px;
     }
-    
+
     .server-item {
         padding: 12px;
     }
-    
+
     .server-header {
         flex-direction: column;
         align-items: flex-start;
     }
-    
+
     .server-name {
         font-size: 16px;
     }
-    
+
     .info-row {
         gap: 10px;
     }
-    
+
     .info-row .label {
         min-width: 50px;
         font-size: 13px;
     }
-    
+
     .info-row .value {
         font-size: 13px;
     }
-    
-    #nav-menu {
-        flex-direction: column;
-    }
-    
-    #nav-menu a {
-        float: none;
-        border-bottom: 1px solid #EEE;
-        margin-right: 0;
-        padding: 0 12px;
-        min-height: 44px;
-        line-height: 44px;
-    }
-    
+
     .filter-btn, .refresh-btn {
         padding: 10px 16px;
         font-size: 14px;
+    }
+
+    .site-address {
+        font-size: 13px;
+        padding: 10px 15px;
+    }
+
+    #footer {
+        margin: 20px 0 0 0;
+        padding: 15px 0;
+    }
+}
+
+@media (max-width: 480px) {
+    #footer {
+        margin: 15px 0 0 0;
+        padding: 12px 0;
+    }
+
+    .site-address {
+        font-size: 12px;
+    }
+
+    .copyright {
+        font-size: 12px;
     }
 }
 

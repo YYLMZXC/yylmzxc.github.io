@@ -35,10 +35,12 @@ const ServerLanguageConfig = {
                 copied: '已复制!',
                 joinGroup: '欢迎加入我们的交流群：',
                 managementOffice: '联机服列表管理办事处：',
+                bugFeedbackGroup: '联机号/公测联机版bug反馈群：',
                 noServers: '暂无服务器',
                 loading: '加载中...',
                 connecting: '正在连接服务器...',
                 loadFailed: '加载失败',
+                loadFailedCannotConnect: '无法连接到服务器',
                 address: '地址',
                 version: '版本',
                 level: '等级',
@@ -64,6 +66,10 @@ const ServerLanguageConfig = {
                 group2Id: '893387376',
                 group3: '点击加入反馈群',
                 group3Id: '1092640742'
+            },
+            siteInfo: {
+                currentAddress: '本站地址：',
+                shortUrl: '短网址：'
             },
             footer: '© 2026 生存战争网'
         },
@@ -92,10 +98,12 @@ const ServerLanguageConfig = {
                 copied: 'Copied!',
                 joinGroup: 'Welcome to join our discussion group:',
                 managementOffice: 'Server List Management Office:',
+                bugFeedbackGroup: 'Bug Feedback Group (Public Beta):',
                 noServers: 'No servers found',
                 loading: 'Loading...',
                 connecting: 'Connecting to server...',
                 loadFailed: 'Load failed',
+                loadFailedCannotConnect: 'Cannot connect to server',
                 address: 'Address',
                 version: 'Version',
                 level: 'Level',
@@ -121,6 +129,10 @@ const ServerLanguageConfig = {
                 group2Id: '893387376',
                 group3: 'Bug Feedback Group',
                 group3Id: '1092640742'
+            },
+            siteInfo: {
+                currentAddress: 'Site Address: ',
+                shortUrl: 'Short URL: '
             },
             footer: '© 2026 SurvivalCraft Web'
         },
@@ -149,10 +161,12 @@ const ServerLanguageConfig = {
                 copied: 'Скопировано!',
                 joinGroup: 'Добро пожаловать в нашу группу:',
                 managementOffice: 'Управление Списком Серверов:',
+                bugFeedbackGroup: 'Группа Обратной Связи (бета-тест):',
                 noServers: 'Серверы не найдены',
                 loading: 'Загрузка...',
                 connecting: 'Подключение к серверу...',
                 loadFailed: 'Ошибка загрузки',
+                loadFailedCannotConnect: 'Невозможно подключиться к серверу',
                 address: 'Адрес',
                 version: 'Версия',
                 level: 'Уровень',
@@ -178,6 +192,10 @@ const ServerLanguageConfig = {
                 group2Id: '893387376',
                 group3: 'Группа Обратной Связи',
                 group3Id: '1092640742'
+            },
+            siteInfo: {
+                currentAddress: 'Адрес Сайта: ',
+                shortUrl: 'Короткий URL: '
             },
             footer: '© 2026 SurvivalCraft Web'
         }
