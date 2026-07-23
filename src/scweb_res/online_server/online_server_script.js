@@ -212,15 +212,18 @@ const ServerList = {
         });
         
         serverListElement.innerHTML = html;
+        
+        // 立即初始化所有事件处理
         this.initCopyHandlers();
         this.initFilterButtons();
         this.initIpSelectors();
         
+        console.log('=== 服务器列表加载完成 ===');
+        
+        // 延迟检测在后台进行，不阻塞UI
         setTimeout(() => {
             this.detectLatency();
-        }, 500);
-        
-        console.log('=== 服务器列表加载完成 ===');
+        }, 100);
     },
     
     fetchAndUpdateCache: async function(apiUrl) {
@@ -451,12 +454,11 @@ const ServerList = {
     detectLatency: function() {
         const latencyElements = document.querySelectorAll('.latency-value');
         latencyElements.forEach((element, index) => {
-            setTimeout(() => {
-                const serverId = element.getAttribute('data-server-id');
-                if (serverId) {
-                    this.detectLatencyForServer(serverId);
-                }
-            }, index * 500);
+            // 并行执行所有延迟检测，不使用延迟
+            const serverId = element.getAttribute('data-server-id');
+            if (serverId) {
+                this.detectLatencyForServer(serverId);
+            }
         });
     },
     
