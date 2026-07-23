@@ -33,40 +33,98 @@ const ServerList = {
         return '其他';
     },
     
-    generateServerItem: function(server) {
+    generateServerItem: function(server, index) {
         const networkType = this.getNetworkType(server.ip);
         const hasPort = server.ip.includes(':');
         const displayIp = hasPort ? server.ip : server.ip + ':28887';
+        const serverId = server.id || `server-${index}`;
+        
+        // 处理多个IP
+        let ipList = [];
+        if (server.ips && Array.isArray(server.ips) && server.ips.length > 0) {
+            ipList = server.ips.map(ip => ip.includes(':') ? ip : ip + ':28887');
+        } else {
+            ipList = [displayIp];
+        }
+        
+        // 处理子服务器
+        let childServersHtml = '';
+        if (server.children && Array.isArray(server.children) && server.children.length > 0) {
+            childServersHtml = server.children.map((child, ci) => {
+                const childIp = child.ip.includes(':') ? child.ip : child.ip + ':28887';
+                let childIpList = [];
+                if (child.ips && Array.isArray(child.ips) && child.ips.length > 0) {
+                    childIpList = child.ips.map(ip => ip.includes(':') ? ip : ip + ':28887');
+                } else {
+                    childIpList = [childIp];
+                }
+                return `
+                    <div class="child-server" style="margin-left: 20px; padding: 10px; background-color: #fff; border-radius: 6px; margin-top: 10px;">
+                        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+                            <span style="font-weight: 500; color: #2c3e50;">📁 ${child.name || '子服务器'}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="label">地址:</span>
+                            ${childIpList.length > 1 ? `
+                                <select class="ip-selector" data-server-id="${serverId}-child-${ci}" style="padding: 4px 8px; border: 1px solid #ddd; border-radius: 4px; font-size: 13px;">
+                                    ${childIpList.map((ip, i) => `<option value="${ip}" ${i === 0 ? 'selected' : ''}>${ip}</option>`).join('')}
+                                </select>
+                            ` : `<span class="value ip-value" data-ip="${childIp}">${childIp}</span>`}
+                            ${childIpList.length > 1 ? `<span class="copy-btn" data-server-id="${serverId}-child-${ci}">📋</span>` : `<span class="copy-btn" data-ip="${childIp}">📋</span>`}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
         
         return `
-            <div class="server-item">
+            <div class="server-item" data-server-id="${serverId}" data-server-index="${index}">
                 <div class="server-header">
                     <span class="server-status status-checking" title="检查中">●</span>
                     <span class="server-name">${server.name || '未知服务器'}</span>
                     ${server.publishType === 0 ? '<span class="server-tag featured">推荐</span>' : ''}
+                    ${server.groupJoinMode ? `<span class="server-tag community" style="background-color: #9b59b6;">群组服</span>` : ''}
                 </div>
                 
                 <div class="server-info">
                     <div class="info-row">
                         <span class="label">地址:</span>
-                        <span class="value ip-value" data-ip="${displayIp}">${displayIp}</span>
-                        <span class="copy-btn" data-ip="${displayIp}">📋</span>
+                        ${ipList.length > 1 ? `
+                            <select class="ip-selector" data-server-id="${serverId}" style="padding: 4px 8px; border: 1px solid #ddd; border-radius: 4px; font-size: 13px;">
+                                ${ipList.map((ip, i) => `<option value="${ip}" ${i === 0 ? 'selected' : ''}>${ip}</option>`).join('')}
+                            </select>
+                        ` : `<span class="value ip-value" data-ip="${displayIp}">${displayIp}</span>`}
+                        ${ipList.length > 1 ? `<span class="copy-btn" data-server-id="${serverId}">📋</span>` : `<span class="copy-btn" data-ip="${displayIp}">📋</span>`}
                     </div>
                     
                     <div class="info-row">
                         <span class="label">版本:</span>
                         <span class="value">${server.version || '未知'}</span>
+                        <span class="label">等级:</span>
+                        <span class="value">${server.level !== undefined ? server.level : '-'}</span>
+                    </div>
+                    
+                    ${server.groupJoinMode !== undefined ? `
+                    <div class="info-row">
+                        <span class="label">加入模式:</span>
+                        <span class="value">${server.groupJoinMode}</span>
+                    </div>
+                    ` : ''}
+                    
+                    <div class="info-row">
+                        <span class="label">网络:</span>
+                        <span class="value">${networkType}</span>
                         <span class="label">延迟:</span>
-                        <span class="value latency-value" data-ip="${displayIp}">检测中...</span>
+                        <span class="value latency-value" data-server-id="${serverId}">检测中...</span>
                     </div>
                     
                     <div class="info-row">
-                        <span class="label">等级:</span>
-                        <span class="value">${server.level || 0}</span>
-                        <span class="label">网络:</span>
-                        <span class="value">${networkType}</span>
+                        <span class="label">ID:</span>
+                        <span class="value" style="font-size: 12px; font-family: monospace; color: #7f8c8d;">${server.id || '-'}</span>
                     </div>
                 </div>
+                
+                ${childServersHtml}
             </div>
         `;
     },
@@ -150,12 +208,13 @@ const ServerList = {
         let html = '';
         servers.forEach((server, index) => {
             console.log('服务器', index + 1, ':', server.name, '-', server.ip);
-            html += this.generateServerItem(server);
+            html += this.generateServerItem(server, index);
         });
         
         serverListElement.innerHTML = html;
         this.initCopyHandlers();
         this.initFilterButtons();
+        this.initIpSelectors();
         
         setTimeout(() => {
             this.detectLatency();
@@ -325,7 +384,8 @@ const ServerList = {
     },
     
     initCopyHandlers: function() {
-        document.querySelectorAll('.copy-btn').forEach(btn => {
+        // 处理单IP复制
+        document.querySelectorAll('.copy-btn[data-ip]').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.stopPropagation();
                 const ip = btn.getAttribute('data-ip');
@@ -338,6 +398,25 @@ const ServerList = {
             });
         });
         
+        // 处理多IP选择器复制
+        document.querySelectorAll('.copy-btn[data-server-id]').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const serverId = btn.getAttribute('data-server-id');
+                const selector = document.querySelector(`.ip-selector[data-server-id="${serverId}"]`);
+                if (selector) {
+                    const ip = selector.value;
+                    navigator.clipboard.writeText(ip).then(() => {
+                        btn.textContent = '✓';
+                        setTimeout(() => btn.textContent = '📋', 2000);
+                    }).catch(err => {
+                        console.error('复制失败:', err);
+                    });
+                }
+            });
+        });
+        
+        // 处理IP值点击复制
         document.querySelectorAll('.ip-value').forEach(element => {
             element.addEventListener('click', () => {
                 const ip = element.getAttribute('data-ip');
@@ -345,6 +424,16 @@ const ServerList = {
                     element.style.color = '#27ae60';
                     setTimeout(() => element.style.color = '', 2000);
                 });
+            });
+        });
+    },
+    
+    initIpSelectors: function() {
+        document.querySelectorAll('.ip-selector').forEach(selector => {
+            selector.addEventListener('change', () => {
+                const serverId = selector.getAttribute('data-server-id');
+                // 重新检测当前选择IP的延迟
+                this.detectLatencyForServer(serverId);
             });
         });
     },
@@ -363,54 +452,77 @@ const ServerList = {
         const latencyElements = document.querySelectorAll('.latency-value');
         latencyElements.forEach((element, index) => {
             setTimeout(() => {
-                const ip = element.getAttribute('data-ip');
-                if (!ip) return;
-                
-                const host = ip.split(':')[0].replace(/\[|\]/g, '');
-                const port = ip.split(':')[1] || '28887';
-                
-                const pingUrl = `https://api.sckey.net/server/ping?host=${encodeURIComponent(host)}&port=${encodeURIComponent(port)}`;
-                const fullPingUrl = this.useCorsProxy ? this.corsProxies[this.currentProxyIndex] + encodeURIComponent(pingUrl) : pingUrl;
-                
-                const startTime = performance.now();
-                
-                fetch(fullPingUrl, {
-                    method: 'GET',
-                    mode: 'cors'
-                })
-                .then(response => response.json())
-                .then(result => {
-                    const latency = result && result.success && result.latency !== undefined 
-                        ? result.latency 
-                        : Math.round(performance.now() - startTime);
-                    
-                    if (latency >= 0) {
-                        element.textContent = latency < 1 ? '<1 ms' : latency + ' ms';
-                        const statusElement = element.closest('.server-item').querySelector('.server-status');
-                        if (statusElement) {
-                            statusElement.classList.remove('status-checking');
-                            if (latency < 500) {
-                                statusElement.classList.add('status-online');
-                            } else {
-                                statusElement.classList.add('status-offline');
-                            }
-                        }
-                    }
-                })
-                .catch(() => {
-                    const latency = Math.round(performance.now() - startTime);
-                    if (latency < 1000) {
-                        element.textContent = latency + ' ms';
-                        const statusElement = element.closest('.server-item').querySelector('.server-status');
-                        if (statusElement) {
-                            statusElement.classList.remove('status-checking');
-                            statusElement.classList.add('status-online');
-                        }
-                    } else {
-                        element.textContent = '检测中...';
-                    }
-                });
+                const serverId = element.getAttribute('data-server-id');
+                if (serverId) {
+                    this.detectLatencyForServer(serverId);
+                }
             }, index * 500);
+        });
+    },
+    
+    detectLatencyForServer: function(serverId) {
+        const latencyElement = document.querySelector(`.latency-value[data-server-id="${serverId}"]`);
+        if (!latencyElement) return;
+        
+        // 找到对应的IP选择器或IP值
+        const selector = document.querySelector(`.ip-selector[data-server-id="${serverId}"]`);
+        let ip = null;
+        
+        if (selector) {
+            ip = selector.value;
+        } else {
+            const ipValue = document.querySelector(`.server-item[data-server-id="${serverId}"] .ip-value`);
+            if (ipValue) {
+                ip = ipValue.getAttribute('data-ip');
+            }
+        }
+        
+        if (!ip) return;
+        
+        const host = ip.split(':')[0].replace(/\[|\]/g, '');
+        const port = ip.split(':')[1] || '28887';
+        
+        const pingUrl = `https://api.sckey.net/server/ping?host=${encodeURIComponent(host)}&port=${encodeURIComponent(port)}`;
+        const fullPingUrl = this.useCorsProxy ? this.corsProxies[this.currentProxyIndex] + encodeURIComponent(pingUrl) : pingUrl;
+        
+        const startTime = performance.now();
+        
+        const serverItem = latencyElement.closest('.server-item');
+        const statusElement = serverItem ? serverItem.querySelector('.server-status') : null;
+        
+        fetch(fullPingUrl, {
+            method: 'GET',
+            mode: 'cors'
+        })
+        .then(response => response.json())
+        .then(result => {
+            const latency = result && result.success && result.latency !== undefined 
+                ? result.latency 
+                : Math.round(performance.now() - startTime);
+            
+            if (latency >= 0) {
+                latencyElement.textContent = latency < 1 ? '<1 ms' : latency + ' ms';
+                if (statusElement) {
+                    statusElement.classList.remove('status-checking');
+                    if (latency < 500) {
+                        statusElement.classList.add('status-online');
+                    } else {
+                        statusElement.classList.add('status-offline');
+                    }
+                }
+            }
+        })
+        .catch(() => {
+            const latency = Math.round(performance.now() - startTime);
+            if (latency < 1000) {
+                latencyElement.textContent = latency + ' ms';
+                if (statusElement) {
+                    statusElement.classList.remove('status-checking');
+                    statusElement.classList.add('status-online');
+                }
+            } else {
+                latencyElement.textContent = '检测中...';
+            }
         });
     },
 
