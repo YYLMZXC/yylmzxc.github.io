@@ -77,7 +77,9 @@ const IndexLanguageConfig = {
                 russianScCommunity: '俄语SC社区',
                 originalScCommunity: '原版SC社区',
                 internationalModSite: '海外Mod网站',
-                officialBlog: '正版官网'
+                officialBlog: '正版官网',
+                mirahezeWiki: '生存战争维基百科',
+                fandomWiki: '生存战争Fandom百科'
             },
             footer: '© 2026 生存战争网'
         },
@@ -131,7 +133,9 @@ const IndexLanguageConfig = {
                 russianScCommunity: 'Russian SC Community',
                 originalScCommunity: 'Original SC Community',
                 internationalModSite: 'International Mod Site',
-                officialBlog: 'Official Blog'
+                officialBlog: 'Official Blog',
+                mirahezeWiki: 'SurvivalCraft Miraheze Wiki',
+                fandomWiki: 'SurvivalCraft Fandom Wiki'
             },
             footer: '© 2026 SurvivalCraft Web'
         },
@@ -185,7 +189,9 @@ const IndexLanguageConfig = {
                 russianScCommunity: 'Русское SC Сообщество',
                 originalScCommunity: 'Оригинальное SC Сообщество',
                 internationalModSite: 'Международный Мод Сайт',
-                officialBlog: 'Официальный Блог'
+                officialBlog: 'Официальный Блог',
+                mirahezeWiki: 'SurvivalCraft Miraheze Вики',
+                fandomWiki: 'SurvivalCraft Fandom Вики'
             },
             footer: '© 2026 SurvivalCraft Web'
         }
@@ -213,7 +219,9 @@ const IndexLanguageConfig = {
             { title: 'links.russianScCommunity', url: 'https://vk.com/fans_club_survivalcraft', external: true },
             { title: 'links.originalScCommunity', url: 'https://www.tapatalk.com/groups/survivalcraft/discussion/all', external: true },
             { title: 'links.internationalModSite', url: 'https://survivalcraft2mods.blogspot.com/', external: true },
-            { title: 'links.officialBlog', url: 'https://kaalus.wordpress.com/', external: true }
+            { title: 'links.officialBlog', url: 'https://kaalus.wordpress.com/', external: true },
+            { title: 'links.mirahezeWiki', url: 'https://survivalcraft.miraheze.org', external: true },
+            { title: 'links.fandomWiki', url: 'https://survivalcraft.fandom.com', external: true }
         ]
     }
 };
