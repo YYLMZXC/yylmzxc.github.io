@@ -284,7 +284,7 @@ const IndexLanguageConfig = {
             { title: 'links.scKey', url: 'https://sckey.net', external: true },
             { title: 'links.scWiki', url: 'https://docs.scwk.net/', external: true },
             { title: 'links.scYuqueWiki', url: 'https://www.yuque.com/u589148/sc', external: true },
-            { title: 'links.serverPlugin', url: 'https://spd.jiil.top/index.html', external: true },
+            { title: 'links.serverPlugin', url: 'https://soh.jiil.top/', external: true },
             { title: 'links.modWebsite', url: 'https://www.scmod.cn/', external: true },
             { title: 'links.scLauncher', url: 'https://sc.btos.top/', external: true },
             { title: 'links.jiilForum', url: 'https://bbs.jiil.top/', external: true }
