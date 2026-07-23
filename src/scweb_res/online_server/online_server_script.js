@@ -132,11 +132,6 @@ const ServerList = {
                         <span class="label">延迟:</span>
                         <span class="value latency-value" data-server-id="${serverId}">检测中...</span>
                     </div>
-                    
-                    <div class="info-row">
-                        <span class="label">ID:</span>
-                        <span class="value" style="font-size: 12px; font-family: monospace; color: #7f8c8d;">${server.id || '-'}</span>
-                    </div>
                 </div>
                 
                 ${childServersHtml}
