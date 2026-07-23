@@ -5,9 +5,18 @@ class IndexPageManager {
 
     init() {
         this.languageConfig = window.IndexLanguageConfig;
+        this.initTheme();
         this.initLanguageSelector();
         this.renderNavigationLinks();
         console.log('[IndexPageManager] 初始化完成');
+    }
+
+    initTheme() {
+        if (window.ThemeManager) {
+            this.themeManager = new window.ThemeManager();
+        } else {
+            console.warn('[IndexPageManager] ThemeManager 未加载');
+        }
     }
 
     initLanguageSelector() {
