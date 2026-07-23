@@ -8,7 +8,7 @@ const ServerList = {
     ],
     timeout: 15000,
     currentFilter: 'all',
-    useCorsProxy: false, // 默认关闭代理
+    useCorsProxy: false,
     cacheExpireMinutes: 10,
     corsProxies: [
         'https://api.allorigins.win/raw?url=',
@@ -16,7 +16,58 @@ const ServerList = {
         'https://proxy.cors.sh/'
     ],
     currentProxyIndex: 0,
-    
+    serverData: [], // 保存完整的服务器数据
+
+    // 简单的 IP 地址解析函数
+    parseIp: function(ip) {
+        if (!ip) return null;
+        ip = ip.trim();
+        if (!ip) return null;
+        // 如果没有端口，添加默认端口 28887
+        if (!ip.includes(':')) {
+            return ip + ':28887';
+        }
+        return ip;
+    },
+
+    // 获取服务器的 IP 列表（包括主 IP 和 ips 数组）
+    getServerIps: function(server) {
+        const ips = [];
+        
+        // 先尝试主 ip 字段
+        if (server.ip) {
+            const parsed = this.parseIp(server.ip);
+            if (parsed) ips.push(parsed);
+        }
+        
+        // 再尝试 ips 数组
+        if (server.ips && Array.isArray(server.ips)) {
+            server.ips.forEach(ip => {
+                const parsed = this.parseIp(ip);
+                if (parsed && !ips.includes(parsed)) {
+                    ips.push(parsed);
+                }
+            });
+        }
+        
+        // 如果都没有，尝试 address 或 host 字段
+        if (ips.length === 0) {
+            if (server.address) {
+                const parsed = this.parseIp(server.address);
+                if (parsed) ips.push(parsed);
+            }
+            if (server.host) {
+                const parsed = this.parseIp(server.host);
+                if (parsed && !ips.includes(parsed)) {
+                    ips.push(parsed);
+                }
+            }
+        }
+        
+        return ips;
+    },
+
+    // 获取网络类型
     getNetworkType: function(ip) {
         if (!ip) return '其他';
         const ipv6Pattern = /^\[?[0-9a-fA-F:]+\]?:?\d*$/;
@@ -32,32 +83,22 @@ const ServerList = {
         }
         return '其他';
     },
-    
+
+    // 生成服务器项 HTML
     generateServerItem: function(server, index) {
-        const networkType = this.getNetworkType(server.ip);
-        const hasPort = server.ip.includes(':');
-        const displayIp = hasPort ? server.ip : server.ip + ':28887';
+        const ips = this.getServerIps(server);
+        const primaryIp = ips[0] || '未知地址';
+        const networkType = this.getNetworkType(primaryIp);
         const serverId = server.id || `server-${index}`;
-        
-        // 处理多个IP
-        let ipList = [];
-        if (server.ips && Array.isArray(server.ips) && server.ips.length > 0) {
-            ipList = server.ips.map(ip => ip.includes(':') ? ip : ip + ':28887');
-        } else {
-            ipList = [displayIp];
-        }
-        
+
         // 处理子服务器
         let childServersHtml = '';
-        if (server.children && Array.isArray(server.children) && server.children.length > 0) {
+        if (server.children && Array.isArray(server.children)) {
             childServersHtml = server.children.map((child, ci) => {
-                const childIp = child.ip.includes(':') ? child.ip : child.ip + ':28887';
-                let childIpList = [];
-                if (child.ips && Array.isArray(child.ips) && child.ips.length > 0) {
-                    childIpList = child.ips.map(ip => ip.includes(':') ? ip : ip + ':28887');
-                } else {
-                    childIpList = [childIp];
-                }
+                const childIps = this.getServerIps(child);
+                const childPrimaryIp = childIps[0] || '未知地址';
+                const childServerId = `${serverId}-child-${ci}`;
+                
                 return `
                     <div class="child-server" style="margin-left: 20px; padding: 10px; background-color: #fff; border-radius: 6px; margin-top: 10px;">
                         <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
@@ -65,18 +106,18 @@ const ServerList = {
                         </div>
                         <div class="info-row">
                             <span class="label">地址:</span>
-                            ${childIpList.length > 1 ? `
-                                <select class="ip-selector" data-server-id="${serverId}-child-${ci}" style="padding: 4px 8px; border: 1px solid #ddd; border-radius: 4px; font-size: 13px;">
-                                    ${childIpList.map((ip, i) => `<option value="${ip}" ${i === 0 ? 'selected' : ''}>${ip}</option>`).join('')}
+                            ${childIps.length > 1 ? `
+                                <select class="ip-selector" data-server-id="${childServerId}" style="padding: 4px 8px; border: 1px solid #ddd; border-radius: 4px; font-size: 13px;">
+                                    ${childIps.map((ip, i) => `<option value="${ip}" ${i === 0 ? 'selected' : ''}>${ip}</option>`).join('')}
                                 </select>
-                            ` : `<span class="value ip-value" data-ip="${childIp}">${childIp}</span>`}
-                            ${childIpList.length > 1 ? `<span class="copy-btn" data-server-id="${serverId}-child-${ci}">📋</span>` : `<span class="copy-btn" data-ip="${childIp}">📋</span>`}
+                            ` : `<span class="value ip-value" data-ip="${childPrimaryIp}">${childPrimaryIp}</span>`}
+                            ${childIps.length > 1 ? `<span class="copy-btn" data-server-id="${childServerId}">📋</span>` : `<span class="copy-btn" data-ip="${childPrimaryIp}">📋</span>`}
                         </div>
                     </div>
                 `;
             }).join('');
         }
-        
+
         // 根据等级生成标签
         let serverTags = '';
         if (server.publishType === 0) {
@@ -92,7 +133,7 @@ const ServerList = {
         if (server.groupJoinMode) {
             serverTags += '<span class="server-tag" style="background-color: #9b59b6;">群组服</span>';
         }
-        
+
         return `
             <div class="server-item" data-server-id="${serverId}" data-server-index="${index}">
                 <div class="server-header">
@@ -104,12 +145,12 @@ const ServerList = {
                 <div class="server-info">
                     <div class="info-row">
                         <span class="label">地址:</span>
-                        ${ipList.length > 1 ? `
+                        ${ips.length > 1 ? `
                             <select class="ip-selector" data-server-id="${serverId}" style="padding: 4px 8px; border: 1px solid #ddd; border-radius: 4px; font-size: 13px;">
-                                ${ipList.map((ip, i) => `<option value="${ip}" ${i === 0 ? 'selected' : ''}>${ip}</option>`).join('')}
+                                ${ips.map((ip, i) => `<option value="${ip}" ${i === 0 ? 'selected' : ''}>${ip}</option>`).join('')}
                             </select>
-                        ` : `<span class="value ip-value" data-ip="${displayIp}">${displayIp}</span>`}
-                        ${ipList.length > 1 ? `<span class="copy-btn" data-server-id="${serverId}">📋</span>` : `<span class="copy-btn" data-ip="${displayIp}">📋</span>`}
+                        ` : `<span class="value ip-value" data-ip="${primaryIp}">${primaryIp}</span>`}
+                        ${ips.length > 1 ? `<span class="copy-btn" data-server-id="${serverId}">📋</span>` : `<span class="copy-btn" data-ip="${primaryIp}">📋</span>`}
                     </div>
                     
                     <div class="info-row">
@@ -138,7 +179,29 @@ const ServerList = {
             </div>
         `;
     },
-    
+
+    // 从 API 响应中提取服务器列表
+    extractServers: function(data) {
+        if (!data) return [];
+        
+        // 尝试多种数据结构
+        if (data.data && data.data.list && Array.isArray(data.data.list)) {
+            return data.data.list;
+        }
+        if (data.list && Array.isArray(data.list)) {
+            return data.list;
+        }
+        if (data.servers && Array.isArray(data.servers)) {
+            return data.servers;
+        }
+        if (Array.isArray(data)) {
+            return data;
+        }
+        
+        return [];
+    },
+
+    // 加载服务器列表
     loadServerList: async function(filter = this.currentFilter, forceRefresh = false) {
         this.currentFilter = filter;
         const serverListElement = document.getElementById('serverList');
@@ -151,21 +214,25 @@ const ServerList = {
         serverListElement.innerHTML = '<div class="loading">正在连接服务器...</div>';
         serverStatsElement.innerHTML = '<h3>服务器统计</h3><p>加载中...</p>';
         
+        // 检查缓存
         if (!forceRefresh) {
             const cachedServers = this.getCachedData();
             if (cachedServers) {
                 console.log('使用缓存数据');
+                this.serverData = cachedServers;
                 this.displayServers(cachedServers);
                 this.fetchAndUpdateCache(apiUrl);
                 return;
             }
         }
         
+        // 从 API 获取数据
         const data = await this.fetchWithRetry(apiUrl);
         if (!data) {
             const cachedServers = this.getCachedData();
             if (cachedServers) {
                 console.log('API请求失败，使用缓存数据');
+                this.serverData = cachedServers;
                 this.displayServers(cachedServers);
                 return;
             }
@@ -176,21 +243,7 @@ const ServerList = {
         
         console.log('服务器响应数据:', JSON.stringify(data, null, 2));
         
-        let servers = [];
-        if (data && data.data && data.data.list && Array.isArray(data.data.list)) {
-            servers = data.data.list;
-            console.log('从 data.data.list 获取服务器列表，数量:', servers.length);
-        } else if (data && data.list && Array.isArray(data.list)) {
-            servers = data.list;
-            console.log('从 data.list 获取服务器列表，数量:', servers.length);
-        } else if (data && data.servers && Array.isArray(data.servers)) {
-            servers = data.servers;
-            console.log('从 data.servers 获取服务器列表，数量:', servers.length);
-        } else if (Array.isArray(data)) {
-            servers = data;
-            console.log('直接获取服务器列表，数量:', servers.length);
-        }
-        
+        const servers = this.extractServers(data);
         if (!servers || servers.length === 0) {
             console.log('服务器列表为空');
             serverStatsElement.innerHTML = '<h3>服务器统计</h3><p>暂无服务器</p>';
@@ -198,10 +251,12 @@ const ServerList = {
             return;
         }
         
+        this.serverData = servers;
         this.saveToCache(servers);
         this.displayServers(servers);
     },
-    
+
+    // 显示服务器列表
     displayServers: function(servers) {
         const serverListElement = document.getElementById('serverList');
         const serverStatsElement = document.querySelector('.server-stats');
@@ -232,41 +287,33 @@ const ServerList = {
         
         let html = '';
         filteredServers.forEach((server, index) => {
-            console.log('服务器', index + 1, ':', server.name, '-', server.ip);
+            console.log('服务器', index + 1, ':', server.name, '-', this.getServerIps(server)[0]);
             html += this.generateServerItem(server, index);
         });
         
         serverListElement.innerHTML = html;
         
-        // 立即初始化所有事件处理
+        // 初始化事件处理
         this.initCopyHandlers();
         this.initFilterButtons();
         this.initIpSelectors();
         
         console.log('=== 服务器列表加载完成 ===');
         
-        // 延迟检测在后台进行，不阻塞UI
+        // 延迟检测在后台进行
         setTimeout(() => {
             this.detectLatency();
         }, 100);
     },
-    
+
+    // 后台更新缓存
     fetchAndUpdateCache: async function(apiUrl) {
         try {
             const data = await this.fetchWithRetry(apiUrl);
             if (data) {
-                let servers = [];
-                if (data && data.data && data.data.list && Array.isArray(data.data.list)) {
-                    servers = data.data.list;
-                } else if (data && data.list && Array.isArray(data.list)) {
-                    servers = data.list;
-                } else if (data && data.servers && Array.isArray(data.servers)) {
-                    servers = data.servers;
-                } else if (Array.isArray(data)) {
-                    servers = data;
-                }
-                
+                const servers = this.extractServers(data);
                 if (servers && servers.length > 0) {
+                    this.serverData = servers;
                     this.saveToCache(servers);
                     this.displayServers(servers);
                     console.log('缓存已更新');
@@ -276,11 +323,12 @@ const ServerList = {
             console.log('后台更新缓存失败:', e.message);
         }
     },
-    
+
+    // 缓存相关函数
     getCacheKey: function() {
         return `sc_server_list_${this.serverVersion}`;
     },
-    
+
     getCachedData: function() {
         try {
             const cacheKey = this.getCacheKey();
@@ -303,7 +351,7 @@ const ServerList = {
             return null;
         }
     },
-    
+
     saveToCache: function(servers) {
         try {
             const cacheKey = this.getCacheKey();
@@ -316,11 +364,11 @@ const ServerList = {
             console.error('保存缓存失败:', e);
         }
     },
-    
+
+    // 带重试的 API 请求
     fetchWithRetry: async function(apiUrl) {
-        // 首先尝试直接连接，再尝试代理
         const proxies = this.useCorsProxy ? this.corsProxies : [];
-        const allAttempts = ['', ...proxies]; // 第一个是空字符串，表示直接连接
+        const allAttempts = ['', ...proxies];
         const totalAttempts = allAttempts.length;
         
         for (let attempt = 0; attempt < totalAttempts; attempt++) {
@@ -367,7 +415,8 @@ const ServerList = {
         console.error('所有尝试都失败了');
         return null;
     },
-    
+
+    // 代理切换
     toggleProxy: function() {
         this.useCorsProxy = !this.useCorsProxy;
         const proxyBtn = document.getElementById('proxyBtn');
@@ -384,7 +433,8 @@ const ServerList = {
         
         this.loadServerList(this.currentFilter, true);
     },
-    
+
+    // 版本切换
     onVersionChange: function(selectElement) {
         const newVersion = selectElement.value;
         console.log('版本变更为:', newVersion);
@@ -402,6 +452,7 @@ const ServerList = {
             const cachedServers = this.getCachedData();
             if (cachedServers) {
                 console.log('该版本有缓存，直接显示');
+                this.serverData = cachedServers;
                 setTimeout(() => {
                     this.displayServers(cachedServers);
                 }, 100);
@@ -412,9 +463,9 @@ const ServerList = {
             }
         }
     },
-    
+
+    // 事件处理初始化
     initCopyHandlers: function() {
-        // 处理单IP复制
         document.querySelectorAll('.copy-btn[data-ip]').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.stopPropagation();
@@ -428,7 +479,6 @@ const ServerList = {
             });
         });
         
-        // 处理多IP选择器复制
         document.querySelectorAll('.copy-btn[data-server-id]').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.stopPropagation();
@@ -446,7 +496,6 @@ const ServerList = {
             });
         });
         
-        // 处理IP值点击复制
         document.querySelectorAll('.ip-value').forEach(element => {
             element.addEventListener('click', () => {
                 const ip = element.getAttribute('data-ip');
@@ -457,17 +506,16 @@ const ServerList = {
             });
         });
     },
-    
+
     initIpSelectors: function() {
         document.querySelectorAll('.ip-selector').forEach(selector => {
             selector.addEventListener('change', () => {
                 const serverId = selector.getAttribute('data-server-id');
-                // 重新检测当前选择IP的延迟
                 this.detectLatencyForServer(serverId);
             });
         });
     },
-    
+
     initFilterButtons: function() {
         document.querySelectorAll('.filter-btn').forEach(btn => {
             btn.addEventListener('click', () => {
@@ -477,10 +525,10 @@ const ServerList = {
             });
         });
     },
-    
+
+    // 延迟检测
     detectLatency: function() {
         const latencyElements = document.querySelectorAll('.latency-value');
-        // 分批处理延迟检测，避免同时发起过多请求
         const batchSize = 3;
         let currentIndex = 0;
         
@@ -502,12 +550,11 @@ const ServerList = {
         
         processNextBatch();
     },
-    
+
     detectLatencyForServer: function(serverId) {
         const latencyElement = document.querySelector(`.latency-value[data-server-id="${serverId}"]`);
         if (!latencyElement) return;
         
-        // 找到对应的IP选择器或IP值
         const selector = document.querySelector(`.ip-selector[data-server-id="${serverId}"]`);
         let ip = null;
         
@@ -525,11 +572,9 @@ const ServerList = {
         const serverItem = latencyElement.closest('.server-item');
         const statusElement = serverItem ? serverItem.querySelector('.server-status') : null;
         
-        // 简单的延迟显示，不使用 ping API 避免 CORS 问题
         const startTime = performance.now();
         setTimeout(() => {
             const latency = Math.round(performance.now() - startTime);
-            // 添加一些随机变化，让延迟看起来更真实
             const randomLatency = Math.max(50, Math.min(500, latency + Math.floor(Math.random() * 100) - 50));
             
             latencyElement.textContent = randomLatency + ' ms';
