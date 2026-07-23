@@ -835,26 +835,60 @@ class OnlineServerManager {
 
         const { host, port } = window.SCUtils.parseIpPort(ip);
         const pingUrl = `https://api.sckey.net/server/ping?host=${encodeURIComponent(host)}&port=${encodeURIComponent(port)}`;
-        const startTime = performance.now();
         const serverItem = latencyElement.closest('.server-item');
         const statusElement = serverItem ? serverItem.querySelector('.server-status') : null;
 
-        const simpleLatencyCheck = () => {
-            const simpleLatency = Math.round(performance.now() - startTime);
-            if (simpleLatency < 1000) {
-                latencyElement.textContent = simpleLatency + ' ms';
-                if (statusElement) {
-                    statusElement.classList.remove('status-checking');
-                    statusElement.classList.add('status-online');
-                }
-            } else {
-                latencyElement.textContent = '-';
+        const setServerStatus = (latency, isOnline) => {
+            latencyElement.textContent = latency < 1 ? '<1 ms' : latency + ' ms';
+            if (statusElement) {
+                statusElement.classList.remove('status-checking', 'status-online', 'status-offline');
+                statusElement.classList.add(isOnline ? 'status-online' : 'status-offline');
             }
+        };
+
+        const tryWebSocketLatency = () => {
+            return new Promise((resolve) => {
+                const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+                const wsUrl = `${wsProtocol}//${host}:${port}`;
+                const wsStartTime = performance.now();
+                let resolved = false;
+
+                const resolveWs = (result) => {
+                    if (resolved) return;
+                    resolved = true;
+                    resolve(result);
+                };
+
+                try {
+                    const ws = new WebSocket(wsUrl);
+                    ws.onopen = () => {
+                        const wsLatency = Math.round(performance.now() - wsStartTime);
+                        ws.close();
+                        resolveWs({ latency: wsLatency, online: wsLatency < 3000 });
+                    };
+                    ws.onerror = () => {
+                        resolveWs({ latency: -1, online: false });
+                    };
+                    ws.onclose = () => {
+                        if (!resolved) {
+                            resolveWs({ latency: Math.round(performance.now() - wsStartTime), online: false });
+                        }
+                    };
+
+                    setTimeout(() => {
+                        resolveWs({ latency: Math.round(performance.now() - wsStartTime), online: false });
+                        try { ws.close(); } catch(e) {}
+                    }, 5000);
+                } catch (e) {
+                    resolveWs({ latency: -1, online: false });
+                }
+            });
         };
 
         const tryPingWithFallback = async () => {
             const proxies = this.corsProxies;
             const allAttempts = this.useCorsProxy ? proxies : ['', ...proxies];
+            const startTime = performance.now();
 
             for (let attempt = 0; attempt < allAttempts.length; attempt++) {
                 try {
@@ -873,20 +907,22 @@ class OnlineServerManager {
                         : Math.round(performance.now() - startTime);
 
                     if (latency >= 0) {
-                        latencyElement.textContent = latency < 1 ? '<1 ms' : latency + ' ms';
-                        if (statusElement) {
-                            statusElement.classList.remove('status-checking');
-                            if (latency < 500) {
-                                statusElement.classList.add('status-online');
-                            } else {
-                                statusElement.classList.add('status-offline');
-                            }
-                        }
+                        setServerStatus(latency, latency < 500);
                         return;
                     }
                 } catch (e) {
                     if (attempt >= allAttempts.length - 1) {
-                        simpleLatencyCheck();
+                        tryWebSocketLatency().then(wsResult => {
+                            if (wsResult.latency >= 0) {
+                                setServerStatus(Math.max(0, wsResult.latency), wsResult.online);
+                            } else {
+                                latencyElement.textContent = '-';
+                                if (statusElement) {
+                                    statusElement.classList.remove('status-checking');
+                                    statusElement.classList.add('status-offline');
+                                }
+                            }
+                        });
                     }
                 }
             }
@@ -896,7 +932,17 @@ class OnlineServerManager {
 
         setTimeout(() => {
             if (latencyElement.textContent === this.getServerText('checking') + '...') {
-                simpleLatencyCheck();
+                tryWebSocketLatency().then(wsResult => {
+                    if (wsResult.latency >= 0) {
+                        setServerStatus(Math.max(0, wsResult.latency), wsResult.online);
+                    } else {
+                        latencyElement.textContent = '-';
+                        if (statusElement) {
+                            statusElement.classList.remove('status-checking');
+                            statusElement.classList.add('status-offline');
+                        }
+                    }
+                });
             }
         }, 3000);
     }
