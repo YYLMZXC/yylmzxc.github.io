@@ -1,4 +1,14 @@
+/**
+ * 生存战争网 - 通用工具函数库
+ * 提供滚动、剪贴板、防抖节流、IP解析等常用功能
+ * 挂载到全局 window.SCUtils
+ */
 window.SCUtils = {
+    /**
+     * 滚动到指定元素
+     * @param {string} elementId - 目标元素的ID
+     * @param {string} behavior - 滚动行为 (smooth | auto | instant)
+     */
     scrollToElement(elementId, behavior = 'smooth') {
         const element = document.getElementById(elementId);
         if (element) {
@@ -6,6 +16,11 @@ window.SCUtils = {
         }
     },
 
+    /**
+     * 将文本复制到剪贴板
+     * 优先使用 Clipboard API，不支持时降级为 execCommand
+     * @param {string} text - 要复制的文本
+     */
     copyToClipboard(text) {
         if (navigator.clipboard) {
             return navigator.clipboard.writeText(text)
@@ -22,6 +37,13 @@ window.SCUtils = {
         console.log('[Utils] 文本已复制到剪贴板（降级模式）');
     },
 
+    /**
+     * 防抖函数
+     * 在事件触发后等待指定时间再执行，期间再次触发则重新计时
+     * @param {Function} func - 需要防抖的函数
+     * @param {number} wait - 等待毫秒数
+     * @returns {Function} 防抖处理后的函数
+     */
     debounce(func, wait = 300) {
         let timeoutId;
         return function(...args) {
@@ -30,6 +52,13 @@ window.SCUtils = {
         };
     },
 
+    /**
+     * 节流函数
+     * 限制函数在指定时间间隔内最多执行一次
+     * @param {Function} func - 需要节流的函数
+     * @param {number} limit - 时间间隔毫秒数
+     * @returns {Function} 节流处理后的函数
+     */
     throttle(func, limit = 300) {
         let lastCall = 0;
         return function(...args) {
@@ -41,6 +70,11 @@ window.SCUtils = {
         };
     },
 
+    /**
+     * 根据IP地址判断网络类型
+     * @param {string} ip - IP地址字符串（支持IPv4/IPv6）
+     * @returns {string} 网络类型: IPv4 | IPv6 | 局域网 | 其他
+     */
     getNetworkType(ip) {
         if (!ip) return '其他';
         const ipv6Pattern = /^\[?[0-9a-fA-F:]+\]?:?\d*$/;
@@ -57,6 +91,12 @@ window.SCUtils = {
         return '其他';
     },
 
+    /**
+     * 解析IP地址和端口
+     * 支持 IPv4 (host:port) 和 IPv6 ([host]:port) 格式
+     * @param {string} ip - IP地址字符串
+     * @returns {{host: string, port: string}} 解析后的主机和端口
+     */
     parseIpPort(ip) {
         let host, port;
         const ipv6Match = ip.match(/^\[([^\]]+)\](?::(\d+))?$/);

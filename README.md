@@ -31,13 +31,14 @@
    
    使用Python内置HTTP服务器：
    ```bash
+   cd src
    python -m http.server 8000
    ```
    
    或直接使用浏览器打开：
    ```bash
-   # 直接在浏览器中打开 index.html
-   start index.html
+   # 直接在浏览器中打开 src/index.html
+   start src/index.html
    ```
 
 3. **访问网站**
@@ -51,61 +52,51 @@
 
 ```
 scweb/
-├── .github/              # GitHub配置
-│   └── workflows/        # CI/CD配置
-├── error/                # 错误页面
-│   ├── 400.html          # 400错误页
-│   ├── 403.html          # 403错误页
-│   ├── 404.html          # 404错误页
-│   └── ...               # 其他HTTP错误页（500-510）
-├── old/                  # 旧版本文件备份
-│   ├── DeployServerConfiguration/  # 旧部署配置
-│   │   ├── README.md
-│   │   ├── RUN443.BAT
-│   │   ├── httpd-scweb.conf
-│   │   └── httpd.conf
-│   ├── mod_server/       # 旧游戏mod服务器模块
-│   │   ├── 156server/    # 156服务器配置
-│   │   ├── 232server/    # 232服务器配置
-│   │   ├── 67server/     # 67服务器配置
-│   │   └── README.md
-│   ├── scweb_res/        # 旧静态资源备份
-│   │   ├── index/        # 旧首页资源
-│   │   ├── online_server/ # 旧服务器页面资源
-│   │   └── ...           # 其他资源文件
-│   ├── RUN443.BAT        # 旧HTTPS启动脚本
-│   ├── RUN80.BAT         # 旧HTTP启动脚本
-│   ├── httpd-scweb.conf  # 旧Apache配置（443端口）
-│   ├── httpd-scweb80.conf # 旧Apache配置（80端口）
-│   ├── index.php         # 旧PHP版首页
-│   ├── online_server.php # 旧PHP版服务器页面
-│   ├── ping_server.php   # 旧服务器状态检查
-│   ├── run8080.bat       # 旧8080端口启动脚本
-│   ├── tcp_server.php    # 旧TCP服务器
-│   └── udp_server.php    # 旧UDP服务器
-├── scweb_res/            # 静态资源目录
-│   ├── favicon.ico       # 网站图标
-│   ├── getCaptcha.jpg    # 验证码图片
-│   ├── logo.png          # 网站Logo
-│   ├── index/            # index页面专用资源
-│   │   ├── index_languages.js  # 首页多语言配置
-│   │   ├── index_main.css      # 首页主样式
-│   │   └── index_script.js     # 首页JavaScript
-│   └── online_server/    # online_server页面专用资源
-│       ├── online_server_languages.js  # 服务器页面多语言配置
-│       ├── online_server_main.css      # 服务器页面主样式
-│       └── online_server_script.js     # 服务器页面JavaScript
-├── .gitmodules           # Git子模块配置
-├── README.md             # 项目说明
-├── README.md.bak         # 项目说明备份
-├── git_push_run.bat      # Git推送运行脚本
-├── index.html            # HTML版首页
-├── online_server.html    # HTML版服务器页面
-├── push.py               # 推送相关脚本
-└── scweb.zip             # 项目压缩包
+├── src/                              # 源代码目录
+│   ├── index.html                    # 首页（中文/海外导航区块）
+│   ├── online_server.html            # 联机服务器列表页面
+│   ├── scweb_res/                    # 静态资源根目录
+│   │   ├── favicon.ico               # 网站图标
+│   │   ├── logo.png                  # 网站 Logo
+│   │   ├── shared/                   # 【共享资源】所有页面共用
+│   │   │   ├── css/
+│   │   │   │   ├── base.css          # 基础样式（CSS 变量、重置、排版）
+│   │   │   │   ├── grid.css          # 响应式网格系统（12 列，3 个断点）
+│   │   │   │   ├── components.css    # UI 组件（按钮、选择器、Toast 等）
+│   │   │   │   ├── theme.css         # 深色主题样式覆盖
+│   │   │   │   └── layout.css        # 共享布局（Header/Nav/Footer）
+│   │   │   └── js/
+│   │   │       ├── utils.js          # 工具函数（复制、防抖、网络类型等）
+│   │   │       ├── theme-manager.js  # 主题管理器（亮色/深色/跟随系统）
+│   │   │       ├── language-manager.js # 语言管理器（i18n、URL 路径翻译）
+│   │   │       ├── site-info.js      # 站点信息管理器（地址、短网址）
+│   │   │       ├── site-language-config.js # 站点级通用翻译
+│   │   │       └── app.js            # 应用入口类（统一初始化）
+│   │   ├── index/                    # 【首页】页面专用资源
+│   │   │   ├── index_main.css        # 首页主样式
+│   │   │   ├── index_languages.js    # 首页多语言配置
+│   │   │   └── index_script.js       # 首页脚本（IndexPageManager）
+│   │   └── online_server/            # 【联机服务器】页面专用资源
+│   │       ├── online_server_main.css # 服务器页面主样式
+│   │       ├── online_server_languages.js # 服务器页面多语言配置
+│   │       └── online_server_script.js # 服务器列表脚本（OnlineServerManager）
+│   └── error/                        # HTTP 错误页面（400-510）
+├── old/                              # 旧版本文件备份（PHP 版等）
+├── README.md                         # 项目说明
+└── ...                               # 其他配置文件
 ```
 
-## 🌍 多语言支持
+## � 主题管理
+
+网站支持三种主题模式：
+
+- **亮色主题**：默认浅色界面
+- **深色主题**：适合夜间使用
+- **跟随系统**：自动检测系统 `prefers-color-scheme` 偏好
+
+主题状态通过 `localStorage` 持久化（键名 `preferredTheme`），所有组件均通过 CSS 变量和 `body.dark` 类切换实现无闪烁过渡。
+
+## �🌍 多语言支持
 
 ### 支持语言
 
@@ -113,70 +104,23 @@ scweb/
 - **🇺🇸 English (en)**: 英文版本
 - **🇷🇺 Русский (ru)**: 俄语版本
 
-### 语言配置
+### 语言切换逻辑
 
-语言配置文件分别位于：
-- 首页：`scweb_res/index/index_languages.js`
-- 服务器页面：`scweb_res/online_server/online_server_languages.js`
+优先级顺序：**URL 参数 → localStorage 偏好 → 浏览器语言检测 → 默认语言**
 
-包含以下翻译内容：
-- 页面元信息翻译
-- 导航菜单翻译
-- 搜索功能翻译
-- 导航链接翻译
-- 站点信息翻译
-
-### 切换语言
-
-- 点击页面右上角的语言按钮
-- 自动检测浏览器语言偏好
-- 支持保存语言偏好到本地存储
-
-## 📝 主要功能
-
-### 1. 首页 (index.html)
-- 网站介绍和最新动态
-- 搜索功能（支持多种分类）
-- CN中文导航区块
-- OS海外导航区块
-- 站点信息显示
-
-### 2. 联机服务器 (online_server.html)
-- 服务器列表
-- 服务器状态显示（在线/离线）
-- 服务器信息详情（IP、端口、版本等）
-
-### 3. 搜索功能
-支持以下分类的搜索：
-- 插件版Mod模组下载
-- 联机版Mod模组下载
-- 游戏历史全版本下载
-- 材质包下载
-- 家具包下载
-- 皮肤大全下载
-- 地图存档下载
-- 攻略教程
-
-### 4. 错误页面 (error/)
-- 完整的HTTP错误页面支持（400-510）
-- 统一的错误页面样式
-
-### 5. 旧版本模块 (old/)
-- 保留历史版本的PHP文件
-- 包含旧版服务器管理模块（mod_server）
-- 包含旧版网络服务模块（tcp_server、udp_server）
+翻译配置采用两层结构：
+- **站点级** (`site-language-config.js`)：通用元信息、导航、站点信息
+- **页面级** (`index_languages.js` / `online_server_languages.js`)：页面特定内容
+- 页面加载时通过 `deepMerge` 合并两层配置
 
 ## 🛠️ 技术栈
 
 - **前端**: HTML5, CSS3, JavaScript (ES6+)
-- **样式**: 自定义CSS + 响应式设计
-- **国际化**: 自定义多语言解决方案
-- **服务器**: Apache, Nginx, Python内置HTTP服务器
-- **统计分析**: 百度统计
-
-### 历史技术栈（旧版本）
-- **后端**: PHP 7.4+
-- **网络协议**: TCP, UDP
+- **架构**: 面向对象模块化，共享资源 + 页面资源分离
+- **样式**: CSS 变量 + 响应式网格系统 (12 列 / 3 断点)
+- **国际化**: 自研 i18n 方案，支持路径翻译和 `data-i18n` 属性
+- **主题**: CSS 变量 + `prefers-color-scheme` 媒体查询
+- **服务器**: Python 内置 HTTP 服务器（开发）、Apache/Nginx（生产）
 
 ## 📱 响应式设计
 
@@ -189,24 +133,40 @@ scweb/
 
 ### 添加新语言
 
-1. 在相应页面的语言配置文件中添加新的语言配置：
-   - 首页：`scweb_res/index/index_languages.js`
-   - 服务器页面：`scweb_res/online_server/online_server_languages.js`
-2. 更新 `supported` 数组
-3. 添加语言显示名称到 `names` 对象
-4. 添加相应的翻译内容
+1. 在站点级配置文件 `src/scweb_res/shared/js/site-language-config.js` 添加通用翻译
+2. 在相应页面的语言配置文件中添加页面特定翻译：
+   - 首页：`src/scweb_res/index/index_languages.js`
+   - 服务器页面：`src/scweb_res/online_server/online_server_languages.js`
+3. 更新 `supported` 数组添加语言代码
+4. 在 `names` 对象中添加语言显示名称
+5. 在 `translations` 中添加对应语言的完整翻译内容
+
+### 添加新页面
+
+1. 创建 HTML 文件（如 `new_page.html`），参考 `index.html` 的结构
+2. 创建页面专用目录 `src/scweb_res/new_page/`
+3. 添加页面专用 CSS 和 JS 文件
+4. 在 HTML 中引入 `shared/` 下的共享资源
+5. 创建页面专用语言配置文件并与 `SiteLanguageConfig` 合并
 
 ### 修改样式
 
-- 首页样式：`scweb_res/index/index_main.css`
-- 服务器页面样式：`scweb_res/online_server/online_server_main.css`
+- 共享样式：`src/scweb_res/shared/css/` 下的各 CSS 文件
+- 页面样式：`src/scweb_res/index/index_main.css` 或 `online_server_main.css`
 
-### JavaScript功能
+### JavaScript 功能模块
 
-- 首页脚本：`scweb_res/index/index_script.js`
-- 语言管理器：`LanguageManager` 类
-- 搜索管理器：`SearchManager` 类
-- 工具函数：`Utils` 对象
+项目采用面向对象的模块化架构，主要类/对象：
+
+| 模块 | 文件路径 | 说明 |
+|------|---------|------|
+| `ThemeManager` | `shared/js/theme-manager.js` | 主题切换（亮色/深色/跟随系统），localStorage 持久化 |
+| `LanguageManager` | `shared/js/language-manager.js` | 多语言管理，支持 URL 路径翻译、`data-i18n` 属性 |
+| `SiteInfoManager` | `shared/js/site-info.js` | 站点地址和短网址显示，响应语言切换 |
+| `SCUtils` | `shared/js/utils.js` | 工具函数（复制、防抖、节流、网络类型、IP 解析等） |
+| `SCApp` | `shared/js/app.js` | 应用入口，统一初始化各管理器 |
+| `IndexPageManager` | `index/index_script.js` | 首页逻辑，导航区块渲染、语言配置合并 |
+| `OnlineServerManager` | `online_server/online_server_script.js` | 服务器列表，API 获取、缓存、筛选、延迟检测 |
 
 ## 📊 性能优化
 
@@ -239,4 +199,4 @@ scweb/
 
 ---
 
-*最后更新：2026年5月*
+*最后更新：2026年7月*

@@ -1,3 +1,9 @@
+/**
+ * 生存战争网 - 站点级语言配置
+ * 包含通用的页面元信息、导航菜单、站点信息的多语言翻译
+ * 页面特定的翻译（如搜索、服务器等）在各自页面的语言配置文件中定义
+ * 挂载到全局 window.SiteLanguageConfig
+ */
 const SiteLanguageConfig = {
     default: 'zh',
     supported: ['zh', 'en', 'ru'],
@@ -10,7 +16,12 @@ const SiteLanguageConfig = {
     
     storageKey: 'preferredLanguage',
     
+    /**
+     * 翻译文本对象
+     * 每个语言包含: page (页面元信息), nav (导航菜单), site (站点信息), sections (区块标题), footer (页脚)
+     */
     translations: {
+        // 中文翻译
         zh: {
             page: {
                 title: '生存战争网 - 首页 | SC中文社区官方网站',
@@ -35,6 +46,7 @@ const SiteLanguageConfig = {
             footer: '© 2026 生存战争网'
         },
         
+        // 英文翻译
         en: {
             page: {
                 title: 'SurvivalCraft Web - Home | SC English Community Official Website',
@@ -59,6 +71,7 @@ const SiteLanguageConfig = {
             footer: '© 2026 SurvivalCraft Web'
         },
         
+        // 俄语翻译
         ru: {
             page: {
                 title: 'SurvivalCraft Web - Главная | SC Русское Сообщество Официальный Сайт',

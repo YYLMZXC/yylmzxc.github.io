@@ -1,3 +1,8 @@
+/**
+ * 生存战争网 - 主题管理器
+ * 负责切换亮色/暗色主题，支持 localStorage 持久化和系统主题检测
+ * 挂载到全局 window.ThemeManager
+ */
 class ThemeManager {
     constructor() {
         this.currentTheme = 'light';
@@ -5,12 +10,19 @@ class ThemeManager {
         this.init();
     }
 
+    /**
+     * 初始化主题管理器：设置初始主题并绑定事件
+     */
     init() {
         this.setInitialTheme();
         this.bindEventListeners();
         console.log(`[ThemeManager] 初始化完成，当前主题：${this.currentTheme}`);
     }
 
+    /**
+     * 设置初始主题
+     * 优先级：localStorage 保存 > 系统偏好 > 默认亮色
+     */
     setInitialTheme() {
         const savedTheme = this.getSavedTheme();
         if (savedTheme) {
@@ -22,6 +34,10 @@ class ThemeManager {
         this.updateThemeButtons();
     }
 
+    /**
+     * 从 localStorage 获取用户保存的主题偏好
+     * @returns {string|null} 'light' | 'dark' | null
+     */
     getSavedTheme() {
         try {
             const saved = localStorage.getItem('preferredTheme');
@@ -32,6 +48,10 @@ class ThemeManager {
         }
     }
 
+    /**
+     * 检测系统深色模式偏好
+     * @returns {string} 'dark' | 'light'
+     */
     getSystemTheme() {
         if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
             return 'dark';
@@ -39,6 +59,10 @@ class ThemeManager {
         return 'light';
     }
 
+    /**
+     * 保存主题偏好到 localStorage
+     * @param {string} theme - 'light' | 'dark'
+     */
     saveTheme(theme) {
         try {
             localStorage.setItem('preferredTheme', theme);
@@ -47,6 +71,11 @@ class ThemeManager {
         }
     }
 
+    /**
+     * 将主题应用到 body 元素
+     * 通过添加/移除 light/dark CSS 类来切换样式
+     * @param {string} theme - 'light' | 'dark'
+     */
     applyTheme(theme) {
         const body = document.body;
         
@@ -59,6 +88,10 @@ class ThemeManager {
         }
     }
 
+    /**
+     * 切换主题（带动画过渡效果）
+     * @param {string} newTheme - 目标主题 'light' | 'dark'
+     */
     switchTheme(newTheme) {
         if (newTheme !== 'dark' && newTheme !== 'light') return;
         if (newTheme === this.currentTheme) return;
@@ -73,6 +106,7 @@ class ThemeManager {
         const body = document.body;
         body.classList.add('theme-transitioning');
         
+        // 使用微任务确保过渡动画生效
         setTimeout(() => {
             this.applyTheme(newTheme);
             this.updateThemeButtons();
@@ -87,6 +121,9 @@ class ThemeManager {
         console.log(`[ThemeManager] 主题切换：${oldTheme} → ${newTheme}`);
     }
 
+    /**
+     * 更新所有主题按钮的 active 状态
+     */
     updateThemeButtons() {
         document.querySelectorAll('[data-theme]').forEach(button => {
             const theme = button.getAttribute('data-theme');
@@ -94,6 +131,10 @@ class ThemeManager {
         });
     }
 
+    /**
+     * 显示主题切换提示气泡
+     * @param {string} theme - 当前主题
+     */
     showThemeToast(theme) {
         const toast = document.createElement('div');
         toast.className = 'theme-toast';
@@ -107,6 +148,9 @@ class ThemeManager {
         }, 2000);
     }
 
+    /**
+     * 绑定主题按钮的点击事件（事件委托）
+     */
     bindEventListeners() {
         document.addEventListener('click', (e) => {
             if (e.target.matches('[data-theme]')) {

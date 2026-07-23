@@ -1,9 +1,14 @@
-/* ========================================
-   生存战争网 站点信息管理器
-   处理站点地址、短网址等通用信息
-======================================== */
+/**
+ * 生存战争网 - 站点信息管理器
+ * 处理站点地址、短网址等通用信息的动态显示
+ * 监听语言切换事件自动更新多语言站点信息
+ * 挂载到全局 window.SiteInfoManager
+ */
 
 class SiteInfoManager {
+    /**
+     * @param {LanguageManager} languageManager - 语言管理器实例
+     */
     constructor(languageManager) {
         this.languageManager = languageManager;
         this.shortUrls = [
@@ -13,6 +18,10 @@ class SiteInfoManager {
         ];
     }
 
+    /**
+     * 初始化站点信息管理器
+     * 更新初始站点信息并监听语言切换事件
+     */
     init() {
         this.updateSiteInfo();
         document.addEventListener('languageChanged', (e) => {
@@ -20,6 +29,9 @@ class SiteInfoManager {
         });
     }
 
+    /**
+     * 根据当前语言和页面更新站点信息（地址和短网址）
+     */
     updateSiteInfo() {
         const currentUrl = window.location.hostname + (window.location.port ? ':' + window.location.port : '');
         const lang = this.languageManager.currentLang;
@@ -29,6 +41,11 @@ class SiteInfoManager {
         this.updateShortUrls(translations);
     }
 
+    /**
+     * 更新当前站点地址显示
+     * @param {string} currentUrl - 当前页面的主机名和端口
+     * @param {Object} translations - 当前语言的翻译对象
+     */
     updateCurrentAddress(currentUrl, translations) {
         const currentAddressEl = document.getElementById('currentAddress');
         if (!currentAddressEl) return;
@@ -40,6 +57,10 @@ class SiteInfoManager {
         currentAddressEl.textContent = prefix + currentUrl;
     }
 
+    /**
+     * 更新短网址链接列表
+     * @param {Object} translations - 当前语言的翻译对象
+     */
     updateShortUrls(translations) {
         const shortUrlEl = document.getElementById('shortUrl');
         if (!shortUrlEl) return;

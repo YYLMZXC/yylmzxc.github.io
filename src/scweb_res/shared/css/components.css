@@ -1,3 +1,9 @@
+/**
+ * 生存战争网 - 组件样式表
+ * 定义可复用的 UI 组件：按钮、主题选择器、语言选择器、横幅网格、Toast 提示
+ */
+
+/* ===== 按钮组件 ===== */
 .btn {
     padding: 8px 16px;
     border: none;
@@ -41,6 +47,7 @@
     background-color: #218838;
 }
 
+/* ===== 主题选择器 ===== */
 .theme-selector {
     display: flex;
     gap: 6px;
@@ -104,6 +111,7 @@
     50% { box-shadow: 0 6px 24px rgba(40, 167, 69, 0.6); }
 }
 
+/* ===== 语言选择器 ===== */
 .language-selector {
     display: flex;
     gap: 8px;
@@ -170,6 +178,7 @@
     50% { box-shadow: 0 6px 24px rgba(102, 126, 234, 0.6); }
 }
 
+/* ===== 横幅/导航链接网格 ===== */
 .banner-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -214,6 +223,7 @@
     }
 }
 
+/* ===== Toast 提示组件 ===== */
 .theme-toast {
     position: fixed;
     bottom: 30px;

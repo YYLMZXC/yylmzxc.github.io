@@ -1,3 +1,10 @@
+/**
+ * 生存战争网 - 响应式网格系统
+ * 12 列栅格布局，支持移动(col-mb-)、平板(col-tb-)、桌面(col-)三种断点
+ * 断点: <768px 移动端, >=768px 平板, >=992px 桌面
+ */
+
+/* ===== 容器（全设备） ===== */
 .container {
     margin-left: auto;
     margin-right: auto;
@@ -5,6 +12,7 @@
     padding-right: 10px;
 }
 
+/* ===== 行容器 ===== */
 .row {
     margin-right: -10px;
     margin-left: -10px;
@@ -19,6 +27,7 @@
     padding-left: 10px;
 }
 
+/* ===== 移动端列 (col-mb-) ===== */
 .col-mb-1 { width: 8.33333%; }
 .col-mb-2 { width: 16.66667%; }
 .col-mb-3 { width: 25%; }
@@ -32,6 +41,7 @@
 .col-mb-11 { width: 91.66667%; }
 .col-mb-12 { width: 100%; }
 
+/* ===== 平板端断点 (>=768px) ===== */
 @media (min-width: 768px) {
     .container { max-width: 728px; }
     .col-tb-1 { width: 8.33333%; }
@@ -48,6 +58,7 @@
     .col-tb-12 { width: 100%; }
 }
 
+/* ===== 桌面端断点 (>=992px) ===== */
 @media (min-width: 992px) {
     .container { max-width: 940px; }
     .col-1 { width: 8.33333%; }

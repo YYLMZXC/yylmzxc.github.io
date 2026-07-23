@@ -1,3 +1,21 @@
+/**
+ * 生存战争网 - 首页语言配置
+ * 包含首页特定的多语言翻译（搜索分类、导航链接文本等）
+ * 与 SiteLanguageConfig 合并使用，站点级配置在 SiteLanguageConfig 中定义
+ * 
+ * 翻译结构:
+ * - page: 页面元信息（title/description/keywords）
+ * - nav: 导航菜单文本
+ * - search: 搜索框分类和占位符
+ * - site: 站点地址相关文本
+ * - sections: 区块标题
+ * - links: 导航链接的显示文本
+ * 
+ * navigation 字段定义导航链接结构（URL 和外部链接标记），
+ * 实际显示文本由 translations.links 中的对应键提供
+ * 
+ * 挂载到全局 window.IndexLanguageConfig
+ */
 const IndexLanguageConfig = {
     default: 'zh',
     supported: ['zh', 'en', 'ru'],
@@ -173,6 +191,12 @@ const IndexLanguageConfig = {
         }
     },
     
+    /**
+     * 导航链接配置
+     * 每个链接对象包含 title（翻译键路径）、url（链接地址）、external（是否外部链接）
+     * - cn: 中文路线导航（主要面向中国用户）
+     * - os: 海外路线导航（面向国际用户）
+     */
     navigation: {
         cn: [
             { title: 'links.scCommunity', url: 'https://test.suancaixianyu.cn/', external: true },

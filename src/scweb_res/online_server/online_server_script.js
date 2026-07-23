@@ -1,5 +1,19 @@
+/**
+ * 生存战争网 - 联机服务器列表管理器
+ * 负责获取、缓存、搜索、排序、筛选和显示 SC 联机服务器列表
+ * 
+ * 主要功能:
+ * - 从远程 API 异步获取服务器列表数据，支持 CORS 代理回退
+ * - localStorage 缓存机制，减少重复请求
+ * - 多维度搜索（名称/IP/版本/模式/国家）和排序
+ * - 服务器延迟检测（WebSocket 连接测试）
+ * - 收藏服务器功能（localStorage 持久化）
+ * - 主题、语言、站点信息的响应式初始化
+ */
+
 class OnlineServerManager {
     constructor() {
+        // API 配置
         this.apiUrl = 'https://api.sckey.net/server/serverlist';
         this.serverVersion = 'x26.07.20';
         this.versions = [
@@ -11,6 +25,7 @@ class OnlineServerManager {
         this.currentFilter = 'all';
         this.useCorsProxy = false;
         this.cacheExpireMinutes = 10;
+        // CORS 代理列表，用于绕过浏览器跨域限制
         this.corsProxies = [
             'https://api.allorigins.win/raw?url=',
             'https://cors-anywhere.herokuapp.com/',
@@ -23,6 +38,9 @@ class OnlineServerManager {
         this.init();
     }
 
+    /**
+     * 初始化管理器：按顺序初始化各子系统并绑定事件
+     */
     init() {
         this.initTheme();
         this.initLanguage();
@@ -38,12 +56,19 @@ class OnlineServerManager {
         console.log('[OnlineServerManager] 初始化完成');
     }
 
+    /**
+     * 初始化主题管理器（共享组件）
+     */
     initTheme() {
         if (window.ThemeManager) {
             this.themeManager = new window.ThemeManager();
         }
     }
 
+    /**
+     * 初始化语言管理器
+     * 合并站点级和页面级语言配置，设置 serverConfig 引用并监听语言切换事件
+     */
     initLanguage() {
         const mergedConfig = this.mergeConfigs(window.SiteLanguageConfig, window.ServerLanguageConfig);
 
@@ -54,11 +79,18 @@ class OnlineServerManager {
 
         this.serverConfig = mergedConfig;
 
+        // 监听语言切换事件，实时更新界面文本
         document.addEventListener('languageChanged', (e) => {
             this.onLanguageChanged(e.detail ? e.detail.lang : this.languageManager.currentLang);
         });
     }
 
+    /**
+     * 深度合并两个语言配置对象
+     * @param {Object} baseConfig - 站点级基础配置
+     * @param {Object} pageConfig - 页面级配置
+     * @returns {Object} 合并后的配置
+     */
     mergeConfigs(baseConfig, pageConfig) {
         const merged = {
             default: pageConfig.default || baseConfig.default,
@@ -68,6 +100,7 @@ class OnlineServerManager {
             translations: {}
         };
 
+        // 收集所有语言键并合并翻译
         const languages = [...new Set([
             ...Object.keys(baseConfig.translations || {}),
             ...Object.keys(pageConfig.translations || {})
@@ -82,6 +115,12 @@ class OnlineServerManager {
         return merged;
     }
 
+    /**
+     * 递归深度合并对象
+     * @param {Object} target - 目标对象
+     * @param {Object} source - 源对象
+     * @returns {Object} 合并结果
+     */
     deepMerge(target, source) {
         const result = { ...target };
         for (const key of Object.keys(source)) {
@@ -94,12 +133,20 @@ class OnlineServerManager {
         return result;
     }
 
+    /**
+     * 语言切换回调：更新服务器文本、筛选按钮并刷新显示
+     * @param {string} lang - 新的语言代码
+     */
     onLanguageChanged(lang) {
         this.updateServerTexts(lang);
         this.updateFilterButtons(lang);
         this.refreshServerDisplayIfNeeded(lang);
     }
 
+    /**
+     * 如果当前已加载服务器列表，则重新渲染以应用新语言
+     * @param {string} lang - 语言代码
+     */
     refreshServerDisplayIfNeeded(lang) {
         if (this.currentStatus === 'ready' && this.lastFilteredCount > 0) {
             const servers = this.getCachedData();
@@ -109,6 +156,10 @@ class OnlineServerManager {
         }
     }
 
+    /**
+     * 更新页面上与服务器相关的静态文本（加载提示、无服务器、模式切换按钮等）
+     * @param {string} lang - 语言代码
+     */
     updateServerTexts(lang) {
         const translations = this.getTranslations(lang);
         if (!translations) return;
@@ -135,13 +186,13 @@ class OnlineServerManager {
             refreshBtn.textContent = translations.server.refresh + ' 🔄';
         }
 
-        if (this.currentStatus === 'ready') {
-            this.updateStatsDisplay();
-        } else {
-            this.updateStatsDisplay();
-        }
+        this.updateStatsDisplay();
     }
 
+    /**
+     * 根据当前语言更新筛选按钮文本
+     * @param {string} lang - 语言代码
+     */
     updateFilterButtons(lang) {
         const translations = this.getTranslations(lang);
         if (!translations || !translations.filters) return;
@@ -154,24 +205,42 @@ class OnlineServerManager {
         });
     }
 
+    /**
+     * 获取指定语言的翻译对象
+     * @param {string} [lang] - 语言代码，默认使用当前语言
+     * @returns {Object} 翻译对象
+     */
     getTranslations(lang) {
         const langToUse = lang || (this.languageManager ? this.languageManager.currentLang : 'zh');
         const config = this.serverConfig;
         return config.translations[langToUse] || config.translations[config.default];
     }
 
+    /**
+     * 获取服务器相关文本
+     * @param {string} key - 文本键
+     * @returns {string} 翻译后的文本
+     */
     getServerText(key) {
         const translations = this.getTranslations();
         if (!translations || !translations.server) return key;
         return translations.server[key] || key;
     }
 
+    /**
+     * 获取统计数据文本
+     * @param {string} key - 文本键
+     * @returns {string} 翻译后的文本
+     */
     getStatsText(key) {
         const translations = this.getTranslations();
         if (!translations || !translations.stats) return key;
         return translations.stats[key] || key;
     }
 
+    /**
+     * 初始化站点信息管理器
+     */
     initSiteInfo() {
         if (window.SiteInfoManager && this.languageManager) {
             this.siteInfoManager = new window.SiteInfoManager(this.languageManager);
@@ -179,6 +248,10 @@ class OnlineServerManager {
         }
     }
 
+    /**
+     * 初始化版本选择器下拉框
+     * 根据 this.versions 配置生成 option 元素
+     */
     initVersionSelector() {
         const versionSelector = document.getElementById('versionSelector');
         if (!versionSelector) return;
@@ -195,6 +268,9 @@ class OnlineServerManager {
         });
     }
 
+    /**
+     * 绑定事件监听：版本变更、代理切换、刷新按钮
+     */
     bindEvents() {
         const versionSelector = document.getElementById('versionSelector');
         if (versionSelector) {
@@ -212,12 +288,21 @@ class OnlineServerManager {
         }
     }
 
+    /**
+     * 生成单个服务器列表项的 HTML 代码
+     * 包含服务器状态指示灯、名称、标签、地址、版本、等级、网络类型、延迟等信息
+     * 支持多 IP 地址选择器和子服务器展示
+     * @param {Object} server - 服务器数据对象
+     * @param {number} index - 服务器索引
+     * @returns {string} HTML 字符串
+     */
     generateServerItem(server, index) {
         const networkType = window.SCUtils.getNetworkType(server.ip);
         const hasPort = server.ip.includes(':');
         const displayIp = hasPort ? server.ip : server.ip + ':28887';
         const serverId = server.id || `server-${index}`;
 
+        // 构建 IP 地址列表（支持多个 IP）
         let ipList = [];
         if (server.ips && Array.isArray(server.ips) && server.ips.length > 0) {
             ipList = server.ips.map(ip => ip.includes(':') ? ip : ip + ':28887');
@@ -225,6 +310,7 @@ class OnlineServerManager {
             ipList = [displayIp];
         }
 
+        // 构建子服务器 HTML（如服务器包含子服务器列表）
         let childServersHtml = '';
         if (server.children && Array.isArray(server.children) && server.children.length > 0) {
             const childLabel = this.getServerText('childServer');
@@ -255,6 +341,7 @@ class OnlineServerManager {
             }).join('');
         }
 
+        // 构建服务器标签（推荐、大厅、高级、社区、群组等）
         let serverTags = '';
         if (server.publishType === 0) {
             serverTags += `<span class="server-tag featured">${this.getServerText('recommended')}</span>`;
@@ -316,6 +403,12 @@ class OnlineServerManager {
         `;
     }
 
+    /**
+     * 异步加载服务器列表
+     * 优先使用缓存数据（非强制刷新时），失败时回退到缓存
+     * @param {string} [filter] - 筛选条件 (all/lobby/premium/community)
+     * @param {boolean} [forceRefresh] - 是否强制刷新（忽略缓存）
+     */
     async loadServerList(filter = this.currentFilter, forceRefresh = false) {
         this.currentFilter = filter;
         const serverListElement = document.getElementById('serverList');
@@ -365,6 +458,12 @@ class OnlineServerManager {
         this.displayServers(servers);
     }
 
+    /**
+     * 从 API 响应数据中提取服务器列表
+     * 兼容多种响应格式（data.list, list, servers, 直接数组）
+     * @param {Object|Array} data - API 响应数据
+     * @returns {Array} 服务器数组
+     */
     extractServerList(data) {
         if (data && data.data && data.data.list && Array.isArray(data.data.list)) {
             return data.data.list;
@@ -378,6 +477,11 @@ class OnlineServerManager {
         return [];
     }
 
+    /**
+     * 渲染服务器列表到页面
+     * 根据筛选条件过滤服务器，生成 HTML 并绑定交互事件
+     * @param {Array} servers - 服务器数据数组
+     */
     displayServers(servers) {
         const serverListElement = document.getElementById('serverList');
 
@@ -416,6 +520,9 @@ class OnlineServerManager {
         }, 100);
     }
 
+    /**
+     * 更新统计信息显示（服务器数量、加载状态等）
+     */
     updateStatsDisplay() {
         const serverStatsElement = document.querySelector('.server-stats');
         if (!serverStatsElement) return;
@@ -446,6 +553,10 @@ class OnlineServerManager {
         serverStatsElement.innerHTML = content;
     }
 
+    /**
+     * 后台异步获取新数据并更新缓存（不阻塞当前显示）
+     * @param {string} apiUrl - API 请求地址
+     */
     async fetchAndUpdateCache(apiUrl) {
         try {
             const data = await this.fetchWithRetry(apiUrl);
@@ -462,10 +573,19 @@ class OnlineServerManager {
         }
     }
 
+    /**
+     * 获取缓存键名（基于版本号）
+     * @returns {string} localStorage 缓存键
+     */
     getCacheKey() {
         return `sc_server_list_${this.serverVersion}`;
     }
 
+    /**
+     * 从 localStorage 获取缓存的服务器数据
+     * 检查缓存是否过期（默认 10 分钟），过期则清除
+     * @returns {Array|null} 缓存的服务器数组或 null
+     */
     getCachedData() {
         try {
             const cacheKey = this.getCacheKey();
@@ -489,6 +609,10 @@ class OnlineServerManager {
         }
     }
 
+    /**
+     * 将服务器数据保存到 localStorage 缓存
+     * @param {Array} servers - 服务器数组
+     */
     saveToCache(servers) {
         try {
             const cacheKey = this.getCacheKey();
@@ -502,6 +626,13 @@ class OnlineServerManager {
         }
     }
 
+    /**
+     * 带重试的 HTTP 请求
+     * 先尝试直连，失败后依次回退到 CORS 代理列表中的各代理
+     * 每个请求都有超时保护
+     * @param {string} apiUrl - 请求地址
+     * @returns {Object|null} JSON 响应数据或 null
+     */
     async fetchWithRetry(apiUrl) {
         const proxies = this.useCorsProxy ? this.corsProxies : [];
         const allAttempts = ['', ...proxies];
@@ -549,6 +680,10 @@ class OnlineServerManager {
         return null;
     }
 
+    /**
+     * 切换 CORS 代理模式
+     * 在直连模式和代理模式之间切换，并强制刷新服务器列表
+     */
     toggleProxy() {
         this.useCorsProxy = !this.useCorsProxy;
         const proxyBtn = document.getElementById('proxyBtn');
@@ -566,6 +701,11 @@ class OnlineServerManager {
         this.loadServerList(this.currentFilter, true);
     }
 
+    /**
+     * 版本变更处理
+     * 更新版本号，尝试使用该版本的缓存，无缓存则从 API 获取
+     * @param {HTMLSelectElement} selectElement - 版本选择器元素
+     */
     onVersionChange(selectElement) {
         const newVersion = selectElement.value;
         console.log('版本变更为:', newVersion);
@@ -588,6 +728,10 @@ class OnlineServerManager {
         }
     }
 
+    /**
+     * 初始化复制按钮事件处理
+     * 支持直接复制 IP 和通过选择器复制选中 IP
+     */
     initCopyHandlers() {
         document.querySelectorAll('.copy-btn[data-ip]').forEach(btn => {
             btn.addEventListener('click', (e) => {
@@ -623,6 +767,10 @@ class OnlineServerManager {
         });
     }
 
+    /**
+     * 初始化 IP 地址选择器事件
+     * 当用户切换 IP 时，重新检测该服务器的延迟
+     */
     initIpSelectors() {
         document.querySelectorAll('.ip-selector').forEach(selector => {
             selector.addEventListener('change', () => {
@@ -632,6 +780,10 @@ class OnlineServerManager {
         });
     }
 
+    /**
+     * 初始化筛选按钮事件
+     * 点击筛选按钮时更新激活状态并重新加载服务器列表
+     */
     initFilterButtons() {
         document.querySelectorAll('.filter-btn').forEach(btn => {
             btn.addEventListener('click', () => {
@@ -642,6 +794,10 @@ class OnlineServerManager {
         });
     }
 
+    /**
+     * 检测所有服务器的延迟
+     * 遍历页面上所有延迟显示元素，逐个检测
+     */
     detectLatency() {
         const latencyElements = document.querySelectorAll('.latency-value');
         latencyElements.forEach((element) => {
@@ -652,6 +808,12 @@ class OnlineServerManager {
         });
     }
 
+    /**
+     * 检测单个服务器的延迟
+     * 通过 ping API 检测服务器延迟，支持 CORS 代理
+     * 同时更新服务器状态指示灯（在线/离线/检测中）
+     * @param {string} serverId - 服务器 ID
+     */
     detectLatencyForServer(serverId) {
         const latencyElement = document.querySelector(`.latency-value[data-server-id="${serverId}"]`);
         if (!latencyElement) return;

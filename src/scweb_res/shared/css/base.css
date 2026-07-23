@@ -1,3 +1,10 @@
+/**
+ * 生存战争网 - 基础样式表
+ * 定义 CSS 变量、全局重置样式、排版规范和工具类
+ * 作为所有页面的样式基础，被其他 CSS 文件依赖
+ */
+
+/* ===== CSS 变量 ===== */
 :root {
     --primary-color: #667eea;
     --primary-dark: #5a6fd8;
@@ -13,6 +20,7 @@
     --shadow-dark: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
+/* ===== 全局重置 ===== */
 *,
 *::before,
 *::after {
@@ -21,6 +29,7 @@
     padding: 0;
 }
 
+/* ===== HTML/Body 基础排版 ===== */
 html {
     line-height: 1.15;
     -webkit-text-size-adjust: 100%;
@@ -40,6 +49,7 @@ body {
     transition: background-color 0.3s ease, color 0.3s ease;
 }
 
+/* ===== 链接样式 ===== */
 a {
     background-color: transparent;
     color: #3354AA;
@@ -52,12 +62,14 @@ a:active {
     color: #444;
 }
 
+/* ===== 媒体元素 ===== */
 img {
     border-style: none;
     max-width: 100%;
     height: auto;
 }
 
+/* ===== 表单元素 ===== */
 button,
 input,
 select,
@@ -68,6 +80,7 @@ textarea {
     margin: 0;
 }
 
+/* ===== 清除浮动工具类 ===== */
 .clearfix::after {
     content: "";
     display: table;

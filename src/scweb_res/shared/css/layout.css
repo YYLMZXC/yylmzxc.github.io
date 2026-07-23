@@ -1,9 +1,10 @@
-/* ========================================
-   生存战争网 共享布局样式
-   所有页面共用的 header / nav / main / footer
-======================================== */
+/**
+ * 生存战争网 - 共享布局样式
+ * 所有页面共用的结构组件：头部(Header)、顶部导航栏(Nav)、站点信息(Site Info)、页脚(Footer)
+ * 以及主题/语言选择器、搜索框等全局 UI 元素的布局定义
+ */
 
-/* ==== Header ==== */
+/* ===== Header（头部） ===== */
 #header {
     padding: 20px 0;
     border-bottom: 1px solid #eee;
@@ -26,7 +27,7 @@
     max-height: 64px;
 }
 
-/* ==== Top Navigation Bar ==== */
+/* ===== Top Navigation Bar（顶部导航栏） ===== */
 #top-nav-bar {
     background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
     border-bottom: 1px solid var(--border-light);
@@ -113,7 +114,7 @@
     transform: translateY(-2px);
 }
 
-/* ==== Theme / Language Container ==== */
+/* ===== Theme / Language Container（主题/语言容器） ===== */
 .theme-section {
     position: relative;
     z-index: 1001;
@@ -128,7 +129,7 @@
     flex-shrink: 0;
 }
 
-/* ==== Main Content ==== */
+/* ===== Main Content（主内容区） ===== */
 #body {
     padding: 20px 0;
 }
@@ -137,7 +138,7 @@
     line-height: 1.5;
 }
 
-/* ==== Site Info ==== */
+/* ===== Site Info（站点信息） ===== */
 .site-info {
     margin-bottom: 20px;
 }
@@ -164,7 +165,7 @@
     color: #666;
 }
 
-/* ==== Footer ==== */
+/* ===== Footer（页脚） ===== */
 #footer {
     clear: both;
     width: 100%;
@@ -181,7 +182,7 @@
     line-height: 1.5;
 }
 
-/* ==== Responsive Design ==== */
+/* ===== Responsive Design（响应式设计） ===== */
 @media (max-width: 767px) {
     .container {
         padding-left: 15px;

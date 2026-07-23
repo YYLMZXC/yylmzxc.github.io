@@ -1,3 +1,19 @@
+/**
+ * 生存战争网 - 联机服务器列表页面语言配置
+ * 包含服务器列表页面特定的多语言翻译
+ * 与 SiteLanguageConfig 合并使用
+ * 
+ * 翻译结构:
+ * - page: 页面元信息
+ * - nav: 导航菜单
+ * - stats: 服务器统计信息文本
+ * - filters: 筛选按钮文本（全部/大厅服/精品服/社区服）
+ * - server: 服务器相关文本（地址、版本、模式、延迟等）
+ * - groups: 群组信息
+ * - siteInfo: 站点信息文本
+ * 
+ * 挂载到全局 window.ServerLanguageConfig
+ */
 const ServerLanguageConfig = {
     default: 'zh',
     storageKey: 'preferredLanguage',

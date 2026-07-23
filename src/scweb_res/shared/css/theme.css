@@ -1,8 +1,16 @@
+/**
+ * 生存战争网 - 主题样式表
+ * 定义深色主题 (body.dark) 下各组件的样式覆盖
+ * 包括：页面背景、头部、导航栏、卡片、按钮、表格等元素的深色适配
+ */
+
+/* ===== 深色主题 - 页面背景和文字 ===== */
 body.dark {
     background-color: var(--dark-bg);
     color: var(--text-light);
 }
 
+/* ===== 深色主题 - 头部和导航栏 ===== */
 body.dark #header {
     background-color: #1a202c;
     border-color: var(--border-dark);
@@ -19,6 +27,7 @@ body.dark #top-nav-bar {
     background: linear-gradient(135deg, #1a202c 0%, #2d3748 100%);
 }
 
+/* ===== 深色主题 - 导航菜单 ===== */
 body.dark .nav-menu {
     background: rgba(45, 55, 72, 0.8);
 }
@@ -38,6 +47,7 @@ body.dark .nav-menu a.active {
     color: white;
 }
 
+/* ===== 深色主题 - 选择器和表单控件 ===== */
 body.dark .theme-selector,
 body.dark .language-selector {
     background: rgba(45, 55, 72, 0.9);
@@ -75,6 +85,7 @@ body.dark .language-btn:focus {
     box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.3);
 }
 
+/* ===== 深色主题 - 横幅和导航区块 ===== */
 body.dark .banner-grid a {
     background: linear-gradient(135deg, #2d3748 0%, #4a5568 100%);
     border-color: var(--border-dark);
@@ -89,6 +100,7 @@ body.dark .site-info-short-url {
     color: #a0aec0;
 }
 
+/* ===== 深色主题 - 服务器列表 ===== */
 body.dark .server-stats {
     background-color: rgba(45, 55, 72, 0.9);
     border-left-color: #667eea;
@@ -138,6 +150,7 @@ body.dark .loading {
     color: #a0aec0;
 }
 
+/* ===== 深色主题 - 按钮和操作控件 ===== */
 body.dark .version-selector,
 body.dark .proxy-btn,
 body.dark .filter-btn,
@@ -216,6 +229,7 @@ body.dark .theme-toast {
     border-color: rgba(255, 255, 255, 0.15);
 }
 
+/* ===== 系统偏好深色模式 (自动检测) ===== */
 @media (prefers-color-scheme: dark) {
     body:not(.light) {
         background-color: var(--dark-bg);
@@ -291,6 +305,7 @@ body.dark .theme-toast {
     }
 }
 
+/* ===== 主题切换过渡动画 ===== */
 body.theme-transitioning {
     transition: background-color 0.3s ease, color 0.3s ease;
 }
