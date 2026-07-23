@@ -6,12 +6,13 @@
  */
 const SiteLanguageConfig = {
     default: 'zh',
-    supported: ['zh', 'en', 'ru'],
+    supported: ['zh', 'en', 'ru', 'es'],
     
     names: {
         'zh': '🇨🇳 中文',
         'en': '🇺🇸 English',
-        'ru': '🇷🇺 Русский'
+        'ru': '🇷🇺 Русский',
+        'es': '🇪🇸 Español'
     },
     
     storageKey: 'preferredLanguage',
@@ -95,6 +96,32 @@ const SiteLanguageConfig = {
                 cnNavigation: '🌏 CN Китайская Навигация',
                 osNavigation: '🌍 OS Зарубежная Навигация',
                 otherNavigation: '📌 Другая Навигация'
+            },
+            footer: '© 2026 SurvivalCraft Web'
+        },
+        
+        // 西班牙语翻译
+        es: {
+            page: {
+                title: 'SurvivalCraft Web - Inicio | Sitio Oficial de la Comunidad SC',
+                description: 'SurvivalCraft Web es la mayor comunidad SC en español, con guías de juego, Mods, mapas, texturas, skins y muebles para descargar, así como servidores multijugador activos.',
+                keywords: 'SurvivalCraft,Comunidad SC en Español,SurvivalCraft MOD,Versión Online de SurvivalCraft,Servidor SurvivalCraft,Guía de SurvivalCraft'
+            },
+            nav: {
+                home: 'Inicio',
+                serverList: 'Lista de Servidores',
+                apiTutorial: 'Tutorial de API Mod'
+            },
+            site: {
+                currentAddress: 'Dirección del Sitio: ',
+                shortUrl: 'URL Corta: ',
+                shortUrl2: 'URL Corta 2: ',
+                shortUrl3: 'URL Corta 3: '
+            },
+            sections: {
+                cnNavigation: '🌏 Navegación CN',
+                osNavigation: '🌍 Navegación OS',
+                otherNavigation: '📌 Otra Navegación'
             },
             footer: '© 2026 SurvivalCraft Web'
         }

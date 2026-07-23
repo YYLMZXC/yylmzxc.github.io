@@ -18,12 +18,13 @@ const ServerLanguageConfig = {
     default: 'zh',
     storageKey: 'preferredLanguage',
     
-    supported: ['zh', 'en', 'ru'],
+    supported: ['zh', 'en', 'ru', 'es'],
     
     names: {
         'zh': '🇨🇳 中文',
         'en': '🇺🇸 English',
-        'ru': '🇷🇺 Русский'
+        'ru': '🇷🇺 Русский',
+        'es': '🇪🇸 Español'
     },
     
     translations: {
@@ -242,6 +243,79 @@ const ServerLanguageConfig = {
             siteInfo: {
                 currentAddress: 'Адрес Сайта: ',
                 shortUrl: 'Короткий URL: '
+            },
+            footer: '© 2026 SurvivalCraft Web'
+        },
+        
+        es: {
+            page: {
+                title: 'Lista de Servidores Online de SurvivalCraft | Comunidad SC en Español'
+            },
+            nav: {
+                home: 'Inicio',
+                serverList: 'Lista de Servidores',
+                apiTutorial: 'Tutorial de API Mod'
+            },
+            stats: {
+                title: 'Estadísticas de Servidores',
+                total: 'Total',
+                online: 'En Línea',
+                checking: 'Verificando',
+                offline: 'Desconectado'
+            },
+            filters: {
+                all: 'Todos',
+                lobby: 'Lobby',
+                premium: 'Premium',
+                community: 'Comunidad'
+            },
+            server: {
+                clickToCopy: 'Clic para copiar',
+                copied: '¡Copiado!',
+                joinGroup: 'Bienvenido a nuestro grupo de discusión:',
+                managementOffice: 'Oficina de Gestión de la Lista de Servidores:',
+                bugFeedbackGroup: 'Grupo de Retroalimentación de Bugs (Beta Pública):',
+                noServers: 'No se encontraron servidores',
+                loading: 'Cargando...',
+                connecting: 'Conectando al servidor...',
+                loadFailed: 'Error de carga',
+                loadFailedCannotConnect: 'No se puede conectar al servidor',
+                address: 'Dirección',
+                version: 'Versión',
+                level: 'Nivel',
+                joinMode: 'Modo de Unión',
+                latency: 'Latencia',
+                players: 'Jugadores',
+                mode: 'Modo',
+                network: 'Red',
+                directMode: 'Modo Directo',
+                proxyMode: 'Modo Proxy',
+                refresh: 'Actualizar',
+                recommended: 'Recomendado',
+                lobby: 'Lobby',
+                premium: 'Premium',
+                community: 'Comunidad',
+                groupServer: 'Servidor de Grupo',
+                childServer: 'Servidor Hijo',
+                groupNumber: ' (Núm. de Grupo: ',
+                groupNumberEnd: ')',
+                unreachable: 'Inaccesible',
+                offline: 'Desconectado',
+                checking: 'Verificando',
+                undetectable: 'Indetectable',
+                pingFailed: 'Ping fallido'
+            },
+            groups: {
+                group1: 'Grupo de Servidores SurvivalCraft 34',
+                group1Id: '826823481',
+                group2: 'Solicitar Abrir un Servidor',
+                group2Id: '893387376',
+                group3: 'Grupo de Retroalimentación de Bugs',
+                group3Id: '1092640742'
+            },
+            siteInfo: {
+                currentAddress: 'Dirección del Sitio: ',
+                shortUrl: 'URL Corta: '
             },
             footer: '© 2026 SurvivalCraft Web'
         }

@@ -18,13 +18,14 @@
  */
 const IndexLanguageConfig = {
     default: 'zh',
-    supported: ['zh', 'en', 'ru'],
+    supported: ['zh', 'en', 'ru', 'es'],
     storageKey: 'preferredLanguage',
     
     names: {
         'zh': '🇨🇳 中文',
         'en': '🇺🇸 English',
-        'ru': '🇷🇺 Русский'
+        'ru': '🇷🇺 Русский',
+        'es': '🇪🇸 Español'
     },
     
     translations: {
@@ -204,6 +205,66 @@ const IndexLanguageConfig = {
                 scSpm: 'SurvivalCraft MOD Команда Разработки',
                 scApiDownload: 'Скачать SurvivalCraft API',
                 scNetDownload: 'Скачать SurvivalCraft Net'
+            },
+            footer: '© 2026 SurvivalCraft Web'
+        },
+        
+        es: {
+            page: {
+                title: 'SurvivalCraft Web - Inicio | Sitio Oficial de la Comunidad SC',
+                description: 'SurvivalCraft Web es la mayor comunidad SC en español, con guías de juego, Mods, mapas, texturas, skins y muebles para descargar, así como servidores multijugador activos.',
+                keywords: 'SurvivalCraft,Comunidad SC en Español,SurvivalCraft MOD,Versión Online de SurvivalCraft,Servidor SurvivalCraft,Guía de SurvivalCraft'
+            },
+            nav: {
+                home: 'Inicio',
+                serverList: 'Lista de Servidores',
+                apiTutorial: 'Tutorial de API Mod'
+            },
+            search: {
+                anyCategory: 'Todas las Categorías',
+                scapi: 'Descargas de Plugins API de SurvivalCraft',
+                scnet: 'Descargas de Versión Online Net de SurvivalCraft',
+                pluginMod: 'Descargas de Mods con Plugins',
+                onlineMod: 'Descargas de Mods Online',
+                gameHistory: 'Descargas de Historial del Juego',
+                texturePack: 'Descargas de Paquetes de Texturas',
+                furniturePack: 'Descargas de Paquetes de Muebles',
+                skinPack: 'Descargas de Colección de Skins',
+                mapPack: 'Descargas de Archivos de Mapas',
+                guides: 'Guías del Juego',
+                placeholder: 'Ingrese palabras clave para buscar',
+                submit: 'Buscar'
+            },
+            site: {
+                currentAddress: 'Dirección del Sitio: ',
+                shortUrl: 'URL Corta: ',
+                shortUrl2: 'URL Corta 2: ',
+                shortUrl3: 'URL Corta 3: '
+            },
+            sections: {
+                cnNavigation: '🌏 Navegación CN',
+                osNavigation: '🌍 Navegación OS',
+                otherNavigation: '📌 Otra Navegación'
+            },
+            links: {
+                scCommunity: 'Ruta CN de la Comunidad SC',
+                scKey: 'Clave de Acceso de SurvivalCraft',
+                scWiki: 'Wiki de SurvivalCraft',
+                scYuqueWiki: 'Enciclopedia Yuque de SurvivalCraft',
+                serverPlugin: 'Plugin de Servidor',
+                modWebsite: 'Sitio de Mods',
+                scLauncher: 'Lanzador SC',
+                backupCommunity: 'Ruta OS de la Comunidad SC',
+                jiilForum: 'Foro JIIL',
+                russianScCommunity: 'Comunidad SC Rusa',
+                originalScCommunity: 'Comunidad SC Original',
+                internationalModSite: 'Sitio de Mods Internacional',
+                officialBlog: 'Blog Oficial',
+                mirahezeWiki: 'Wiki Miraheze de SurvivalCraft',
+                fandomWiki: 'Wiki Fandom de SurvivalCraft',
+                scSpm: 'Equipo de Desarrollo MOD de SurvivalCraft',
+                scApiDownload: 'Descargar API de SurvivalCraft',
+                scNetDownload: 'Descargar Net de SurvivalCraft'
             },
             footer: '© 2026 SurvivalCraft Web'
         }
