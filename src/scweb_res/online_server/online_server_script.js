@@ -1,10 +1,10 @@
 const ServerList = {
     apiUrl: 'https://api.sckey.net/server/serverlist',
-    serverVersion: 'beta26.05.15',
+    serverVersion: 'beta26.07.20',
     versions: [
-        { value: 'beta26.05.15', label: 'beta26.05.15' },
-        { value: 'dev26.04.12', label: 'dev26.04.12' },
-        { value: 'dev26.03.25', label: 'dev26.03.25' }
+        { value: 'beta26.07.20', label: 'beta26.07.20' },
+        { value: 'beta26.06.19', label: 'beta26.06.19' },
+        { value: 'beta26.05.23', label: 'beta26.05.23' }
     ],
     timeout: 15000,
     currentFilter: 'all',
