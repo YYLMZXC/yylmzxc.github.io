@@ -59,17 +59,10 @@ const LanguageConfig = {
             },
             links: {
                 // 中文导航
-                scForum: '生存战争论坛',
                 scCommunity: 'SC中文社区cn路线',
                 scKey: '生存战争登录钥匙',
                 scWiki: '生存战争Wiki',
                 scYuqueWiki: '生存战争语雀百科',
-                pluginMod: '插件版Mod(模组)',
-                onlineMod: '联机版Mod(模组)',
-                texturePack: '材质包',
-                skinPack: '皮肤包',
-                mapPack: '地图包',
-                furniturePack: '家具包',
                 serverPlugin: '服务端插件',
                 modWebsite: '模组网',
                 scLauncher: 'SC启动器',
@@ -122,17 +115,10 @@ const LanguageConfig = {
             },
             links: {
                 // 中文导航
-                scForum: 'SC Forum',
                 scCommunity: 'SC Chinese Community cn Route',
                 scKey: 'SurvivalCraft Key',
                 scWiki: 'SurvivalCraft Wiki',
                 scYuqueWiki: 'SurvivalCraft Yuque Wiki',
-                pluginMod: 'Plugin Mod',
-                onlineMod: 'Online Mod',
-                texturePack: 'Texture Pack',
-                skinPack: 'Skin Pack',
-                mapPack: 'Map Pack',
-                furniturePack: 'Furniture Pack',
                 serverPlugin: 'Server Plugin',
                 modWebsite: 'Mod Website',
                 scLauncher: 'SC Launcher',
@@ -185,16 +171,9 @@ const LanguageConfig = {
             },
             links: {
                 // 中文导航
-                scForum: 'SC Форум',
                 scCommunity: 'SC Китайское Сообщество cn Маршрут',
                 scWiki: 'SurvivalCraft Вики',
                 scYuqueWiki: 'SurvivalCraft Yuque Вики',
-                pluginMod: 'Плагин Мод',
-                onlineMod: 'Онлайн Мод',
-                texturePack: 'Текстура Пак',
-                skinPack: 'Скин Пак',
-                mapPack: 'Карта Пак',
-                furniturePack: 'Мебель Пак',
                 serverPlugin: 'Сервер Плагин',
                 modWebsite: 'Мод Сайт',
                 scLauncher: 'SC Лаунчер',
@@ -213,7 +192,6 @@ const LanguageConfig = {
     // 导航链接配置（与translations.links对应）
     navigation: {
         cn: [
-            { title: 'links.scForum', url: 'http://schub.icu/sczz/', external: true },
             { title: 'links.scCommunity', url: 'https://test.suancaixianyu.cn/', external: true },
             { title: 'links.backupCommunity', url: 'https://www.scbbs.top/', external: true },
             { title: 'links.scKey', url: 'https://sckey.net', external: true },
@@ -222,13 +200,7 @@ const LanguageConfig = {
             { title: 'links.serverPlugin', url: 'https://spd.jiil.top/index.html', external: true },
             { title: 'links.modWebsite', url: 'https://www.scmod.cn/', external: true },
             { title: 'links.scLauncher', url: 'https://sc.btos.top/', external: true },
-            { title: 'links.jiilForum', url: 'https://bbs.jiil.top/', external: true },
-            { title: 'links.pluginMod', url: 'http://schub.icu/sczz/?forum-3.htm', external: true },
-            { title: 'links.onlineMod', url: 'http://schub.icu/sczz/?forum-4.htm', external: true },
-            { title: 'links.texturePack', url: 'http://schub.icu/sczz/?forum-5.htm', external: true },
-            { title: 'links.skinPack', url: 'http://schub.icu/sczz/?forum-6.htm', external: true },
-            { title: 'links.mapPack', url: 'http://schub.icu/sczz/?forum-2.htm', external: true },
-            { title: 'links.furniturePack', url: 'http://schub.icu/sczz/?forum-7.htm', external: true }
+            { title: 'links.jiilForum', url: 'https://bbs.jiil.top/', external: true }
         ],
         os: [
             { title: 'links.russianScCommunity', url: 'https://vk.com/fans_club_survivalcraft', external: true },
