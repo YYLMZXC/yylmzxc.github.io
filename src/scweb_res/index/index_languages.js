@@ -62,7 +62,8 @@ const IndexLanguageConfig = {
             },
             sections: {
                 cnNavigation: '🌏 CN中文导航',
-                osNavigation: '🌍 OS海外导航'
+                osNavigation: '🌍 OS海外导航',
+                otherNavigation: '📌 其他导航'
             },
             links: {
                 scCommunity: 'SC中文社区cn路线',
@@ -79,7 +80,8 @@ const IndexLanguageConfig = {
                 internationalModSite: '海外Mod网站',
                 officialBlog: '正版官网',
                 mirahezeWiki: '生存战争维基百科',
-                fandomWiki: '生存战争Fandom百科'
+                fandomWiki: '生存战争Fandom百科',
+                scSpm: '生存战争MOD开发管理组'
             },
             footer: '© 2026 生存战争网'
         },
@@ -118,7 +120,8 @@ const IndexLanguageConfig = {
             },
             sections: {
                 cnNavigation: '🌏 CN Chinese Navigation',
-                osNavigation: '🌍 OS Overseas Navigation'
+                osNavigation: '🌍 OS Overseas Navigation',
+                otherNavigation: '📌 Other Navigation'
             },
             links: {
                 scCommunity: 'SC Chinese Community cn Route',
@@ -135,7 +138,8 @@ const IndexLanguageConfig = {
                 internationalModSite: 'International Mod Site',
                 officialBlog: 'Official Blog',
                 mirahezeWiki: 'SurvivalCraft Miraheze Wiki',
-                fandomWiki: 'SurvivalCraft Fandom Wiki'
+                fandomWiki: 'SurvivalCraft Fandom Wiki',
+                scSpm: 'SurvivalCraft MOD Dev Team'
             },
             footer: '© 2026 SurvivalCraft Web'
         },
@@ -174,7 +178,8 @@ const IndexLanguageConfig = {
             },
             sections: {
                 cnNavigation: '🌏 CN Китайская Навигация',
-                osNavigation: '🌍 OS Зарубежная Навигация'
+                osNavigation: '🌍 OS Зарубежная Навигация',
+                otherNavigation: '📌 Другая Навигация'
             },
             links: {
                 scCommunity: 'SC Китайское Сообщество cn Маршрут',
@@ -191,7 +196,8 @@ const IndexLanguageConfig = {
                 internationalModSite: 'Международный Мод Сайт',
                 officialBlog: 'Официальный Блог',
                 mirahezeWiki: 'SurvivalCraft Miraheze Вики',
-                fandomWiki: 'SurvivalCraft Fandom Вики'
+                fandomWiki: 'SurvivalCraft Fandom Вики',
+                scSpm: 'SurvivalCraft MOD Команда Разработки'
             },
             footer: '© 2026 SurvivalCraft Web'
         }
@@ -202,6 +208,7 @@ const IndexLanguageConfig = {
      * 每个链接对象包含 title（翻译键路径）、url（链接地址）、external（是否外部链接）
      * - cn: 中文路线导航（主要面向中国用户）
      * - os: 海外路线导航（面向国际用户）
+     * - other: 其他导航
      */
     navigation: {
         cn: [
@@ -222,6 +229,9 @@ const IndexLanguageConfig = {
             { title: 'links.officialBlog', url: 'https://kaalus.wordpress.com/', external: true },
             { title: 'links.mirahezeWiki', url: 'https://survivalcraft.miraheze.org', external: true },
             { title: 'links.fandomWiki', url: 'https://survivalcraft.fandom.com', external: true }
+        ],
+        other: [
+            { title: 'links.scSpm', url: 'https://gitee.com/SC-SPM', external: true }
         ]
     }
 };

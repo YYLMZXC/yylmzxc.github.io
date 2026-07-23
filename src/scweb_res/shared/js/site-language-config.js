@@ -41,7 +41,8 @@ const SiteLanguageConfig = {
             },
             sections: {
                 cnNavigation: '🌏 CN中文导航',
-                osNavigation: '🌍 OS海外导航'
+                osNavigation: '🌍 OS海外导航',
+                otherNavigation: '📌 其他导航'
             },
             footer: '© 2026 生存战争网'
         },
@@ -66,7 +67,8 @@ const SiteLanguageConfig = {
             },
             sections: {
                 cnNavigation: '🌏 CN Chinese Navigation',
-                osNavigation: '🌍 OS Overseas Navigation'
+                osNavigation: '🌍 OS Overseas Navigation',
+                otherNavigation: '📌 Other Navigation'
             },
             footer: '© 2026 SurvivalCraft Web'
         },
@@ -91,7 +93,8 @@ const SiteLanguageConfig = {
             },
             sections: {
                 cnNavigation: '🌏 CN Китайская Навигация',
-                osNavigation: '🌍 OS Зарубежная Навигация'
+                osNavigation: '🌍 OS Зарубежная Навигация',
+                otherNavigation: '📌 Другая Навигация'
             },
             footer: '© 2026 SurvivalCraft Web'
         }

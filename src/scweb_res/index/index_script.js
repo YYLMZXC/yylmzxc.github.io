@@ -142,11 +142,15 @@ class IndexPageManager {
         if (translations.sections) {
             const cnTitle = document.getElementById('cnNavigationTitle');
             const osTitle = document.getElementById('osNavigationTitle');
+            const otherTitle = document.getElementById('otherNavigationTitle');
             if (cnTitle && translations.sections.cnNavigation) {
                 cnTitle.textContent = translations.sections.cnNavigation;
             }
             if (osTitle && translations.sections.osNavigation) {
                 osTitle.textContent = translations.sections.osNavigation;
+            }
+            if (otherTitle && translations.sections.otherNavigation) {
+                otherTitle.textContent = translations.sections.otherNavigation;
             }
         }
     }
@@ -163,6 +167,7 @@ class IndexPageManager {
         if (config.navigation) {
             this.renderLinkGroup('cnNavigationLinks', config.navigation.cn, translations.links);
             this.renderLinkGroup('osNavigationLinks', config.navigation.os, translations.links);
+            this.renderLinkGroup('otherNavigationLinks', config.navigation.other, translations.links);
         }
     }
 
