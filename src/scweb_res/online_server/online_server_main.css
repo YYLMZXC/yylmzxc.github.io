@@ -406,11 +406,3 @@
         font-size: 12px;
     }
 }
-
-@media (min-width: 992px) {
-    .container {
-        max-width: 940px;
-        padding-left: 20px;
-        padding-right: 20px;
-    }
-}
