@@ -69,6 +69,8 @@ class IndexPageManager {
             }
         }
 
+        this.renderNavigationLinks(lang);
+
         if (translations.site) {
             this.updateSiteInfo(translations.site);
         }
@@ -157,9 +159,9 @@ class IndexPageManager {
         });
     }
 
-    renderNavigationLinks() {
+    renderNavigationLinks(lang) {
         const config = this.languageConfig;
-        const currentLang = localStorage.getItem('preferredLanguage') || config.default;
+        const currentLang = lang || localStorage.getItem('preferredLanguage') || config.default;
         const translations = config.translations[currentLang] || config.translations[config.default];
 
         if (config.navigation) {

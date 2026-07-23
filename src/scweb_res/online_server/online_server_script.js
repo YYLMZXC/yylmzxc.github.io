@@ -122,6 +122,10 @@ class OnlineServerManager {
             });
         }
 
+        if (translations.page && translations.page.title) {
+            document.title = translations.page.title;
+        }
+
         this.updateDynamicContentByAttr();
 
         if (translations.stats) {

@@ -12,6 +12,9 @@ const ServerLanguageConfig = {
     
     translations: {
         zh: {
+            page: {
+                title: '生存战争联机服务器列表 | SC中文社区'
+            },
             nav: {
                 home: '首页',
                 serverList: '联机服务器列表',
@@ -57,7 +60,9 @@ const ServerLanguageConfig = {
                 premium: '精品服',
                 community: '社区服',
                 groupServer: '群组服',
-                childServer: '子服务器'
+                childServer: '子服务器',
+                groupNumber: '（群号：',
+                groupNumberEnd: '）'
             },
             groups: {
                 group1: '生存战争34服务器联机交流群',
@@ -75,6 +80,9 @@ const ServerLanguageConfig = {
         },
         
         en: {
+            page: {
+                title: 'SurvivalCraft Online Server List | SC English Community'
+            },
             nav: {
                 home: 'Home',
                 serverList: 'Server List',
@@ -120,7 +128,9 @@ const ServerLanguageConfig = {
                 premium: 'Premium',
                 community: 'Community',
                 groupServer: 'Group Server',
-                childServer: 'Child Server'
+                childServer: 'Child Server',
+                groupNumber: ' (Group No.: ',
+                groupNumberEnd: ')'
             },
             groups: {
                 group1: 'SurvivalCraft 34 Server Group',
@@ -138,6 +148,9 @@ const ServerLanguageConfig = {
         },
         
         ru: {
+            page: {
+                title: 'Список Онлайн Серверов SurvivalCraft | SC Русское Сообщество'
+            },
             nav: {
                 home: 'Главная',
                 serverList: 'Список Серверов',
@@ -183,7 +196,9 @@ const ServerLanguageConfig = {
                 premium: 'Премиум',
                 community: 'Сообщество',
                 groupServer: 'Групповой Сервер',
-                childServer: 'Дочерний Сервер'
+                childServer: 'Дочерний Сервер',
+                groupNumber: ' (Группа №: ',
+                groupNumberEnd: ')'
             },
             groups: {
                 group1: 'Группа Серверов SurvivalCraft 34',

@@ -156,6 +156,7 @@ const IndexLanguageConfig = {
             },
             links: {
                 scCommunity: 'SC Китайское Сообщество cn Маршрут',
+                scKey: 'SurvivalCraft Ключ',
                 scWiki: 'SurvivalCraft Вики',
                 scYuqueWiki: 'SurvivalCraft Yuque Вики',
                 serverPlugin: 'Сервер Плагин',
