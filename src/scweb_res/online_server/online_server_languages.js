@@ -1,11 +1,12 @@
 const ServerLanguageConfig = {
     default: 'zh',
+    storageKey: 'serverLanguage',
     
     supported: ['zh', 'en', 'ru'],
     
     names: {
         'zh': '🇨🇳 中文',
-        'en': '🇺🇸 English', 
+        'en': '🇺🇸 English',
         'ru': '🇷🇺 Русский'
     },
     
@@ -35,16 +36,36 @@ const ServerLanguageConfig = {
                 joinGroup: '欢迎加入我们的交流群：',
                 managementOffice: '联机服列表管理办事处：',
                 noServers: '暂无服务器',
+                loading: '加载中...',
+                connecting: '正在连接服务器...',
+                loadFailed: '加载失败',
                 address: '地址',
                 version: '版本',
+                level: '等级',
+                joinMode: '加入模式',
                 latency: '延迟',
                 players: '玩家',
                 mode: '模式',
                 network: '网络',
-                timePeriod: '时段',
-                season: '季节',
-                expire: '展示到期'
-            }
+                directMode: '直连模式',
+                proxyMode: '代理模式',
+                refresh: '刷新',
+                recommended: '推荐',
+                lobby: '大厅服',
+                premium: '精品服',
+                community: '社区服',
+                groupServer: '群组服',
+                childServer: '子服务器'
+            },
+            groups: {
+                group1: '生存战争34服务器联机交流群',
+                group1Id: '826823481',
+                group2: '开服申请点击加入',
+                group2Id: '893387376',
+                group3: '点击加入反馈群',
+                group3Id: '1092640742'
+            },
+            footer: '© 2026 生存战争网'
         },
         
         en: {
@@ -72,16 +93,36 @@ const ServerLanguageConfig = {
                 joinGroup: 'Welcome to join our discussion group:',
                 managementOffice: 'Server List Management Office:',
                 noServers: 'No servers found',
+                loading: 'Loading...',
+                connecting: 'Connecting to server...',
+                loadFailed: 'Load failed',
                 address: 'Address',
                 version: 'Version',
+                level: 'Level',
+                joinMode: 'Join Mode',
                 latency: 'Latency',
                 players: 'Players',
                 mode: 'Mode',
                 network: 'Network',
-                timePeriod: 'Time',
-                season: 'Season',
-                expire: 'Expire'
-            }
+                directMode: 'Direct Mode',
+                proxyMode: 'Proxy Mode',
+                refresh: 'Refresh',
+                recommended: 'Recommended',
+                lobby: 'Lobby',
+                premium: 'Premium',
+                community: 'Community',
+                groupServer: 'Group Server',
+                childServer: 'Child Server'
+            },
+            groups: {
+                group1: 'SurvivalCraft 34 Server Group',
+                group1Id: '826823481',
+                group2: 'Apply to Open a Server',
+                group2Id: '893387376',
+                group3: 'Bug Feedback Group',
+                group3Id: '1092640742'
+            },
+            footer: '© 2026 SurvivalCraft Web'
         },
         
         ru: {
@@ -109,97 +150,38 @@ const ServerLanguageConfig = {
                 joinGroup: 'Добро пожаловать в нашу группу:',
                 managementOffice: 'Управление Списком Серверов:',
                 noServers: 'Серверы не найдены',
+                loading: 'Загрузка...',
+                connecting: 'Подключение к серверу...',
+                loadFailed: 'Ошибка загрузки',
                 address: 'Адрес',
                 version: 'Версия',
+                level: 'Уровень',
+                joinMode: 'Режим входа',
                 latency: 'Задержка',
                 players: 'Игроки',
                 mode: 'Режим',
                 network: 'Сеть',
-                timePeriod: 'Время',
-                season: 'Сезон',
-                expire: 'Истечение'
-            }
+                directMode: 'Прямое Подключение',
+                proxyMode: 'Прокси Режим',
+                refresh: 'Обновить',
+                recommended: 'Рекомендуется',
+                lobby: 'Лобби',
+                premium: 'Премиум',
+                community: 'Сообщество',
+                groupServer: 'Групповой Сервер',
+                childServer: 'Дочерний Сервер'
+            },
+            groups: {
+                group1: 'Группа Серверов SurvivalCraft 34',
+                group1Id: '826823481',
+                group2: 'Заявка на Открытие Сервера',
+                group2Id: '893387376',
+                group3: 'Группа Обратной Связи',
+                group3Id: '1092640742'
+            },
+            footer: '© 2026 SurvivalCraft Web'
         }
-    },
-    
-    getText: function(key, lang) {
-        lang = lang || this.default;
-        const keys = key.split('.');
-        let text = this.translations[lang];
-        
-        if (!text) {
-            text = this.translations[this.default];
-        }
-        
-        for (let k of keys) {
-            if (text && typeof text === 'object' && k in text) {
-                text = text[k];
-            } else {
-                return key;
-            }
-        }
-        
-        return text;
-    },
-    
-    updatePageTexts: function(lang) {
-        const elements = document.querySelectorAll('[data-i18n]');
-        elements.forEach(element => {
-            const key = element.getAttribute('data-i18n');
-            const text = this.getText(key, lang);
-            
-            if (element.tagName === 'INPUT' || element.tagName === 'TEXTAREA') {
-                if (element.hasAttribute('placeholder')) {
-                    element.setAttribute('placeholder', text);
-                } else {
-                    element.value = text;
-                }
-            } else if (element.hasAttribute('title')) {
-                element.setAttribute('title', text);
-            } else {
-                element.textContent = text;
-            }
-        });
     }
 };
 
-function initLanguageSelector() {
-    const languageButtons = document.querySelectorAll('.language-btn');
-    
-    languageButtons.forEach(button => {
-        button.addEventListener('click', function() {
-            const selectedLang = this.getAttribute('data-lang');
-            setLanguage(selectedLang);
-        });
-    });
-}
-
-function setLanguage(lang) {
-    localStorage.setItem('serverLanguage', lang);
-    
-    const languageButtons = document.querySelectorAll('.language-btn');
-    languageButtons.forEach(button => {
-        button.classList.remove('active');
-        if (button.getAttribute('data-lang') === lang) {
-            button.classList.add('active');
-        }
-    });
-    
-    ServerLanguageConfig.updatePageTexts(lang);
-}
-
-function initServerLanguages() {
-    const urlParams = new URLSearchParams(window.location.search);
-    let lang = urlParams.get('lang');
-    
-    if (!lang) {
-        lang = localStorage.getItem('serverLanguage') || ServerLanguageConfig.default;
-    }
-    
-    setLanguage(lang);
-    initLanguageSelector();
-}
-
-document.addEventListener('DOMContentLoaded', function() {
-    initServerLanguages();
-});
+window.ServerLanguageConfig = ServerLanguageConfig;

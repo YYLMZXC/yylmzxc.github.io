@@ -6,18 +6,19 @@
     <meta name="renderer" content="webkit">
     <meta name="applicable-device" content="pc,mobile">
     
-    <!-- 动态元信息（将由JavaScript更新） -->
     <title>生存战争网 - 首页 | SC中文社区官方网站</title>
     <meta name="description" content="生存战争网是中国最大的SC中文社区，提供游戏攻略、Mod模组、地图存档、材质包、皮肤和家具等资源下载，以及活跃的联机服务器。">
     <meta name="keywords" content="生存战争,SC中文社区,生存战争MOD,生存战争联机版,生存战争服务器,生存战争攻略">
     
-    <!-- 资源引用 -->
-    <link rel="stylesheet" href="./scweb_res/index/index_main.css?v=20260516">
+    <link rel="stylesheet" href="./scweb_res/shared/css/base.css?v=20260723">
+    <link rel="stylesheet" href="./scweb_res/shared/css/grid.css?v=20260723">
+    <link rel="stylesheet" href="./scweb_res/shared/css/components.css?v=20260723">
+    <link rel="stylesheet" href="./scweb_res/shared/css/theme.css?v=20260723">
+    <link rel="stylesheet" href="./scweb_res/index/index_main.css?v=20260723">
     <link rel="icon" type="image/x-icon" href="./scweb_res/favicon.ico">
     <link rel="canonical" href="index.html">
 </head>
 <body>
-    <!-- 页面头部 -->
     <header id="header" class="clearfix">
         <div class="container">
             <div class="row align-items-center">
@@ -32,18 +33,15 @@
         </div>
     </header>
 
-    <!-- 主导航栏 -->
     <nav id="top-nav-bar" class="clearfix" role="navigation">
         <div class="container">
             <div class="row align-items-center">
-                <!-- 导航菜单 -->
                 <div class="nav-menu">
-                    <a href="index.html" class="active" id="homeLink" title="生存战争网_SC中文社区">首页</a>
-                    <a href="online_server.html" id="serverListLink" title="生存战争联机服务器地址列表">联机服务器列表</a>
-                    <a rel="nofollow" target="_blank" href="https://www.yuque.com/u589148/wf2knt" id="apiTutorialLink" title="生存战争-APImod制作教程">APImod制作教程</a>
+                    <a href="index.html" class="active" id="homeLink" data-nav="home" title="生存战争网_SC中文社区">首页</a>
+                    <a href="online_server.html" id="serverListLink" data-nav="serverList" title="生存战争联机服务器地址列表">联机服务器列表</a>
+                    <a rel="nofollow" target="_blank" href="https://www.yuque.com/u589148/wf2knt" id="apiTutorialLink" data-nav="apiTutorial" title="生存战争-APImod制作教程">APImod制作教程</a>
                 </div>
                 
-                <!-- 主题切换按钮 -->
                 <div class="theme-section">
                     <div class="theme-selector">
                         <button class="theme-btn active" data-theme="light" title="切换到白天模式">☀️</button>
@@ -51,7 +49,6 @@
                     </div>
                 </div>
                 
-                <!-- 语言选择器 -->
                 <div class="language-section-top-right">
                     <div class="language-selector">
                         <button class="language-btn active" data-lang="zh" title="切换到中文">🇨🇳 中文</button>
@@ -63,26 +60,21 @@
         </div>
     </nav>
 
-    <!-- 主要内容区域 -->
     <main id="body">
         <div class="container">
             <div class="row">
                 <div class="col-mb-12 col-12" id="main" role="main">
                     <div class="post-content">
                         
-                        <!-- 中文导航区块 -->
                         <section class="nav-section">
                             <h3 id="cnNavigationTitle">🌏 CN中文导航</h3>
                             <div class="banner-grid" id="cnNavigationLinks">
-                                <!-- 导航链接将由JavaScript动态生成 -->
                             </div>
                         </section>
 
-                        <!-- 海外导航区块 -->
                         <section class="nav-section">
                             <h3 id="osNavigationTitle">🌍 OS海外导航</h3>
                             <div class="banner-grid" id="osNavigationLinks">
-                                <!-- 导航链接将由JavaScript动态生成 -->
                             </div>
                         </section>
                     </div>
@@ -91,9 +83,7 @@
         </div>
     </main>
 
-    <!-- 页脚 -->
     <footer id="footer">
-        <!-- 站点信息 -->
         <div class="site-info">
             <p class="site-address">
                 <span id="currentAddress">本站地址：</span>
@@ -103,8 +93,19 @@
         <p class="copyright">© 2026 生存战争网</p>
     </footer>
 
-    <!-- 脚本引用（确保加载顺序） -->
-    <script src="./scweb_res/index/index_languages.js?v=20260516"></script>
-    <script src="./scweb_res/index/index_script.js?v=20260516"></script>
+    <script src="./scweb_res/shared/js/utils.js?v=20260723"></script>
+    <script src="./scweb_res/shared/js/theme-manager.js?v=20260723"></script>
+    <script src="./scweb_res/index/index_languages.js?v=20260723"></script>
+    <script src="./scweb_res/index/index_script.js?v=20260723"></script>
+    
+    <script>
+    var _hmt = _hmt || [];
+    (function() {
+        var hm = document.createElement("script");
+        hm.src = "https://hm.baidu.com/hm.js?49508fcc51529f79d0f7e42bd08ed491";
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(hm, s);
+    })();
+    </script>
 </body>
 </html>

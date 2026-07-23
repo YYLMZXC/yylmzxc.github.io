@@ -1,25 +1,14 @@
-/**
- * 多语言配置文件
- * Multi-language Configuration File
- * 
- * 维护说明：
- * 1. 新增语言时需在 supported 数组中添加语言代码
- * 2. 每个语言包需保持 translations 结构一致
- * 3. navigation 中的链接需与 translations.links 对应
- */
-const LanguageConfig = {
-    // 基础配置
+const IndexLanguageConfig = {
     default: 'zh',
     supported: ['zh', 'en', 'ru'],
+    storageKey: 'preferredLanguage',
     
-    // 语言显示名称（带国旗图标）
     names: {
         'zh': '🇨🇳 中文',
         'en': '🇺🇸 English',
         'ru': '🇷🇺 Русский'
     },
     
-    // 翻译主数据（按语言分组）
     translations: {
         zh: {
             page: {
@@ -58,7 +47,6 @@ const LanguageConfig = {
                 osNavigation: '🌍 OS海外导航'
             },
             links: {
-                // 中文导航
                 scCommunity: 'SC中文社区cn路线',
                 scKey: '生存战争登录钥匙',
                 scWiki: '生存战争Wiki',
@@ -68,7 +56,6 @@ const LanguageConfig = {
                 scLauncher: 'SC启动器',
                 backupCommunity: 'SC中文社区os路线',
                 jiilForum: 'JIIL论坛',
-                // 海外导航
                 russianScCommunity: '俄语SC社区',
                 originalScCommunity: '原版SC社区',
                 internationalModSite: '海外Mod网站',
@@ -114,7 +101,6 @@ const LanguageConfig = {
                 osNavigation: '🌍 OS Overseas Navigation'
             },
             links: {
-                // 中文导航
                 scCommunity: 'SC Chinese Community cn Route',
                 scKey: 'SurvivalCraft Key',
                 scWiki: 'SurvivalCraft Wiki',
@@ -124,7 +110,6 @@ const LanguageConfig = {
                 scLauncher: 'SC Launcher',
                 backupCommunity: 'SC Chinese Community os Route',
                 jiilForum: 'JIIL Forum',
-                // 海外导航
                 russianScCommunity: 'Russian SC Community',
                 originalScCommunity: 'Original SC Community',
                 internationalModSite: 'International Mod Site',
@@ -170,7 +155,6 @@ const LanguageConfig = {
                 osNavigation: '🌍 OS Зарубежная Навигация'
             },
             links: {
-                // 中文导航
                 scCommunity: 'SC Китайское Сообщество cn Маршрут',
                 scWiki: 'SurvivalCraft Вики',
                 scYuqueWiki: 'SurvivalCraft Yuque Вики',
@@ -179,7 +163,6 @@ const LanguageConfig = {
                 scLauncher: 'SC Лаунчер',
                 backupCommunity: 'SC Китайское Сообщество os Маршрут',
                 jiilForum: 'JIIL Форум',
-                // 海外导航
                 russianScCommunity: 'Русское SC Сообщество',
                 originalScCommunity: 'Оригинальное SC Сообщество',
                 internationalModSite: 'Международный Мод Сайт',
@@ -189,7 +172,6 @@ const LanguageConfig = {
         }
     },
     
-    // 导航链接配置（与translations.links对应）
     navigation: {
         cn: [
             { title: 'links.scCommunity', url: 'https://test.suancaixianyu.cn/', external: true },
@@ -211,10 +193,4 @@ const LanguageConfig = {
     }
 };
 
-// 跨环境导出
-if (typeof window !== 'undefined') {
-    window.LanguageConfig = LanguageConfig;
-}
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = LanguageConfig;
-}
+window.IndexLanguageConfig = IndexLanguageConfig;

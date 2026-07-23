@@ -6,7 +6,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="applicable-device" content="pc,mobile">
     <title>生存战争联机服务器列表 | SC中文社区</title>
-    <link rel="stylesheet" href="./scweb_res/online_server/online_server_main.css">
+    <link rel="stylesheet" href="./scweb_res/shared/css/base.css?v=20260723">
+    <link rel="stylesheet" href="./scweb_res/shared/css/grid.css?v=20260723">
+    <link rel="stylesheet" href="./scweb_res/shared/css/components.css?v=20260723">
+    <link rel="stylesheet" href="./scweb_res/shared/css/theme.css?v=20260723">
+    <link rel="stylesheet" href="./scweb_res/online_server/online_server_main.css?v=20260723">
     <link rel="icon" type="image/x-icon" href="./scweb_res/favicon.ico">
     <link rel="canonical" href="online_server.html">
     <meta name="description" content="生存战争联机服务器列表，查看服务器状态、玩家人数、延迟等信息">
@@ -17,7 +21,7 @@
     <div class="container">
         <div class="row">
             <div class="site-name col-mb-12 col-12">
-                <h1 style="font-size:0">生存战争网_SC中文社区<a id="logo" title="生存战争网_SC中文社区" href="index.html">
+                <h1 class="site-title">生存战争网_SC中文社区<a id="logo" title="生存战争网_SC中文社区" href="index.html">
                     <img width="220px" height="64px" src="./scweb_res/logo.png" alt="生存战争网">
                 </a></h1>
             </div>
@@ -29,11 +33,18 @@
     <div class="container">
         <div class="row">
             <div id="nav-menu" class="nav-menu">
-                <a title="生存战争网_SC中文社区" href="index.html">首页</a>
-                <a title="生存战争联机服务器地址列表" href="online_server.html" class="active">联机服务器列表</a>
-                <a rel="nofollow" target="_blank" title="生存战争-APImod制作教程" href="https://www.yuque.com/u589148/wf2knt">APImod制作教程</a>
+                <a title="生存战争网_SC中文社区" href="index.html" data-nav="home">首页</a>
+                <a title="生存战争联机服务器地址列表" href="online_server.html" class="active" data-nav="serverList">联机服务器列表</a>
+                <a rel="nofollow" target="_blank" title="生存战争-APImod制作教程" href="https://www.yuque.com/u589148/wf2knt" data-nav="apiTutorial">APImod制作教程</a>
             </div>
-            
+
+            <div class="theme-section">
+                <div class="theme-selector">
+                    <button class="theme-btn active" data-theme="light" title="切换到白天模式">☀️</button>
+                    <button class="theme-btn" data-theme="dark" title="切换到黑夜模式">🌙</button>
+                </div>
+            </div>
+
             <div class="language-section-top-right">
                 <div class="language-selector">
                     <button class="language-btn active" data-lang="zh">🇨🇳 中文</button>
@@ -51,48 +62,47 @@
             <div class="col-mb-12 col-8" id="main" role="main">
                 <div class="post-content">
                     <div class="server-filters">
-                        <select class="version-selector" id="versionSelector" onchange="ServerList.onVersionChange(this)">
-                        </select>
-                        <button class="proxy-btn" id="proxyBtn" onclick="ServerList.toggleProxy()">🔗 直连模式</button>
+                        <select class="version-selector" id="versionSelector"></select>
+                        <button class="proxy-btn" id="proxyBtn">🔗 直连模式</button>
                         <button class="filter-btn active" data-filter="all" data-i18n="filters.all">全部</button>
                         <button class="filter-btn" data-filter="lobby" data-i18n="filters.lobby">大厅服</button>
                         <button class="filter-btn" data-filter="premium" data-i18n="filters.premium">精品服</button>
                         <button class="filter-btn" data-filter="community" data-i18n="filters.community">社区服</button>
-                        <button class="refresh-btn" onclick="ServerList.loadServerList()">🔄 刷新</button>
+                        <button class="refresh-btn" id="refreshBtn">🔄 刷新</button>
                     </div>
-                    
+
                     <div class="server-stats">
                         <h3>服务器统计</h3>
                         <p>加载中...</p>
                     </div>
-                    
+
                     <div class="server-list" id="serverList">
                         <div class="loading">加载中...</div>
                     </div>
                 </div>
             </div>
-            
+
             <div class="col-mb-12 col-4" id="sidebar" role="complementary">
-                <div class="join-group">
+                <div class="join-group join-group-default">
                     <p>
-                        <span>欢迎加入我们的交流群：</span>
-                        <a href="https://qm.qq.com/q/IhNyeKSe8C" target="_blank" class="group-link">生存战争34服务器联机交流群</a>
+                        <span data-i18n="server.joinGroup">欢迎加入我们的交流群：</span>
+                        <a href="https://qm.qq.com/q/IhNyeKSe8C" target="_blank" class="group-link" data-i18n="groups.group1">生存战争34服务器联机交流群</a>
                         （群号：<b>826823481</b>）
                     </p>
                 </div>
-                
-                <div class="join-group" style="background-color: #f0f7ff; margin-top: 20px;">
+
+                <div class="join-group join-group-info">
                     <p>
-                        <span>联机服列表管理办事处：</span>
-                        <a href="https://qm.qq.com/q/vvbsoOvoPu" target="_blank" class="group-link">开服申请点击加入</a>
+                        <span data-i18n="server.managementOffice">联机服列表管理办事处：</span>
+                        <a href="https://qm.qq.com/q/vvbsoOvoPu" target="_blank" class="group-link" data-i18n="groups.group2">开服申请点击加入</a>
                         （群号：<b>893387376</b>）
                     </p>
                 </div>
-                
-                <div class="join-group" style="background-color: #fff3cd; margin-top: 20px;">
+
+                <div class="join-group join-group-warning">
                     <p>
                         <span>联机号/公测联机版bug反馈群：</span>
-                        <a href="https://qm.qq.com/q/YtvZ07UpaY" target="_blank" class="group-link">点击加入反馈群</a>
+                        <a href="https://qm.qq.com/q/YtvZ07UpaY" target="_blank" class="group-link" data-i18n="groups.group3">点击加入反馈群</a>
                         （群号：<b>1092640742</b>）
                     </p>
                 </div>
@@ -102,11 +112,13 @@
 </div>
 
 <footer id="footer">
-    <p><br>© 2026 生存战争网</p>
+    <p>© 2026 生存战争网</p>
 </footer>
 
-<script src="./scweb_res/online_server/online_server_languages.js"></script>
-<script src="./scweb_res/online_server/online_server_script.js"></script>
+<script src="./scweb_res/shared/js/utils.js?v=20260723"></script>
+<script src="./scweb_res/shared/js/theme-manager.js?v=20260723"></script>
+<script src="./scweb_res/online_server/online_server_languages.js?v=20260723"></script>
+<script src="./scweb_res/online_server/online_server_script.js?v=20260723"></script>
 
 <script>
 var _hmt = _hmt || [];

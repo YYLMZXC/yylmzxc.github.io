@@ -1,55 +1,237 @@
-const ServerList = {
-    apiUrl: 'https://api.sckey.net/server/serverlist',
-    serverVersion: 'x26.07.20',
-    versions: [
-        { value: 'x26.07.20', label: 'x26.07.20' },
-        { value: 'x26.06.19', label: 'x26.06.19' },
-        { value: 'x26.05.23', label: 'x26.05.23' }
-    ],
-    timeout: 15000,
-    currentFilter: 'all',
-    useCorsProxy: false, // 默认关闭代理
-    cacheExpireMinutes: 10,
-    corsProxies: [
-        'https://api.allorigins.win/raw?url=',
-        'https://cors-anywhere.herokuapp.com/',
-        'https://proxy.cors.sh/'
-    ],
-    currentProxyIndex: 0,
-    
-    getNetworkType: function(ip) {
-        if (!ip) return '其他';
-        const ipv6Pattern = /^\[?[0-9a-fA-F:]+\]?:?\d*$/;
-        if (ipv6Pattern.test(ip)) return 'IPv6';
-        const ipv4Pattern = /^\d+\.\d+\.\d+\.\d+(:\d+)?$/;
-        if (ipv4Pattern.test(ip)) {
-            const ipPart = ip.split(':')[0];
-            if (ipPart.startsWith('192.168.') || ipPart.startsWith('10.') || 
-                ipPart.startsWith('172.16.') || ipPart.startsWith('127.')) {
-                return '局域网';
-            }
-            return 'IPv4';
+class OnlineServerManager {
+    constructor() {
+        this.apiUrl = 'https://api.sckey.net/server/serverlist';
+        this.serverVersion = 'x26.07.20';
+        this.versions = [
+            { value: 'x26.07.20', label: 'x26.07.20' },
+            { value: 'x26.06.19', label: 'x26.06.19' },
+            { value: 'x26.05.23', label: 'x26.05.23' }
+        ];
+        this.timeout = 15000;
+        this.currentFilter = 'all';
+        this.useCorsProxy = false;
+        this.cacheExpireMinutes = 10;
+        this.corsProxies = [
+            'https://api.allorigins.win/raw?url=',
+            'https://cors-anywhere.herokuapp.com/',
+            'https://proxy.cors.sh/'
+        ];
+        this.currentProxyIndex = 0;
+
+        this.languageConfig = window.ServerLanguageConfig;
+        this.currentLang = this.languageConfig.default;
+
+        this.init();
+    }
+
+    init() {
+        this.initTheme();
+        this.initLanguage();
+        this.initVersionSelector();
+        this.bindEvents();
+        this.initSidebarTranslations();
+        this.loadServerList();
+
+        setInterval(() => {
+            this.detectLatency();
+        }, 30000);
+
+        console.log('[OnlineServerManager] 初始化完成');
+    }
+
+    initTheme() {
+        if (window.ThemeManager) {
+            this.themeManager = new window.ThemeManager();
         }
-        return '其他';
-    },
-    
-    generateServerItem: function(server, index) {
-        const networkType = this.getNetworkType(server.ip);
+    }
+
+    initLanguage() {
+        const urlParams = new URLSearchParams(window.location.search);
+        let lang = urlParams.get('lang');
+
+        if (!lang) {
+            lang = localStorage.getItem(this.languageConfig.storageKey) || this.languageConfig.default;
+        }
+
+        this.setLanguage(lang);
+
+        const buttons = document.querySelectorAll('.language-btn');
+        buttons.forEach(button => {
+            button.addEventListener('click', () => {
+                this.setLanguage(button.getAttribute('data-lang'));
+            });
+        });
+    }
+
+    setLanguage(lang) {
+        if (!this.languageConfig.supported.includes(lang)) return;
+
+        this.currentLang = lang;
+        localStorage.setItem(this.languageConfig.storageKey, lang);
+        this.applyLanguage(lang);
+    }
+
+    applyLanguage(lang) {
+        const translations = this.languageConfig.translations[lang];
+        if (!translations) return;
+
+        if (translations.nav) {
+            Object.entries(translations.nav).forEach(([key, value]) => {
+                const element = document.querySelector(`[data-nav="${key}"]`);
+                if (element) {
+                    element.textContent = value;
+                }
+            });
+        }
+
+        this.updateDynamicContentByAttr();
+
+        if (translations.stats) {
+            const statsEl = document.querySelector('.server-stats h3');
+            if (statsEl && translations.stats.title) {
+                statsEl.textContent = translations.stats.title;
+            }
+        }
+
+        if (translations.server) {
+            this.updateDynamicTexts(translations.server);
+            this.updateFilterButtons(translations.filters);
+        }
+
+        if (translations.footer) {
+            const footerEl = document.querySelector('#footer p');
+            if (footerEl) {
+                footerEl.textContent = translations.footer;
+            }
+        }
+
+        document.querySelectorAll('.language-btn').forEach(button => {
+            button.classList.toggle('active', button.getAttribute('data-lang') === lang);
+        });
+    }
+
+    updateDynamicContentByAttr() {
+        const translations = this.languageConfig.translations[this.currentLang];
+        if (!translations) return;
+
+        document.querySelectorAll('[data-i18n]').forEach(element => {
+            const key = element.getAttribute('data-i18n');
+            const text = this.getNestedText(translations, key);
+            if (text) {
+                element.textContent = text;
+            }
+        });
+    }
+
+    getNestedText(obj, path) {
+        const keys = path.split('.');
+        let cur = obj;
+        for (const k of keys) {
+            if (cur && typeof cur === 'object' && k in cur) {
+                cur = cur[k];
+            } else {
+                return null;
+            }
+        }
+        return typeof cur === 'string' ? cur : null;
+    }
+
+    initSidebarTranslations() {
+        const translations = this.languageConfig.translations[this.currentLang];
+        if (!translations) return;
+        this.updateDynamicContentByAttr();
+    }
+
+    updateDynamicTexts(serverTranslations) {
+        const loadingEl = document.querySelector('.loading');
+        if (loadingEl && serverTranslations.loading) {
+            loadingEl.textContent = serverTranslations.loading;
+        }
+
+        const noServersEl = document.querySelector('.no-servers');
+        if (noServersEl && serverTranslations.noServers) {
+            noServersEl.textContent = serverTranslations.noServers;
+        }
+
+        const proxyBtn = document.getElementById('proxyBtn');
+        if (proxyBtn) {
+            proxyBtn.textContent = this.useCorsProxy ?
+                (serverTranslations.proxyMode || '代理模式') :
+                (serverTranslations.directMode || '直连模式');
+        }
+
+        const refreshBtn = document.getElementById('refreshBtn');
+        if (refreshBtn && serverTranslations.refresh) {
+            refreshBtn.textContent = serverTranslations.refresh + ' 🔄';
+        }
+    }
+
+    updateFilterButtons(filters) {
+        if (!filters) return;
+
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            const filter = btn.getAttribute('data-filter');
+            if (filter && filters[filter]) {
+                btn.textContent = filters[filter];
+            }
+        });
+    }
+
+    getCurrentServerText(key) {
+        const translations = this.languageConfig.translations[this.currentLang];
+        if (!translations || !translations.server) return key;
+        return translations.server[key] || key;
+    }
+
+    initVersionSelector() {
+        const versionSelector = document.getElementById('versionSelector');
+        if (!versionSelector) return;
+
+        versionSelector.innerHTML = '';
+        this.versions.forEach(version => {
+            const option = document.createElement('option');
+            option.value = version.value;
+            option.textContent = version.label;
+            if (version.value === this.serverVersion) {
+                option.selected = true;
+            }
+            versionSelector.appendChild(option);
+        });
+    }
+
+    bindEvents() {
+        const versionSelector = document.getElementById('versionSelector');
+        if (versionSelector) {
+            versionSelector.addEventListener('change', (e) => this.onVersionChange(e.target));
+        }
+
+        const proxyBtn = document.getElementById('proxyBtn');
+        if (proxyBtn) {
+            proxyBtn.addEventListener('click', () => this.toggleProxy());
+        }
+
+        const refreshBtn = document.getElementById('refreshBtn');
+        if (refreshBtn) {
+            refreshBtn.addEventListener('click', () => this.loadServerList(this.currentFilter, true));
+        }
+    }
+
+    generateServerItem(server, index) {
+        const networkType = window.SCUtils.getNetworkType(server.ip);
         const hasPort = server.ip.includes(':');
         const displayIp = hasPort ? server.ip : server.ip + ':28887';
         const serverId = server.id || `server-${index}`;
-        
-        // 处理多个IP
+
         let ipList = [];
         if (server.ips && Array.isArray(server.ips) && server.ips.length > 0) {
             ipList = server.ips.map(ip => ip.includes(':') ? ip : ip + ':28887');
         } else {
             ipList = [displayIp];
         }
-        
-        // 处理子服务器
+
         let childServersHtml = '';
         if (server.children && Array.isArray(server.children) && server.children.length > 0) {
+            const childLabel = this.getCurrentServerText('childServer');
             childServersHtml = server.children.map((child, ci) => {
                 const childIp = child.ip.includes(':') ? child.ip : child.ip + ':28887';
                 let childIpList = [];
@@ -59,14 +241,14 @@ const ServerList = {
                     childIpList = [childIp];
                 }
                 return `
-                    <div class="child-server" style="margin-left: 20px; padding: 10px; background-color: #fff; border-radius: 6px; margin-top: 10px;">
-                        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
-                            <span style="font-weight: 500; color: #2c3e50;">📁 ${child.name || '子服务器'}</span>
+                    <div class="child-server">
+                        <div class="child-server-header">
+                            <span class="child-server-title">📁 ${child.name || childLabel}</span>
                         </div>
                         <div class="info-row">
-                            <span class="label">地址:</span>
+                            <span class="label">${this.getCurrentServerText('address')}:</span>
                             ${childIpList.length > 1 ? `
-                                <select class="ip-selector" data-server-id="${serverId}-child-${ci}" style="padding: 4px 8px; border: 1px solid #ddd; border-radius: 4px; font-size: 13px;">
+                                <select class="ip-selector" data-server-id="${serverId}-child-${ci}">
                                     ${childIpList.map((ip, i) => `<option value="${ip}" ${i === 0 ? 'selected' : ''}>${ip}</option>`).join('')}
                                 </select>
                             ` : `<span class="value ip-value" data-ip="${childIp}">${childIp}</span>`}
@@ -76,81 +258,87 @@ const ServerList = {
                 `;
             }).join('');
         }
-        
-        // 根据等级生成标签
+
         let serverTags = '';
         if (server.publishType === 0) {
-            serverTags += '<span class="server-tag featured">推荐</span>';
+            serverTags += `<span class="server-tag featured">${this.getCurrentServerText('recommended')}</span>`;
         }
         if (server.level === 1) {
-            serverTags += '<span class="server-tag" style="background-color: #3498db;">大厅服</span>';
+            serverTags += `<span class="server-tag server-tag-lobby">${this.getCurrentServerText('lobby')}</span>`;
         } else if (server.level === 2) {
-            serverTags += '<span class="server-tag" style="background-color: #f39c12;">精品服</span>';
+            serverTags += `<span class="server-tag server-tag-premium">${this.getCurrentServerText('premium')}</span>`;
         } else if (server.level === 3) {
-            serverTags += '<span class="server-tag" style="background-color: #27ae60;">社区服</span>';
+            serverTags += `<span class="server-tag server-tag-community">${this.getCurrentServerText('community')}</span>`;
         }
         if (server.groupJoinMode) {
-            serverTags += '<span class="server-tag" style="background-color: #9b59b6;">群组服</span>';
+            serverTags += `<span class="server-tag server-tag-group">${this.getCurrentServerText('groupServer')}</span>`;
         }
-        
+
         return `
             <div class="server-item" data-server-id="${serverId}" data-server-index="${index}">
                 <div class="server-header">
-                    <span class="server-status status-checking" title="检查中">●</span>
+                    <span class="server-status status-checking" title="${this.getCurrentServerText('checking')}">●</span>
                     <span class="server-name">${server.name || '未知服务器'}</span>
                     ${serverTags}
                 </div>
-                
+
                 <div class="server-info">
                     <div class="info-row">
-                        <span class="label">地址:</span>
+                        <span class="label">${this.getCurrentServerText('address')}:</span>
                         ${ipList.length > 1 ? `
-                            <select class="ip-selector" data-server-id="${serverId}" style="padding: 4px 8px; border: 1px solid #ddd; border-radius: 4px; font-size: 13px;">
+                            <select class="ip-selector" data-server-id="${serverId}">
                                 ${ipList.map((ip, i) => `<option value="${ip}" ${i === 0 ? 'selected' : ''}>${ip}</option>`).join('')}
                             </select>
                         ` : `<span class="value ip-value" data-ip="${displayIp}">${displayIp}</span>`}
                         ${ipList.length > 1 ? `<span class="copy-btn" data-server-id="${serverId}">📋</span>` : `<span class="copy-btn" data-ip="${displayIp}">📋</span>`}
                     </div>
-                    
+
                     <div class="info-row">
-                        <span class="label">版本:</span>
+                        <span class="label">${this.getCurrentServerText('version')}:</span>
                         <span class="value">${server.version || '未知'}</span>
-                        <span class="label">等级:</span>
+                        <span class="label">${this.getCurrentServerText('level')}:</span>
                         <span class="value">${server.level !== undefined ? server.level : '-'}</span>
                     </div>
-                    
+
                     ${server.groupJoinMode !== undefined ? `
                     <div class="info-row">
-                        <span class="label">加入模式:</span>
+                        <span class="label">${this.getCurrentServerText('joinMode')}:</span>
                         <span class="value">${server.groupJoinMode}</span>
                     </div>
                     ` : ''}
-                    
+
                     <div class="info-row">
-                        <span class="label">网络:</span>
+                        <span class="label">${this.getCurrentServerText('network')}:</span>
                         <span class="value">${networkType}</span>
-                        <span class="label">延迟:</span>
-                        <span class="value latency-value" data-server-id="${serverId}">检测中...</span>
+                        <span class="label">${this.getCurrentServerText('latency')}:</span>
+                        <span class="value latency-value" data-server-id="${serverId}">${this.getCurrentServerText('checking')}...</span>
                     </div>
                 </div>
-                
+
                 ${childServersHtml}
             </div>
         `;
-    },
-    
-    loadServerList: async function(filter = this.currentFilter, forceRefresh = false) {
+    }
+
+    loadServerList(filter = this.currentFilter, forceRefresh = false) {
         this.currentFilter = filter;
         const serverListElement = document.getElementById('serverList');
         const serverStatsElement = document.querySelector('.server-stats');
-        
+
         const apiUrl = `${this.apiUrl}?version=${encodeURIComponent(this.serverVersion)}`;
+        const connectingText = this.getCurrentServerText('connecting');
+        const loadingText = this.getCurrentServerText('loading');
+        const loadFailedText = this.getCurrentServerText('loadFailed');
+        const totalText = this.getCurrentServerText('total');
+        const noServersText = this.getCurrentServerText('noServers');
+        const statsTitle = this.getCurrentServerText('title');
+
         console.log('=== 开始加载服务器列表 ===');
         console.log('API地址:', apiUrl);
-        
-        serverListElement.innerHTML = '<div class="loading">正在连接服务器...</div>';
-        serverStatsElement.innerHTML = '<h3>服务器统计</h3><p>加载中...</p>';
-        
+
+        serverListElement.innerHTML = `<div class="loading">${connectingText}</div>`;
+        serverStatsElement.innerHTML = `<h3>${statsTitle}</h3><p>${loadingText}</p>`;
+
         if (!forceRefresh) {
             const cachedServers = this.getCachedData();
             if (cachedServers) {
@@ -160,8 +348,8 @@ const ServerList = {
                 return;
             }
         }
-        
-        const data = await this.fetchWithRetry(apiUrl);
+
+        const data = this.fetchWithRetry(apiUrl);
         if (!data) {
             const cachedServers = this.getCachedData();
             if (cachedServers) {
@@ -169,13 +357,13 @@ const ServerList = {
                 this.displayServers(cachedServers);
                 return;
             }
-            serverStatsElement.innerHTML = '<h3>服务器统计</h3><p>加载失败</p>';
-            serverListElement.innerHTML = '<div class="no-servers">无法连接到服务器</div>';
+            serverStatsElement.innerHTML = `<h3>${statsTitle}</h3><p>${loadFailedText}</p>`;
+            serverListElement.innerHTML = `<div class="no-servers">无法连接到服务器</div>`;
             return;
         }
-        
+
         console.log('服务器响应数据:', JSON.stringify(data, null, 2));
-        
+
         let servers = [];
         if (data && data.data && data.data.list && Array.isArray(data.data.list)) {
             servers = data.data.list;
@@ -190,70 +378,64 @@ const ServerList = {
             servers = data;
             console.log('直接获取服务器列表，数量:', servers.length);
         }
-        
+
         if (!servers || servers.length === 0) {
             console.log('服务器列表为空');
-            serverStatsElement.innerHTML = '<h3>服务器统计</h3><p>暂无服务器</p>';
-            serverListElement.innerHTML = '<div class="no-servers">暂无服务器</div>';
+            serverStatsElement.innerHTML = `<h3>${statsTitle}</h3><p>暂无服务器</p>`;
+            serverListElement.innerHTML = `<div class="no-servers">${noServersText}</div>`;
             return;
         }
-        
+
         this.saveToCache(servers);
         this.displayServers(servers);
-    },
-    
-    displayServers: function(servers) {
+    }
+
+    displayServers(servers) {
         const serverListElement = document.getElementById('serverList');
         const serverStatsElement = document.querySelector('.server-stats');
-        
+
+        const totalText = this.getCurrentServerText('total');
+        const statsTitle = this.getCurrentServerText('title');
+
         console.log('成功加载', servers.length, '个服务器');
-        
-        // 根据筛选条件过滤服务器
+
         let filteredServers = servers;
         if (this.currentFilter !== 'all') {
             filteredServers = servers.filter(server => {
-                if (this.currentFilter === 'lobby') {
-                    return server.level === 1;
-                } else if (this.currentFilter === 'premium') {
-                    return server.level === 2;
-                } else if (this.currentFilter === 'community') {
-                    return server.level === 3;
-                }
+                if (this.currentFilter === 'lobby') return server.level === 1;
+                if (this.currentFilter === 'premium') return server.level === 2;
+                if (this.currentFilter === 'community') return server.level === 3;
                 return true;
             });
         }
-        
+
         serverStatsElement.innerHTML = `
-            <h3>服务器统计</h3>
-            <p>
-                总计: <b>${filteredServers.length}</b> 个服务器
-            </p>
+            <h3>${statsTitle}</h3>
+            <p>${totalText}: <b>${filteredServers.length}</b></p>
         `;
-        
+
         let html = '';
         filteredServers.forEach((server, index) => {
             console.log('服务器', index + 1, ':', server.name, '-', server.ip);
             html += this.generateServerItem(server, index);
         });
-        
+
         serverListElement.innerHTML = html;
-        
-        // 立即初始化所有事件处理
+
         this.initCopyHandlers();
         this.initFilterButtons();
         this.initIpSelectors();
-        
+
         console.log('=== 服务器列表加载完成 ===');
-        
-        // 延迟检测在后台进行，不阻塞UI
+
         setTimeout(() => {
             this.detectLatency();
         }, 100);
-    },
-    
-    fetchAndUpdateCache: async function(apiUrl) {
+    }
+
+    fetchAndUpdateCache(apiUrl) {
         try {
-            const data = await this.fetchWithRetry(apiUrl);
+            const data = this.fetchWithRetry(apiUrl);
             if (data) {
                 let servers = [];
                 if (data && data.data && data.data.list && Array.isArray(data.data.list)) {
@@ -265,7 +447,7 @@ const ServerList = {
                 } else if (Array.isArray(data)) {
                     servers = data;
                 }
-                
+
                 if (servers && servers.length > 0) {
                     this.saveToCache(servers);
                     this.displayServers(servers);
@@ -275,21 +457,21 @@ const ServerList = {
         } catch (e) {
             console.log('后台更新缓存失败:', e.message);
         }
-    },
-    
-    getCacheKey: function() {
+    }
+
+    getCacheKey() {
         return `sc_server_list_${this.serverVersion}`;
-    },
-    
-    getCachedData: function() {
+    }
+
+    getCachedData() {
         try {
             const cacheKey = this.getCacheKey();
             const cached = localStorage.getItem(cacheKey);
             if (!cached) return null;
-            
+
             const data = JSON.parse(cached);
             const now = Date.now();
-            
+
             if (data.timestamp && (now - data.timestamp) < this.cacheExpireMinutes * 60 * 1000) {
                 console.log(`使用缓存数据，缓存时间: ${new Date(data.timestamp).toLocaleString()}`);
                 return data.servers;
@@ -302,9 +484,9 @@ const ServerList = {
             console.error('读取缓存失败:', e);
             return null;
         }
-    },
-    
-    saveToCache: function(servers) {
+    }
+
+    saveToCache(servers) {
         try {
             const cacheKey = this.getCacheKey();
             localStorage.setItem(cacheKey, JSON.stringify({
@@ -315,47 +497,44 @@ const ServerList = {
         } catch (e) {
             console.error('保存缓存失败:', e);
         }
-    },
-    
-    fetchWithRetry: async function(apiUrl) {
-        // 首先尝试直接连接，再尝试代理
+    }
+
+    fetchWithRetry(apiUrl) {
         const proxies = this.useCorsProxy ? this.corsProxies : [];
-        const allAttempts = ['', ...proxies]; // 第一个是空字符串，表示直接连接
+        const allAttempts = ['', ...proxies];
         const totalAttempts = allAttempts.length;
-        
+
         for (let attempt = 0; attempt < totalAttempts; attempt++) {
             try {
                 const proxy = allAttempts[attempt];
                 const fullUrl = proxy ? proxy + encodeURIComponent(apiUrl) : apiUrl;
-                
+
                 console.log(`尝试连接 (${attempt + 1}/${totalAttempts})...`);
                 console.log('请求地址:', fullUrl);
-                
+
                 const controller = new AbortController();
                 const timeoutId = setTimeout(() => {
                     console.log('请求超时');
                     controller.abort();
                 }, this.timeout);
-                
-                const response = await fetch(fullUrl, {
+
+                const response = fetch(fullUrl, {
                     method: 'GET',
                     mode: 'cors',
                     signal: controller.signal,
-                    headers: {
-                        'Accept': 'application/json'
-                    }
+                    headers: { 'Accept': 'application/json' }
                 });
-                
+
                 clearTimeout(timeoutId);
                 console.log('收到响应，状态码:', response.status);
-                
+
                 if (!response.ok) {
                     console.log('HTTP错误:', response.status, response.statusText);
                     throw new Error(`HTTP错误: ${response.status}`);
                 }
-                
-                return await response.json();
-                
+
+                return response.json();
+
             } catch (error) {
                 console.log(`尝试 ${attempt + 1} 失败:`, error.message);
                 if (attempt < totalAttempts - 1) {
@@ -363,42 +542,46 @@ const ServerList = {
                 }
             }
         }
-        
+
         console.error('所有尝试都失败了');
         return null;
-    },
-    
-    toggleProxy: function() {
+    }
+
+    toggleProxy() {
         this.useCorsProxy = !this.useCorsProxy;
         const proxyBtn = document.getElementById('proxyBtn');
-        
+        const proxyText = this.getCurrentServerText('proxyMode');
+        const directText = this.getCurrentServerText('directMode');
+
         if (this.useCorsProxy) {
-            proxyBtn.textContent = '🌐 代理模式';
+            proxyBtn.textContent = '🌐 ' + (proxyText || '代理模式');
             proxyBtn.classList.add('proxy-active');
             console.log('切换到代理模式');
         } else {
-            proxyBtn.textContent = '🔗 直连模式';
+            proxyBtn.textContent = '🔗 ' + (directText || '直连模式');
             proxyBtn.classList.remove('proxy-active');
             console.log('切换到直连模式');
         }
-        
+
         this.loadServerList(this.currentFilter, true);
-    },
-    
-    onVersionChange: function(selectElement) {
+    }
+
+    onVersionChange(selectElement) {
         const newVersion = selectElement.value;
         console.log('版本变更为:', newVersion);
-        
+
         const oldVersion = this.serverVersion;
         this.serverVersion = newVersion;
-        
+
         if (oldVersion !== newVersion) {
             const serverListElement = document.getElementById('serverList');
             const serverStatsElement = document.querySelector('.server-stats');
-            
-            serverListElement.innerHTML = '<div class="loading">正在加载 ' + newVersion + ' 版本服务器...</div>';
-            serverStatsElement.innerHTML = '<h3>服务器统计</h3><p>加载中...</p>';
-            
+            const loadingText = this.getCurrentServerText('loading');
+            const statsTitle = this.getCurrentServerText('title');
+
+            serverListElement.innerHTML = `<div class="loading">正在加载 ${newVersion} 版本服务器...</div>`;
+            serverStatsElement.innerHTML = `<h3>${statsTitle}</h3><p>${loadingText}</p>`;
+
             const cachedServers = this.getCachedData();
             if (cachedServers) {
                 console.log('该版本有缓存，直接显示');
@@ -411,24 +594,21 @@ const ServerList = {
                 this.loadServerList(this.currentFilter, false);
             }
         }
-    },
-    
-    initCopyHandlers: function() {
-        // 处理单IP复制
+    }
+
+    initCopyHandlers() {
+        const copiedText = this.getCurrentServerText('copied');
+
         document.querySelectorAll('.copy-btn[data-ip]').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.stopPropagation();
                 const ip = btn.getAttribute('data-ip');
-                navigator.clipboard.writeText(ip).then(() => {
-                    btn.textContent = '✓';
-                    setTimeout(() => btn.textContent = '📋', 2000);
-                }).catch(err => {
-                    console.error('复制失败:', err);
-                });
+                window.SCUtils.copyToClipboard(ip);
+                btn.textContent = '✓';
+                setTimeout(() => btn.textContent = '📋', 2000);
             });
         });
-        
-        // 处理多IP选择器复制
+
         document.querySelectorAll('.copy-btn[data-server-id]').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.stopPropagation();
@@ -436,39 +616,33 @@ const ServerList = {
                 const selector = document.querySelector(`.ip-selector[data-server-id="${serverId}"]`);
                 if (selector) {
                     const ip = selector.value;
-                    navigator.clipboard.writeText(ip).then(() => {
-                        btn.textContent = '✓';
-                        setTimeout(() => btn.textContent = '📋', 2000);
-                    }).catch(err => {
-                        console.error('复制失败:', err);
-                    });
+                    window.SCUtils.copyToClipboard(ip);
+                    btn.textContent = '✓';
+                    setTimeout(() => btn.textContent = '📋', 2000);
                 }
             });
         });
-        
-        // 处理IP值点击复制
+
         document.querySelectorAll('.ip-value').forEach(element => {
             element.addEventListener('click', () => {
                 const ip = element.getAttribute('data-ip');
-                navigator.clipboard.writeText(ip).then(() => {
-                    element.style.color = '#27ae60';
-                    setTimeout(() => element.style.color = '', 2000);
-                });
+                window.SCUtils.copyToClipboard(ip);
+                element.classList.add('ip-value-copied');
+                setTimeout(() => element.classList.remove('ip-value-copied'), 2000);
             });
         });
-    },
-    
-    initIpSelectors: function() {
+    }
+
+    initIpSelectors() {
         document.querySelectorAll('.ip-selector').forEach(selector => {
             selector.addEventListener('change', () => {
                 const serverId = selector.getAttribute('data-server-id');
-                // 重新检测当前选择IP的延迟
                 this.detectLatencyForServer(serverId);
             });
         });
-    },
-    
-    initFilterButtons: function() {
+    }
+
+    initFilterButtons() {
         document.querySelectorAll('.filter-btn').forEach(btn => {
             btn.addEventListener('click', () => {
                 document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
@@ -476,27 +650,25 @@ const ServerList = {
                 this.loadServerList(btn.getAttribute('data-filter'));
             });
         });
-    },
-    
-    detectLatency: function() {
+    }
+
+    detectLatency() {
         const latencyElements = document.querySelectorAll('.latency-value');
-        latencyElements.forEach((element, index) => {
-            // 并行执行所有延迟检测，不使用延迟
+        latencyElements.forEach((element) => {
             const serverId = element.getAttribute('data-server-id');
             if (serverId) {
                 this.detectLatencyForServer(serverId);
             }
         });
-    },
-    
-    detectLatencyForServer: function(serverId) {
+    }
+
+    detectLatencyForServer(serverId) {
         const latencyElement = document.querySelector(`.latency-value[data-server-id="${serverId}"]`);
         if (!latencyElement) return;
-        
-        // 找到对应的IP选择器或IP值
+
         const selector = document.querySelector(`.ip-selector[data-server-id="${serverId}"]`);
         let ip = null;
-        
+
         if (selector) {
             ip = selector.value;
         } else {
@@ -505,34 +677,17 @@ const ServerList = {
                 ip = ipValue.getAttribute('data-ip');
             }
         }
-        
+
         if (!ip) return;
-        
-        let host, port;
-        const ipv6Match = ip.match(/^\[([^\]]+)\](?::(\d+))?$/);
-        if (ipv6Match) {
-            host = ipv6Match[1];
-            port = ipv6Match[2] || '28887';
-        } else {
-            const lastColon = ip.lastIndexOf(':');
-            if (lastColon !== -1) {
-                host = ip.substring(0, lastColon);
-                port = ip.substring(lastColon + 1) || '28887';
-            } else {
-                host = ip;
-                port = '28887';
-            }
-        }
-        
+
+        const { host, port } = window.SCUtils.parseIpPort(ip);
         const pingUrl = `https://api.sckey.net/server/ping?host=${encodeURIComponent(host)}&port=${encodeURIComponent(port)}`;
         const fullPingUrl = this.useCorsProxy ? (this.corsProxies[0] || '') + encodeURIComponent(pingUrl) : pingUrl;
-        
+
         const startTime = performance.now();
-        
         const serverItem = latencyElement.closest('.server-item');
         const statusElement = serverItem ? serverItem.querySelector('.server-status') : null;
-        
-        // 设置一个简单的延迟显示逻辑，即使 ping 失败
+
         const simpleLatencyCheck = () => {
             const simpleLatency = Math.round(performance.now() - startTime);
             if (simpleLatency < 1000) {
@@ -545,22 +700,20 @@ const ServerList = {
                 latencyElement.textContent = '-';
             }
         };
-        
+
         fetch(fullPingUrl, {
             method: 'GET',
             mode: 'cors'
         })
         .then(response => {
-            if (!response.ok) {
-                throw new Error('Ping failed');
-            }
+            if (!response.ok) throw new Error('Ping failed');
             return response.json();
         })
         .then(result => {
-            const latency = result && result.success && result.latency !== undefined 
-                ? result.latency 
+            const latency = result && result.success && result.latency !== undefined
+                ? result.latency
                 : Math.round(performance.now() - startTime);
-            
+
             if (latency >= 0) {
                 latencyElement.textContent = latency < 1 ? '<1 ms' : latency + ' ms';
                 if (statusElement) {
@@ -574,41 +727,17 @@ const ServerList = {
             }
         })
         .catch(() => {
-            // 如果 ping 失败，使用简单的检查
             simpleLatencyCheck();
         });
-        
-        // 设置超时，以防 fetch 永远不会返回
+
         setTimeout(() => {
-            if (latencyElement.textContent === '检测中...') {
+            if (latencyElement.textContent === this.getCurrentServerText('checking') + '...') {
                 simpleLatencyCheck();
             }
         }, 3000);
-    },
-
-    initVersionSelector: function() {
-        const versionSelector = document.getElementById('versionSelector');
-        if (!versionSelector) return;
-        
-        versionSelector.innerHTML = '';
-        this.versions.forEach(version => {
-            const option = document.createElement('option');
-            option.value = version.value;
-            option.textContent = version.label;
-            if (version.value === this.serverVersion) {
-                option.selected = true;
-            }
-            versionSelector.appendChild(option);
-        });
     }
-};
+}
 
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('=== 页面加载完成，开始初始化 ===');
-    ServerList.initVersionSelector();
-    ServerList.loadServerList();
-    
-    setInterval(() => {
-        ServerList.detectLatency();
-    }, 30000);
+document.addEventListener('DOMContentLoaded', () => {
+    window.onlineServerManager = new OnlineServerManager();
 });
