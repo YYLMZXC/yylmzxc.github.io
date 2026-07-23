@@ -61,7 +61,6 @@ const LanguageConfig = {
                 // 中文导航
                 scForum: '生存战争论坛',
                 scCommunity: 'SC中文社区cn路线',
-                scOldAddress: 'SC中文社区旧地址',
                 scKey: '生存战争登录钥匙',
                 scWiki: '生存战争Wiki',
                 scYuqueWiki: '生存战争语雀百科',
@@ -125,7 +124,6 @@ const LanguageConfig = {
                 // 中文导航
                 scForum: 'SC Forum',
                 scCommunity: 'SC Chinese Community cn Route',
-                scOldAddress: 'SC Old Address',
                 scKey: 'SurvivalCraft Key',
                 scWiki: 'SurvivalCraft Wiki',
                 scYuqueWiki: 'SurvivalCraft Yuque Wiki',
@@ -189,7 +187,6 @@ const LanguageConfig = {
                 // 中文导航
                 scForum: 'SC Форум',
                 scCommunity: 'SC Китайское Сообщество cn Маршрут',
-                scOldAddress: 'SC Старый Адрес',
                 scWiki: 'SurvivalCraft Вики',
                 scYuqueWiki: 'SurvivalCraft Yuque Вики',
                 pluginMod: 'Плагин Мод',
@@ -218,7 +215,6 @@ const LanguageConfig = {
         cn: [
             { title: 'links.scForum', url: 'http://schub.icu/sczz/', external: true },
             { title: 'links.scCommunity', url: 'https://test.suancaixianyu.cn/', external: true },
-            { title: 'links.scOldAddress', url: 'https://www.schub.top/', external: true },
             { title: 'links.backupCommunity', url: 'https://www.scbbs.top/', external: true },
             { title: 'links.scKey', url: 'https://sckey.net', external: true },
             { title: 'links.scWiki', url: 'https://docs.scwk.net/', external: true },
