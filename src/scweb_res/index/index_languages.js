@@ -81,7 +81,9 @@ const IndexLanguageConfig = {
                 officialBlog: '正版官网',
                 mirahezeWiki: '生存战争维基百科',
                 fandomWiki: '生存战争Fandom百科',
-                scSpm: '生存战争MOD开发管理组'
+                scSpm: '生存战争MOD开发管理组',
+                scApiDownload: '生存战争api下载',
+                scNetDownload: '生存战争联机版Net下载'
             },
             footer: '© 2026 生存战争网'
         },
@@ -139,7 +141,9 @@ const IndexLanguageConfig = {
                 officialBlog: 'Official Blog',
                 mirahezeWiki: 'SurvivalCraft Miraheze Wiki',
                 fandomWiki: 'SurvivalCraft Fandom Wiki',
-                scSpm: 'SurvivalCraft MOD Dev Team'
+                scSpm: 'SurvivalCraft MOD Dev Team',
+                scApiDownload: 'SurvivalCraft API Download',
+                scNetDownload: 'SurvivalCraft Net Download'
             },
             footer: '© 2026 SurvivalCraft Web'
         },
@@ -197,7 +201,9 @@ const IndexLanguageConfig = {
                 officialBlog: 'Официальный Блог',
                 mirahezeWiki: 'SurvivalCraft Miraheze Вики',
                 fandomWiki: 'SurvivalCraft Fandom Вики',
-                scSpm: 'SurvivalCraft MOD Команда Разработки'
+                scSpm: 'SurvivalCraft MOD Команда Разработки',
+                scApiDownload: 'Скачать SurvivalCraft API',
+                scNetDownload: 'Скачать SurvivalCraft Net'
             },
             footer: '© 2026 SurvivalCraft Web'
         }
@@ -231,7 +237,9 @@ const IndexLanguageConfig = {
             { title: 'links.fandomWiki', url: 'https://survivalcraft.fandom.com', external: true }
         ],
         other: [
-            { title: 'links.scSpm', url: 'https://gitee.com/SC-SPM', external: true }
+            { title: 'links.scSpm', url: 'https://gitee.com/SC-SPM', external: true },
+            { title: 'links.scApiDownload', url: 'https://gitee.com/SC-SPM/SurvivalcraftApi/releases', external: true },
+            { title: 'links.scNetDownload', url: 'https://gitee.com/SC-SPM/SurvivalcraftNet/releases', external: true }
         ]
     }
 };
