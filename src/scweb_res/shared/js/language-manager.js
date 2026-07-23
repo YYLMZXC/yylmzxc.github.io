@@ -158,6 +158,11 @@ class LanguageManager {
             this.applyTranslations();
             this.updateLanguageButtons();
             document.body.classList.remove('lang-switching');
+
+            document.dispatchEvent(new CustomEvent('languageChanged', {
+                detail: { lang: newLang, oldLang: oldLang }
+            }));
+
             console.log(`[LanguageManager] 语言切换：${oldLang} → ${newLang}`);
         }, 150);
     }

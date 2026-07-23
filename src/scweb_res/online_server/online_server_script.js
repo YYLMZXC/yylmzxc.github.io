@@ -20,9 +20,6 @@ class OnlineServerManager {
         this.lastFilteredCount = null;
         this.currentStatus = 'loading';
 
-        this.languageConfig = window.ServerLanguageConfig;
-        this.currentLang = this.languageConfig.default;
-
         this.init();
     }
 
@@ -32,7 +29,6 @@ class OnlineServerManager {
         this.initSiteInfo();
         this.initVersionSelector();
         this.bindEvents();
-        this.initSidebarTranslations();
         this.loadServerList();
 
         setInterval(() => {
@@ -42,41 +38,6 @@ class OnlineServerManager {
         console.log('[OnlineServerManager] 初始化完成');
     }
 
-    initSiteInfo() {
-        const currentUrl = window.location.hostname + (window.location.port ? ':' + window.location.port : '');
-
-        const currentAddressEl = document.getElementById('currentAddress');
-        if (currentAddressEl) {
-            const translations = this.languageConfig.translations[this.currentLang];
-            const prefix = translations && translations.siteInfo && translations.siteInfo.currentAddress
-                ? translations.siteInfo.currentAddress
-                : '本站地址：';
-            currentAddressEl.textContent = prefix + currentUrl;
-        }
-
-        const shortUrlEl = document.getElementById('shortUrl');
-        if (shortUrlEl) {
-            const translations = this.languageConfig.translations[this.currentLang];
-            const prefix = translations && translations.siteInfo && translations.siteInfo.shortUrl
-                ? translations.siteInfo.shortUrl
-                : '短网址：';
-            shortUrlEl.innerHTML = `
-                ${prefix}
-                <a href="https://scnet.top/" target="_blank" rel="noopener">
-                    scnet.top <span style="font-size: 0.8em; color: #666;">https://scnet.top/</span>
-                </a>
-                <br>
-                <a href="https://schub.icu/" target="_blank" rel="noopener">
-                    schub.icu <span style="font-size: 0.8em; color: #666;">https://schub.icu/</span>
-                </a>
-                <br>
-                <a href="https://scwz.top/" target="_blank" rel="noopener">
-                    scwz.top <span style="font-size: 0.8em; color: #666;">https://scwz.top/</span>
-                </a>
-            `;
-        }
-    }
-
     initTheme() {
         if (window.ThemeManager) {
             this.themeManager = new window.ThemeManager();
@@ -84,192 +45,138 @@ class OnlineServerManager {
     }
 
     initLanguage() {
-        const urlParams = new URLSearchParams(window.location.search);
-        let lang = urlParams.get('lang');
+        const mergedConfig = this.mergeConfigs(window.SiteLanguageConfig, window.ServerLanguageConfig);
 
-        if (!lang) {
-            lang = localStorage.getItem(this.languageConfig.storageKey) || this.languageConfig.default;
+        if (window.LanguageManager) {
+            this.languageManager = new window.LanguageManager(mergedConfig);
+            this.languageManager.init();
         }
 
-        this.setLanguage(lang);
+        this.serverConfig = mergedConfig;
 
-        const buttons = document.querySelectorAll('.language-btn');
-        buttons.forEach(button => {
-            button.addEventListener('click', () => {
-                this.setLanguage(button.getAttribute('data-lang'));
-            });
+        document.addEventListener('languageChanged', (e) => {
+            this.onLanguageChanged(e.detail ? e.detail.lang : this.languageManager.currentLang);
         });
     }
 
-    setLanguage(lang) {
-        if (!this.languageConfig.supported.includes(lang)) return;
+    mergeConfigs(baseConfig, pageConfig) {
+        const merged = {
+            default: pageConfig.default || baseConfig.default,
+            supported: pageConfig.supported || baseConfig.supported,
+            storageKey: pageConfig.storageKey || baseConfig.storageKey,
+            names: pageConfig.names || baseConfig.names,
+            translations: {}
+        };
 
-        this.currentLang = lang;
-        localStorage.setItem(this.languageConfig.storageKey, lang);
-        this.applyLanguage(lang);
-    }
+        const languages = [...new Set([
+            ...Object.keys(baseConfig.translations || {}),
+            ...Object.keys(pageConfig.translations || {})
+        ])];
 
-    applyLanguage(lang) {
-        const translations = this.languageConfig.translations[lang];
-        if (!translations) return;
-
-        if (translations.nav) {
-            Object.entries(translations.nav).forEach(([key, value]) => {
-                const element = document.querySelector(`[data-nav="${key}"]`);
-                if (element) {
-                    element.textContent = value;
-                }
-            });
-        }
-
-        if (translations.page && translations.page.title) {
-            document.title = translations.page.title;
-        }
-
-        this.updateDynamicContentByAttr();
-
-        if (translations.stats) {
-            const statsEl = document.querySelector('.server-stats h3');
-            if (statsEl && translations.stats.title) {
-                statsEl.textContent = translations.stats.title;
-            }
-            const statsPEl = document.querySelector('.server-stats p');
-            if (statsPEl) {
-                this.updateStatsParagraph(statsPEl);
-            }
-        }
-
-        if (translations.server) {
-            this.updateDynamicTexts(translations.server);
-            this.updateFilterButtons(translations.filters);
-        }
-
-        if (translations.footer) {
-            const footerEl = document.querySelector('.copyright');
-            if (footerEl) {
-                footerEl.textContent = translations.footer;
-            }
-        }
-
-        if (translations.siteInfo) {
-            const currentAddressEl = document.getElementById('currentAddress');
-            if (currentAddressEl && translations.siteInfo.currentAddress) {
-                const baseUrl = window.location.hostname + (window.location.port ? ':' + window.location.port : '');
-                currentAddressEl.textContent = translations.siteInfo.currentAddress + baseUrl;
-            }
-            const shortUrlEl = document.getElementById('shortUrl');
-            if (shortUrlEl && translations.siteInfo.shortUrl) {
-                shortUrlEl.innerHTML = shortUrlEl.innerHTML.replace(/^.*?(?=<a)/s, translations.siteInfo.shortUrl + '\n');
-            }
-        }
-
-        document.querySelectorAll('.language-btn').forEach(button => {
-            button.classList.toggle('active', button.getAttribute('data-lang') === lang);
+        languages.forEach(lang => {
+            const base = (baseConfig.translations && baseConfig.translations[lang]) || {};
+            const page = (pageConfig.translations && pageConfig.translations[lang]) || {};
+            merged.translations[lang] = this.deepMerge(base, page);
         });
+
+        return merged;
     }
 
-    updateStatsParagraph(pEl) {
-        const connectingText = this.getCurrentServerText('connecting');
-        const loadingText = this.getCurrentServerText('loading');
-        const loadFailedText = this.getCurrentServerText('loadFailed');
-        const totalText = this.getCurrentStatsText('total');
-
-        switch (this.currentStatus) {
-            case 'connecting':
-                pEl.textContent = connectingText;
-                break;
-            case 'loading':
-                pEl.textContent = loadingText;
-                break;
-            case 'loadFailed':
-                pEl.textContent = loadFailedText;
-                break;
-            case 'ready':
-                const count = this.lastFilteredCount !== null ? this.lastFilteredCount : 0;
-                pEl.innerHTML = `${totalText}: <b>${count}</b>`;
-                break;
-            default:
-                pEl.textContent = loadingText;
-        }
-    }
-
-    updateDynamicContentByAttr() {
-        const translations = this.languageConfig.translations[this.currentLang];
-        if (!translations) return;
-
-        document.querySelectorAll('[data-i18n]').forEach(element => {
-            const key = element.getAttribute('data-i18n');
-            const text = this.getNestedText(translations, key);
-            if (text) {
-                element.textContent = text;
-            }
-        });
-    }
-
-    getNestedText(obj, path) {
-        const keys = path.split('.');
-        let cur = obj;
-        for (const k of keys) {
-            if (cur && typeof cur === 'object' && k in cur) {
-                cur = cur[k];
+    deepMerge(target, source) {
+        const result = { ...target };
+        for (const key of Object.keys(source)) {
+            if (source[key] && typeof source[key] === 'object' && !Array.isArray(source[key])) {
+                result[key] = this.deepMerge(result[key] || {}, source[key]);
             } else {
-                return null;
+                result[key] = source[key];
             }
         }
-        return typeof cur === 'string' ? cur : null;
+        return result;
     }
 
-    initSidebarTranslations() {
-        const translations = this.languageConfig.translations[this.currentLang];
+    onLanguageChanged(lang) {
+        this.updateServerTexts(lang);
+        this.updateFilterButtons(lang);
+        this.refreshServerDisplayIfNeeded(lang);
+    }
+
+    refreshServerDisplayIfNeeded(lang) {
+        if (this.currentStatus === 'ready' && this.lastFilteredCount > 0) {
+            const servers = this.getCachedData();
+            if (servers) {
+                this.displayServers(servers);
+            }
+        }
+    }
+
+    updateServerTexts(lang) {
+        const translations = this.getTranslations(lang);
         if (!translations) return;
-        this.updateDynamicContentByAttr();
-    }
 
-    updateDynamicTexts(serverTranslations) {
         const loadingEl = document.querySelector('.loading');
-        if (loadingEl && serverTranslations.loading) {
-            loadingEl.textContent = serverTranslations.loading;
+        if (loadingEl && translations.server && translations.server.loading) {
+            loadingEl.textContent = translations.server.loading;
         }
 
         const noServersEl = document.querySelector('.no-servers');
-        if (noServersEl && serverTranslations.noServers) {
-            noServersEl.textContent = serverTranslations.noServers;
+        if (noServersEl && translations.server && translations.server.noServers) {
+            noServersEl.textContent = translations.server.noServers;
         }
 
         const proxyBtn = document.getElementById('proxyBtn');
-        if (proxyBtn) {
+        if (proxyBtn && translations.server) {
             proxyBtn.textContent = this.useCorsProxy ?
-                (serverTranslations.proxyMode || '代理模式') :
-                (serverTranslations.directMode || '直连模式');
+                (translations.server.proxyMode || '代理模式') :
+                (translations.server.directMode || '直连模式');
         }
 
         const refreshBtn = document.getElementById('refreshBtn');
-        if (refreshBtn && serverTranslations.refresh) {
-            refreshBtn.textContent = serverTranslations.refresh + ' 🔄';
+        if (refreshBtn && translations.server && translations.server.refresh) {
+            refreshBtn.textContent = translations.server.refresh + ' 🔄';
+        }
+
+        if (this.currentStatus === 'ready') {
+            this.updateStatsDisplay();
+        } else {
+            this.updateStatsDisplay();
         }
     }
 
-    updateFilterButtons(filters) {
-        if (!filters) return;
+    updateFilterButtons(lang) {
+        const translations = this.getTranslations(lang);
+        if (!translations || !translations.filters) return;
 
         document.querySelectorAll('.filter-btn').forEach(btn => {
             const filter = btn.getAttribute('data-filter');
-            if (filter && filters[filter]) {
-                btn.textContent = filters[filter];
+            if (filter && translations.filters[filter]) {
+                btn.textContent = translations.filters[filter];
             }
         });
     }
 
-    getCurrentServerText(key) {
-        const translations = this.languageConfig.translations[this.currentLang];
+    getTranslations(lang) {
+        const langToUse = lang || (this.languageManager ? this.languageManager.currentLang : 'zh');
+        const config = this.serverConfig;
+        return config.translations[langToUse] || config.translations[config.default];
+    }
+
+    getServerText(key) {
+        const translations = this.getTranslations();
         if (!translations || !translations.server) return key;
         return translations.server[key] || key;
     }
 
-    getCurrentStatsText(key) {
-        const translations = this.languageConfig.translations[this.currentLang];
+    getStatsText(key) {
+        const translations = this.getTranslations();
         if (!translations || !translations.stats) return key;
         return translations.stats[key] || key;
+    }
+
+    initSiteInfo() {
+        if (window.SiteInfoManager && this.languageManager) {
+            this.siteInfoManager = new window.SiteInfoManager(this.languageManager);
+            this.siteInfoManager.init();
+        }
     }
 
     initVersionSelector() {
@@ -320,7 +227,7 @@ class OnlineServerManager {
 
         let childServersHtml = '';
         if (server.children && Array.isArray(server.children) && server.children.length > 0) {
-            const childLabel = this.getCurrentServerText('childServer');
+            const childLabel = this.getServerText('childServer');
             childServersHtml = server.children.map((child, ci) => {
                 const childIp = child.ip.includes(':') ? child.ip : child.ip + ':28887';
                 let childIpList = [];
@@ -335,7 +242,7 @@ class OnlineServerManager {
                             <span class="child-server-title">📁 ${child.name || childLabel}</span>
                         </div>
                         <div class="info-row">
-                            <span class="label">${this.getCurrentServerText('address')}:</span>
+                            <span class="label">${this.getServerText('address')}:</span>
                             ${childIpList.length > 1 ? `
                                 <select class="ip-selector" data-server-id="${serverId}-child-${ci}">
                                     ${childIpList.map((ip, i) => `<option value="${ip}" ${i === 0 ? 'selected' : ''}>${ip}</option>`).join('')}
@@ -350,30 +257,30 @@ class OnlineServerManager {
 
         let serverTags = '';
         if (server.publishType === 0) {
-            serverTags += `<span class="server-tag featured">${this.getCurrentServerText('recommended')}</span>`;
+            serverTags += `<span class="server-tag featured">${this.getServerText('recommended')}</span>`;
         }
         if (server.level === 1) {
-            serverTags += `<span class="server-tag server-tag-lobby">${this.getCurrentServerText('lobby')}</span>`;
+            serverTags += `<span class="server-tag server-tag-lobby">${this.getServerText('lobby')}</span>`;
         } else if (server.level === 2) {
-            serverTags += `<span class="server-tag server-tag-premium">${this.getCurrentServerText('premium')}</span>`;
+            serverTags += `<span class="server-tag server-tag-premium">${this.getServerText('premium')}</span>`;
         } else if (server.level === 3) {
-            serverTags += `<span class="server-tag server-tag-community">${this.getCurrentServerText('community')}</span>`;
+            serverTags += `<span class="server-tag server-tag-community">${this.getServerText('community')}</span>`;
         }
         if (server.groupJoinMode) {
-            serverTags += `<span class="server-tag server-tag-group">${this.getCurrentServerText('groupServer')}</span>`;
+            serverTags += `<span class="server-tag server-tag-group">${this.getServerText('groupServer')}</span>`;
         }
 
         return `
             <div class="server-item" data-server-id="${serverId}" data-server-index="${index}">
                 <div class="server-header">
-                    <span class="server-status status-checking" title="${this.getCurrentServerText('checking')}">●</span>
+                    <span class="server-status status-checking" title="${this.getServerText('checking')}">●</span>
                     <span class="server-name">${server.name || '未知服务器'}</span>
                     ${serverTags}
                 </div>
 
                 <div class="server-info">
                     <div class="info-row">
-                        <span class="label">${this.getCurrentServerText('address')}:</span>
+                        <span class="label">${this.getServerText('address')}:</span>
                         ${ipList.length > 1 ? `
                             <select class="ip-selector" data-server-id="${serverId}">
                                 ${ipList.map((ip, i) => `<option value="${ip}" ${i === 0 ? 'selected' : ''}>${ip}</option>`).join('')}
@@ -383,24 +290,24 @@ class OnlineServerManager {
                     </div>
 
                     <div class="info-row">
-                        <span class="label">${this.getCurrentServerText('version')}:</span>
+                        <span class="label">${this.getServerText('version')}:</span>
                         <span class="value">${server.version || '未知'}</span>
-                        <span class="label">${this.getCurrentServerText('level')}:</span>
+                        <span class="label">${this.getServerText('level')}:</span>
                         <span class="value">${server.level !== undefined ? server.level : '-'}</span>
                     </div>
 
                     ${server.groupJoinMode !== undefined ? `
                     <div class="info-row">
-                        <span class="label">${this.getCurrentServerText('joinMode')}:</span>
+                        <span class="label">${this.getServerText('joinMode')}:</span>
                         <span class="value">${server.groupJoinMode}</span>
                     </div>
                     ` : ''}
 
                     <div class="info-row">
-                        <span class="label">${this.getCurrentServerText('network')}:</span>
+                        <span class="label">${this.getServerText('network')}:</span>
                         <span class="value">${networkType}</span>
-                        <span class="label">${this.getCurrentServerText('latency')}:</span>
-                        <span class="value latency-value" data-server-id="${serverId}">${this.getCurrentServerText('checking')}...</span>
+                        <span class="label">${this.getServerText('latency')}:</span>
+                        <span class="value latency-value" data-server-id="${serverId}">${this.getServerText('checking')}...</span>
                     </div>
                 </div>
 
@@ -409,24 +316,15 @@ class OnlineServerManager {
         `;
     }
 
-    loadServerList(filter = this.currentFilter, forceRefresh = false) {
+    async loadServerList(filter = this.currentFilter, forceRefresh = false) {
         this.currentFilter = filter;
         const serverListElement = document.getElementById('serverList');
         const serverStatsElement = document.querySelector('.server-stats');
 
         const apiUrl = `${this.apiUrl}?version=${encodeURIComponent(this.serverVersion)}`;
-        const connectingText = this.getCurrentServerText('connecting');
-        const loadingText = this.getCurrentServerText('loading');
-        const loadFailedText = this.getCurrentServerText('loadFailed');
-        const totalText = this.getCurrentStatsText('total');
-        const noServersText = this.getCurrentServerText('noServers');
-        const statsTitle = this.getCurrentStatsText('title');
 
-        console.log('=== 开始加载服务器列表 ===');
-        console.log('API地址:', apiUrl);
-
-        serverListElement.innerHTML = `<div class="loading">${connectingText}</div>`;
-        serverStatsElement.innerHTML = `<h3>${statsTitle}</h3><p>${loadingText}</p>`;
+        serverListElement.innerHTML = `<div class="loading">${this.getServerText('connecting')}</div>`;
+        serverStatsElement.innerHTML = `<h3>${this.getStatsText('title')}</h3><p>${this.getServerText('loading')}</p>`;
         this.currentStatus = 'connecting';
 
         if (!forceRefresh) {
@@ -439,7 +337,7 @@ class OnlineServerManager {
             }
         }
 
-        const data = this.fetchWithRetry(apiUrl);
+        const data = await this.fetchWithRetry(apiUrl);
         if (!data) {
             const cachedServers = this.getCachedData();
             if (cachedServers) {
@@ -448,33 +346,18 @@ class OnlineServerManager {
                 return;
             }
             this.currentStatus = 'loadFailed';
-            serverStatsElement.innerHTML = `<h3>${statsTitle}</h3><p>${loadFailedText}</p>`;
-            serverListElement.innerHTML = `<div class="no-servers">${this.getCurrentServerText('loadFailedCannotConnect')}</div>`;
+            serverStatsElement.innerHTML = `<h3>${this.getStatsText('title')}</h3><p>${this.getServerText('loadFailed')}</p>`;
+            serverListElement.innerHTML = `<div class="no-servers">${this.getServerText('loadFailedCannotConnect')}</div>`;
             return;
         }
 
-        console.log('服务器响应数据:', JSON.stringify(data, null, 2));
-
-        let servers = [];
-        if (data && data.data && data.data.list && Array.isArray(data.data.list)) {
-            servers = data.data.list;
-            console.log('从 data.data.list 获取服务器列表，数量:', servers.length);
-        } else if (data && data.list && Array.isArray(data.list)) {
-            servers = data.list;
-            console.log('从 data.list 获取服务器列表，数量:', servers.length);
-        } else if (data && data.servers && Array.isArray(data.servers)) {
-            servers = data.servers;
-            console.log('从 data.servers 获取服务器列表，数量:', servers.length);
-        } else if (Array.isArray(data)) {
-            servers = data;
-            console.log('直接获取服务器列表，数量:', servers.length);
-        }
+        let servers = this.extractServerList(data);
 
         if (!servers || servers.length === 0) {
             console.log('服务器列表为空');
             this.currentStatus = 'loadFailed';
-            serverStatsElement.innerHTML = `<h3>${statsTitle}</h3><p>${noServersText}</p>`;
-            serverListElement.innerHTML = `<div class="no-servers">${noServersText}</div>`;
+            serverStatsElement.innerHTML = `<h3>${this.getStatsText('title')}</h3><p>${this.getServerText('noServers')}</p>`;
+            serverListElement.innerHTML = `<div class="no-servers">${this.getServerText('noServers')}</div>`;
             return;
         }
 
@@ -482,12 +365,21 @@ class OnlineServerManager {
         this.displayServers(servers);
     }
 
+    extractServerList(data) {
+        if (data && data.data && data.data.list && Array.isArray(data.data.list)) {
+            return data.data.list;
+        } else if (data && data.list && Array.isArray(data.list)) {
+            return data.list;
+        } else if (data && data.servers && Array.isArray(data.servers)) {
+            return data.servers;
+        } else if (Array.isArray(data)) {
+            return data;
+        }
+        return [];
+    }
+
     displayServers(servers) {
         const serverListElement = document.getElementById('serverList');
-        const serverStatsElement = document.querySelector('.server-stats');
-
-        const totalText = this.getCurrentStatsText('total');
-        const statsTitle = this.getCurrentStatsText('title');
 
         console.log('成功加载', servers.length, '个服务器');
 
@@ -504,14 +396,10 @@ class OnlineServerManager {
         this.lastFilteredCount = filteredServers.length;
         this.currentStatus = 'ready';
 
-        serverStatsElement.innerHTML = `
-            <h3>${statsTitle}</h3>
-            <p>${totalText}: <b>${filteredServers.length}</b></p>
-        `;
+        this.updateStatsDisplay();
 
         let html = '';
         filteredServers.forEach((server, index) => {
-            console.log('服务器', index + 1, ':', server.name, '-', server.ip);
             html += this.generateServerItem(server, index);
         });
 
@@ -528,21 +416,41 @@ class OnlineServerManager {
         }, 100);
     }
 
-    fetchAndUpdateCache(apiUrl) {
-        try {
-            const data = this.fetchWithRetry(apiUrl);
-            if (data) {
-                let servers = [];
-                if (data && data.data && data.data.list && Array.isArray(data.data.list)) {
-                    servers = data.data.list;
-                } else if (data && data.list && Array.isArray(data.list)) {
-                    servers = data.list;
-                } else if (data && data.servers && Array.isArray(data.servers)) {
-                    servers = data.servers;
-                } else if (Array.isArray(data)) {
-                    servers = data;
-                }
+    updateStatsDisplay() {
+        const serverStatsElement = document.querySelector('.server-stats');
+        if (!serverStatsElement) return;
 
+        const totalText = this.getStatsText('total');
+        const statsTitle = this.getStatsText('title');
+
+        let content = `<h3>${statsTitle}</h3>`;
+
+        switch (this.currentStatus) {
+            case 'connecting':
+                content += `<p>${this.getServerText('connecting')}</p>`;
+                break;
+            case 'loading':
+                content += `<p>${this.getServerText('loading')}</p>`;
+                break;
+            case 'loadFailed':
+                content += `<p>${this.getServerText('loadFailed')}</p>`;
+                break;
+            case 'ready':
+                const count = this.lastFilteredCount !== null ? this.lastFilteredCount : 0;
+                content += `<p>${totalText}: <b>${count}</b></p>`;
+                break;
+            default:
+                content += `<p>${this.getServerText('loading')}</p>`;
+        }
+
+        serverStatsElement.innerHTML = content;
+    }
+
+    async fetchAndUpdateCache(apiUrl) {
+        try {
+            const data = await this.fetchWithRetry(apiUrl);
+            if (data) {
+                const servers = this.extractServerList(data);
                 if (servers && servers.length > 0) {
                     this.saveToCache(servers);
                     this.displayServers(servers);
@@ -594,7 +502,7 @@ class OnlineServerManager {
         }
     }
 
-    fetchWithRetry(apiUrl) {
+    async fetchWithRetry(apiUrl) {
         const proxies = this.useCorsProxy ? this.corsProxies : [];
         const allAttempts = ['', ...proxies];
         const totalAttempts = allAttempts.length;
@@ -605,7 +513,6 @@ class OnlineServerManager {
                 const fullUrl = proxy ? proxy + encodeURIComponent(apiUrl) : apiUrl;
 
                 console.log(`尝试连接 (${attempt + 1}/${totalAttempts})...`);
-                console.log('请求地址:', fullUrl);
 
                 const controller = new AbortController();
                 const timeoutId = setTimeout(() => {
@@ -613,7 +520,7 @@ class OnlineServerManager {
                     controller.abort();
                 }, this.timeout);
 
-                const response = fetch(fullUrl, {
+                const response = await fetch(fullUrl, {
                     method: 'GET',
                     mode: 'cors',
                     signal: controller.signal,
@@ -628,7 +535,7 @@ class OnlineServerManager {
                     throw new Error(`HTTP错误: ${response.status}`);
                 }
 
-                return response.json();
+                return await response.json();
 
             } catch (error) {
                 console.log(`尝试 ${attempt + 1} 失败:`, error.message);
@@ -645,15 +552,13 @@ class OnlineServerManager {
     toggleProxy() {
         this.useCorsProxy = !this.useCorsProxy;
         const proxyBtn = document.getElementById('proxyBtn');
-        const proxyText = this.getCurrentServerText('proxyMode');
-        const directText = this.getCurrentServerText('directMode');
 
         if (this.useCorsProxy) {
-            proxyBtn.textContent = '🌐 ' + (proxyText || '代理模式');
+            proxyBtn.textContent = '🌐 ' + (this.getServerText('proxyMode') || '代理模式');
             proxyBtn.classList.add('proxy-active');
             console.log('切换到代理模式');
         } else {
-            proxyBtn.textContent = '🔗 ' + (directText || '直连模式');
+            proxyBtn.textContent = '🔗 ' + (this.getServerText('directMode') || '直连模式');
             proxyBtn.classList.remove('proxy-active');
             console.log('切换到直连模式');
         }
@@ -669,14 +574,6 @@ class OnlineServerManager {
         this.serverVersion = newVersion;
 
         if (oldVersion !== newVersion) {
-            const serverListElement = document.getElementById('serverList');
-            const serverStatsElement = document.querySelector('.server-stats');
-            const loadingText = this.getCurrentServerText('loading');
-            const statsTitle = this.getCurrentServerText('title');
-
-            serverListElement.innerHTML = `<div class="loading">正在加载 ${newVersion} 版本服务器...</div>`;
-            serverStatsElement.innerHTML = `<h3>${statsTitle}</h3><p>${loadingText}</p>`;
-
             const cachedServers = this.getCachedData();
             if (cachedServers) {
                 console.log('该版本有缓存，直接显示');
@@ -692,8 +589,6 @@ class OnlineServerManager {
     }
 
     initCopyHandlers() {
-        const copiedText = this.getCurrentServerText('copied');
-
         document.querySelectorAll('.copy-btn[data-ip]').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.stopPropagation();
@@ -826,7 +721,7 @@ class OnlineServerManager {
         });
 
         setTimeout(() => {
-            if (latencyElement.textContent === this.getCurrentServerText('checking') + '...') {
+            if (latencyElement.textContent === this.getServerText('checking') + '...') {
                 simpleLatencyCheck();
             }
         }, 3000);

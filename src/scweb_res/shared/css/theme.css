@@ -85,6 +85,112 @@ body.dark .nav-section h3 {
     color: var(--text-light);
 }
 
+body.dark .site-info-short-url {
+    color: #a0aec0;
+}
+
+body.dark .server-stats {
+    background-color: rgba(45, 55, 72, 0.9);
+    border-left-color: #667eea;
+}
+
+body.dark .server-stats h3 {
+    color: var(--text-light);
+}
+
+body.dark .server-stats p {
+    color: #a0aec0;
+}
+
+body.dark .server-item {
+    background-color: rgba(45, 55, 72, 0.8);
+    border-left-color: #667eea;
+}
+
+body.dark .server-name {
+    color: var(--text-light);
+}
+
+body.dark .server-info {
+    background-color: #2d3748;
+}
+
+body.dark .server-info .label {
+    color: #a0aec0;
+}
+
+body.dark .server-info .value {
+    color: var(--text-light);
+}
+
+body.dark .child-server {
+    background-color: #2d3748;
+    border-color: var(--border-dark);
+}
+
+body.dark .child-server-title {
+    color: var(--text-light);
+}
+
+body.dark .no-servers,
+body.dark .loading {
+    background-color: rgba(45, 55, 72, 0.8);
+    color: #a0aec0;
+}
+
+body.dark .version-selector,
+body.dark .proxy-btn,
+body.dark .filter-btn,
+body.dark .refresh-btn {
+    background-color: #2d3748;
+    border-color: var(--border-dark);
+    color: var(--text-light);
+}
+
+body.dark .filter-btn:hover {
+    background-color: #4a5568;
+    border-color: #667eea;
+}
+
+body.dark .filter-btn.active {
+    background-color: #667eea;
+    border-color: #667eea;
+    color: white;
+}
+
+body.dark .proxy-btn:hover {
+    background-color: #4a5568;
+}
+
+body.dark .copy-btn {
+    background-color: #667eea;
+}
+
+body.dark .copy-btn:hover {
+    background-color: #5a6fd8;
+}
+
+body.dark .join-group {
+    background-color: rgba(45, 55, 72, 0.8);
+    border-color: var(--border-dark);
+}
+
+body.dark .join-group-info {
+    background-color: rgba(44, 82, 130, 0.5);
+}
+
+body.dark .join-group-warning {
+    background-color: rgba(128, 94, 30, 0.5);
+}
+
+body.dark .language-section-top-right .language-btn,
+body.dark .theme-section .theme-btn {
+    background: linear-gradient(135deg, #2d3748 0%, #4a5568 100%);
+    border-color: var(--border-dark);
+    color: var(--text-light);
+    box-shadow: var(--shadow-dark);
+}
+
 body.dark .copyright {
     color: #a0aec0;
 }

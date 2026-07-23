@@ -1,6 +1,6 @@
 const ServerLanguageConfig = {
     default: 'zh',
-    storageKey: 'serverLanguage',
+    storageKey: 'preferredLanguage',
     
     supported: ['zh', 'en', 'ru'],
     
