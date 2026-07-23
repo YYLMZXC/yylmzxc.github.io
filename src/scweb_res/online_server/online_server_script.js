@@ -8,7 +8,7 @@ const ServerList = {
     ],
     timeout: 15000,
     currentFilter: 'all',
-    useCorsProxy: true,
+    useCorsProxy: false, // 默认关闭代理
     cacheExpireMinutes: 10,
     corsProxies: [
         'https://api.allorigins.win/raw?url=',
@@ -318,12 +318,14 @@ const ServerList = {
     },
     
     fetchWithRetry: async function(apiUrl) {
-        const proxies = this.useCorsProxy ? this.corsProxies : [''];
-        const totalAttempts = proxies.length + 1;
+        // 首先尝试直接连接，再尝试代理
+        const proxies = this.useCorsProxy ? this.corsProxies : [];
+        const allAttempts = ['', ...proxies]; // 第一个是空字符串，表示直接连接
+        const totalAttempts = allAttempts.length;
         
         for (let attempt = 0; attempt < totalAttempts; attempt++) {
             try {
-                const proxy = attempt < proxies.length ? proxies[attempt] : '';
+                const proxy = allAttempts[attempt];
                 const fullUrl = proxy ? proxy + encodeURIComponent(apiUrl) : apiUrl;
                 
                 console.log(`尝试连接 (${attempt + 1}/${totalAttempts})...`);
@@ -510,18 +512,37 @@ const ServerList = {
         const port = ip.split(':')[1] || '28887';
         
         const pingUrl = `https://api.sckey.net/server/ping?host=${encodeURIComponent(host)}&port=${encodeURIComponent(port)}`;
-        const fullPingUrl = this.useCorsProxy ? this.corsProxies[this.currentProxyIndex] + encodeURIComponent(pingUrl) : pingUrl;
+        const fullPingUrl = this.useCorsProxy ? (this.corsProxies[0] || '') + encodeURIComponent(pingUrl) : pingUrl;
         
         const startTime = performance.now();
         
         const serverItem = latencyElement.closest('.server-item');
         const statusElement = serverItem ? serverItem.querySelector('.server-status') : null;
         
+        // 设置一个简单的延迟显示逻辑，即使 ping 失败
+        const simpleLatencyCheck = () => {
+            const simpleLatency = Math.round(performance.now() - startTime);
+            if (simpleLatency < 1000) {
+                latencyElement.textContent = simpleLatency + ' ms';
+                if (statusElement) {
+                    statusElement.classList.remove('status-checking');
+                    statusElement.classList.add('status-online');
+                }
+            } else {
+                latencyElement.textContent = '-';
+            }
+        };
+        
         fetch(fullPingUrl, {
             method: 'GET',
             mode: 'cors'
         })
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Ping failed');
+            }
+            return response.json();
+        })
         .then(result => {
             const latency = result && result.success && result.latency !== undefined 
                 ? result.latency 
@@ -540,17 +561,16 @@ const ServerList = {
             }
         })
         .catch(() => {
-            const latency = Math.round(performance.now() - startTime);
-            if (latency < 1000) {
-                latencyElement.textContent = latency + ' ms';
-                if (statusElement) {
-                    statusElement.classList.remove('status-checking');
-                    statusElement.classList.add('status-online');
-                }
-            } else {
-                latencyElement.textContent = '检测中...';
-            }
+            // 如果 ping 失败，使用简单的检查
+            simpleLatencyCheck();
         });
+        
+        // 设置超时，以防 fetch 永远不会返回
+        setTimeout(() => {
+            if (latencyElement.textContent === '检测中...') {
+                simpleLatencyCheck();
+            }
+        }, 3000);
     },
 
     initVersionSelector: function() {
