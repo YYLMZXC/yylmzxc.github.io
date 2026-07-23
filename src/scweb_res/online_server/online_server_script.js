@@ -58,8 +58,8 @@ class OnlineServerManager {
         let selfProxies = [];
 
         if (isLocalhost) {
-            const localProxyPort = 8080;
-            selfProxies.push(`http://${hostname}:${localProxyPort}/proxy.php`);
+            const currentPort = window.location.port || '80';
+            selfProxies.push(`http://${hostname}${currentPort ? ':' + currentPort : ''}/proxy.php`);
         } else {
             const protocol = window.location.protocol;
             const currentDomain = `${protocol}//${window.location.host}`;
