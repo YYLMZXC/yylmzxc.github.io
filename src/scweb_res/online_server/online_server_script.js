@@ -370,7 +370,7 @@ const ServerList = {
                 const port = ip.split(':')[1] || '28887';
                 
                 const pingUrl = `https://api.sckey.net/server/ping?host=${encodeURIComponent(host)}&port=${encodeURIComponent(port)}`;
-                const fullPingUrl = this.useCorsProxy ? this.corsProxy + encodeURIComponent(pingUrl) : pingUrl;
+                const fullPingUrl = this.useCorsProxy ? this.corsProxies[this.currentProxyIndex] + encodeURIComponent(pingUrl) : pingUrl;
                 
                 const startTime = performance.now();
                 
@@ -412,11 +412,28 @@ const ServerList = {
                 });
             }, index * 500);
         });
+    },
+
+    initVersionSelector: function() {
+        const versionSelector = document.getElementById('versionSelector');
+        if (!versionSelector) return;
+        
+        versionSelector.innerHTML = '';
+        this.versions.forEach(version => {
+            const option = document.createElement('option');
+            option.value = version.value;
+            option.textContent = version.label;
+            if (version.value === this.serverVersion) {
+                option.selected = true;
+            }
+            versionSelector.appendChild(option);
+        });
     }
 };
 
 document.addEventListener('DOMContentLoaded', function() {
     console.log('=== 页面加载完成，开始初始化 ===');
+    ServerList.initVersionSelector();
     ServerList.loadServerList();
     ServerList.initFilterButtons();
     
