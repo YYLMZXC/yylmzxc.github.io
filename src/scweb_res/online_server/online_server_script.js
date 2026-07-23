@@ -27,6 +27,7 @@ class OnlineServerManager {
         this.cacheExpireMinutes = 10;
         // CORS 代理列表，用于绕过浏览器跨域限制
         this.corsProxies = [
+            'https://corsproxy.io/?',
             'https://api.allorigins.win/raw?url=',
             'https://cors-anywhere.herokuapp.com/',
             'https://proxy.cors.sh/'
@@ -634,8 +635,8 @@ class OnlineServerManager {
      * @returns {Object|null} JSON 响应数据或 null
      */
     async fetchWithRetry(apiUrl) {
-        const proxies = this.useCorsProxy ? this.corsProxies : [];
-        const allAttempts = ['', ...proxies];
+        const proxies = this.corsProxies;
+        const allAttempts = this.useCorsProxy ? proxies : ['', ...proxies];
         const totalAttempts = allAttempts.length;
 
         for (let attempt = 0; attempt < totalAttempts; attempt++) {
@@ -643,7 +644,7 @@ class OnlineServerManager {
                 const proxy = allAttempts[attempt];
                 const fullUrl = proxy ? proxy + encodeURIComponent(apiUrl) : apiUrl;
 
-                console.log(`尝试连接 (${attempt + 1}/${totalAttempts})...`);
+                console.log(`尝试连接 (${attempt + 1}/${totalAttempts})${proxy ? ' [代理]' : ' [直连]'}...`);
 
                 const controller = new AbortController();
                 const timeoutId = setTimeout(() => {
@@ -671,7 +672,7 @@ class OnlineServerManager {
             } catch (error) {
                 console.log(`尝试 ${attempt + 1} 失败:`, error.message);
                 if (attempt < totalAttempts - 1) {
-                    console.log('尝试下一个代理...');
+                    console.log('尝试下一个...');
                 }
             }
         }
@@ -834,8 +835,6 @@ class OnlineServerManager {
 
         const { host, port } = window.SCUtils.parseIpPort(ip);
         const pingUrl = `https://api.sckey.net/server/ping?host=${encodeURIComponent(host)}&port=${encodeURIComponent(port)}`;
-        const fullPingUrl = this.useCorsProxy ? (this.corsProxies[0] || '') + encodeURIComponent(pingUrl) : pingUrl;
-
         const startTime = performance.now();
         const serverItem = latencyElement.closest('.server-item');
         const statusElement = serverItem ? serverItem.querySelector('.server-status') : null;
@@ -853,34 +852,47 @@ class OnlineServerManager {
             }
         };
 
-        fetch(fullPingUrl, {
-            method: 'GET',
-            mode: 'cors'
-        })
-        .then(response => {
-            if (!response.ok) throw new Error('Ping failed');
-            return response.json();
-        })
-        .then(result => {
-            const latency = result && result.success && result.latency !== undefined
-                ? result.latency
-                : Math.round(performance.now() - startTime);
+        const tryPingWithFallback = async () => {
+            const proxies = this.corsProxies;
+            const allAttempts = this.useCorsProxy ? proxies : ['', ...proxies];
 
-            if (latency >= 0) {
-                latencyElement.textContent = latency < 1 ? '<1 ms' : latency + ' ms';
-                if (statusElement) {
-                    statusElement.classList.remove('status-checking');
-                    if (latency < 500) {
-                        statusElement.classList.add('status-online');
-                    } else {
-                        statusElement.classList.add('status-offline');
+            for (let attempt = 0; attempt < allAttempts.length; attempt++) {
+                try {
+                    const proxy = allAttempts[attempt];
+                    const fullUrl = proxy ? proxy + encodeURIComponent(pingUrl) : pingUrl;
+
+                    const response = await fetch(fullUrl, {
+                        method: 'GET',
+                        mode: 'cors'
+                    });
+
+                    if (!response.ok) throw new Error('Ping failed');
+                    const result = await response.json();
+                    const latency = result && result.success && result.latency !== undefined
+                        ? result.latency
+                        : Math.round(performance.now() - startTime);
+
+                    if (latency >= 0) {
+                        latencyElement.textContent = latency < 1 ? '<1 ms' : latency + ' ms';
+                        if (statusElement) {
+                            statusElement.classList.remove('status-checking');
+                            if (latency < 500) {
+                                statusElement.classList.add('status-online');
+                            } else {
+                                statusElement.classList.add('status-offline');
+                            }
+                        }
+                        return;
+                    }
+                } catch (e) {
+                    if (attempt >= allAttempts.length - 1) {
+                        simpleLatencyCheck();
                     }
                 }
             }
-        })
-        .catch(() => {
-            simpleLatencyCheck();
-        });
+        };
+
+        tryPingWithFallback();
 
         setTimeout(() => {
             if (latencyElement.textContent === this.getServerText('checking') + '...') {
