@@ -65,6 +65,7 @@
     border: 2px solid transparent;
     position: relative;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    white-space: nowrap;
 }
 
 .nav-menu a::after {
@@ -149,6 +150,7 @@
     color: #333;
     outline: none;
     min-width: 140px;
+    white-space: nowrap;
 }
 
 .version-selector:hover {
@@ -164,6 +166,7 @@
     transition: all 0.3s ease;
     font-size: 14px;
     color: #333;
+    white-space: nowrap;
 }
 
 .proxy-btn:hover {
@@ -190,6 +193,7 @@
     cursor: pointer;
     transition: all 0.3s ease;
     font-size: 14px;
+    white-space: nowrap;
 }
 
 .filter-btn:hover {
@@ -213,6 +217,7 @@
     transition: all 0.3s ease;
     font-size: 14px;
     margin-left: auto;
+    white-space: nowrap;
 }
 
 .refresh-btn:hover {
@@ -460,6 +465,9 @@
     font-weight: 500;
     transition: background-color 0.3s ease;
     margin: 0 5px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .group-link:hover {
