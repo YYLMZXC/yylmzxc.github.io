@@ -68,7 +68,7 @@ def main():
     # 设置远程仓库
     gitee_url = "https://gitee.com/yylmzxc/scweb.git"
     github_url = "https://github.com/YYLMZXC/yylmzxc.github.io.git"
-    tencent_cnb_url = "https://cnb.cool/YYLMZXC/scweb"  # 添加腾讯xnb远程仓库URL
+    tencent_cnb_url = "https://cnb.cool/SurvivalcraftTool/scweb"  # 添加腾讯xnb远程仓库URL
     
     # 检查并更新远程仓库配置
     print("配置远程仓库...")
