@@ -89,7 +89,12 @@ const IndexLanguageConfig = {
                 taptapForum: 'TapTap生存战争2论坛',
                 ta4399Sc: '4399生存战争',
                 scApiDownload: '生存战争api下载',
-                scNetDownload: '生存战争联机版Net下载'
+                scNetDownload: '生存战争联机版Net下载',
+                scZhihu: '生存战争知乎',
+                sc7723: '生存战争7723',
+                ccplay: '虫虫助手生存战争',
+                xiaoheihe: '小黑盒生存战争',
+                tieba: '贴吧生存战争'
             },
             footer: '© 2026 生存战争网'
         },
@@ -154,7 +159,12 @@ const IndexLanguageConfig = {
                 taptapForum: 'TapTap SurvivalCraft 2 Forum',
                 ta4399Sc: '4399 SurvivalCraft',
                 scApiDownload: 'SurvivalCraft API Download',
-                scNetDownload: 'SurvivalCraft Net Download'
+                scNetDownload: 'SurvivalCraft Net Download',
+                scZhihu: 'SurvivalCraft Zhihu',
+                sc7723: 'SurvivalCraft 7723',
+                ccplay: 'CCPlay SurvivalCraft',
+                xiaoheihe: 'XiaoHeiHe SurvivalCraft',
+                tieba: 'Tieba SurvivalCraft'
             },
             footer: '© 2026 SurvivalCraft Web'
         },
@@ -219,7 +229,12 @@ const IndexLanguageConfig = {
                 taptapForum: 'TapTap Форум SurvivalCraft 2',
                 ta4399Sc: '4399 SurvivalCraft',
                 scApiDownload: 'Скачать SurvivalCraft API',
-                scNetDownload: 'Скачать SurvivalCraft Net'
+                scNetDownload: 'Скачать SurvivalCraft Net',
+                scZhihu: 'SurvivalCraft Zhihu',
+                sc7723: 'SurvivalCraft 7723',
+                ccplay: 'CCPlay SurvivalCraft',
+                xiaoheihe: 'XiaoHeiHe SurvivalCraft',
+                tieba: 'Tieba SurvivalCraft'
             },
             footer: '© 2026 SurvivalCraft Web'
         },
@@ -284,7 +299,12 @@ const IndexLanguageConfig = {
                 taptapForum: 'Foro TapTap SurvivalCraft 2',
                 ta4399Sc: '4399 SurvivalCraft',
                 scApiDownload: 'Descargar API de SurvivalCraft',
-                scNetDownload: 'Descargar Net de SurvivalCraft'
+                scNetDownload: 'Descargar Net de SurvivalCraft',
+                scZhihu: 'SurvivalCraft Zhihu',
+                sc7723: 'SurvivalCraft 7723',
+                ccplay: 'CCPlay SurvivalCraft',
+                xiaoheihe: 'XiaoHeiHe SurvivalCraft',
+                tieba: 'Tieba SurvivalCraft'
             },
             footer: '© 2026 SurvivalCraft Web'
         }
@@ -326,7 +346,12 @@ const IndexLanguageConfig = {
         ],
         outdated: [
             { title: 'links.taptapForum', url: 'https://www.taptap.cn/app/30823/topic', external: true },
-            { title: 'links.ta4399Sc', url: 'https://news.4399.com/sczz/', external: true }
+            { title: 'links.ta4399Sc', url: 'https://news.4399.com/sczz/', external: true },
+            { title: 'links.scZhihu', url: 'https://www.zhihu.com/topic/21226084', external: true },
+            { title: 'links.sc7723', url: 'https://www.7723.cn/search/%E7%94%9F%E5%AD%98%E6%88%98%E4%BA%89', external: true },
+            { title: 'links.ccplay', url: 'https://m2.ccplay.cn/search?q=%E7%94%9F%E5%AD%98%E6%88%98%E4%BA%89', external: true },
+            { title: 'links.xiaoheihe', url: 'https://www.xiaoheihe.cn/app/topic/link/600968', external: true },
+            { title: 'links.tieba', url: 'https://tieba.baidu.com/f?kw=%E7%94%9F%E5%AD%98%E6%88%98%E4%BA%89', external: true }
         ]
     }
 };
