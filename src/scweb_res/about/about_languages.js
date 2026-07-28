@@ -30,6 +30,11 @@ const AboutLanguageConfig = {
                 contactDesc: '如有任何问题或建议，欢迎通过QQ群联系我们的管理员。',
                 project: '项目地址',
                 projectDesc: '点击访问本项目源代码仓库',
+                workshop: '生存战争工坊',
+                workshopDesc: '点击访问生存战争工坊官网',
+                bookmarks: '收藏导航',
+                cloudflareDesc: '点击访问Cloudflare官网（域名解析）',
+                projectBookmarkDesc: '点击访问项目源代码仓库',
                 thanks: '致谢',
                 thanksDesc: '感谢所有为社区做出贡献的开发者和玩家！'
             }
@@ -52,6 +57,11 @@ const AboutLanguageConfig = {
                 contactDesc: 'If you have any questions or suggestions, please contact our administrators through QQ groups.',
                 project: 'Project URL',
                 projectDesc: 'Click to visit the source code repository',
+                workshop: 'SurvivalCraft Workshop',
+                workshopDesc: 'Click to visit the SurvivalCraft Workshop official website',
+                bookmarks: 'Bookmarks',
+                cloudflareDesc: 'Click to visit the Cloudflare official website (DNS)',
+                projectBookmarkDesc: 'Click to visit the project source code repository',
                 thanks: 'Thanks',
                 thanksDesc: 'Thanks to all developers and players who contribute to the community!'
             }
@@ -74,6 +84,11 @@ const AboutLanguageConfig = {
                 contactDesc: 'Если у вас есть вопросы или предложения, свяжитесь с нашими администраторами через группы QQ.',
                 project: 'Адрес Проекта',
                 projectDesc: 'Нажмите, чтобы посетить репозиторий исходного кода',
+                workshop: 'Мастерская SurvivalCraft',
+                workshopDesc: 'Нажмите, чтобы посетить официальный сайт Мастерской SurvivalCraft',
+                bookmarks: 'Закладки',
+                cloudflareDesc: 'Нажмите, чтобы посетить официальный сайт Cloudflare (DNS)',
+                projectBookmarkDesc: 'Нажмите, чтобы посетить репозиторий исходного кода проекта',
                 thanks: 'Благодарности',
                 thanksDesc: 'Благодарим всех разработчиков и игроков, которые вносят вклад в сообщество!'
             }
@@ -96,6 +111,11 @@ const AboutLanguageConfig = {
                 contactDesc: 'Si tienes preguntas o sugerencias, contáctanos a través de grupos de QQ.',
                 project: 'URL del Proyecto',
                 projectDesc: 'Haz clic para visitar el repositorio de código fuente',
+                workshop: 'Taller de SurvivalCraft',
+                workshopDesc: 'Haz clic para visitar el sitio web oficial del Taller de SurvivalCraft',
+                bookmarks: 'Marcadores',
+                cloudflareDesc: 'Haz clic para visitar el sitio web oficial de Cloudflare (DNS)',
+                projectBookmarkDesc: 'Haz clic para visitar el repositorio de código fuente del proyecto',
                 thanks: 'Agradecimientos',
                 thanksDesc: '¡Gracias a todos los desarrolladores y jugadores que contribuyen a la comunidad!'
             }
