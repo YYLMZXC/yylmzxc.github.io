@@ -64,7 +64,8 @@ const IndexLanguageConfig = {
             sections: {
                 cnNavigation: '🌏 CN中文导航',
                 osNavigation: '🌍 OS海外导航',
-                otherNavigation: '📌 其他导航'
+                otherNavigation: '📌 其他导航',
+                outdatedNavigation: '📜 可能过时导航'
             },
             links: {
                 scCommunity: 'SC中文社区cn路线',
@@ -128,7 +129,8 @@ const IndexLanguageConfig = {
             sections: {
                 cnNavigation: '🌏 CN Chinese Navigation',
                 osNavigation: '🌍 OS Overseas Navigation',
-                otherNavigation: '📌 Other Navigation'
+                otherNavigation: '📌 Other Navigation',
+                outdatedNavigation: '📜 Possibly Outdated Navigation'
             },
             links: {
                 scCommunity: 'SC Chinese Community cn Route',
@@ -192,7 +194,8 @@ const IndexLanguageConfig = {
             sections: {
                 cnNavigation: '🌏 CN Китайская Навигация',
                 osNavigation: '🌍 OS Зарубежная Навигация',
-                otherNavigation: '📌 Другая Навигация'
+                otherNavigation: '📌 Другая Навигация',
+                outdatedNavigation: '📜 Возможно Устаревшая Навигация'
             },
             links: {
                 scCommunity: 'SC Китайское Сообщество cn Маршрут',
@@ -256,7 +259,8 @@ const IndexLanguageConfig = {
             sections: {
                 cnNavigation: '🌏 Navegación CN',
                 osNavigation: '🌍 Navegación OS',
-                otherNavigation: '📌 Otra Navegación'
+                otherNavigation: '📌 Otra Navegación',
+                outdatedNavigation: '📜 Navegación Posiblemente Obsoleta'
             },
             links: {
                 scCommunity: 'Ruta CN de la Comunidad SC',
@@ -316,11 +320,13 @@ const IndexLanguageConfig = {
             { title: 'links.fandomWiki', url: 'https://survivalcraft.fandom.com', external: true }
         ],
         other: [
-            { title: 'links.scSpm', url: 'https://gitee.com/SC-SPM', external: true }, 
+            { title: 'links.scSpm', url: 'https://gitee.com/SC-SPM', external: true },
             { title: 'links.scApiDownload', url: 'https://gitee.com/SC-SPM/SurvivalcraftApi/releases', external: true },
-            { title: 'links.scNetDownload', url: 'https://gitee.com/SC-SPM/SurvivalcraftNet/releases', external: true },
+            { title: 'links.scNetDownload', url: 'https://gitee.com/SC-SPM/SurvivalcraftNet/releases', external: true }
+        ],
+        outdated: [
             { title: 'links.taptapForum', url: 'https://www.taptap.cn/app/30823/topic', external: true },
-            { title: 'links.ta4399Sc', url: 'https://news.4399.com/sczz/', external: true },
+            { title: 'links.ta4399Sc', url: 'https://news.4399.com/sczz/', external: true }
         ]
     }
 };

@@ -143,6 +143,7 @@ class IndexPageManager {
             const cnTitle = document.getElementById('cnNavigationTitle');
             const osTitle = document.getElementById('osNavigationTitle');
             const otherTitle = document.getElementById('otherNavigationTitle');
+            const outdatedTitle = document.getElementById('outdatedNavigationTitle');
             if (cnTitle && translations.sections.cnNavigation) {
                 cnTitle.textContent = translations.sections.cnNavigation;
             }
@@ -151,6 +152,9 @@ class IndexPageManager {
             }
             if (otherTitle && translations.sections.otherNavigation) {
                 otherTitle.textContent = translations.sections.otherNavigation;
+            }
+            if (outdatedTitle && translations.sections.outdatedNavigation) {
+                outdatedTitle.textContent = translations.sections.outdatedNavigation;
             }
         }
     }
@@ -168,6 +172,7 @@ class IndexPageManager {
             this.renderLinkGroup('cnNavigationLinks', config.navigation.cn, translations.links);
             this.renderLinkGroup('osNavigationLinks', config.navigation.os, translations.links);
             this.renderLinkGroup('otherNavigationLinks', config.navigation.other, translations.links);
+            this.renderLinkGroup('outdatedNavigationLinks', config.navigation.outdated, translations.links);
         }
     }
 
