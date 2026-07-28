@@ -100,8 +100,8 @@ class AboutPageManager {
      * 初始化站点信息
      */
     initSiteInfo() {
-        if (window.SiteInfoManager) {
-            this.siteInfoManager = new window.SiteInfoManager();
+        if (window.SiteInfoManager && this.languageManager) {
+            this.siteInfoManager = new window.SiteInfoManager(this.languageManager);
             this.siteInfoManager.init();
         }
     }
