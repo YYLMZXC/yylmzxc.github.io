@@ -37,6 +37,10 @@ const AboutLanguageConfig = {
                 projectBookmarkDesc: '点击访问项目源代码仓库',
                 thanks: '致谢',
                 thanksDesc: '感谢所有为社区做出贡献的开发者和玩家！'
+            },
+            links: {
+                cloudflare: 'Cloudflare（域名解析）',
+                projectRepo: '项目源代码仓库'
             }
         },
         
@@ -64,6 +68,10 @@ const AboutLanguageConfig = {
                 projectBookmarkDesc: 'Click to visit the project source code repository',
                 thanks: 'Thanks',
                 thanksDesc: 'Thanks to all developers and players who contribute to the community!'
+            },
+            links: {
+                cloudflare: 'Cloudflare (DNS)',
+                projectRepo: 'Project Source Code Repository'
             }
         },
         
@@ -91,9 +99,13 @@ const AboutLanguageConfig = {
                 projectBookmarkDesc: 'Нажмите, чтобы посетить репозиторий исходного кода проекта',
                 thanks: 'Благодарности',
                 thanksDesc: 'Благодарим всех разработчиков и игроков, которые вносят вклад в сообщество!'
+            },
+            links: {
+                cloudflare: 'Cloudflare (DNS)',
+                projectRepo: 'Репозиторий Исходного Кода Проекта'
             }
         },
-        
+
         es: {
             page: {
                 title: 'Sobre Nosotros | SurvivalCraft Web'
@@ -118,8 +130,23 @@ const AboutLanguageConfig = {
                 projectBookmarkDesc: 'Haz clic para visitar el repositorio de código fuente del proyecto',
                 thanks: 'Agradecimientos',
                 thanksDesc: '¡Gracias a todos los desarrolladores y jugadores que contribuyen a la comunidad!'
+            },
+            links: {
+                cloudflare: 'Cloudflare (DNS)',
+                projectRepo: 'Repositorio de Código Fuente del Proyecto'
             }
         }
+    },
+
+    /**
+     * 导航链接配置
+     * - bookmarks: 收藏导航
+     */
+    navigation: {
+        bookmarks: [
+            { title: 'links.cloudflare', url: 'https://www.cloudflare.com/', external: true },
+            { title: 'links.projectRepo', url: 'https://cnb.cool/SurvivalcraftTool/scweb', external: true }
+        ]
     }
 };
 
