@@ -85,6 +85,8 @@ const IndexLanguageConfig = {
                 mirahezeWiki: '生存战争维基百科',
                 fandomWiki: '生存战争Fandom百科',
                 scSpm: '生存战争MOD开发管理组',
+                taptapForum: 'TapTap生存战争2论坛',
+                ta4399Sc: '4399生存战争',
                 scApiDownload: '生存战争api下载',
                 scNetDownload: '生存战争联机版Net下载'
             },
@@ -147,6 +149,8 @@ const IndexLanguageConfig = {
                 mirahezeWiki: 'SurvivalCraft Miraheze Wiki',
                 fandomWiki: 'SurvivalCraft Fandom Wiki',
                 scSpm: 'SurvivalCraft MOD Dev Team',
+                taptapForum: 'TapTap SurvivalCraft 2 Forum',
+                ta4399Sc: '4399 SurvivalCraft',
                 scApiDownload: 'SurvivalCraft API Download',
                 scNetDownload: 'SurvivalCraft Net Download'
             },
@@ -209,6 +213,8 @@ const IndexLanguageConfig = {
                 mirahezeWiki: 'SurvivalCraft Miraheze Вики',
                 fandomWiki: 'SurvivalCraft Fandom Вики',
                 scSpm: 'SurvivalCraft MOD Команда Разработки',
+                taptapForum: 'TapTap Форум SurvivalCraft 2',
+                ta4399Sc: '4399 SurvivalCraft',
                 scApiDownload: 'Скачать SurvivalCraft API',
                 scNetDownload: 'Скачать SurvivalCraft Net'
             },
@@ -271,6 +277,8 @@ const IndexLanguageConfig = {
                 mirahezeWiki: 'Wiki Miraheze de SurvivalCraft',
                 fandomWiki: 'Wiki Fandom de SurvivalCraft',
                 scSpm: 'Equipo de Desarrollo MOD de SurvivalCraft',
+                taptapForum: 'Foro TapTap SurvivalCraft 2',
+                ta4399Sc: '4399 SurvivalCraft',
                 scApiDownload: 'Descargar API de SurvivalCraft',
                 scNetDownload: 'Descargar Net de SurvivalCraft'
             },
@@ -308,9 +316,11 @@ const IndexLanguageConfig = {
             { title: 'links.fandomWiki', url: 'https://survivalcraft.fandom.com', external: true }
         ],
         other: [
-            { title: 'links.scSpm', url: 'https://gitee.com/SC-SPM', external: true },
+            { title: 'links.scSpm', url: 'https://gitee.com/SC-SPM', external: true }, 
             { title: 'links.scApiDownload', url: 'https://gitee.com/SC-SPM/SurvivalcraftApi/releases', external: true },
-            { title: 'links.scNetDownload', url: 'https://gitee.com/SC-SPM/SurvivalcraftNet/releases', external: true }
+            { title: 'links.scNetDownload', url: 'https://gitee.com/SC-SPM/SurvivalcraftNet/releases', external: true },
+            { title: 'links.taptapForum', url: 'https://www.taptap.cn/app/30823/topic', external: true },
+            { title: 'links.ta4399Sc', url: 'https://news.4399.com/sczz/', external: true },
         ]
     }
 };
