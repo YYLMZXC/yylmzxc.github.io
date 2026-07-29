@@ -39,7 +39,8 @@ const AboutLanguageConfig = {
             },
             links: {
                 cloudflare: 'Cloudflare（域名解析）',
-                projectRepo: '项目源代码仓库'
+                projectRepo: '项目源代码仓库',
+                gname: 'gname（域名管理）'
             }
         },
         
@@ -69,7 +70,8 @@ const AboutLanguageConfig = {
             },
             links: {
                 cloudflare: 'Cloudflare (DNS)',
-                projectRepo: 'Project Source Code Repository'
+                projectRepo: 'Project Source Code Repository',
+                gname: 'gname (Domain Management)'
             }
         },
         
@@ -99,7 +101,8 @@ const AboutLanguageConfig = {
             },
             links: {
                 cloudflare: 'Cloudflare (DNS)',
-                projectRepo: 'Репозиторий Исходного Кода Проекта'
+                projectRepo: 'Репозиторий Исходного Кода Проекта',
+                gname: 'gname (Управление Доменами)'
             }
         },
 
@@ -129,7 +132,8 @@ const AboutLanguageConfig = {
             },
             links: {
                 cloudflare: 'Cloudflare (DNS)',
-                projectRepo: 'Repositorio de Código Fuente del Proyecto'
+                projectRepo: 'Repositorio de Código Fuente del Proyecto',
+                gname: 'gname (Gestión de Dominios)'
             }
         }
     },
@@ -141,7 +145,8 @@ const AboutLanguageConfig = {
     navigation: {
         bookmarks: [
             { title: 'links.cloudflare', url: 'https://www.cloudflare.com/', external: true },
-            { title: 'links.projectRepo', url: 'https://cnb.cool/SurvivalcraftTool/scweb', external: true }
+            { title: 'links.projectRepo', url: 'https://cnb.cool/SurvivalcraftTool/scweb', external: true },
+            { title: 'links.gname', url: 'https://www.gname.com/', external: true }
         ]
     }
 };
