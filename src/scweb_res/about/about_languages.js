@@ -33,6 +33,7 @@ const AboutLanguageConfig = {
                 workshopDesc: '点击访问生存战争工坊官网',
                 bookmarks: '📌 收藏导航',
                 aiNavigation: '🤖 AI导航',
+                otherNavigation: '🧭 其他导航',
                 cloudflareDesc: '点击访问Cloudflare官网（域名解析）',
                 projectBookmarkDesc: '点击访问项目源代码仓库',
                 thanks: '致谢',
@@ -47,7 +48,8 @@ const AboutLanguageConfig = {
                 amz123: 'AMZ123跨境导航',
                 yupiAi: '鱼皮AI导航',
                 uisdcAi: '优设AI导航',
-                faxianAi: '发现AI'
+                faxianAi: '发现AI',
+                deepseek: 'DeepSeek'
             }
         },
 
@@ -71,6 +73,7 @@ const AboutLanguageConfig = {
                 workshopDesc: 'Click to visit the SurvivalCraft Workshop official website',
                 bookmarks: '📌 Bookmarks',
                 aiNavigation: '🤖 AI Navigation',
+                otherNavigation: '🧭 Other Navigation',
                 cloudflareDesc: 'Click to visit the Cloudflare official website (DNS)',
                 projectBookmarkDesc: 'Click to visit the project source code repository',
                 thanks: 'Thanks',
@@ -85,7 +88,8 @@ const AboutLanguageConfig = {
                 amz123: 'AMZ123 Cross-border Navigation',
                 yupiAi: 'Yupi AI Navigation',
                 uisdcAi: 'UISDC AI Navigation',
-                faxianAi: 'Faxian AI'
+                faxianAi: 'Faxian AI',
+                deepseek: 'DeepSeek'
             }
         },
         
@@ -109,6 +113,7 @@ const AboutLanguageConfig = {
                 workshopDesc: 'Нажмите, чтобы посетить официальный сайт Мастерской SurvivalCraft',
                 bookmarks: '📌 Закладки',
                 aiNavigation: '🤖 AI Навигация',
+                otherNavigation: '🧭 Другая Навигация',
                 cloudflareDesc: 'Нажмите, чтобы посетить официальный сайт Cloudflare (DNS)',
                 projectBookmarkDesc: 'Нажмите, чтобы посетить репозиторий исходного кода проекта',
                 thanks: 'Благодарности',
@@ -123,7 +128,8 @@ const AboutLanguageConfig = {
                 amz123: 'AMZ123 Кросс-Бордер Навигация',
                 yupiAi: 'Yupi AI Навигация',
                 uisdcAi: 'UISDC AI Навигация',
-                faxianAi: 'Faxian AI'
+                faxianAi: 'Faxian AI',
+                deepseek: 'DeepSeek'
             }
         },
 
@@ -147,6 +153,7 @@ const AboutLanguageConfig = {
                 workshopDesc: 'Haz clic para visitar el sitio web oficial del Taller de SurvivalCraft',
                 bookmarks: '📌 Marcadores',
                 aiNavigation: '🤖 Navegación IA',
+                otherNavigation: '🧭 Otra Navegación',
                 cloudflareDesc: 'Haz clic para visitar el sitio web oficial de Cloudflare (DNS)',
                 projectBookmarkDesc: 'Haz clic para visitar el repositorio de código fuente del proyecto',
                 thanks: 'Agradecimientos',
@@ -161,7 +168,8 @@ const AboutLanguageConfig = {
                 amz123: 'Navegación Transfronteriza AMZ123',
                 yupiAi: 'Navegación IA Yupi',
                 uisdcAi: 'Navegación IA UISDC',
-                faxianAi: 'Faxian IA'
+                faxianAi: 'Faxian IA',
+                deepseek: 'DeepSeek'
             }
         }
     },
@@ -170,6 +178,7 @@ const AboutLanguageConfig = {
      * 导航链接配置
      * - bookmarks: 收藏导航
      * - ai: AI导航
+     * - other: 其他导航
      */
     navigation: {
         bookmarks: [
@@ -184,6 +193,9 @@ const AboutLanguageConfig = {
             { title: 'links.yupiAi', url: 'https://ai.codefather.cn/', external: true },
             { title: 'links.uisdcAi', url: 'https://hao.uisdc.com/ai/', external: true },
             { title: 'links.faxianAi', url: 'https://www.faxianai.com/', external: true }
+        ],
+        other: [
+            { title: 'links.deepseek', url: 'https://chat.deepseek.com/', external: true }
         ]
     }
 };
