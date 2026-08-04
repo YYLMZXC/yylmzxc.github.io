@@ -43,10 +43,14 @@ const AboutLanguageConfig = {
                 projectRepo: '项目源代码仓库',
                 gname: 'gname（域名管理）',
                 boce: 'boce测速',
-                aiToolsNav: 'AI工具导航'
+                aiToolsNav: 'AI工具导航',
+                amz123: 'AMZ123跨境导航',
+                yupiAi: '鱼皮AI导航',
+                uisdcAi: '优设AI导航',
+                faxianAi: '发现AI'
             }
         },
-        
+
         en: {
             page: {
                 title: 'About Us | SurvivalCraft Web'
@@ -77,7 +81,11 @@ const AboutLanguageConfig = {
                 projectRepo: 'Project Source Code Repository',
                 gname: 'gname (Domain Management)',
                 boce: 'Boce Speed Test',
-                aiToolsNav: 'AI Tools Navigation'
+                aiToolsNav: 'AI Tools Navigation',
+                amz123: 'AMZ123 Cross-border Navigation',
+                yupiAi: 'Yupi AI Navigation',
+                uisdcAi: 'UISDC AI Navigation',
+                faxianAi: 'Faxian AI'
             }
         },
         
@@ -111,7 +119,11 @@ const AboutLanguageConfig = {
                 projectRepo: 'Репозиторий Исходного Кода Проекта',
                 gname: 'gname (Управление Доменами)',
                 boce: 'Boce Скоростной Тест',
-                aiToolsNav: 'AI Инструменты Навигация'
+                aiToolsNav: 'AI Инструменты Навигация',
+                amz123: 'AMZ123 Кросс-Бордер Навигация',
+                yupiAi: 'Yupi AI Навигация',
+                uisdcAi: 'UISDC AI Навигация',
+                faxianAi: 'Faxian AI'
             }
         },
 
@@ -145,7 +157,11 @@ const AboutLanguageConfig = {
                 projectRepo: 'Repositorio de Código Fuente del Proyecto',
                 gname: 'gname (Gestión de Dominios)',
                 boce: 'Boce Prueba de Velocidad',
-                aiToolsNav: 'Navegación de Herramientas IA'
+                aiToolsNav: 'Navegación de Herramientas IA',
+                amz123: 'Navegación Transfronteriza AMZ123',
+                yupiAi: 'Navegación IA Yupi',
+                uisdcAi: 'Navegación IA UISDC',
+                faxianAi: 'Faxian IA'
             }
         }
     },
@@ -163,7 +179,11 @@ const AboutLanguageConfig = {
             { title: 'links.boce', url: 'https://www.boce.com/http', external: true }
         ],
         ai: [
-            { title: 'links.aiToolsNav', url: 'https://ai-bot.cn/', external: true }
+            { title: 'links.aiToolsNav', url: 'https://ai-bot.cn/', external: true },
+            { title: 'links.amz123', url: 'https://www.amz123.com/ai', external: true },
+            { title: 'links.yupiAi', url: 'https://ai.codefather.cn/', external: true },
+            { title: 'links.uisdcAi', url: 'https://hao.uisdc.com/ai/', external: true },
+            { title: 'links.faxianAi', url: 'https://www.faxianai.com/', external: true }
         ]
     }
 };
