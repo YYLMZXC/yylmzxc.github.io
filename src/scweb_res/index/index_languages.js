@@ -73,6 +73,7 @@ const IndexLanguageConfig = {
                 scWiki: '生存战争Wiki',
                 scWorkshop: '生存战争工坊',
                 scYuqueWiki: '生存战争语雀百科',
+                scYuqueAPImod: '生存战争语雀APImod制作教程',
                 serverPlugin: '服务端插件',
                 modWebsite: '模组网',
                 scLauncher: 'SC启动器',
@@ -95,7 +96,8 @@ const IndexLanguageConfig = {
                 ccplay: '虫虫助手生存战争',
                 xiaoheihe: '小黑盒生存战争',
                 tieba: '贴吧生存战争',
-                scBox: '新生存战争盒子（老瞎逼维护）'
+                scBox: '新生存战争盒子（老瞎逼维护）',
+                scYuqueApi: '生存战争语雀APImod制作教程'
             },
             footer: '© 2026 生存战争网'
         },
@@ -144,6 +146,7 @@ const IndexLanguageConfig = {
                 scWiki: 'SurvivalCraft Wiki',
                 scWorkshop: 'SurvivalCraft Workshop',
                 scYuqueWiki: 'SurvivalCraft Yuque Wiki',
+                scYuqueAPImod: 'SurvivalCraft Yuque APImod Tutorial',
                 serverPlugin: 'Server Plugin',
                 modWebsite: 'Mod Website',
                 scLauncher: 'SC Launcher',
@@ -166,7 +169,8 @@ const IndexLanguageConfig = {
                 ccplay: 'CCPlay SurvivalCraft',
                 xiaoheihe: 'XiaoHeiHe SurvivalCraft',
                 tieba: 'Tieba SurvivalCraft',
-                scBox: 'New SurvivalCraft Box (maintained by Lao Xia Bi)'
+                scBox: 'New SurvivalCraft Box (maintained by Lao Xia Bi)',
+                scYuqueApi: 'SurvivalCraft Yuque API Mod Tutorial'
             },
             footer: '© 2026 SurvivalCraft Web'
         },
@@ -215,6 +219,7 @@ const IndexLanguageConfig = {
                 scWiki: 'SurvivalCraft Вики',
                 scWorkshop: 'Мастерская SurvivalCraft',
                 scYuqueWiki: 'SurvivalCraft Yuque Вики',
+                scYuqueAPImod: 'SurvivalCraft Yuque APImod Пособие',
                 serverPlugin: 'Сервер Плагин',
                 modWebsite: 'Мод Сайт',
                 scLauncher: 'SC Лаунчер',
@@ -237,7 +242,8 @@ const IndexLanguageConfig = {
                 ccplay: 'CCPlay SurvivalCraft',
                 xiaoheihe: 'XiaoHeiHe SurvivalCraft',
                 tieba: 'Tieba SurvivalCraft',
-                scBox: 'Новый Ящик SurvivalCraft (поддержка Lao Xia Bi)'
+                scBox: 'Новый Ящик SurvivalCraft (поддержка Lao Xia Bi)',
+                scYuqueApi: 'Урок API Mod SurvivalCraft Yuque'
             },
             footer: '© 2026 SurvivalCraft Web'
         },
@@ -286,6 +292,7 @@ const IndexLanguageConfig = {
                 scWiki: 'Wiki de SurvivalCraft',
                 scWorkshop: 'Taller de SurvivalCraft',
                 scYuqueWiki: 'Enciclopedia Yuque de SurvivalCraft',
+                scYuqueAPImod: 'Tutorial de APImod Yuque de SurvivalCraft',
                 serverPlugin: 'Plugin de Servidor',
                 modWebsite: 'Sitio de Mods',
                 scLauncher: 'Lanzador SC',
@@ -308,7 +315,8 @@ const IndexLanguageConfig = {
                 ccplay: 'CCPlay SurvivalCraft',
                 xiaoheihe: 'XiaoHeiHe SurvivalCraft',
                 tieba: 'Tieba SurvivalCraft',
-                scBox: 'Nueva Caja de SurvivalCraft (mantenida por Lao Xia Bi)'
+                scBox: 'Nueva Caja de SurvivalCraft (mantenida por Lao Xia Bi)',
+                scYuqueApi: 'Tutorial de API Mod Yuque de SurvivalCraft'
             },
             footer: '© 2026 SurvivalCraft Web'
         }
@@ -329,6 +337,7 @@ const IndexLanguageConfig = {
             { title: 'links.scWiki', url: 'https://docs.scwk.net/', external: true },
             { title: 'links.scWorkshop', url: 'https://www.scwk.net', external: true },
             { title: 'links.scYuqueWiki', url: 'https://www.yuque.com/u589148/sc', external: true },
+            { title: 'links.scYuqueAPImod', url: 'https://www.yuque.com/u589148/wf2knt', external: true },
             { title: 'links.serverPlugin', url: 'https://soh.jiil.top/', external: true },
             { title: 'links.modWebsite', url: 'https://www.scmod.cn/', external: true },
             { title: 'links.scLauncher', url: 'https://sc.btos.top/', external: true },
