@@ -40,7 +40,8 @@ const AboutLanguageConfig = {
             links: {
                 cloudflare: 'Cloudflare（域名解析）',
                 projectRepo: '项目源代码仓库',
-                gname: 'gname（域名管理）'
+                gname: 'gname（域名管理）',
+                boce: 'boce测速'
             }
         },
         
@@ -71,7 +72,8 @@ const AboutLanguageConfig = {
             links: {
                 cloudflare: 'Cloudflare (DNS)',
                 projectRepo: 'Project Source Code Repository',
-                gname: 'gname (Domain Management)'
+                gname: 'gname (Domain Management)',
+                boce: 'Boce Speed Test'
             }
         },
         
@@ -102,7 +104,8 @@ const AboutLanguageConfig = {
             links: {
                 cloudflare: 'Cloudflare (DNS)',
                 projectRepo: 'Репозиторий Исходного Кода Проекта',
-                gname: 'gname (Управление Доменами)'
+                gname: 'gname (Управление Доменами)',
+                boce: 'Boce Скоростной Тест'
             }
         },
 
@@ -133,7 +136,8 @@ const AboutLanguageConfig = {
             links: {
                 cloudflare: 'Cloudflare (DNS)',
                 projectRepo: 'Repositorio de Código Fuente del Proyecto',
-                gname: 'gname (Gestión de Dominios)'
+                gname: 'gname (Gestión de Dominios)',
+                boce: 'Boce Prueba de Velocidad'
             }
         }
     },
@@ -146,7 +150,8 @@ const AboutLanguageConfig = {
         bookmarks: [
             { title: 'links.cloudflare', url: 'https://www.cloudflare.com/', external: true },
             { title: 'links.projectRepo', url: 'https://cnb.cool/SurvivalcraftTool/scweb', external: true },
-            { title: 'links.gname', url: 'https://www.gname.com/', external: true }
+            { title: 'links.gname', url: 'https://www.gname.com/', external: true },
+            { title: 'links.boce', url: 'https://www.boce.com/http', external: true }
         ]
     }
 };
