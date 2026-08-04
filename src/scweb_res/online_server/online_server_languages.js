@@ -56,6 +56,7 @@ const ServerLanguageConfig = {
                 joinGroup: '欢迎加入我们的交流群：',
                 managementOffice: '联机服列表管理办事处：',
                 bugFeedbackGroup: '联机号/公测联机版bug反馈群：',
+                discordGroup: '生存战争社区交流discord：',
                 noServers: '暂无服务器',
                 loading: '加载中...',
                 connecting: '正在连接服务器...',
@@ -92,7 +93,8 @@ const ServerLanguageConfig = {
                 group2: '开服申请点击加入',
                 group2Id: '893387376',
                 group3: '点击加入反馈群',
-                group3Id: '1092640742'
+                group3Id: '1092640742',
+                group4: '点击加入discord频道'
             },
             siteInfo: {
                 currentAddress: '本站地址：',
@@ -129,6 +131,7 @@ const ServerLanguageConfig = {
                 joinGroup: 'Welcome to join our discussion group:',
                 managementOffice: 'Server List Management Office:',
                 bugFeedbackGroup: 'Bug Feedback Group (Public Beta):',
+                discordGroup: 'Join the SurvivalCraft Community Discord:',
                 noServers: 'No servers found',
                 loading: 'Loading...',
                 connecting: 'Connecting to server...',
@@ -165,7 +168,8 @@ const ServerLanguageConfig = {
                 group2: 'Apply to Open a Server',
                 group2Id: '893387376',
                 group3: 'Bug Feedback Group',
-                group3Id: '1092640742'
+                group3Id: '1092640742',
+                group4: 'Click to join the discord channel'
             },
             siteInfo: {
                 currentAddress: 'Site Address: ',
@@ -202,6 +206,7 @@ const ServerLanguageConfig = {
                 joinGroup: 'Добро пожаловать в нашу группу:',
                 managementOffice: 'Управление Списком Серверов:',
                 bugFeedbackGroup: 'Группа Обратной Связи (бета-тест):',
+                discordGroup: 'Присоединяйтесь к Discord сообщества SurvivalCraft:',
                 noServers: 'Серверы не найдены',
                 loading: 'Загрузка...',
                 connecting: 'Подключение к серверу...',
@@ -238,7 +243,8 @@ const ServerLanguageConfig = {
                 group2: 'Заявка на Открытие Сервера',
                 group2Id: '893387376',
                 group3: 'Группа Обратной Связи',
-                group3Id: '1092640742'
+                group3Id: '1092640742',
+                group4: 'Присоединиться к каналу discord'
             },
             siteInfo: {
                 currentAddress: 'Адрес Сайта: ',
@@ -275,6 +281,7 @@ const ServerLanguageConfig = {
                 joinGroup: 'Bienvenido a nuestro grupo de discusión:',
                 managementOffice: 'Oficina de Gestión de la Lista de Servidores:',
                 bugFeedbackGroup: 'Grupo de Retroalimentación de Bugs (Beta Pública):',
+                discordGroup: 'Únete al Discord de la comunidad SurvivalCraft:',
                 noServers: 'No se encontraron servidores',
                 loading: 'Cargando...',
                 connecting: 'Conectando al servidor...',
@@ -311,7 +318,8 @@ const ServerLanguageConfig = {
                 group2: 'Solicitar Abrir un Servidor',
                 group2Id: '893387376',
                 group3: 'Grupo de Retroalimentación de Bugs',
-                group3Id: '1092640742'
+                group3Id: '1092640742',
+                group4: 'Haz clic para unirte al canal de discord'
             },
             siteInfo: {
                 currentAddress: 'Dirección del Sitio: ',

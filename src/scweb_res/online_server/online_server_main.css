@@ -342,6 +342,14 @@
     background-color: #ff9800;
 }
 
+.discord-group-link {
+    background-color: #5865f2;
+}
+
+.discord-group-link:hover {
+    background-color: #4752c4;
+}
+
 .join-group-warning .group-link:hover {
     background-color: #f57c00;
 }
