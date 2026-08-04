@@ -145,6 +145,7 @@ class AboutPageManager {
 
         if (config.navigation) {
             this.renderLinkGroup('bookmarksNavigationLinks', config.navigation.bookmarks, translations.links);
+            this.renderLinkGroup('aiNavigationLinks', config.navigation.ai, translations.links);
         }
     }
 

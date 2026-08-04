@@ -32,6 +32,7 @@ const AboutLanguageConfig = {
                 workshop: '生存战争工坊',
                 workshopDesc: '点击访问生存战争工坊官网',
                 bookmarks: '收藏导航',
+                aiNavigation: '🤖 AI导航',
                 cloudflareDesc: '点击访问Cloudflare官网（域名解析）',
                 projectBookmarkDesc: '点击访问项目源代码仓库',
                 thanks: '致谢',
@@ -41,7 +42,8 @@ const AboutLanguageConfig = {
                 cloudflare: 'Cloudflare（域名解析）',
                 projectRepo: '项目源代码仓库',
                 gname: 'gname（域名管理）',
-                boce: 'boce测速'
+                boce: 'boce测速',
+                aiToolsNav: 'AI工具导航'
             }
         },
         
@@ -64,6 +66,7 @@ const AboutLanguageConfig = {
                 workshop: 'SurvivalCraft Workshop',
                 workshopDesc: 'Click to visit the SurvivalCraft Workshop official website',
                 bookmarks: 'Bookmarks',
+                aiNavigation: '🤖 AI Navigation',
                 cloudflareDesc: 'Click to visit the Cloudflare official website (DNS)',
                 projectBookmarkDesc: 'Click to visit the project source code repository',
                 thanks: 'Thanks',
@@ -73,7 +76,8 @@ const AboutLanguageConfig = {
                 cloudflare: 'Cloudflare (DNS)',
                 projectRepo: 'Project Source Code Repository',
                 gname: 'gname (Domain Management)',
-                boce: 'Boce Speed Test'
+                boce: 'Boce Speed Test',
+                aiToolsNav: 'AI Tools Navigation'
             }
         },
         
@@ -96,6 +100,7 @@ const AboutLanguageConfig = {
                 workshop: 'Мастерская SurvivalCraft',
                 workshopDesc: 'Нажмите, чтобы посетить официальный сайт Мастерской SurvivalCraft',
                 bookmarks: 'Закладки',
+                aiNavigation: '🤖 AI Навигация',
                 cloudflareDesc: 'Нажмите, чтобы посетить официальный сайт Cloudflare (DNS)',
                 projectBookmarkDesc: 'Нажмите, чтобы посетить репозиторий исходного кода проекта',
                 thanks: 'Благодарности',
@@ -105,7 +110,8 @@ const AboutLanguageConfig = {
                 cloudflare: 'Cloudflare (DNS)',
                 projectRepo: 'Репозиторий Исходного Кода Проекта',
                 gname: 'gname (Управление Доменами)',
-                boce: 'Boce Скоростной Тест'
+                boce: 'Boce Скоростной Тест',
+                aiToolsNav: 'AI Инструменты Навигация'
             }
         },
 
@@ -128,6 +134,7 @@ const AboutLanguageConfig = {
                 workshop: 'Taller de SurvivalCraft',
                 workshopDesc: 'Haz clic para visitar el sitio web oficial del Taller de SurvivalCraft',
                 bookmarks: 'Marcadores',
+                aiNavigation: '🤖 Navegación IA',
                 cloudflareDesc: 'Haz clic para visitar el sitio web oficial de Cloudflare (DNS)',
                 projectBookmarkDesc: 'Haz clic para visitar el repositorio de código fuente del proyecto',
                 thanks: 'Agradecimientos',
@@ -137,7 +144,8 @@ const AboutLanguageConfig = {
                 cloudflare: 'Cloudflare (DNS)',
                 projectRepo: 'Repositorio de Código Fuente del Proyecto',
                 gname: 'gname (Gestión de Dominios)',
-                boce: 'Boce Prueba de Velocidad'
+                boce: 'Boce Prueba de Velocidad',
+                aiToolsNav: 'Navegación de Herramientas IA'
             }
         }
     },
@@ -145,6 +153,7 @@ const AboutLanguageConfig = {
     /**
      * 导航链接配置
      * - bookmarks: 收藏导航
+     * - ai: AI导航
      */
     navigation: {
         bookmarks: [
@@ -152,6 +161,9 @@ const AboutLanguageConfig = {
             { title: 'links.projectRepo', url: 'https://cnb.cool/SurvivalcraftTool/scweb', external: true },
             { title: 'links.gname', url: 'https://www.gname.com/', external: true },
             { title: 'links.boce', url: 'https://www.boce.com/http', external: true }
+        ],
+        ai: [
+            { title: 'links.aiToolsNav', url: 'https://ai-bot.cn/', external: true }
         ]
     }
 };
