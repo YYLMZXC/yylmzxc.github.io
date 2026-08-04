@@ -94,7 +94,8 @@ const IndexLanguageConfig = {
                 sc7723: '生存战争7723',
                 ccplay: '虫虫助手生存战争',
                 xiaoheihe: '小黑盒生存战争',
-                tieba: '贴吧生存战争'
+                tieba: '贴吧生存战争',
+                scBox: '新生存战争盒子（老瞎逼维护）'
             },
             footer: '© 2026 生存战争网'
         },
@@ -164,7 +165,8 @@ const IndexLanguageConfig = {
                 sc7723: 'SurvivalCraft 7723',
                 ccplay: 'CCPlay SurvivalCraft',
                 xiaoheihe: 'XiaoHeiHe SurvivalCraft',
-                tieba: 'Tieba SurvivalCraft'
+                tieba: 'Tieba SurvivalCraft',
+                scBox: 'New SurvivalCraft Box (maintained by Lao Xia Bi)'
             },
             footer: '© 2026 SurvivalCraft Web'
         },
@@ -234,7 +236,8 @@ const IndexLanguageConfig = {
                 sc7723: 'SurvivalCraft 7723',
                 ccplay: 'CCPlay SurvivalCraft',
                 xiaoheihe: 'XiaoHeiHe SurvivalCraft',
-                tieba: 'Tieba SurvivalCraft'
+                tieba: 'Tieba SurvivalCraft',
+                scBox: 'Новый Ящик SurvivalCraft (поддержка Lao Xia Bi)'
             },
             footer: '© 2026 SurvivalCraft Web'
         },
@@ -304,7 +307,8 @@ const IndexLanguageConfig = {
                 sc7723: 'SurvivalCraft 7723',
                 ccplay: 'CCPlay SurvivalCraft',
                 xiaoheihe: 'XiaoHeiHe SurvivalCraft',
-                tieba: 'Tieba SurvivalCraft'
+                tieba: 'Tieba SurvivalCraft',
+                scBox: 'Nueva Caja de SurvivalCraft (mantenida por Lao Xia Bi)'
             },
             footer: '© 2026 SurvivalCraft Web'
         }
@@ -328,7 +332,8 @@ const IndexLanguageConfig = {
             { title: 'links.serverPlugin', url: 'https://soh.jiil.top/', external: true },
             { title: 'links.modWebsite', url: 'https://www.scmod.cn/', external: true },
             { title: 'links.scLauncher', url: 'https://sc.btos.top/', external: true },
-            { title: 'links.jiilForum', url: 'https://bbs.jiil.top/', external: true }
+            { title: 'links.jiilForum', url: 'https://bbs.jiil.top/', external: true },
+            { title: 'links.scBox', url: 'https://scbox.zh.kg/', external: true }
         ],
         os: [
             { title: 'links.russianScCommunity', url: 'https://vk.com/fans_club_survivalcraft', external: true },
