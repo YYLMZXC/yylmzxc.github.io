@@ -49,7 +49,8 @@ const AboutLanguageConfig = {
                 yupiAi: '鱼皮AI导航',
                 uisdcAi: '优设AI导航',
                 faxianAi: '发现AI',
-                deepseek: 'DeepSeek'
+                deepseek: 'DeepSeek',
+                waybackMachine: '时光机'
             }
         },
 
@@ -89,7 +90,8 @@ const AboutLanguageConfig = {
                 yupiAi: 'Yupi AI Navigation',
                 uisdcAi: 'UISDC AI Navigation',
                 faxianAi: 'Faxian AI',
-                deepseek: 'DeepSeek'
+                deepseek: 'DeepSeek',
+                waybackMachine: 'Wayback Machine'
             }
         },
         
@@ -129,10 +131,11 @@ const AboutLanguageConfig = {
                 yupiAi: 'Yupi AI Навигация',
                 uisdcAi: 'UISDC AI Навигация',
                 faxianAi: 'Faxian AI',
-                deepseek: 'DeepSeek'
+                deepseek: 'DeepSeek',
+                waybackMachine: 'Wayback Machine'
             }
         },
-
+        
         es: {
             page: {
                 title: 'Sobre Nosotros | SurvivalCraft Web'
@@ -169,7 +172,8 @@ const AboutLanguageConfig = {
                 yupiAi: 'Navegación IA Yupi',
                 uisdcAi: 'Navegación IA UISDC',
                 faxianAi: 'Faxian IA',
-                deepseek: 'DeepSeek'
+                deepseek: 'DeepSeek',
+                waybackMachine: 'Wayback Machine'
             }
         }
     },
@@ -195,7 +199,8 @@ const AboutLanguageConfig = {
             { title: 'links.faxianAi', url: 'https://www.faxianai.com/', external: true }
         ],
         other: [
-            { title: 'links.deepseek', url: 'https://chat.deepseek.com/', external: true }
+            { title: 'links.deepseek', url: 'https://chat.deepseek.com/', external: true },
+            { title: 'links.waybackMachine', url: 'https://web.archive.org/', external: true }
         ]
     }
 };
