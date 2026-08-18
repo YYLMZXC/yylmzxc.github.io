@@ -1,0 +1,9 @@
+{
+  "RemoteUrls": [
+    "https://gitee.com/yylmzxc/scweb",
+    "https://cnb.cool/SurvivalcraftTool/scweb",
+    "https://github.com/YYLMZXC/yylmzxc.github.io"
+  ],
+  "CheckAddAll": true,
+  "CheckPushTags": false
+}
