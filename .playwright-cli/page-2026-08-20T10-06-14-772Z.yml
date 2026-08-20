@@ -1,0 +1,194 @@
+- generic [active] [ref=e1]:
+  - banner [ref=e2]:
+    - heading [level=1] [ref=e6]:
+      - link [ref=e7] [cursor=pointer]:
+        - /url: index.html
+        - img "生存战争网" [ref=e8]
+  - navigation [ref=e9]:
+    - generic [ref=e11]:
+      - generic [ref=e12]:
+        - link "首页" [ref=e13] [cursor=pointer]:
+          - /url: index.html
+        - link "联机服务器列表" [ref=e14] [cursor=pointer]:
+          - /url: online_server.html
+        - link "信息仪表板" [ref=e15] [cursor=pointer]:
+          - /url: dashboard.html
+        - link "APImod制作教程" [ref=e16] [cursor=pointer]:
+          - /url: https://www.yuque.com/u589148/wf2knt
+      - generic [ref=e18]:
+        - button "☀️" [ref=e19] [cursor=pointer]
+        - button "🌙" [ref=e20] [cursor=pointer]
+      - generic [ref=e22]:
+        - button "🇨🇳 中文" [ref=e23] [cursor=pointer]
+        - button "🇺🇸 English" [ref=e24] [cursor=pointer]
+        - button "🇷🇺 Русский" [ref=e25] [cursor=pointer]
+        - button "🇪🇸 Español" [ref=e26] [cursor=pointer]
+  - main [ref=e27]:
+    - main [ref=e30]:
+      - generic [ref=e31]:
+        - generic [ref=e32]:
+          - generic [ref=e33]:
+            - heading "📊 信息仪表板" [level=2] [ref=e34]
+            - paragraph [ref=e35]: 以下是从您的本次访问中获取到的信息
+          - button "🔄 刷新" [ref=e36] [cursor=pointer]
+        - generic [ref=e37]: 👋 您好，来自 未知 的访客
+        - generic [ref=e38]:
+          - generic [ref=e39]:
+            - strong [ref=e40]: 本地时间：
+            - text: 2026/8/20 18:06:14
+          - generic [ref=e41]:
+            - strong [ref=e42]: UTC 时间：
+            - text: Thu, 20 Aug 2026 10:06:14 GMT
+          - generic [ref=e43]:
+            - strong [ref=e44]: UTC 偏移：
+            - text: UTC+08:00
+        - generic [ref=e45]:
+          - generic [ref=e46]:
+            - heading "🌐 网络信息（服务器视角）" [level=3] [ref=e47]
+            - generic [ref=e48]: 服务端信息暂不可用（需通过 PHP 部署方可获取真实 IP）
+          - generic [ref=e50]:
+            - heading "🖥️ 浏览器信息" [level=3] [ref=e51]
+            - generic [ref=e52]:
+              - generic [ref=e53]:
+                - term [ref=e54]: 浏览器标识 (User-Agent)
+                - definition [ref=e55]: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/151.0.0.0 Safari/537.36
+              - generic [ref=e56]:
+                - term [ref=e57]: 浏览器
+                - definition [ref=e58]: Chrome
+              - generic [ref=e59]:
+                - term [ref=e60]: 浏览器版本
+                - definition [ref=e61]: 151.0.0.0
+              - generic [ref=e62]:
+                - term [ref=e63]: 浏览器内核
+                - definition [ref=e64]: Blink
+              - generic [ref=e65]:
+                - term [ref=e66]: 界面语言
+                - definition [ref=e67]: zh-CN
+              - generic [ref=e68]:
+                - term [ref=e69]: 可用语言
+                - definition [ref=e70]: zh-CN, zh
+              - generic [ref=e71]:
+                - term [ref=e72]: 时区
+                - definition [ref=e73]: Asia/Shanghai
+              - generic [ref=e74]:
+                - term [ref=e75]: Cookie 已启用
+                - definition [ref=e76]:
+                  - generic [ref=e77]: 是
+              - generic [ref=e78]:
+                - term [ref=e79]: 在线状态
+                - definition [ref=e80]:
+                  - generic [ref=e81]: 在线
+              - generic [ref=e82]:
+                - term [ref=e83]: 禁止追踪 (Do Not Track)
+                - definition [ref=e84]:
+                  - generic [ref=e85]: 否
+              - generic [ref=e86]:
+                - term [ref=e87]: 自动化检测 (WebDriver)
+                - definition [ref=e88]:
+                  - generic [ref=e89]: 否
+              - generic [ref=e90]:
+                - term [ref=e91]: PDF 查看器
+                - definition [ref=e92]:
+                  - generic [ref=e93]: 是
+              - generic [ref=e94]:
+                - term [ref=e95]: 最大触控点数
+                - definition [ref=e96]: "10"
+          - generic [ref=e97]:
+            - heading "⚙️ 系统信息" [level=3] [ref=e98]
+            - generic [ref=e99]:
+              - generic [ref=e100]:
+                - term [ref=e101]: 操作系统平台
+                - definition [ref=e102]: Win32
+              - generic [ref=e103]:
+                - term [ref=e104]: 操作系统
+                - definition [ref=e105]: Windows 10/11
+              - generic [ref=e106]:
+                - term [ref=e107]: CPU 架构
+                - definition [ref=e108]: 无
+              - generic [ref=e109]:
+                - term [ref=e110]: 系统位数
+                - definition [ref=e111]: 无
+              - generic [ref=e112]:
+                - term [ref=e113]: CPU 逻辑核数
+                - definition [ref=e114]: "32"
+              - generic [ref=e115]:
+                - term [ref=e116]: 设备内存
+                - definition [ref=e117]: 32 GB
+              - generic [ref=e118]:
+                - term [ref=e119]: 屏幕分辨率
+                - definition [ref=e120]: 1280 × 720
+              - generic [ref=e121]:
+                - term [ref=e122]: 可用屏幕区域
+                - definition [ref=e123]: 1280 × 720
+              - generic [ref=e124]:
+                - term [ref=e125]: 颜色深度
+                - definition [ref=e126]: "24"
+              - generic [ref=e127]:
+                - term [ref=e128]: 像素深度
+                - definition [ref=e129]: "24"
+              - generic [ref=e130]:
+                - term [ref=e131]: 设备像素比 (DPR)
+                - definition [ref=e132]: "1"
+              - generic [ref=e133]:
+                - term [ref=e134]: 视口尺寸
+                - definition [ref=e135]: 1280 × 720
+              - generic [ref=e136]:
+                - term [ref=e137]: 屏幕方向
+                - definition [ref=e138]: landscape-primary
+              - generic [ref=e139]:
+                - term [ref=e140]: 窗口位置
+                - definition [ref=e141]: 10, 10
+              - generic [ref=e142]:
+                - term [ref=e143]: 窗口尺寸
+                - definition [ref=e144]: 1280 × 720
+          - generic [ref=e145]:
+            - heading "📶 网络连接" [level=3] [ref=e146]
+            - generic [ref=e147]:
+              - generic [ref=e148]:
+                - term [ref=e149]: 网络类型 (Effective Type)
+                - definition [ref=e150]: 4g
+              - generic [ref=e151]:
+                - term [ref=e152]: 估算下行速度
+                - definition [ref=e153]: 1.7 Mbps
+              - generic [ref=e154]:
+                - term [ref=e155]: 估算往返延迟
+                - definition [ref=e156]: 100 ms
+              - generic [ref=e157]:
+                - term [ref=e158]: 省流量模式
+                - definition [ref=e159]:
+                  - generic [ref=e160]: 否
+          - generic [ref=e161]:
+            - heading "📄 页面信息" [level=3] [ref=e162]
+            - generic [ref=e163]:
+              - generic [ref=e164]:
+                - term [ref=e165]: 当前页面 URL
+                - definition [ref=e166]: http://127.0.0.1:8000/dashboard.html
+              - generic [ref=e167]:
+                - term [ref=e168]: 页面路径
+                - definition [ref=e169]: /dashboard.html
+              - generic [ref=e170]:
+                - term [ref=e171]: 来源页面
+                - definition [ref=e172]: 无
+              - generic [ref=e173]:
+                - term [ref=e174]: 页面标题
+                - definition [ref=e175]: 信息仪表板 | 生存战争网
+              - generic [ref=e176]:
+                - term [ref=e177]: 页面加载耗时
+                - definition [ref=e178]: 0 ms
+              - generic [ref=e179]:
+                - term [ref=e180]: DOM 就绪耗时
+                - definition [ref=e181]: 0 ms
+  - contentinfo [ref=e182]:
+    - paragraph [ref=e184]:
+      - text: 本站地址：127.0.0.1:8000
+      - generic [ref=e185]:
+        - text: 短网址：
+        - link "scnet.top https://scnet.top/" [ref=e186] [cursor=pointer]:
+          - /url: https://scnet.top/
+        - link "schub.icu https://schub.icu/" [ref=e187] [cursor=pointer]:
+          - /url: https://schub.icu/
+        - link "scwz.top https://scwz.top/" [ref=e188] [cursor=pointer]:
+          - /url: https://scwz.top/
+    - paragraph [ref=e189]:
+      - link "© 2026 生存战争网" [ref=e190] [cursor=pointer]:
+        - /url: about.html

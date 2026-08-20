@@ -11,6 +11,7 @@
 - **响应式设计**: 适配桌面和移动设备（3 个断点）
 - **主题切换**: 亮色/深色/跟随系统，localStorage 持久化
 - **联机服务器**: 在线服务器列表、延迟检测、多维度筛选
+- **信息仪表板**: 展示当前访问 IP、浏览器标识、系统与网络连接信息
 - **社区导航**: 国内外 SC 社区链接导航
 - **API 代理**: PHP 代理解决跨域问题，支持 CORS 回退
 - **错误页面**: 完整的 HTTP 错误页面（400-510）
@@ -51,6 +52,7 @@
    打开浏览器访问：
    - 首页：`http://localhost:8000`
    - 服务器列表：`http://localhost:8000/online_server.html`
+   - 信息仪表板：`http://localhost:8000/dashboard.html`
    - 关于页面：`http://localhost:8000/about.html`
 
 ## 📁 项目结构
@@ -60,6 +62,7 @@ scweb/
 ├── src/                              # 源代码目录
 │   ├── index.html                    # 首页（中文/海外导航区块）
 │   ├── online_server.html            # 联机服务器列表页面
+│   ├── dashboard.html                # 信息仪表板页面
 │   ├── about.html                    # 关于我们页面
 │   ├── proxy.php                     # API 代理脚本（CORS 解决方案）
 │   ├── run.bat                       # Windows 一键启动脚本
@@ -100,6 +103,10 @@ scweb/
 │   │   │   ├── server-latency-checker.js # 延迟检测（状态指示灯）
 │   │   │   ├── server-list-view.js    # 视图层（列表渲染与交互）
 │   │   │   └── online_server_script.js # 门面/协调者（OnlineServerManager）
+│   │   ├── dashboard/                # 【信息仪表板】页面专用资源
+│   │   │   ├── dashboard_main.css    # 仪表板主样式（卡片布局）
+│   │   │   ├── dashboard_languages.js # 仪表板多语言配置
+│   │   │   └── dashboard_script.js   # 仪表板脚本（DashboardPageManager）
 │   │   └── about/                    # 【关于页面】页面专用资源
 ├── old/                              # 旧版本文件备份（PHP 版项目）
 ├── push.py                           # 一键推送脚本（Gitee + GitHub + CNB）
@@ -144,7 +151,7 @@ scweb/
 
 翻译配置采用两层结构：
 - **站点级** (`site-language-config.js`)：通用元信息、导航、站点信息
-- **页面级** (`index_languages.js` / `online_server_languages.js`)：页面特定内容
+- **页面级** (`index_languages.js` / `online_server_languages.js` / `dashboard_languages.js`)：页面特定内容
 - 页面加载时通过 `SCUtils.mergeConfigs` 深度合并两层配置
 
 ## 📱 响应式设计
@@ -165,6 +172,7 @@ scweb/
 |--------|------|------|
 | `serverlist` | `api.sckey.net/server/serverlist` | 获取联机服务器列表 |
 | `ping` | `api.sckey.net/server/ping` | 检测服务器延迟 |
+| `clientinfo` | 直接返回（无需上游） | 获取客户端 IP、UA、请求头等访问信息 |
 
 **部署要求：** 需放置在支持 PHP 的 Web 服务器上（与 `online_server.html` 同级目录）。
 
@@ -174,6 +182,7 @@ scweb/
 |------|------|------|
 | 首页 | `index.html` | 中文/海外社区导航、主题切换、多语言 |
 | 联机服务器 | `online_server.html` | 服务器列表、筛选、延迟检测、收藏 |
+| 信息仪表板 | `dashboard.html` | 当前访问 IP、浏览器/系统/网络信息展示 |
 | 关于我们 | `about.html` | 网站和社区介绍 |
 | 错误页 | `error/*.html` | 15 个 HTTP 状态码错误页（400-510） |
 
@@ -215,6 +224,9 @@ scweb/
 | `ServerCache` | `online_server/server-cache.js` | 数据层：localStorage 缓存读写与过期管理 |
 | `ServerListView` | `online_server/server-list-view.js` | 视图层：列表渲染、统计展示、复制/筛选/IP 切换交互 |
 | `ServerLatencyChecker` | `online_server/server-latency-checker.js` | 延迟检测：批量检测、状态指示灯更新 |
+| `DashboardPageManager` | `dashboard/dashboard_script.js` | 仪表板页门面，编排信息采集与渲染 |
+| `BrowserInfoCollector` | `dashboard/dashboard_script.js` | 纯前端信息采集（navigator/screen/performance） |
+| `UserAgentParser` | `dashboard/dashboard_script.js` | UA 解析器（浏览器/版本/内核/OS） |
 
 ### 部署与推送
 

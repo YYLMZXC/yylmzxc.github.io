@@ -1,0 +1,9 @@
+[      32ms] [LOG] [App] 开始初始化... @ http://127.0.0.1:8000/scweb_res/shared/js/app.js?v=20260821:27
+[      33ms] [LOG] [ThemeManager] 初始化完成，当前主题：light @ http://127.0.0.1:8000/scweb_res/shared/js/theme-manager.js?v=20260723:18
+[      33ms] [LOG] [LanguageManager] 初始化完成，当前语言：zh @ http://127.0.0.1:8000/scweb_res/shared/js/language-manager.js?v=20260723:29
+[      34ms] [LOG] [App] 初始化完成 @ http://127.0.0.1:8000/scweb_res/shared/js/app.js?v=20260821:57
+[     105ms] [LOG] [DashboardPageManager] 初始化完成 @ http://127.0.0.1:8000/scweb_res/dashboard/dashboard_script.js?v=20260820:253
+[     109ms] [WARNING] [DashboardPageManager] 服务端信息获取失败： Unexpected token '<', "<?php
+/**"... is not valid JSON @ http://127.0.0.1:8000/scweb_res/dashboard/dashboard_script.js?v=20260820:492
+[   21571ms] [LOG] [LanguageManager] 语言切换：zh → en @ http://127.0.0.1:8000/scweb_res/shared/js/language-manager.js?v=20260723:238
+[   35392ms] [LOG] [ThemeManager] 主题切换：light → dark @ http://127.0.0.1:8000/scweb_res/shared/js/theme-manager.js?v=20260723:120

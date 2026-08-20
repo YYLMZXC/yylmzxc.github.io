@@ -53,8 +53,60 @@ set_exception_handler(function ($exception) {
 $action = isset($_GET['action']) ? $_GET['action'] : 'serverlist';  // 请求类型
 $version = isset($_GET['version']) ? $_GET['version'] : 'x26.07.20'; // 服务器版本号
 
+/**
+ * 获取客户端真实 IP（综合考虑常见代理转发头）
+ * @return string 客户端 IP 地址
+ */
+function getClientIp() {
+    // 依次检查常见的代理转发头，最后回退到 REMOTE_ADDR
+    foreach (['HTTP_X_FORWARDED_FOR', 'HTTP_X_REAL_IP', 'HTTP_CF_CONNECTING_IP', 'HTTP_CLIENT_IP'] as $header) {
+        if (!empty($_SERVER[$header])) {
+            // X-Forwarded-For 可能包含逗号分隔的 IP 链，取第一个
+            $value = trim(explode(',', $_SERVER[$header])[0]);
+            if (filter_var($value, FILTER_VALIDATE_IP)) {
+                return $value;
+            }
+        }
+    }
+    return isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '';
+}
+
 // ==================== 根据请求类型构建目标 URL ====================
 switch ($action) {
+    // 客户端信息：直接返回服务端视角能获取到的访问信息，无需转发上游
+    case 'clientinfo':
+        echo json_encode([
+            'success' => true,
+            'data' => [
+                // 客户端地址信息
+                'ip' => getClientIp(),
+                'remoteAddr' => isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '',
+                'xForwardedFor' => isset($_SERVER['HTTP_X_FORWARDED_FOR']) ? $_SERVER['HTTP_X_FORWARDED_FOR'] : '',
+                'xRealIp' => isset($_SERVER['HTTP_X_REAL_IP']) ? $_SERVER['HTTP_X_REAL_IP'] : '',
+                // 客户端请求头
+                'userAgent' => isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '',
+                'acceptLanguage' => isset($_SERVER['HTTP_ACCEPT_LANGUAGE']) ? $_SERVER['HTTP_ACCEPT_LANGUAGE'] : '',
+                'acceptEncoding' => isset($_SERVER['HTTP_ACCEPT_ENCODING']) ? $_SERVER['HTTP_ACCEPT_ENCODING'] : '',
+                'accept' => isset($_SERVER['HTTP_ACCEPT']) ? $_SERVER['HTTP_ACCEPT'] : '',
+                'referer' => isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '',
+                // 请求信息
+                'requestMethod' => isset($_SERVER['REQUEST_METHOD']) ? $_SERVER['REQUEST_METHOD'] : '',
+                'requestUri' => isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '',
+                'requestTime' => isset($_SERVER['REQUEST_TIME']) ? $_SERVER['REQUEST_TIME'] : 0,
+                // 服务端信息
+                'serverAddr' => isset($_SERVER['SERVER_ADDR']) ? $_SERVER['SERVER_ADDR'] : '',
+                'serverName' => isset($_SERVER['SERVER_NAME']) ? $_SERVER['SERVER_NAME'] : '',
+                'serverSoftware' => isset($_SERVER['SERVER_SOFTWARE']) ? $_SERVER['SERVER_SOFTWARE'] : '',
+                'serverProtocol' => isset($_SERVER['SERVER_PROTOCOL']) ? $_SERVER['SERVER_PROTOCOL'] : '',
+                'https' => (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off'),
+                // Client Hints（Chrome 等浏览器可能携带，可能为空）
+                'secChUa' => isset($_SERVER['HTTP_SEC_CH_UA']) ? $_SERVER['HTTP_SEC_CH_UA'] : '',
+                'secChUaPlatform' => isset($_SERVER['HTTP_SEC_CH_UA_PLATFORM']) ? $_SERVER['HTTP_SEC_CH_UA_PLATFORM'] : '',
+                'secChUaMobile' => isset($_SERVER['HTTP_SEC_CH_UA_MOBILE']) ? $_SERVER['HTTP_SEC_CH_UA_MOBILE'] : ''
+            ]
+        ], JSON_UNESCAPED_UNICODE);
+        exit;
+
     // Ping 检测：检测指定服务器的延迟
     case 'ping':
         $host = isset($_GET['host']) ? $_GET['host'] : '';
