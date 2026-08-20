@@ -29,26 +29,10 @@ class AboutPageManager {
 
     /**
      * 绑定事件
+     * 主题/语言按钮由 ThemeManager / LanguageManager 的全局事件委托统一处理，
+     * 页面这里只监听语言切换事件，用于重渲染导航链接
      */
     bindEvents() {
-        document.querySelectorAll('.theme-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                const theme = btn.dataset.theme;
-                if (this.themeManager) {
-                    this.themeManager.setTheme(theme);
-                }
-            });
-        });
-
-        document.querySelectorAll('.language-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                const lang = btn.dataset.lang;
-                if (this.languageManager) {
-                    this.languageManager.setLanguage(lang);
-                }
-            });
-        });
-
         // 监听语言切换事件，重新渲染导航
         document.addEventListener('languageChanged', (e) => {
             const lang = e.detail ? e.detail.lang : this.languageManager.currentLang;

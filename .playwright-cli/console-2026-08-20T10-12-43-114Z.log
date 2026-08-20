@@ -1,0 +1,7 @@
+[      55ms] [LOG] [App] 开始初始化... @ http://127.0.0.1:8000/scweb_res/shared/js/app.js?v=20260821:27
+[      55ms] [LOG] [ThemeManager] 初始化完成，当前主题：light @ http://127.0.0.1:8000/scweb_res/shared/js/theme-manager.js?v=20260723:18
+[      56ms] [LOG] [LanguageManager] 初始化完成，当前语言：zh @ http://127.0.0.1:8000/scweb_res/shared/js/language-manager.js?v=20260723:29
+[      56ms] [LOG] [App] 初始化完成 @ http://127.0.0.1:8000/scweb_res/shared/js/app.js?v=20260821:57
+[      57ms] [LOG] 尝试连接 (1/5) [自建代理]... @ http://127.0.0.1:8000/scweb_res/online_server/server-api-client.js?v=20260820:133
+[      57ms] [LOG] [OnlineServerManager] 初始化完成 @ http://127.0.0.1:8000/scweb_res/online_server/online_server_script.js?v=20260820:75
+[      62ms] [LOG] 服务器列表为空 @ http://127.0.0.1:8000/scweb_res/online_server/online_server_script.js?v=20260820:222
