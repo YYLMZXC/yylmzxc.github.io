@@ -1,0 +1,108 @@
+- generic [active] [ref=e1]:
+  - banner [ref=e2]:
+    - heading [level=1] [ref=e6]:
+      - link [ref=e7] [cursor=pointer]:
+        - /url: index.html
+        - img "生存战争网" [ref=e8]
+  - navigation [ref=e9]:
+    - generic [ref=e11]:
+      - generic [ref=e12]:
+        - link "首页" [ref=e13] [cursor=pointer]:
+          - /url: index.html
+        - link "联机服务器列表" [ref=e14] [cursor=pointer]:
+          - /url: online_server.html
+      - generic [ref=e16]:
+        - button "☀️" [ref=e17] [cursor=pointer]
+        - button "🌙" [ref=e18] [cursor=pointer]
+      - generic [ref=e20]:
+        - button "🇨🇳 中文" [ref=e21] [cursor=pointer]
+        - button "🇺🇸 English" [ref=e22] [cursor=pointer]
+        - button "🇷🇺 Русский" [ref=e23] [cursor=pointer]
+        - button "🇪🇸 Español" [ref=e24] [cursor=pointer]
+  - main [ref=e25]:
+    - main [ref=e28]:
+      - generic [ref=e29]:
+        - generic [ref=e30]:
+          - heading "🌏 CN中文导航" [level=3] [ref=e31]
+          - generic [ref=e32]:
+            - link "SC中文社区cn路线" [ref=e33] [cursor=pointer]:
+              - /url: https://test.suancaixianyu.cn/
+            - link "SC中文社区os路线" [ref=e34] [cursor=pointer]:
+              - /url: https://www.scbbs.top/
+            - link "生存战争登录钥匙" [ref=e35] [cursor=pointer]:
+              - /url: https://sckey.net
+            - link "生存战争Wiki" [ref=e36] [cursor=pointer]:
+              - /url: https://docs.scwk.net/
+            - link "生存战争工坊" [ref=e37] [cursor=pointer]:
+              - /url: https://www.scwk.net
+            - link "生存战争语雀百科" [ref=e38] [cursor=pointer]:
+              - /url: https://www.yuque.com/u589148/sc
+            - link "生存战争语雀APImod制作教程" [ref=e39] [cursor=pointer]:
+              - /url: https://www.yuque.com/u589148/wf2knt
+            - link "服务端插件" [ref=e40] [cursor=pointer]:
+              - /url: https://soh.jiil.top/
+            - link "模组网" [ref=e41] [cursor=pointer]:
+              - /url: https://www.scmod.cn/
+            - link "SC启动器" [ref=e42] [cursor=pointer]:
+              - /url: https://sc.btos.top/
+            - link "JIIL论坛" [ref=e43] [cursor=pointer]:
+              - /url: https://bbs.jiil.top/
+            - link "新生存战争盒子（老瞎逼维护）" [ref=e44] [cursor=pointer]:
+              - /url: https://scbox.zh.kg/
+        - generic [ref=e45]:
+          - heading "🌍 OS海外导航" [level=3] [ref=e46]
+          - generic [ref=e47]:
+            - link "俄语SC社区" [ref=e48] [cursor=pointer]:
+              - /url: https://vk.com/fans_club_survivalcraft
+            - link "原版SC社区" [ref=e49] [cursor=pointer]:
+              - /url: https://www.tapatalk.com/groups/survivalcraft/discussion/all
+            - link "海外Mod网站" [ref=e50] [cursor=pointer]:
+              - /url: https://survivalcraft2mods.blogspot.com/
+            - link "TheNoswad的SC网站" [ref=e51] [cursor=pointer]:
+              - /url: https://survivalcraft.dev/
+            - link "正版官网" [ref=e52] [cursor=pointer]:
+              - /url: https://kaalus.wordpress.com/
+            - link "生存战争维基百科" [ref=e53] [cursor=pointer]:
+              - /url: https://survivalcraft.miraheze.org
+            - link "生存战争Fandom百科" [ref=e54] [cursor=pointer]:
+              - /url: https://survivalcraft.fandom.com
+        - generic [ref=e55]:
+          - heading "📌 其他导航" [level=3] [ref=e56]
+          - generic [ref=e57]:
+            - link "生存战争MOD开发管理组" [ref=e58] [cursor=pointer]:
+              - /url: https://gitee.com/SC-SPM
+            - link "生存战争api下载" [ref=e59] [cursor=pointer]:
+              - /url: https://gitee.com/SC-SPM/SurvivalcraftApi/releases
+            - link "生存战争联机版Net下载" [ref=e60] [cursor=pointer]:
+              - /url: https://gitee.com/SC-SPM/SurvivalcraftNet/releases
+        - generic [ref=e61]:
+          - heading "📜 可能过时导航" [level=3] [ref=e62]
+          - generic [ref=e63]:
+            - link "TapTap生存战争2论坛" [ref=e64] [cursor=pointer]:
+              - /url: https://www.taptap.cn/app/30823/topic
+            - link "4399生存战争" [ref=e65] [cursor=pointer]:
+              - /url: https://news.4399.com/sczz/
+            - link "生存战争知乎" [ref=e66] [cursor=pointer]:
+              - /url: https://www.zhihu.com/topic/21226084
+            - link "生存战争7723" [ref=e67] [cursor=pointer]:
+              - /url: https://www.7723.cn/search/%E7%94%9F%E5%AD%98%E6%88%98%E4%BA%89
+            - link "虫虫助手生存战争" [ref=e68] [cursor=pointer]:
+              - /url: https://m2.ccplay.cn/search?q=%E7%94%9F%E5%AD%98%E6%88%98%E4%BA%89
+            - link "小黑盒生存战争" [ref=e69] [cursor=pointer]:
+              - /url: https://www.xiaoheihe.cn/app/topic/link/600968
+            - link "贴吧生存战争" [ref=e70] [cursor=pointer]:
+              - /url: https://tieba.baidu.com/f?kw=%E7%94%9F%E5%AD%98%E6%88%98%E4%BA%89
+  - contentinfo [ref=e71]:
+    - paragraph [ref=e73]:
+      - text: 本站地址：127.0.0.1:8000
+      - generic [ref=e74]:
+        - text: 短网址：
+        - link "scnet.top https://scnet.top/" [ref=e75] [cursor=pointer]:
+          - /url: https://scnet.top/
+        - link "schub.icu https://schub.icu/" [ref=e76] [cursor=pointer]:
+          - /url: https://schub.icu/
+        - link "scwz.top https://scwz.top/" [ref=e77] [cursor=pointer]:
+          - /url: https://scwz.top/
+    - paragraph [ref=e78]:
+      - link "© 2026 生存战争网" [ref=e79] [cursor=pointer]:
+        - /url: about.html

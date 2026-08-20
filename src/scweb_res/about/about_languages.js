@@ -50,7 +50,8 @@ const AboutLanguageConfig = {
                 uisdcAi: '优设AI导航',
                 faxianAi: '发现AI',
                 deepseek: 'DeepSeek',
-                waybackMachine: '时光机'
+                waybackMachine: '时光机',
+                dashboard: '信息仪表板'
             }
         },
 
@@ -91,7 +92,8 @@ const AboutLanguageConfig = {
                 uisdcAi: 'UISDC AI Navigation',
                 faxianAi: 'Faxian AI',
                 deepseek: 'DeepSeek',
-                waybackMachine: 'Wayback Machine'
+                waybackMachine: 'Wayback Machine',
+                dashboard: 'Dashboard'
             }
         },
         
@@ -132,7 +134,8 @@ const AboutLanguageConfig = {
                 uisdcAi: 'UISDC AI Навигация',
                 faxianAi: 'Faxian AI',
                 deepseek: 'DeepSeek',
-                waybackMachine: 'Wayback Machine'
+                waybackMachine: 'Wayback Machine',
+                dashboard: 'Панель информации'
             }
         },
         
@@ -173,7 +176,8 @@ const AboutLanguageConfig = {
                 uisdcAi: 'Navegación IA UISDC',
                 faxianAi: 'Faxian IA',
                 deepseek: 'DeepSeek',
-                waybackMachine: 'Wayback Machine'
+                waybackMachine: 'Wayback Machine',
+                dashboard: 'Panel de Información'
             }
         }
     },
@@ -199,6 +203,7 @@ const AboutLanguageConfig = {
             { title: 'links.faxianAi', url: 'https://www.faxianai.com/', external: true }
         ],
         other: [
+            { title: 'links.dashboard', url: 'dashboard.html', external: false },
             { title: 'links.deepseek', url: 'https://chat.deepseek.com/', external: true },
             { title: 'links.waybackMachine', url: 'https://web.archive.org/', external: true }
         ]

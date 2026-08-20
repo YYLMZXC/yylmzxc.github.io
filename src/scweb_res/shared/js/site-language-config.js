@@ -31,9 +31,7 @@ const SiteLanguageConfig = {
             },
             nav: {
                 home: '首页',
-                serverList: '联机服务器列表',
-                dashboard: '信息仪表板',
-                apiTutorial: 'APImod制作教程'
+                serverList: '联机服务器列表'
             },
             site: {
                 currentAddress: '本站地址：',
@@ -58,9 +56,7 @@ const SiteLanguageConfig = {
             },
             nav: {
                 home: 'Home',
-                serverList: 'Server List',
-                dashboard: 'Dashboard',
-                apiTutorial: 'API Mod Tutorial'
+                serverList: 'Server List'
             },
             site: {
                 currentAddress: 'Site Address: ',
@@ -85,9 +81,7 @@ const SiteLanguageConfig = {
             },
             nav: {
                 home: 'Главная',
-                serverList: 'Список Серверов',
-                dashboard: 'Панель информации',
-                apiTutorial: 'API Mod Урок'
+                serverList: 'Список Серверов'
             },
             site: {
                 currentAddress: 'Адрес Сайта: ',
@@ -112,9 +106,7 @@ const SiteLanguageConfig = {
             },
             nav: {
                 home: 'Inicio',
-                serverList: 'Lista de Servidores',
-                dashboard: 'Panel de Información',
-                apiTutorial: 'Tutorial de API Mod'
+                serverList: 'Lista de Servidores'
             },
             site: {
                 currentAddress: 'Dirección del Sitio: ',

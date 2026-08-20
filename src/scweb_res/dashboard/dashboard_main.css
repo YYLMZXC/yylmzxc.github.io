@@ -1,8 +1,13 @@
 /**
- * 生存战争网 - 信息仪表板样式表
- * 卡片式布局：标题区 / 问候条 / 时钟条 / 信息卡片网格
- * 深色模式通过 body.dark 选择器与主题 CSS 变量适配
- */
+* 生存战争网 - 信息仪表板样式表
+* 卡片式布局：标题区 / 问候条 / 时钟条 / 信息卡片网格
+* 深色模式通过 body.dark 选择器与主题 CSS 变量适配
+*/
+
+/* ===== 仪表板专属：增加主内容区顶部留白（避免与 nav 贴太近） ===== */
+#body {
+    padding-top: 24px;
+}
 
 /* ===== 仪表板标题区 ===== */
 .dash-header {
@@ -11,7 +16,9 @@
     justify-content: space-between;
     flex-wrap: wrap;
     gap: 12px;
-    margin-bottom: 16px;
+    margin-top: 12px;
+    margin-bottom: 22px;
+    padding: 6px 4px;
 }
 
 .dash-header h2 {
@@ -23,7 +30,7 @@
 .dash-subtitle {
     color: #868e96;
     font-size: 14px;
-    margin-top: 6px;
+    margin-top: 10px;
 }
 
 .dash-refresh-btn {
@@ -55,8 +62,8 @@
     border: 1px solid rgba(102, 126, 234, 0.3);
     border-left: 4px solid var(--primary-color);
     border-radius: 10px;
-    padding: 14px 18px;
-    margin-bottom: 12px;
+    padding: 18px 24px;
+    margin-bottom: 16px;
     font-size: 16px;
     font-weight: 600;
     color: var(--text-color);
@@ -68,8 +75,8 @@
     background: #fff;
     border: 1px solid var(--border-light);
     border-radius: 10px;
-    padding: 12px 18px;
-    margin-bottom: 20px;
+    padding: 16px 24px;
+    margin-bottom: 24px;
     font-size: 13px;
     color: #868e96;
     display: flex;
@@ -102,7 +109,7 @@
 
 .dash-card h3 {
     margin: 0;
-    padding: 14px 18px;
+    padding: 16px 22px;
     font-size: 15px;
     color: #fff;
     background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
