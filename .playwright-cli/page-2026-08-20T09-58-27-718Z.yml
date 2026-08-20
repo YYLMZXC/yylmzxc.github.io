@@ -1,0 +1,64 @@
+- generic [active] [ref=f1e1]:
+  - banner [ref=f1e2]:
+    - heading [level=1] [ref=f1e6]:
+      - link [ref=f1e7] [cursor=pointer]:
+        - /url: index.html
+        - img "生存战争网" [ref=f1e8]
+  - navigation [ref=f1e9]:
+    - generic [ref=f1e11]:
+      - generic [ref=f1e12]:
+        - link "首页" [ref=f1e13] [cursor=pointer]:
+          - /url: index.html
+        - link "联机服务器列表" [ref=f1e14] [cursor=pointer]:
+          - /url: online_server.html
+        - link "APImod制作教程" [ref=f1e15] [cursor=pointer]:
+          - /url: https://www.yuque.com/u589148/wf2knt
+      - generic [ref=f1e17]:
+        - button "☀️" [ref=f1e18] [cursor=pointer]
+        - button "🌙" [ref=f1e19] [cursor=pointer]
+      - generic [ref=f1e21]:
+        - button "🇨🇳 中文" [ref=f1e22] [cursor=pointer]
+        - button "🇺🇸 English" [ref=f1e23] [cursor=pointer]
+        - button "🇷🇺 Русский" [ref=f1e24] [cursor=pointer]
+        - button "🇪🇸 Español" [ref=f1e25] [cursor=pointer]
+  - main [ref=f1e26]:
+    - generic [ref=f1e28]:
+      - main [ref=f1e29]:
+        - generic [ref=f1e30]:
+          - generic [ref=f1e31]:
+            - combobox [ref=f1e32] [cursor=pointer]
+            - button "🔗 直连模式" [ref=f1e33] [cursor=pointer]
+            - button "全部" [ref=f1e34] [cursor=pointer]
+            - button "大厅服" [ref=f1e35] [cursor=pointer]
+            - button "精品服" [ref=f1e36] [cursor=pointer]
+            - button "社区服" [ref=f1e37] [cursor=pointer]
+            - button "🔄 刷新" [ref=f1e38] [cursor=pointer]
+          - generic [ref=f1e39]:
+            - heading "服务器统计" [level=3] [ref=f1e40]
+            - paragraph [ref=f1e41]: 加载中...
+          - generic [ref=f1e42]: 加载中...
+      - complementary [ref=f1e44]:
+        - paragraph [ref=f1e46]:
+          - text: 欢迎加入我们的交流群：
+          - link "生存战争34服务器联机交流群" [ref=f1e47] [cursor=pointer]:
+            - /url: https://qm.qq.com/q/IhNyeKSe8C
+          - text: （群号：826823481）
+        - paragraph [ref=f1e49]:
+          - text: 联机服列表管理办事处：
+          - link "开服申请点击加入" [ref=f1e50] [cursor=pointer]:
+            - /url: https://qm.qq.com/q/vvbsoOvoPu
+          - text: （群号：893387376）
+        - paragraph [ref=f1e52]:
+          - text: 联机号/公测联机版bug反馈群：
+          - link "点击加入反馈群" [ref=f1e53] [cursor=pointer]:
+            - /url: https://qm.qq.com/q/YtvZ07UpaY
+          - text: （群号：1092640742）
+        - paragraph [ref=f1e55]:
+          - text: 生存战争社区交流discord：
+          - link "点击加入discord频道" [ref=f1e56] [cursor=pointer]:
+            - /url: https://discord.com/invite/Eu8bVHUsHz
+  - contentinfo [ref=f1e57]:
+    - paragraph [ref=f1e59]: 本站地址： 短网址：
+    - paragraph [ref=f1e60]:
+      - link "© 2026 生存战争网" [ref=f1e61] [cursor=pointer]:
+        - /url: about.html

@@ -1,0 +1,6 @@
+[      32ms] [LOG] [App] 开始初始化... @ http://127.0.0.1:8000/scweb_res/shared/js/app.js?v=20260723:27
+[      33ms] [LOG] [ThemeManager] 初始化完成，当前主题：light @ http://127.0.0.1:8000/scweb_res/shared/js/theme-manager.js?v=20260723:18
+[      33ms] [LOG] [App] 初始化完成 @ http://127.0.0.1:8000/scweb_res/shared/js/app.js?v=20260723:57
+[      33ms] TypeError: Cannot read properties of null (reading 'config')
+    at new OnlineServerManager (http://127.0.0.1:8000/scweb_res/online_server/online_server_script.js?v=20260820:19:49)
+    at HTMLDocument.<anonymous> (http://127.0.0.1:8000/scweb_res/online_server/online_server_script.js?v=20260820:306:34)

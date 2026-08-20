@@ -114,5 +114,62 @@ window.SCUtils = {
             }
         }
         return { host, port };
+    },
+
+    /**
+     * 合并站点级与页面级语言配置（深度合并）
+     * 页面级配置覆盖站点级对应字段，并保留页面级额外顶层字段（如 navigation）
+     * @param {Object} baseConfig - 站点级基础配置
+     * @param {Object} pageConfig - 页面级配置
+     * @returns {Object} 合并后的配置
+     */
+    mergeConfigs(baseConfig, pageConfig) {
+        const merged = {
+            default: pageConfig.default || baseConfig.default,
+            supported: pageConfig.supported || baseConfig.supported,
+            storageKey: pageConfig.storageKey || baseConfig.storageKey,
+            names: pageConfig.names || baseConfig.names,
+            translations: {}
+        };
+
+        // 保留页面配置中的额外顶层字段（如 navigation），页面级优先
+        Object.keys(pageConfig || {}).forEach(key => {
+            if (!(key in merged)) {
+                merged[key] = pageConfig[key];
+            }
+        });
+
+        // 合并所有语言版本的翻译
+        const languages = [...new Set([
+            ...Object.keys((baseConfig && baseConfig.translations) || {}),
+            ...Object.keys((pageConfig && pageConfig.translations) || {})
+        ])];
+
+        languages.forEach(lang => {
+            const base = (baseConfig.translations && baseConfig.translations[lang]) || {};
+            const page = (pageConfig.translations && pageConfig.translations[lang]) || {};
+            merged.translations[lang] = this.deepMerge(base, page);
+        });
+
+        return merged;
+    },
+
+    /**
+     * 深度合并两个对象
+     * 递归合并嵌套对象，source 属性优先级更高
+     * @param {Object} target - 目标对象
+     * @param {Object} source - 源对象
+     * @returns {Object} 合并结果
+     */
+    deepMerge(target, source) {
+        const result = { ...target };
+        for (const key of Object.keys(source)) {
+            if (source[key] && typeof source[key] === 'object' && !Array.isArray(source[key])) {
+                result[key] = this.deepMerge(result[key] || {}, source[key]);
+            } else {
+                result[key] = source[key];
+            }
+        }
+        return result;
     }
 };

@@ -87,7 +87,7 @@ scweb/
 │   │   │       ├── language-manager.js # 语言管理器（i18n、URL 路径翻译）
 │   │   │       ├── site-info.js      # 站点信息管理器（地址、短网址）
 │   │   │       ├── site-language-config.js # 站点级通用翻译
-│   │   │       └── app.js            # 应用入口类（统一初始化）
+│   │   │       └── app.js            # 组合根（统一创建共享管理器并注入页面）
 │   │   ├── index/                    # 【首页】页面专用资源
 │   │   │   ├── index_main.css        # 首页主样式
 │   │   │   ├── index_languages.js    # 首页多语言配置
@@ -95,7 +95,11 @@ scweb/
 │   │   ├── online_server/            # 【联机服务器】页面专用资源
 │   │   │   ├── online_server_main.css # 服务器页面主样式
 │   │   │   ├── online_server_languages.js # 服务器页面多语言配置
-│   │   │   └── online_server_script.js # 服务器列表脚本（OnlineServerManager）
+│   │   │   ├── server-api-client.js   # 网络层（代理回退/超时重试/数据提取）
+│   │   │   ├── server-cache.js        # 数据层（localStorage 缓存）
+│   │   │   ├── server-latency-checker.js # 延迟检测（状态指示灯）
+│   │   │   ├── server-list-view.js    # 视图层（列表渲染与交互）
+│   │   │   └── online_server_script.js # 门面/协调者（OnlineServerManager）
 │   │   └── about/                    # 【关于页面】页面专用资源
 ├── old/                              # 旧版本文件备份（PHP 版项目）
 ├── push.py                           # 一键推送脚本（Gitee + GitHub + CNB）
@@ -141,7 +145,7 @@ scweb/
 翻译配置采用两层结构：
 - **站点级** (`site-language-config.js`)：通用元信息、导航、站点信息
 - **页面级** (`index_languages.js` / `online_server_languages.js`)：页面特定内容
-- 页面加载时通过 `deepMerge` 合并两层配置
+- 页面加载时通过 `SCUtils.mergeConfigs` 深度合并两层配置
 
 ## 📱 响应式设计
 
@@ -193,17 +197,24 @@ scweb/
 
 ### JavaScript 功能模块
 
-项目采用面向对象的模块化架构，主要类/对象：
+项目采用面向对象的模块化架构，遵循**高内聚、低耦合**原则：
+共享管理器由组合根 `App` 统一创建，页面管理器通过**构造注入**获取依赖，
+联机服务器页按职责拆分为网络层 / 数据层 / 视图层 / 延迟检测四个子系统。
 
 | 模块 | 文件路径 | 说明 |
 |------|---------|------|
 | `ThemeManager` | `shared/js/theme-manager.js` | 主题切换（亮色/深色/跟随系统），localStorage 持久化 |
 | `LanguageManager` | `shared/js/language-manager.js` | 多语言管理，支持 URL 路径翻译、`data-i18n` 属性 |
 | `SiteInfoManager` | `shared/js/site-info.js` | 站点地址和短网址显示，响应语言切换 |
-| `SCUtils` | `shared/js/utils.js` | 工具函数（复制、防抖、节流、网络类型、IP 解析等） |
-| `SCApp` | `shared/js/app.js` | 应用入口，统一初始化各管理器 |
-| `IndexPageManager` | `index/index_script.js` | 首页逻辑，导航区块渲染、语言配置合并 |
-| `OnlineServerManager` | `online_server/online_server_script.js` | 服务器列表，API 获取、缓存、筛选、延迟检测 |
+| `SCUtils` | `shared/js/utils.js` | 工具函数（复制、防抖、节流、网络类型、IP 解析、配置合并等） |
+| `SCApp` | `shared/js/app.js` | 组合根，统一创建共享管理器并通过 `create()` 注入页面 |
+| `IndexPageManager` | `index/index_script.js` | 首页逻辑，导航区块渲染、语言切换响应 |
+| `AboutPageManager` | `about/about_script.js` | 关于页逻辑，导航渲染、事件绑定 |
+| `OnlineServerManager` | `online_server/online_server_script.js` | 服务器页门面，编排各子系统 |
+| `ServerApiClient` | `online_server/server-api-client.js` | 网络层：代理回退、超时重试、响应数据提取 |
+| `ServerCache` | `online_server/server-cache.js` | 数据层：localStorage 缓存读写与过期管理 |
+| `ServerListView` | `online_server/server-list-view.js` | 视图层：列表渲染、统计展示、复制/筛选/IP 切换交互 |
+| `ServerLatencyChecker` | `online_server/server-latency-checker.js` | 延迟检测：批量检测、状态指示灯更新 |
 
 ### 部署与推送
 

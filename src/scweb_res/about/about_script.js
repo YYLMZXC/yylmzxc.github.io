@@ -1,14 +1,20 @@
 /**
  * 生存战争网 - 关于页面脚本
- * 管理关于页面的主题、语言初始化和事件绑定
+ * 管理关于页面的导航渲染与事件绑定
+ * 通过构造注入（依赖注入）获取共享管理器，页面只处理页面特有逻辑
  */
 
 /**
  * 关于页面管理器类
- * 负责初始化主题、语言、站点信息
+ * 负责渲染导航链接、绑定主题/语言切换事件
+ * 依赖的 ThemeManager / LanguageManager / SiteInfoManager 由组合根 App 统一创建并注入
  */
 class AboutPageManager {
-    constructor() {
+    constructor(app) {
+        this.app = app;
+        this.themeManager = app.themeManager;
+        this.languageManager = app.languageManager;
+        this.siteInfoManager = app.siteInfoManager;
         this.init();
     }
 
@@ -16,94 +22,9 @@ class AboutPageManager {
      * 初始化关于页面
      */
     init() {
-        this.initTheme();
-        this.initLanguage();
-        this.initSiteInfo();
+        this.renderNavigationLinks(this.languageManager.currentLang);
         this.bindEvents();
         console.log('[AboutPageManager] 初始化完成');
-    }
-
-    /**
-     * 初始化主题管理器
-     */
-    initTheme() {
-        if (window.ThemeManager) {
-            this.themeManager = new window.ThemeManager();
-        } else {
-            console.warn('[AboutPageManager] ThemeManager 未加载');
-        }
-    }
-
-    /**
-     * 初始化语言管理器
-     */
-    initLanguage() {
-        const mergedConfig = this.mergeConfigs(window.SiteLanguageConfig, window.AboutLanguageConfig);
-
-        if (window.LanguageManager) {
-            this.languageManager = new window.LanguageManager(mergedConfig);
-            this.languageManager.init();
-        } else {
-            console.warn('[AboutPageManager] LanguageManager 未加载');
-        }
-
-        // 立即使用当前语言渲染导航链接
-        this.renderNavigationLinks(this.languageManager.currentLang);
-    }
-
-    /**
-     * 合并两个语言配置对象
-     * @param {Object} baseConfig - 站点级基础配置
-     * @param {Object} pageConfig - 页面级配置
-     * @returns {Object} 合并后的配置
-     */
-    mergeConfigs(baseConfig, pageConfig) {
-        const merged = {
-            default: pageConfig.default || baseConfig.default,
-            supported: pageConfig.supported || baseConfig.supported,
-            storageKey: pageConfig.storageKey || baseConfig.storageKey,
-            names: pageConfig.names || baseConfig.names,
-            translations: {},
-            navigation: pageConfig.navigation
-        };
-
-        const languages = [...new Set([
-            ...Object.keys(baseConfig.translations || {}),
-            ...Object.keys(pageConfig.translations || {})
-        ])];
-
-        languages.forEach(lang => {
-            const base = (baseConfig.translations && baseConfig.translations[lang]) || {};
-            const page = (pageConfig.translations && pageConfig.translations[lang]) || {};
-            merged.translations[lang] = this.deepMerge(base, page);
-        });
-
-        return merged;
-    }
-
-    /**
-     * 深度合并两个对象
-     */
-    deepMerge(target, source) {
-        const result = { ...target };
-        for (const key in source) {
-            if (source[key] && typeof source[key] === 'object' && !Array.isArray(source[key])) {
-                result[key] = this.deepMerge(result[key] || {}, source[key]);
-            } else {
-                result[key] = source[key];
-            }
-        }
-        return result;
-    }
-
-    /**
-     * 初始化站点信息
-     */
-    initSiteInfo() {
-        if (window.SiteInfoManager && this.languageManager) {
-            this.siteInfoManager = new window.SiteInfoManager(this.languageManager);
-            this.siteInfoManager.init();
-        }
     }
 
     /**
@@ -185,5 +106,8 @@ class AboutPageManager {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    window.aboutPageManager = new AboutPageManager();
+    const app = SCApp.create({
+        languageConfig: SCUtils.mergeConfigs(window.SiteLanguageConfig, window.AboutLanguageConfig)
+    });
+    window.aboutPageManager = new AboutPageManager(app);
 });

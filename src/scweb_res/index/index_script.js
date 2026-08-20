@@ -1,118 +1,32 @@
 /**
  * 生存战争网 - 首页脚本
- * 管理首页的导航区块渲染、语言切换响应和主题/站点信息初始化
- * 通过 IndexPageManager 类统一协调各功能模块
+ * 负责首页导航区块渲染、语言切换响应
+ * 通过构造注入（依赖注入）获取共享管理器，页面只处理页面特有逻辑
  */
 
 /**
  * 首页管理器类
- * 负责初始化主题、语言、站点信息，渲染导航链接，响应语言切换事件
+ * 负责渲染导航链接、响应语言切换事件
+ * 依赖的 ThemeManager / LanguageManager / SiteInfoManager 由组合根 App 统一创建并注入
  */
 class IndexPageManager {
-    constructor() {
+    constructor(app) {
+        this.app = app;
+        this.themeManager = app.themeManager;
+        this.languageManager = app.languageManager;
+        this.siteInfoManager = app.siteInfoManager;
         this.init();
     }
 
     /**
-     * 初始化首页：按顺序初始化主题、语言、站点信息并绑定事件
+     * 初始化首页：渲染导航链接、更新页面特有内容并绑定事件
      */
     init() {
-        this.initTheme();
-        this.initLanguage();
-        this.initSiteInfo();
+        const lang = this.languageManager.currentLang;
+        this.renderNavigationLinks(lang);
+        this.updatePageSpecificContent(lang);
         this.bindEvents();
         console.log('[IndexPageManager] 初始化完成');
-    }
-
-    /**
-     * 初始化主题管理器（共享组件）
-     */
-    initTheme() {
-        if (window.ThemeManager) {
-            this.themeManager = new window.ThemeManager();
-        } else {
-            console.warn('[IndexPageManager] ThemeManager 未加载');
-        }
-    }
-
-    /**
-     * 初始化语言管理器
-     * 合并站点级和页面级语言配置，然后应用翻译
-     */
-    initLanguage() {
-        const mergedConfig = this.mergeConfigs(window.SiteLanguageConfig, window.IndexLanguageConfig);
-
-        if (window.LanguageManager) {
-            this.languageManager = new window.LanguageManager(mergedConfig);
-            this.languageManager.init();
-        } else {
-            console.warn('[IndexPageManager] LanguageManager 未加载');
-        }
-
-        // 立即使用当前语言渲染导航链接
-        this.renderNavigationLinks(this.languageManager.currentLang);
-    }
-
-    /**
-     * 合并两个语言配置对象（深度合并）
-     * 页面级配置会覆盖站点级配置的对应字段
-     * @param {Object} baseConfig - 站点级基础配置
-     * @param {Object} pageConfig - 页面级配置
-     * @returns {Object} 合并后的配置
-     */
-    mergeConfigs(baseConfig, pageConfig) {
-        const merged = {
-            default: pageConfig.default || baseConfig.default,
-            supported: pageConfig.supported || baseConfig.supported,
-            storageKey: pageConfig.storageKey || baseConfig.storageKey,
-            names: pageConfig.names || baseConfig.names,
-            translations: {},
-            navigation: pageConfig.navigation
-        };
-
-        // 合并所有语言版本的翻译
-        const languages = [...new Set([
-            ...Object.keys(baseConfig.translations || {}),
-            ...Object.keys(pageConfig.translations || {})
-        ])];
-
-        languages.forEach(lang => {
-            const base = (baseConfig.translations && baseConfig.translations[lang]) || {};
-            const page = (pageConfig.translations && pageConfig.translations[lang]) || {};
-            merged.translations[lang] = this.deepMerge(base, page);
-        });
-
-        return merged;
-    }
-
-    /**
-     * 深度合并两个对象
-     * 递归合并嵌套对象，页面级属性优先级更高
-     * @param {Object} target - 目标对象
-     * @param {Object} source - 源对象
-     * @returns {Object} 合并结果
-     */
-    deepMerge(target, source) {
-        const result = { ...target };
-        for (const key of Object.keys(source)) {
-            if (source[key] && typeof source[key] === 'object' && !Array.isArray(source[key])) {
-                result[key] = this.deepMerge(result[key] || {}, source[key]);
-            } else {
-                result[key] = source[key];
-            }
-        }
-        return result;
-    }
-
-    /**
-     * 初始化站点信息管理器
-     * 依赖语言管理器来显示多语言站点信息
-     */
-    initSiteInfo() {
-        if (window.SiteInfoManager && this.languageManager) {
-            this.siteInfoManager = new window.SiteInfoManager(this.languageManager);
-            this.siteInfoManager.init();
-        }
     }
 
     /**
@@ -125,10 +39,6 @@ class IndexPageManager {
             this.renderNavigationLinks(lang);
             this.updatePageSpecificContent(lang);
         });
-
-        // 初始更新页面特定内容
-        const lang = this.languageManager.currentLang;
-        this.updatePageSpecificContent(lang);
     }
 
     /**
@@ -212,5 +122,8 @@ class IndexPageManager {
 
 // DOM加载完成后初始化首页管理器
 document.addEventListener('DOMContentLoaded', () => {
-    new IndexPageManager();
+    const app = SCApp.create({
+        languageConfig: SCUtils.mergeConfigs(window.SiteLanguageConfig, window.IndexLanguageConfig)
+    });
+    new IndexPageManager(app);
 });
