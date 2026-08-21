@@ -124,6 +124,7 @@ window.SCUtils = {
      * @returns {Object} 合并后的配置
      */
     mergeConfigs(baseConfig, pageConfig) {
+        pageConfig = pageConfig || {};
         const merged = {
             default: pageConfig.default || baseConfig.default,
             supported: pageConfig.supported || baseConfig.supported,
@@ -133,7 +134,7 @@ window.SCUtils = {
         };
 
         // 保留页面配置中的额外顶层字段（如 navigation），页面级优先
-        Object.keys(pageConfig || {}).forEach(key => {
+        Object.keys(pageConfig).forEach(key => {
             if (!(key in merged)) {
                 merged[key] = pageConfig[key];
             }
