@@ -56,7 +56,8 @@ const AboutLanguageConfig = {
                 modDevKit: '生存战争Mod开发工具包',
                 yylmzxcPages: 'YYLMZXC Pages',
                 scGps: '生存战争GPS',
-                lanzou: '蓝奏云'
+                lanzou: '蓝奏云',
+                mediafire: '联机版MediaFire云盘'
             }
         },
 
@@ -103,7 +104,8 @@ const AboutLanguageConfig = {
                 modDevKit: 'Mod Dev Kit',
                 yylmzxcPages: 'YYLMZXC Pages',
                 scGps: 'SC Survivalcraft GPS',
-                lanzou: 'Lanzou Cloud'
+                lanzou: 'Lanzou Cloud',
+                mediafire: 'Multiplayer MediaFire Cloud'
             }
         },
         
@@ -150,7 +152,8 @@ const AboutLanguageConfig = {
                 modDevKit: 'Набор для разработки Modов',
                 yylmzxcPages: 'YYLMZXC Pages',
                 scGps: 'SC Survivalcraft GPS',
-                lanzou: 'Lanzou Cloud'
+                lanzou: 'Lanzou Cloud',
+                mediafire: 'Multiplayer MediaFire Cloud'
             }
         },
         
@@ -197,7 +200,8 @@ const AboutLanguageConfig = {
                 modDevKit: 'Kit de Desarrollo de Mods',
                 yylmzxcPages: 'YYLMZXC Pages',
                 scGps: 'SC Survivalcraft GPS',
-                lanzou: 'Lanzou Cloud'
+                lanzou: 'Lanzou Cloud',
+                mediafire: 'Multiplayer MediaFire Cloud'
             }
         }
     },
@@ -230,7 +234,8 @@ const AboutLanguageConfig = {
             { title: 'links.waybackMachine', url: 'https://web.archive.org/', external: true },
             { title: 'links.yylmzxcPages', url: 'https://yylmzxc.github.io', external: true },
             { title: 'links.scGps', url: 'https://sc-survivalcraft-gps.github.io/', external: true },
-            { title: 'links.lanzou', url: 'https://www.lanzoui.com/', external: true }
+            { title: 'links.lanzou', url: 'https://www.lanzoui.com/', external: true },
+            { title: 'links.mediafire', url: 'https://app.mediafire.com/folder/8skcfeiacfo5x/beta_test_dev', external: true }
         ]
     }
 };
