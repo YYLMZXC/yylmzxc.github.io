@@ -51,7 +51,7 @@ set_exception_handler(function ($exception) {
 
 // ==================== 获取请求参数 ====================
 $action = isset($_GET['action']) ? $_GET['action'] : 'serverlist';  // 请求类型
-$version = isset($_GET['version']) ? $_GET['version'] : 'x26.07.20'; // 服务器版本号
+$version = isset($_GET['version']) ? $_GET['version'] : 'x26.07.30'; // 服务器版本号
 
 /**
  * 获取客户端真实 IP（综合考虑常见代理转发头）

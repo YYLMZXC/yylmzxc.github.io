@@ -20,11 +20,10 @@ class OnlineServerManager {
 
         // API 配置
         this.apiUrl = 'https://api.sckey.net/server/serverlist';
-        this.serverVersion = 'x26.07.20';
+        this.serverVersion = 'x26.07.30';
         this.versions = [
-            { value: 'x26.07.20', label: 'x26.07.20' },
-            { value: 'x26.06.19', label: 'x26.06.19' },
-            { value: 'x26.05.23', label: 'x26.05.23' }
+            { value: 'x26.07.30', label: 'x26.07.30' },
+            { value: 'x26.06.19', label: 'x26.06.19' }
         ];
         this.currentFilter = 'all';
 
