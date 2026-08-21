@@ -51,7 +51,9 @@ const AboutLanguageConfig = {
                 faxianAi: '发现AI',
                 deepseek: 'DeepSeek',
                 waybackMachine: '时光机',
-                dashboard: '信息仪表板'
+                dashboard: '信息仪表板',
+                meshReader: '模型Meshes读取器',
+                modDevKit: '生存战争Mod开发工具包'
             }
         },
 
@@ -93,7 +95,9 @@ const AboutLanguageConfig = {
                 faxianAi: 'Faxian AI',
                 deepseek: 'DeepSeek',
                 waybackMachine: 'Wayback Machine',
-                dashboard: 'Dashboard'
+                dashboard: 'Dashboard',
+                meshReader: 'Mesh Reader',
+                modDevKit: 'Mod Dev Kit'
             }
         },
         
@@ -135,7 +139,9 @@ const AboutLanguageConfig = {
                 faxianAi: 'Faxian AI',
                 deepseek: 'DeepSeek',
                 waybackMachine: 'Wayback Machine',
-                dashboard: 'Панель информации'
+                dashboard: 'Панель информации',
+                meshReader: 'Читатель Meshes',
+                modDevKit: 'Набор для разработки Modов'
             }
         },
         
@@ -177,7 +183,9 @@ const AboutLanguageConfig = {
                 faxianAi: 'Faxian IA',
                 deepseek: 'DeepSeek',
                 waybackMachine: 'Wayback Machine',
-                dashboard: 'Panel de Información'
+                dashboard: 'Panel de Información',
+                meshReader: 'Lector de Meshes',
+                modDevKit: 'Kit de Desarrollo de Mods'
             }
         }
     },
@@ -204,6 +212,8 @@ const AboutLanguageConfig = {
         ],
         other: [
             { title: 'links.dashboard', url: 'dashboard.html', external: false },
+            { title: 'links.meshReader', url: 'beta/mesh-reader.html', external: false },
+            { title: 'links.modDevKit', url: 'beta/mod-dev-kit.html', external: false },
             { title: 'links.deepseek', url: 'https://chat.deepseek.com/', external: true },
             { title: 'links.waybackMachine', url: 'https://web.archive.org/', external: true }
         ]
