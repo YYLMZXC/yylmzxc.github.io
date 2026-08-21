@@ -487,6 +487,11 @@ class ModDevKitPageManager {
 
 /* ==================== 组合根入口 ==================== */
 document.addEventListener('DOMContentLoaded', () => {
+    // 初始化共享管理器（主题/语言）
+    const app = SCApp.create({
+        languageConfig: SCUtils.mergeConfigs(window.SiteLanguageConfig)
+    });
+
     // 如果 EmmetLite 尚未加载（CDN），等待其就绪
     if (typeof Emmet === 'undefined' || typeof aabbr === 'undefined') {
         console.warn('[ModDevKit] EmmetLite 未加载，Emmet转换功能不可用');
