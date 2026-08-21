@@ -53,7 +53,8 @@ const AboutLanguageConfig = {
                 waybackMachine: '时光机',
                 dashboard: '信息仪表板',
                 meshReader: '模型Meshes读取器',
-                modDevKit: '生存战争Mod开发工具包'
+                modDevKit: '生存战争Mod开发工具包',
+                yylmzxcPages: 'YYLMZXC Pages'
             }
         },
 
@@ -97,7 +98,8 @@ const AboutLanguageConfig = {
                 waybackMachine: 'Wayback Machine',
                 dashboard: 'Dashboard',
                 meshReader: 'Mesh Reader',
-                modDevKit: 'Mod Dev Kit'
+                modDevKit: 'Mod Dev Kit',
+                yylmzxcPages: 'YYLMZXC Pages'
             }
         },
         
@@ -141,7 +143,8 @@ const AboutLanguageConfig = {
                 waybackMachine: 'Wayback Machine',
                 dashboard: 'Панель информации',
                 meshReader: 'Читатель Meshes',
-                modDevKit: 'Набор для разработки Modов'
+                modDevKit: 'Набор для разработки Modов',
+                yylmzxcPages: 'YYLMZXC Pages'
             }
         },
         
@@ -185,7 +188,8 @@ const AboutLanguageConfig = {
                 waybackMachine: 'Wayback Machine',
                 dashboard: 'Panel de Información',
                 meshReader: 'Lector de Meshes',
-                modDevKit: 'Kit de Desarrollo de Mods'
+                modDevKit: 'Kit de Desarrollo de Mods',
+                yylmzxcPages: 'YYLMZXC Pages'
             }
         }
     },
@@ -215,7 +219,8 @@ const AboutLanguageConfig = {
             { title: 'links.meshReader', url: 'tools/mesh-reader.html', external: false },
             { title: 'links.modDevKit', url: 'tools/mod-dev-kit.html', external: false },
             { title: 'links.deepseek', url: 'https://chat.deepseek.com/', external: true },
-            { title: 'links.waybackMachine', url: 'https://web.archive.org/', external: true }
+            { title: 'links.waybackMachine', url: 'https://web.archive.org/', external: true },
+            { title: 'links.yylmzxcPages', url: 'https://yylmzxc.github.io', external: true }
         ]
     }
 };
