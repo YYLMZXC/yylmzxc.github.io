@@ -169,6 +169,133 @@ class BrowserInfoCollector {
     }
 
     /**
+     * 采集游戏/设备能力信息
+     */
+    static collectGaming() {
+        const result = {
+            webgl: false, webglRenderer: '', webglVersion: '',
+            webgpu: false, webgl2: false, gamepad: false, gamepadCount: 0,
+            vibration: false, sharedArrayBuffer: false, webAssembly: false, audioContext: false
+        };
+        try {
+            const canvas = document.createElement('canvas');
+            const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+            if (gl) {
+                result.webgl = true;
+                const dbg = gl.getExtension('WEBGL_debug_renderer_info');
+                result.webglRenderer = dbg ? gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL) : gl.getParameter(gl.RENDERER);
+                result.webglVersion = gl.getParameter(gl.VERSION);
+            }
+            result.webgl2 = !!document.createElement('canvas').getContext('webgl2');
+        } catch (e) {}
+        try { result.webgpu = !!(navigator.gpu && navigator.gpu.requestAdapter); } catch (e) {}
+        try { result.gamepad = !!navigator.getGamepads; result.gamepadCount = (navigator.getGamepads && navigator.getGamepads()).length || 0; } catch (e) {}
+        try { result.vibration = !!navigator.vibrate; } catch (e) {}
+        try { result.sharedArrayBuffer = typeof SharedArrayBuffer !== 'undefined'; } catch (e) {}
+        try { result.webAssembly = typeof WebAssembly === 'object'; } catch (e) {}
+        try { result.audioContext = !!(window.AudioContext || window.webkitAudioContext); } catch (e) {}
+        return result;
+    }
+
+    /**
+     * 采集安全与隐私信息
+     */
+    static collectSecurity() {
+        const result = {
+            isHttps: location.protocol === 'https:',
+            secureContext: window.isSecureContext,
+            crossOriginIsolated: window.crossOriginIsolated,
+            dnt: navigator.doNotTrack,
+            trackProtection: '',
+            permNotification: '', permCamera: '', permMicrophone: '',
+            permGeolocation: '', permClipboard: '', permStorageAccess: ''
+        };
+        // Tracking Protection Level
+        try {
+            if (navigator.globalPrivacyControl) result.trackProtection = 'GPC';
+            else if (navigator.doNotTrack === '1') result.trackProtection = 'DNT';
+            else result.trackProtection = 'None';
+        } catch (e) {}
+        // Permissions API
+        const checkPerm = async (name) => {
+            try {
+                if (!navigator.permissions) return 'N/A';
+                const st = await navigator.permissions.query({ name });
+                return st.state;
+            } catch (e) { return 'N/A'; }
+        };
+        // Sync check for non-async fields, async for permission queries
+        checkPerm('notifications').then(v => result.permNotification = v);
+        checkPerm('camera').then(v => result.permCamera = v);
+        checkPerm('microphone').then(v => result.permMicrophone = v);
+        checkPerm('geolocation').then(v => result.permGeolocation = v);
+        checkPerm('clipboard-read').then(v => result.permClipboard = v);
+        checkPerm('storage-access').then(v => result.permStorageAccess = v);
+        return result;
+    }
+
+    /**
+     * 采集存储信息
+     */
+    static collectStorage() {
+        const result = {
+            localStorage: false, sessionStorage: false,
+            indexedDB: false, cacheAPI: false,
+            serviceWorker: 'N/A', opfs: false, storageEstimate: ''
+        };
+        try { result.localStorage = !!window.localStorage; } catch (e) {}
+        try { result.sessionStorage = !!window.sessionStorage; } catch (e) {}
+        try { result.indexedDB = !!window.indexedDB; } catch (e) {}
+        try { result.cacheAPI = 'caches' in window; } catch (e) {}
+        try { result.serviceWorker = 'serviceWorker' in navigator ? 'Supported' : 'N/A'; } catch (e) {}
+        try { result.opfs = !!navigator.storage && !!navigator.storage.getDirectory; } catch (e) {}
+        // Storage estimate
+        if (navigator.storage && navigator.storage.estimate) {
+            navigator.storage.estimate().then(est => {
+                const usedMB = est.usage ? (est.usage / 1024 / 1024).toFixed(1) : '?';
+                const totalMB = est.quota ? (est.quota / 1024 / 1024).toFixed(0) : '?';
+                result.storageEstimate = usedMB + ' / ' + totalMB + ' MB';
+                // Re-render after async data arrives
+                document.dispatchEvent(new CustomEvent('storageEstimateReady'));
+            }).catch(() => {});
+        }
+        return result;
+    }
+
+    /**
+     * 采集设备特征信息
+     */
+    static collectDevice() {
+        const result = {
+            hdrDisplay: false, colorGamut: '', pointerType: '', hoverMedia: false,
+            prefReducedMotion: '', prefContrast: '', prefColorScheme: '',
+            prefLang: '', writingDir: '', fullscreen: false, webShare: false, clipboardRead: false
+        };
+        try { result.hdrDisplay = matchMedia('(dynamic-range: high)').matches; } catch (e) {}
+        try {
+            if (matchMedia('(color-gamut: rec2020)').matches) result.colorGamut = 'Rec. 2020';
+            else if (matchMedia('(color-gamut: p3)').matches) result.colorGamut = 'Display P3';
+            else if (matchMedia('(color-gamut: srgb)').matches) result.colorGamut = 'sRGB';
+            else result.colorGamut = 'Unknown';
+        } catch (e) {}
+        try { result.pointerType = matchMedia('(pointer: fine)').matches ? 'Fine' : (matchMedia('(pointer: coarse)').matches ? 'Coarse' : 'None'); } catch (e) {}
+        try { result.hoverMedia = matchMedia('(hover: hover)').matches; } catch (e) {}
+        try { result.prefReducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches ? 'Reduce' : 'No-preference'; } catch (e) {}
+        try { result.prefContrast = matchMedia('(prefers-contrast: more)').matches ? 'More' : (matchMedia('(prefers-contrast: less)').matches ? 'Less' : 'No-preference'); } catch (e) {}
+        try {
+            if (matchMedia('(prefers-color-scheme: dark)').matches) result.prefColorScheme = 'Dark';
+            else if (matchMedia('(prefers-color-scheme: light)').matches) result.prefColorScheme = 'Light';
+            else result.prefColorScheme = 'No-preference';
+        } catch (e) {}
+        try { result.prefLang = navigator.languages ? navigator.languages[0] : (navigator.language || ''); } catch (e) {}
+        try { result.writingDir = getComputedStyle(document.documentElement).direction || 'ltr'; } catch (e) {}
+        try { result.fullscreen = !!document.fullscreenEnabled; } catch (e) {}
+        try { result.webShare = !!navigator.share; } catch (e) {}
+        try { result.clipboardRead = !!navigator.clipboard && !!navigator.clipboard.read; } catch (e) {}
+        return result;
+    }
+
+    /**
      * 采集网络连接信息（Network Information API，部分浏览器不支持）
      * @returns {Object} 连接信息对象，不支持的字段为 undefined
      */
@@ -225,6 +352,10 @@ class DashboardPageManager {
         this.systemData = null;
         this.connectionData = null;
         this.pageData = null;
+        this.gamingData = null;
+        this.securityData = null;
+        this.storageData = null;
+        this.deviceData = null;
 
         this.init();
     }
@@ -246,6 +377,9 @@ class DashboardPageManager {
         this.systemData = BrowserInfoCollector.collectSystem();
         this.connectionData = BrowserInfoCollector.collectConnection();
         this.pageData = BrowserInfoCollector.collectPage();
+        this.gamingData = BrowserInfoCollector.collectGaming();
+        this.securityData = BrowserInfoCollector.collectSecurity();
+        this.deviceData = BrowserInfoCollector.collectDevice();
 
         this.renderAll();
         this.startClock();
@@ -264,6 +398,11 @@ class DashboardPageManager {
         this.renderList('systemInfoList', this.buildSystemRows());
         this.renderList('connectionInfoList', this.buildConnectionRows());
         this.renderList('pageInfoList', this.buildPageRows());
+
+        this.renderList('gamingInfoList', this.buildGamingRows());
+        this.renderList('securityInfoList', this.buildSecurityRows());
+        this.renderList('storageInfoList', this.buildStorageRows());
+        this.renderList('deviceInfoList', this.buildDeviceRows());
 
         if (this.serverData) {
             this.renderServerInfo();
@@ -458,6 +597,71 @@ class DashboardPageManager {
         ];
     }
 
+    buildGamingRows() {
+        const g = this.gamingData || {};
+        return [
+            { k: 'f_webgl', v: g.webgl, badge: true },
+            { k: 'f_webglRenderer', v: g.webglRenderer },
+            { k: 'f_webglVersion', v: g.webglVersion },
+            { k: 'f_webgpu', v: g.webgpu, badge: true },
+            { k: 'f_webgl2', v: g.webgl2, badge: true },
+            { k: 'f_gamepad', v: g.gamepad, badge: true },
+            { k: 'f_gamepadCount', v: g.gamepadCount },
+            { k: 'f_vibration', v: g.vibration, badge: true },
+            { k: 'f_sharedArrayBuffer', v: g.sharedArrayBuffer, badge: true },
+            { k: 'f_webAssembly', v: g.webAssembly, badge: true },
+            { k: 'f_audioContext', v: g.audioContext, badge: true }
+        ];
+    }
+
+    buildSecurityRows() {
+        const s = this.securityData || {};
+        return [
+            { k: 'f_isHttps', v: s.isHttps, badge: true },
+            { k: 'f_secureContext', v: s.secureContext, badge: true },
+            { k: 'f_crossOriginIsolated', v: s.crossOriginIsolated, badge: true },
+            { k: 'f_dnt', v: s.dnt, badge: true },
+            { k: 'f_trackProtection', v: s.trackProtection },
+            { k: 'f_permNotification', v: s.permNotification },
+            { k: 'f_permCamera', v: s.permCamera },
+            { k: 'f_permMicrophone', v: s.permMicrophone },
+            { k: 'f_permGeolocation', v: s.permGeolocation },
+            { k: 'f_permClipboard', v: s.permClipboard },
+            { k: 'f_permStorageAccess', v: s.permStorageAccess }
+        ];
+    }
+
+    buildStorageRows() {
+        const st = this.storageData || {};
+        return [
+            { k: 'f_localStorage', v: st.localStorage, badge: true },
+            { k: 'f_sessionStorage', v: st.sessionStorage, badge: true },
+            { k: 'f_indexedDB', v: st.indexedDB, badge: true },
+            { k: 'f_cacheAPI', v: st.cacheAPI, badge: true },
+            { k: 'f_serviceWorker', v: st.serviceWorker },
+            { k: 'f_opfs', v: st.opfs, badge: true },
+            { k: 'f_storageEstimate', v: st.storageEstimate }
+        ];
+    }
+
+    buildDeviceRows() {
+        const d = this.deviceData || {};
+        return [
+            { k: 'f_hdrDisplay', v: d.hdrDisplay, badge: true },
+            { k: 'f_colorGamut', v: d.colorGamut },
+            { k: 'f_pointerType', v: d.pointerType },
+            { k: 'f_hoverMedia', v: d.hoverMedia, badge: true },
+            { k: 'f_prefReducedMotion', v: d.prefReducedMotion },
+            { k: 'f_prefContrast', v: d.prefContrast },
+            { k: 'f_prefColorScheme', v: d.prefColorScheme },
+            { k: 'f_prefLang', v: d.prefLang },
+            { k: 'f_writingDir', v: d.writingDir },
+            { k: 'f_fullscreen', v: d.fullscreen, badge: true },
+            { k: 'f_webShare', v: d.webShare, badge: true },
+            { k: 'f_clipboardRead', v: d.clipboardRead, badge: true }
+        ];
+    }
+
     /* ---------------- 网络请求 ---------------- */
 
     /**
@@ -506,6 +710,11 @@ class DashboardPageManager {
     bindEvents() {
         // 语言切换：由 LanguageManager 全局委托处理，此处仅重渲染动态区块
         document.addEventListener('languageChanged', () => this.renderAll());
+
+        // 存储估算异步就绪后重渲染存储区块
+        document.addEventListener('storageEstimateReady', () => {
+            this.renderList('storageInfoList', this.buildStorageRows());
+        });
 
         // 刷新按钮
         const refreshBtn = document.getElementById('refreshBtn');
