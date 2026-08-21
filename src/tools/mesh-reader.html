@@ -1,0 +1,144 @@
+<!--
+  ========================================================================
+  模型Meshes读取器
+  上传dae文件，读取模型Mesh名称
+  依赖资源:
+  - 共享 CSS: base.css, grid.css, components.css, theme.css, layout.css
+  - 页面 CSS: mesh_reader.css
+  - 共享 JS: utils.js, theme-manager.js, language-manager.js, site-info.js, app.js
+  - 页面 JS: mesh_reader_script.js
+  ========================================================================
+-->
+<!DOCTYPE html>
+<html lang="zh-CN" id="mainHtml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <meta name="renderer" content="webkit">
+    <meta name="applicable-device" content="pc,mobile">
+
+    <title>模型Meshes读取器 | 生存战争网</title>
+    <meta name="description" content="上传dae文件读取模型Mesh名称 - 生存战争网工具">
+    <meta name="keywords" content="生存战争,dae,Mesh,模型读取器">
+
+    <link rel="stylesheet" href="../scweb_res/shared/css/base.css?v=20260821">
+    <link rel="stylesheet" href="../scweb_res/shared/css/grid.css?v=20260723">
+    <link rel="stylesheet" href="../scweb_res/shared/css/components.css?v=20260821">
+    <link rel="stylesheet" href="../scweb_res/shared/css/theme.css?v=20260821">
+    <link rel="stylesheet" href="../scweb_res/shared/css/layout.css?v=20260724c">
+    <link rel="stylesheet" href="../scweb_res/tools/mesh-reader/mesh_reader.css?v=20260821">
+    <link rel="icon" type="image/x-icon" href="../scweb_res/favicon.ico">
+</head>
+<body>
+    <header id="header" class="clearfix">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="site-name">
+                    <h1 class="site-title">
+                        <a id="logo" href="../index.html" title="SurvivalCraft Web">
+                            <img src="../scweb_res/logo.png" alt="生存战争网" width="220" height="64" loading="lazy">
+                        </a>
+                    </h1>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <nav id="top-nav-bar" class="clearfix" role="navigation">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="nav-menu">
+                    <a href="../index.html" id="homeLink" data-nav="home" title="生存战争网_SC中文社区">首页</a>
+                    <a href="../online_server.html" id="serverListLink" data-nav="serverList" title="生存战争联机服务器地址列表">联机服务器列表</a>
+                </div>
+
+                <div class="theme-section">
+                    <div class="theme-selector">
+                        <button class="theme-btn active" data-theme="light" title="切换到白天模式（现代风）">☀️</button>
+                        <button class="theme-btn" data-theme="dark" title="切换到黑夜模式（现代风）">🌙</button>
+                        <button class="theme-btn" data-theme="wk-light" title="切换到工坊模式（像素风亮色）">🌿</button>
+                        <button class="theme-btn" data-theme="wk-dark" title="切换到工坊模式（像素风暗色）">🪵</button>
+                    </div>
+                </div>
+
+                <div class="language-section-top-right">
+                    <div class="language-selector">
+                        <button class="language-btn active" data-lang="zh" title="切换到中文">🇨🇳 中文</button>
+                        <button class="language-btn" data-lang="en" title="Switch to English">🇺🇸 English</button>
+                        <button class="language-btn" data-lang="ru" title="Переключиться на Русский">🇷🇺 Русский</button>
+                        <button class="language-btn" data-lang="es" title="Cambiar a Español">🇪🇸 Español</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main id="body">
+        <div class="container">
+            <div class="row">
+                <div class="col-mb-12 col-12" id="main" role="main">
+                    <div class="post-content">
+                        <h2 style="color: #333; margin-bottom: 20px;">模型Mesh名称读取器</h2>
+                        <p style="color: #555; margin-bottom: 20px;">请上传dae文件，读取模型中的Mesh名称</p>
+
+                        <form class="mesh-reader-form" action="../proxy.php" method="post" enctype="multipart/form-data">
+                            <label for="file">选择文件：</label>
+                            <input type="file" name="file" id="file" accept=".dae">
+
+                            <label for="textName">默认材质名：</label>
+                            <input type="text" name="textName" id="textName" placeholder="默认材质名" value="">
+
+                            <div class="checkbox-group">
+                                <label>
+                                    <input type="checkbox" name="rh" value="1"> 是否去掉材质后缀.png
+                                </label>
+                            </div>
+
+                            <div class="submit-group">
+                                <input type="submit" name="submit" value="提交">
+                            </div>
+
+                            <hr class="divider">
+                            <div class="section-title">MEK代码工具</div>
+                            <hr class="divider">
+
+                            <div class="submit-group">
+                                <input type="submit" name="submit" value="ModelItem">
+                                <input type="submit" name="submit" value="ModelData">
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer id="footer">
+        <div class="site-info">
+            <p class="site-address">
+                <span id="currentAddress">本站地址：</span>
+                <span id="shortUrl">短网址：</span>
+            </p>
+        </div>
+        <p class="copyright"><a href="../about.html" style="color: inherit; text-decoration: none;">© 2026 生存战争网</a></p>
+    </footer>
+
+    <script src="../scweb_res/shared/js/utils.js?v=20260820"></script>
+    <script src="../scweb_res/shared/js/theme-manager.js?v=20260821"></script>
+    <script src="../scweb_res/shared/js/language-manager.js?v=20260723"></script>
+    <script src="../scweb_res/shared/js/site-language-config.js?v=20260725"></script>
+    <script src="../scweb_res/shared/js/site-info.js?v=20260723"></script>
+    <script src="../scweb_res/shared/js/app.js?v=20260821"></script>
+    <script src="../scweb_res/tools/mesh-reader/mesh_reader_script.js?v=20260821"></script>
+
+    <script>
+    var _hmt = _hmt || [];
+    (function() {
+        var hm = document.createElement("script");
+        hm.src = "https://hm.baidu.com/hm.js?49508fcc51529f79d0f7e42bd08ed491";
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(hm, s);
+    })();
+    </script>
+</body>
+</html>

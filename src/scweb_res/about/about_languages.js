@@ -212,8 +212,8 @@ const AboutLanguageConfig = {
         ],
         other: [
             { title: 'links.dashboard', url: 'dashboard.html', external: false },
-            { title: 'links.meshReader', url: 'beta/mesh-reader.html', external: false },
-            { title: 'links.modDevKit', url: 'beta/mod-dev-kit.html', external: false },
+            { title: 'links.meshReader', url: 'tools/mesh-reader.html', external: false },
+            { title: 'links.modDevKit', url: 'tools/mod-dev-kit.html', external: false },
             { title: 'links.deepseek', url: 'https://chat.deepseek.com/', external: true },
             { title: 'links.waybackMachine', url: 'https://web.archive.org/', external: true }
         ]

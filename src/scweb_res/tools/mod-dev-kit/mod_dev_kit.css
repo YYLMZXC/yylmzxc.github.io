@@ -1,0 +1,219 @@
+/**
+ * 生存战争Mod开发工具包 - 页面样式
+ */
+.mod-dev-kit {
+    padding: 20px 0;
+}
+
+.mod-dev-kit h2 {
+    color: #333;
+    margin-bottom: 4px;
+}
+
+.mod-dev-kit .subtitle {
+    color: #666;
+    margin-bottom: 20px;
+}
+
+.mod-dev-kit .dropzone {
+    display: block;
+    text-align: center;
+    padding: 20px;
+    margin: 16px 0;
+    border: 2px dashed #ccc;
+    border-radius: 8px;
+    background: #fafafa;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+}
+
+.mod-dev-kit .dropzone:hover,
+.mod-dev-kit .dropzone.dragover {
+    border-color: #3354AA;
+    background: #f0f4ff;
+}
+
+.mod-dev-kit .dropzone input[type="file"] {
+    margin-bottom: 8px;
+}
+
+.mod-dev-kit .dropzone a {
+    color: #555;
+    font-size: 14px;
+}
+
+.mod-dev-kit .toolbar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+}
+
+.mod-dev-kit .toolbar label {
+    font-size: 14px;
+    color: #495057;
+}
+
+.mod-dev-kit .toolbar select {
+    padding: 4px 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.mod-dev-kit .detected-lang {
+    font-size: 14px;
+    color: #495057;
+}
+
+.mod-dev-kit .detected-lang a {
+    color: #3354AA;
+    font-weight: bold;
+}
+
+.mod-dev-kit fieldset {
+    margin: 16px 0;
+    padding: 12px 16px;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    background: #fff;
+}
+
+.mod-dev-kit legend {
+    font-weight: bold;
+    color: #495057;
+    padding: 0 8px;
+    font-size: 14px;
+}
+
+.mod-dev-kit fieldset label {
+    margin-right: 12px;
+    font-size: 13px;
+    color: #555;
+}
+
+.mod-dev-kit fieldset input[type="checkbox"] {
+    margin-right: 4px;
+}
+
+.mod-dev-kit fieldset input[type="text"] {
+    width: 80px;
+    padding: 4px 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    text-align: center;
+}
+
+.mod-dev-kit fieldset button {
+    padding: 6px 14px;
+    margin: 4px 4px;
+    border: 1px solid #3354AA;
+    border-radius: 4px;
+    background: #3354AA;
+    color: #fff;
+    cursor: pointer;
+    font-size: 13px;
+}
+
+.mod-dev-kit fieldset button:hover {
+    background: #264080;
+}
+
+.mod-dev-kit .autosave-row {
+    margin: 8px 0;
+    font-size: 13px;
+    color: #555;
+}
+
+.mod-dev-kit .autosave-row input[type="checkbox"] {
+    margin-right: 4px;
+}
+
+.mod-dev-kit .download-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 12px 0;
+}
+
+.mod-dev-kit .download-row input[type="text"] {
+    width: 200px;
+    padding: 4px 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.mod-dev-kit .download-row a {
+    display: inline-block;
+    padding: 6px 14px;
+    border: 1px solid #28a745;
+    border-radius: 4px;
+    background: #28a745;
+    color: #fff;
+    text-decoration: none;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.mod-dev-kit .download-row a:hover {
+    background: #218838;
+}
+
+.mod-dev-kit .output-log {
+    margin-top: 12px;
+}
+
+.mod-dev-kit .output-log pre {
+    max-height: 200px;
+    overflow: auto;
+    padding: 12px;
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    font-size: 12px;
+    white-space: pre-wrap;
+    word-break: break-all;
+}
+
+.mod-dev-kit .error {
+    color: #dc3545;
+    font-weight: bold;
+}
+
+.mod-dev-kit .about-section {
+    margin-top: 24px;
+    padding: 16px;
+    background: #f8f9fa;
+    border-radius: 6px;
+}
+
+.mod-dev-kit .about-section h3 {
+    color: #333;
+    margin: 16px 0 8px;
+    font-size: 16px;
+}
+
+.mod-dev-kit .about-section h4 {
+    color: #495057;
+    margin: 12px 0 8px;
+    font-size: 14px;
+}
+
+.mod-dev-kit .about-section ol,
+.mod-dev-kit .about-section ul {
+    padding-left: 20px;
+    line-height: 1.8;
+    color: #555;
+}
+
+/* CodeMirror 容器 */
+.mod-dev-kit .editor-container {
+    margin: 8px 0;
+}
+
+.mod-dev-kit .CodeMirror {
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    height: 300px;
+    font-size: 14px;
+}

@@ -1,0 +1,65 @@
+/**
+ * 模型Meshes读取器 - 页面样式
+ */
+.mesh-reader-form {
+    max-width: 600px;
+    padding: 20px 0;
+}
+
+.mesh-reader-form label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+    color: #495057;
+}
+
+.mesh-reader-form input[type="file"] {
+    margin-bottom: 12px;
+}
+
+.mesh-reader-form input[type="text"] {
+    width: 100%;
+    max-width: 300px;
+    padding: 8px;
+    margin-bottom: 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.mesh-reader-form .checkbox-group {
+    margin-bottom: 16px;
+}
+
+.mesh-reader-form .submit-group {
+    margin-top: 16px;
+}
+
+.mesh-reader-form .submit-group input[type="submit"],
+.mesh-reader-form .submit-group button {
+    padding: 8px 16px;
+    margin-right: 8px;
+    border: 1px solid #3354AA;
+    border-radius: 4px;
+    background: #3354AA;
+    color: #fff;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.mesh-reader-form .submit-group input[type="submit"]:hover,
+.mesh-reader-form .submit-group button:hover {
+    background: #264080;
+}
+
+.mesh-reader-form .divider {
+    margin: 20px 0;
+    border: 0;
+    border-top: 1px solid #dee2e6;
+}
+
+.mesh-reader-form .section-title {
+    color: #495057;
+    font-size: 14px;
+    font-weight: bold;
+    margin: 16px 0 8px;
+}

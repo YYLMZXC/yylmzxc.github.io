@@ -1,0 +1,241 @@
+<!--
+  ========================================================================
+  生存战争Mod开发工具包
+  包含Emmet转换、BlocksData编辑器、Guid去重器
+  依赖资源:
+  - 共享 CSS: base.css, grid.css, components.css, theme.css, layout.css
+  - 页面 CSS: mod_dev_kit.css
+  - 外部库: CodeMirror (CDN), EmmetLite (CDN)
+  - 数据表: mod_dev_kit_data.js
+  - 页面 JS: mod_dev_kit.js
+  ========================================================================
+-->
+<!DOCTYPE html>
+<html lang="zh-CN" id="mainHtml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <meta name="renderer" content="webkit">
+    <meta name="applicable-device" content="pc,mobile">
+
+    <title>Mod开发工具包 | 生存战争网</title>
+    <meta name="description" content="生存战争Mod开发工具包 - Emmet转换、BlocksData编辑、Guid去重">
+    <meta name="keywords" content="生存战争,mod,开发工具,emmet,blocksdata,guid">
+
+    <!-- 共享CSS -->
+    <link rel="stylesheet" href="../scweb_res/shared/css/base.css?v=20260821">
+    <link rel="stylesheet" href="../scweb_res/shared/css/grid.css?v=20260723">
+    <link rel="stylesheet" href="../scweb_res/shared/css/components.css?v=20260821">
+    <link rel="stylesheet" href="../scweb_res/shared/css/theme.css?v=20260821">
+    <link rel="stylesheet" href="../scweb_res/shared/css/layout.css?v=20260724c">
+    <!-- 页面CSS -->
+    <link rel="stylesheet" href="../scweb_res/tools/mod-dev-kit/mod_dev_kit.css?v=20260821">
+    <!-- CodeMirror CSS -->
+    <link rel="stylesheet" href="https://cdn.bootcss.com/codemirror/5.48.4/codemirror.min.css">
+    <link rel="stylesheet" href="https://cdn.bootcss.com/codemirror/5.48.4/theme/monokai.min.css">
+    <link rel="icon" type="image/x-icon" href="../scweb_res/favicon.ico">
+</head>
+<body>
+    <header id="header" class="clearfix">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="site-name">
+                    <h1 class="site-title">
+                        <a id="logo" href="../index.html" title="SurvivalCraft Web">
+                            <img src="../scweb_res/logo.png" alt="生存战争网" width="220" height="64" loading="lazy">
+                        </a>
+                    </h1>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <nav id="top-nav-bar" class="clearfix" role="navigation">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="nav-menu">
+                    <a href="../index.html" id="homeLink" data-nav="home" title="生存战争网_SC中文社区">首页</a>
+                    <a href="../online_server.html" id="serverListLink" data-nav="serverList" title="生存战争联机服务器地址列表">联机服务器列表</a>
+                </div>
+
+                <div class="theme-section">
+                    <div class="theme-selector">
+                        <button class="theme-btn active" data-theme="light" title="切换到白天模式（现代风）">☀️</button>
+                        <button class="theme-btn" data-theme="dark" title="切换到黑夜模式（现代风）">🌙</button>
+                        <button class="theme-btn" data-theme="wk-light" title="切换到工坊模式（像素风亮色）">🌿</button>
+                        <button class="theme-btn" data-theme="wk-dark" title="切换到工坊模式（像素风暗色）">🪵</button>
+                    </div>
+                </div>
+
+                <div class="language-section-top-right">
+                    <div class="language-selector">
+                        <button class="language-btn active" data-lang="zh" title="切换到中文">🇨🇳 中文</button>
+                        <button class="language-btn" data-lang="en" title="Switch to English">🇺🇸 English</button>
+                        <button class="language-btn" data-lang="ru" title="Переключиться на Русский">🇷🇺 Русский</button>
+                        <button class="language-btn" data-lang="es" title="Cambiar a Español">🇪🇸 Español</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main id="body">
+        <div class="container">
+            <div class="row">
+                <div class="col-mb-12 col-12" id="main" role="main">
+                    <div class="post-content mod-dev-kit">
+
+                        <h2>生存战争Mod开发工具包</h2>
+                        <p class="subtitle">Survivalcraft Mod Development Kit</p>
+
+                        <!-- 拖放区域 -->
+                        <label class="dropzone" id="dropzone">
+                            选择文件: <input type="file" id="fileInput">
+                            <br><a>拖放文件到这里(或点击)<br>Drop files here (or click)</a>
+                        </label>
+
+                        <!-- 工具栏：主题选择 + 语言检测 -->
+                        <div class="toolbar">
+                            <label for="theme">选择主题</label>
+                            <select id="theme">
+                                <option value="default">default</option>
+                                <option value="monokai" selected>monokai</option>
+                                <option value="3024-day">3024-day</option>
+                                <option value="3024-night">3024-night</option>
+                                <option value="abcdef">abcdef</option>
+                                <option value="ambiance">ambiance</option>
+                                <option value="base16-dark">base16-dark</option>
+                                <option value="base16-light">base16-light</option>
+                                <option value="bespin">bespin</option>
+                                <option value="blackboard">blackboard</option>
+                                <option value="cobalt">cobalt</option>
+                            </select>
+                            <span class="detected-lang">检测到语言：<a id="lng"></a></span>
+                        </div>
+
+                        <!-- 源编辑器 -->
+                        <div class="editor-container">
+                            <textarea id="src" rows="16" cols="80" placeholder="在此粘贴文件内容"></textarea>
+                        </div>
+
+                        <!-- Emmet转换选项 -->
+                        <fieldset>
+                            <legend>Emmet转换选项</legend>
+                            <label for="itags"><input type="checkbox" id="itags" checked> 使用隐式标签</label>
+                            <label for="abbr"><input type="checkbox" id="abbr" checked> 使用缩写</label>
+                            <label for="tab"><input type="checkbox" id="tab" checked> 使用缩进风格</label>
+                            <label>缩进：<input type="text" id="ind" value="  "></label>
+                            <button type="button" id="convBtn">转换</button>
+                        </fieldset>
+
+                        <!-- BlocksData编辑器选项 -->
+                        <fieldset>
+                            <legend>BlocksData编辑器选项</legend>
+                            <button type="button" id="genTableBtn">生成表格</button>
+                            <label>文件名：<input type="text" id="fname" value="BlocksData.txt"></label><br>
+                            <label>列分隔符：<input type="text" id="c" value=";" placeholder=";"></label><br>
+                            <label><input type="checkbox" id="lf" checked> 简化换行符（去掉\r [CR]）</label>
+                            <label><input type="checkbox" id="cn" checked> 中文显示方块名</label>
+                            <label><input type="checkbox" id="ca" checked> 中文显示属性名</label>
+                        </fieldset>
+
+                        <!-- Guid去重器选项 -->
+                        <fieldset>
+                            <legend>Guid去重器选项</legend>
+                            <label><input type="checkbox" id="minimize"> 使用最简Guid</label>
+                            <button type="button" id="analyzeBtn">开始解析</button>
+                            <button type="button" id="deduplicateBtn">去除重复的Guid</button>
+                        </fieldset>
+
+                        <!-- 自动保存 -->
+                        <div class="autosave-row">
+                            <label for="autosave"><input type="checkbox" id="autosave"> 自动保存</label>
+                        </div>
+
+                        <!-- 目标编辑器 -->
+                        <div class="editor-container">
+                            <textarea id="dst" rows="16" cols="80"></textarea>
+                        </div>
+
+                        <!-- 下载 -->
+                        <div class="download-row">
+                            <label>文件名：<input type="text" id="fname2" value=""></label>
+                            <a id="downloadBtn" href="javascript:void(0)">下载</a>
+                        </div>
+
+                        <!-- 日志输出 -->
+                        <div class="output-log">
+                            日志信息：
+                            <pre id="output"></pre>
+                        </div>
+
+                        <!-- 使用说明 -->
+                        <div class="about-section">
+                            <h3>Emmet转换工具使用说明</h3>
+                            <p>本工具是一款 <a href="https://emmet.io/" target="_blank" rel="noopener noreferrer">Emmet</a> 转换工具，支持XML和Emmet互转，自动识别格式</p>
+
+                            <h4>支持的标签缩写</h4>
+                            <p id="t"></p>
+
+                            <h4>支持的隐式标签</h4>
+                            <p id="i"></p>
+
+                            <h4>支持的属性名缩写</h4>
+                            <p id="a"></p>
+
+                            <h4>支持的属性缩写（标签后加冒号，例如 link:css）</h4>
+                            <p id="e"></p>
+
+                            <h3>BlocksData编辑器使用说明</h3>
+                            <p>本工具是一款简单的独立版CSV编辑器，速度快，无需其他依赖项，可用于编辑 <a href="https://kaalus.wordpress.com/" target="_blank" rel="noopener noreferrer">Survivalcraft</a> 中的BlocksData以及类似的 <a href="https://baike.baidu.com/item/CSV/10739" target="_blank" rel="noopener noreferrer">CSV</a> 文件</p>
+                            <ol>
+                                <li>点击"选择文件"，选择要编辑的BlocksData（PC支持拖放）</li>
+                                <li>点击"生成表格"按钮，在弹出的页面中编辑表格，最后点击"生成表格"按钮即可</li>
+                            </ol>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer id="footer">
+        <div class="site-info">
+            <p class="site-address">
+                <span id="currentAddress">本站地址：</span>
+                <span id="shortUrl">短网址：</span>
+            </p>
+        </div>
+        <p class="copyright"><a href="../about.html" style="color: inherit; text-decoration: none;">© 2026 生存战争网</a></p>
+    </footer>
+
+    <!-- 共享JS -->
+    <script src="../scweb_res/shared/js/utils.js?v=20260820"></script>
+    <script src="../scweb_res/shared/js/theme-manager.js?v=20260821"></script>
+    <script src="../scweb_res/shared/js/language-manager.js?v=20260723"></script>
+    <script src="../scweb_res/shared/js/site-language-config.js?v=20260725"></script>
+    <script src="../scweb_res/shared/js/site-info.js?v=20260723"></script>
+    <script src="../scweb_res/shared/js/app.js?v=20260821"></script>
+    <!-- 外部库 -->
+    <script src="https://cdn.bootcss.com/codemirror/5.48.4/codemirror.min.js"></script>
+    <script src="https://cdn.bootcss.com/codemirror/5.48.4/mode/css/css.min.js"></script>
+    <script src="https://cdn.bootcss.com/codemirror/5.48.4/mode/xml/xml.min.js"></script>
+    <script src="https://cdn.bootcss.com/codemirror/5.48.4/addon/edit/closebrackets.min.js"></script>
+    <script src="https://cdn.bootcss.com/emmet/emmet.min.js"></script>
+    <!-- 数据表 -->
+    <script src="../scweb_res/tools/mod-dev-kit/mod_dev_kit_data.js?v=20260821"></script>
+    <!-- 工具逻辑 -->
+    <script src="../scweb_res/tools/mod-dev-kit/mod_dev_kit.js?v=20260821"></script>
+
+    <script>
+    var _hmt = _hmt || [];
+    (function() {
+        var hm = document.createElement("script");
+        hm.src = "https://hm.baidu.com/hm.js?49508fcc51529f79d0f7e42bd08ed491";
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(hm, s);
+    })();
+    </script>
+</body>
+</html>
