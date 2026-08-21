@@ -55,7 +55,8 @@ const AboutLanguageConfig = {
                 meshReader: '模型Meshes读取器',
                 modDevKit: '生存战争Mod开发工具包',
                 yylmzxcPages: 'YYLMZXC Pages',
-                scGps: '生存战争GPS'
+                scGps: '生存战争GPS',
+                lanzou: '蓝奏云'
             }
         },
 
@@ -101,7 +102,8 @@ const AboutLanguageConfig = {
                 meshReader: 'Mesh Reader',
                 modDevKit: 'Mod Dev Kit',
                 yylmzxcPages: 'YYLMZXC Pages',
-                scGps: 'SC Survivalcraft GPS'
+                scGps: 'SC Survivalcraft GPS',
+                lanzou: 'Lanzou Cloud'
             }
         },
         
@@ -147,7 +149,8 @@ const AboutLanguageConfig = {
                 meshReader: 'Читатель Meshes',
                 modDevKit: 'Набор для разработки Modов',
                 yylmzxcPages: 'YYLMZXC Pages',
-                scGps: 'SC Survivalcraft GPS'
+                scGps: 'SC Survivalcraft GPS',
+                lanzou: 'Lanzou Cloud'
             }
         },
         
@@ -193,7 +196,8 @@ const AboutLanguageConfig = {
                 meshReader: 'Lector de Meshes',
                 modDevKit: 'Kit de Desarrollo de Mods',
                 yylmzxcPages: 'YYLMZXC Pages',
-                scGps: 'SC Survivalcraft GPS'
+                scGps: 'SC Survivalcraft GPS',
+                lanzou: 'Lanzou Cloud'
             }
         }
     },
@@ -225,7 +229,8 @@ const AboutLanguageConfig = {
             { title: 'links.deepseek', url: 'https://chat.deepseek.com/', external: true },
             { title: 'links.waybackMachine', url: 'https://web.archive.org/', external: true },
             { title: 'links.yylmzxcPages', url: 'https://yylmzxc.github.io', external: true },
-            { title: 'links.scGps', url: 'https://sc-survivalcraft-gps.github.io/', external: true }
+            { title: 'links.scGps', url: 'https://sc-survivalcraft-gps.github.io/', external: true },
+            { title: 'links.lanzou', url: 'https://www.lanzoui.com/', external: true }
         ]
     }
 };
