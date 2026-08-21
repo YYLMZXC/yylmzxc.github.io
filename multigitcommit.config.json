@@ -2,7 +2,8 @@
   "RemoteUrls": [
     "https://gitee.com/yylmzxc/scweb",
     "https://cnb.cool/SurvivalcraftTool/scweb",
-    "https://github.com/YYLMZXC/yylmzxc.github.io"
+    "https://github.com/YYLMZXC/yylmzxc.github.io",
+    "https://github.com/SC-Survivalcraft-GPS/SC-Survivalcraft-GPS.github.io"
   ],
   "CheckAddAll": true,
   "CheckPushTags": false
