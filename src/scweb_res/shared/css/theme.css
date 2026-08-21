@@ -343,13 +343,14 @@ body.wk-light .language-btn.active {
 
 /* 下拉菜单 */
 body.wk-light .site-name {
-    background: var(--wk-paper-elv);
-    border: 2px solid var(--wk-border);
-    box-shadow: var(--wk-hard-shadow);
+    background: rgba(255, 248, 232, 0.15);
+    border: 2px solid var(--wk-wood-light);
+    box-shadow: 3px 3px 0 rgba(49, 46, 38, 0.3);
 }
 body.wk-light .logo-text {
-    color: var(--wk-text);
+    color: #fff8e8;
     font-family: var(--wk-pixel-font);
+    text-shadow: 1px 1px 0 var(--wk-wood-dark);
 }
 body.wk-light .dropdown-toggle {
     background: #9b6b3e;
@@ -382,6 +383,50 @@ body.wk-light .dropdown-item.active {
     background: var(--wk-grass);
     color: #fff;
     text-shadow: 1px 1px 0 var(--wk-grass-dark);
+}
+
+/* 工坊暗色 */
+body.wk-dark .site-name {
+    background: rgba(255, 248, 232, 0.08);
+    border: 2px solid var(--wk-border-dark);
+    box-shadow: 3px 3px 0 var(--wk-hard-shadow-dark);
+}
+body.wk-dark .logo-text {
+    color: var(--wk-text-light);
+    font-family: var(--wk-pixel-font);
+    text-shadow: 1px 1px 0 #000;
+}
+body.wk-dark .dropdown-toggle {
+    background: var(--wk-wood-dark);
+    color: var(--wk-text-light);
+    border: 3px solid #3a2210;
+    border-top-color: var(--wk-wood);
+    border-left-color: var(--wk-wood);
+    box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.4);
+    font-family: var(--wk-pixel-font);
+}
+body.wk-dark .dropdown-toggle:hover {
+    filter: brightness(1.1);
+    transform: translate(-1px, -1px);
+    box-shadow: 5px 5px 0 rgba(0, 0, 0, 0.5);
+}
+body.wk-dark .dropdown-menu {
+    background: var(--wk-dark-bg-elv);
+    border: 2px solid var(--wk-border-dark);
+    box-shadow: var(--wk-hard-shadow-dark);
+}
+body.wk-dark .dropdown-item {
+    color: var(--wk-text-light);
+    font-family: var(--wk-pixel-font);
+}
+body.wk-dark .dropdown-item:hover {
+    background: var(--wk-dark-bg-soft);
+    color: var(--wk-grass-light);
+}
+body.wk-dark .dropdown-item.active {
+    background: var(--wk-grass-dark);
+    color: #fff;
+    text-shadow: 1px 1px 0 #000;
 }
 
 body.wk-light .language-select,
