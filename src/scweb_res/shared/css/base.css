@@ -2,22 +2,95 @@
  * 生存战争网 - 基础样式表
  * 定义 CSS 变量、全局重置样式、排版规范和工具类
  * 作为所有页面的样式基础，被其他 CSS 文件依赖
+ *
+ * 支持 4 种主题：
+ *   - light:     现代亮色 (默认)
+ *   - dark:      现代暗色
+ *   - wk-light:  工坊像素风格亮色（参考 scwk 复古游戏风：羊皮纸+木头+草地绿）
+ *   - wk-dark:   工坊像素风格暗色
  */
 
-/* ===== CSS 变量 ===== */
+/* ===== CSS 变量（现代风格默认值 / 亮色） ===== */
 :root {
+    /* 现代风格主色（蓝紫渐变） */
     --primary-color: #667eea;
     --primary-dark: #5a6fd8;
     --secondary-color: #764ba2;
     --secondary-dark: #6a4190;
+
+    /* 现代风格背景与文字 */
     --light-bg: #f8f9fa;
     --dark-bg: #1a202c;
     --text-color: #444;
     --text-light: #e2e8f0;
+
+    /* 现代风格边框与阴影 */
     --border-light: #e9ecef;
     --border-dark: #4a5568;
     --shadow-light: 0 2px 8px rgba(0, 0, 0, 0.08);
     --shadow-dark: 0 2px 8px rgba(0, 0, 0, 0.3);
+
+    /* ===== 工坊像素风格（scwk 复古游戏风）变量 ===== */
+    /* 木头色系（导航栏/按钮边框） */
+    --wk-wood: #8b5a2b;
+    --wk-wood-dark: #5f381e;
+    --wk-wood-light: #bb8450;
+    --wk-wood-shadow: #49301c;
+
+    /* 草地绿色系（主色/强调色） */
+    --wk-grass: #55aa55;
+    --wk-grass-dark: #3d8d3d;
+    --wk-grass-light: #69bb63;
+    --wk-grass-soft: rgba(85, 170, 85, 0.16);
+
+    /* 石头色系（次级文本/边框） */
+    --wk-stone: #79766f;
+    --wk-stone-dark: #514a3e;
+
+    /* 羊皮纸背景（亮色） */
+    --wk-paper: #f4f0e6;
+    --wk-paper-alt: #eae3d3;
+    --wk-paper-elv: #fffdf7;
+    --wk-paper-soft: #eee8db;
+
+    /* 暗色模式背景 */
+    --wk-dark-bg: #201e1a;
+    --wk-dark-bg-alt: #191814;
+    --wk-dark-bg-elv: #2a2721;
+    --wk-dark-bg-soft: #302c25;
+
+    /* 文字色（亮色） */
+    --wk-text: #332f2a;
+    --wk-text-2: #655e53;
+    --wk-text-3: #81786b;
+
+    /* 文字色（暗色） */
+    --wk-text-light: #eee8dc;
+    --wk-text-light-2: #c4bbac;
+    --wk-text-light-3: #9d9385;
+
+    /* 边框和分隔线（亮色） */
+    --wk-border: #c9bea9;
+    --wk-divider: #d5ccba;
+
+    /* 边框和分隔线（暗色） */
+    --wk-border-dark: #655b4b;
+    --wk-divider-dark: #514a3e;
+
+    /* 硬阴影（像素风特有：无模糊，硬边 4px 偏移） */
+    --wk-hard-shadow: 4px 4px 0 #d0c8b8;
+    --wk-hard-shadow-dark: 4px 4px 0 #15130f;
+    --wk-small-shadow: 3px 3px 0 #9a9388;
+
+    /* 像素字体（Courier New / 等宽字体，游戏感） */
+    --wk-pixel-font: "Courier New", "Lucida Console", "Microsoft YaHei", "PingFang SC", monospace;
+    --wk-base-font: "Noto Sans SC", "Microsoft YaHei", "PingFang SC", system-ui, sans-serif;
+
+    /* 工坊特殊色：按钮 3D 边框（上左亮 / 下右暗） */
+    --wk-btn-border-lt: #a8dc91;
+    --wk-btn-border-rb: #276b2b;
+    --wk-wood-btn-lt: #d8ad7c;
+    --wk-wood-btn-rb: #5f381e;
 }
 
 /* ===== 全局重置 ===== */
@@ -49,6 +122,58 @@ body {
     transition: background-color 0.3s ease, color 0.3s ease;
 }
 
+/* ===== 工坊像素风格：全局覆盖（body.wk-light / body.wk-dark） ===== */
+/* 1. 取消圆角 + 设置像素字体 + 硬阴影 + 像素网格背景纹理 */
+body.wk-light,
+body.wk-dark {
+    font-family: var(--wk-base-font);
+    border-radius: 0 !important;
+}
+
+/* 覆盖所有子元素的圆角（像素风一律方角） */
+body.wk-light *,
+body.wk-dark *,
+body.wk-light *::before,
+body.wk-dark *::before,
+body.wk-light *::after,
+body.wk-dark *::after {
+    border-radius: 0 !important;
+}
+
+/* 工坊亮色：羊皮纸背景 + 像素网格纹理 */
+body.wk-light {
+    background-color: var(--wk-paper);
+    color: var(--wk-text);
+    background-image:
+        linear-gradient(rgba(139, 90, 43, .025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(139, 90, 43, .025) 1px, transparent 1px);
+    background-size: 16px 16px;
+}
+
+/* 工坊暗色：深色背景 + 弱化网格 */
+body.wk-dark {
+    background-color: var(--wk-dark-bg);
+    color: var(--wk-text-light);
+    background-image:
+        linear-gradient(rgba(139, 90, 43, .06) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(139, 90, 43, .06) 1px, transparent 1px);
+    background-size: 16px 16px;
+}
+
+/* 工坊风格标题：使用像素字体 */
+body.wk-light h1,
+body.wk-dark h1,
+body.wk-light h2,
+body.wk-dark h2,
+body.wk-light h3,
+body.wk-dark h3,
+body.wk-light .pixel-title,
+body.wk-dark .pixel-title {
+    font-family: var(--wk-pixel-font);
+    font-weight: 800;
+    letter-spacing: .02em;
+}
+
 /* ===== 链接样式 ===== */
 a {
     background-color: transparent;
@@ -62,11 +187,25 @@ a:active {
     color: #444;
 }
 
+/* 工坊风格链接：草地绿下划线更粗 */
+body.wk-light a,
+body.wk-dark a {
+    text-decoration-thickness: 2px;
+    text-underline-offset: 3px;
+}
+body.wk-light a { color: var(--wk-grass-dark); }
+body.wk-dark  a { color: var(--wk-grass-light); }
+
 /* ===== 媒体元素 ===== */
 img {
     border-style: none;
     max-width: 100%;
     height: auto;
+}
+
+body.wk-light img,
+body.wk-dark img {
+    image-rendering: auto;
 }
 
 /* ===== 表单元素 ===== */

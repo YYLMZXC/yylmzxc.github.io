@@ -1,5 +1,0 @@
-[      45ms] [LOG] [App] 开始初始化... @ http://127.0.0.1:8000/scweb_res/shared/js/app.js?v=20260821:27
-[      45ms] [LOG] [ThemeManager] 初始化完成，当前主题：light @ http://127.0.0.1:8000/scweb_res/shared/js/theme-manager.js?v=20260723:18
-[      46ms] [LOG] [LanguageManager] 初始化完成，当前语言：zh @ http://127.0.0.1:8000/scweb_res/shared/js/language-manager.js?v=20260723:29
-[      46ms] [LOG] [App] 初始化完成 @ http://127.0.0.1:8000/scweb_res/shared/js/app.js?v=20260821:57
-[      47ms] [LOG] [AboutPageManager] 初始化完成 @ http://127.0.0.1:8000/scweb_res/about/about_script.js?v=20260820:26

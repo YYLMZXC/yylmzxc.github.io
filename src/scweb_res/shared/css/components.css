@@ -246,3 +246,79 @@
     opacity: 1;
     transform: translateX(-50%) translateY(0);
 }
+
+/* ========================================================================
+   工坊像素风格（body.wk-light / body.wk-dark）补充：
+   通用按钮、响应式 4 主题按钮、细节去现代化动画
+   ======================================================================== */
+
+/* 工坊风通用按钮：像素风 3D 边框 */
+body.wk-light .btn,
+body.wk-dark .btn {
+    border-radius: 0;
+    font-family: var(--wk-pixel-font);
+    font-weight: 800;
+    letter-spacing: .02em;
+    border-width: 3px;
+    border-style: solid;
+    border-color: var(--wk-btn-border-rb);
+    border-top-color: var(--wk-btn-border-lt);
+    border-left-color: var(--wk-btn-border-lt);
+    background: var(--wk-grass);
+    color: #fff;
+    text-shadow: 1px 1px 0 var(--wk-grass-dark);
+    box-shadow: 3px 3px 0 rgba(49, 46, 38, .3);
+    transition: transform .08s, filter .15s;
+}
+body.wk-dark .btn {
+    border-color: var(--wk-btn-border-rb);
+    border-top-color: var(--wk-btn-border-lt);
+    border-left-color: var(--wk-btn-border-lt);
+    background: var(--wk-grass-dark);
+    text-shadow: 1px 1px 0 #2a5f2a;
+    box-shadow: 3px 3px 0 rgba(0, 0, 0, .4);
+}
+body.wk-light .btn:hover,
+body.wk-dark .btn:hover {
+    filter: brightness(1.08);
+    transform: translate(-1px, -1px);
+}
+body.wk-light .btn:active,
+body.wk-dark .btn:active {
+    border-color: var(--wk-btn-border-lt);
+    border-top-color: var(--wk-btn-border-rb);
+    border-left-color: var(--wk-btn-border-rb);
+    transform: translate(2px, 2px);
+    box-shadow: 1px 1px 0 rgba(49, 46, 38, .3);
+}
+
+/* 次级按钮 → 木头色 */
+body.wk-light .btn-secondary,
+body.wk-dark .btn-secondary {
+    border-color: var(--wk-wood-btn-rb) !important;
+    border-top-color: var(--wk-wood-btn-lt) !important;
+    border-left-color: var(--wk-wood-btn-lt) !important;
+    background: var(--wk-wood) !important;
+    color: #fff8e8 !important;
+    text-shadow: 1px 1px 0 var(--wk-wood-dark) !important;
+}
+
+/* 主题选择器 / 语言选择器：4 按钮在小屏略微缩小 */
+@media (max-width: 560px) {
+    .theme-selector .theme-btn {
+        width: 40px;
+        height: 40px;
+        font-size: 16px;
+        padding: 6px;
+    }
+}
+@media (max-width: 480px) {
+    .theme-selector { gap: 4px; padding: 4px; }
+    .theme-selector .theme-btn {
+        width: 36px;
+        height: 36px;
+        font-size: 15px;
+        padding: 4px;
+    }
+}
+
