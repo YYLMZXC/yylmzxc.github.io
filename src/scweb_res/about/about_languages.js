@@ -54,7 +54,8 @@ const AboutLanguageConfig = {
                 dashboard: '信息仪表板',
                 meshReader: '模型Meshes读取器',
                 modDevKit: '生存战争Mod开发工具包',
-                yylmzxcPages: 'YYLMZXC Pages'
+                yylmzxcPages: 'YYLMZXC Pages',
+                scGps: '生存战争GPS'
             }
         },
 
@@ -99,7 +100,8 @@ const AboutLanguageConfig = {
                 dashboard: 'Dashboard',
                 meshReader: 'Mesh Reader',
                 modDevKit: 'Mod Dev Kit',
-                yylmzxcPages: 'YYLMZXC Pages'
+                yylmzxcPages: 'YYLMZXC Pages',
+                scGps: 'SC Survivalcraft GPS'
             }
         },
         
@@ -144,7 +146,8 @@ const AboutLanguageConfig = {
                 dashboard: 'Панель информации',
                 meshReader: 'Читатель Meshes',
                 modDevKit: 'Набор для разработки Modов',
-                yylmzxcPages: 'YYLMZXC Pages'
+                yylmzxcPages: 'YYLMZXC Pages',
+                scGps: 'SC Survivalcraft GPS'
             }
         },
         
@@ -189,7 +192,8 @@ const AboutLanguageConfig = {
                 dashboard: 'Panel de Información',
                 meshReader: 'Lector de Meshes',
                 modDevKit: 'Kit de Desarrollo de Mods',
-                yylmzxcPages: 'YYLMZXC Pages'
+                yylmzxcPages: 'YYLMZXC Pages',
+                scGps: 'SC Survivalcraft GPS'
             }
         }
     },
@@ -220,7 +224,8 @@ const AboutLanguageConfig = {
             { title: 'links.modDevKit', url: 'tools/mod-dev-kit.html', external: false },
             { title: 'links.deepseek', url: 'https://chat.deepseek.com/', external: true },
             { title: 'links.waybackMachine', url: 'https://web.archive.org/', external: true },
-            { title: 'links.yylmzxcPages', url: 'https://yylmzxc.github.io', external: true }
+            { title: 'links.yylmzxcPages', url: 'https://yylmzxc.github.io', external: true },
+            { title: 'links.scGps', url: 'https://sc-survivalcraft-gps.github.io/', external: true }
         ]
     }
 };
