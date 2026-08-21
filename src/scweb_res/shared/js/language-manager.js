@@ -204,13 +204,19 @@ class LanguageManager {
     }
 
     /**
-     * 更新所有语言按钮的 active 状态
+     * 更新所有语言按钮的 active 状态和下拉菜单切换按钮
      */
     updateLanguageButtons() {
         document.querySelectorAll('[data-lang]').forEach(button => {
             const lang = button.getAttribute('data-lang');
             button.classList.toggle('active', lang === this.currentLang);
         });
+        // 更新下拉菜单切换按钮
+        const toggle = document.getElementById('langToggle');
+        if (toggle) {
+            const langNames = { 'zh': '🇨🇳', 'en': '🇺🇸', 'ru': '🇷🇺', 'es': '🇪🇸' };
+            toggle.innerHTML = `${langNames[this.currentLang] || '🇨🇳'} <span class="arrow">▼</span>`;
+        }
     }
 
     /**
@@ -245,9 +251,26 @@ class LanguageManager {
      */
     bindEventListeners() {
         document.addEventListener('click', (e) => {
+            // 下拉菜单切换
+            if (e.target.id === 'langToggle' || e.target.closest('#langToggle')) {
+                const dropdown = document.getElementById('langDropdown');
+                if (dropdown) dropdown.classList.toggle('open');
+                // 关闭主题下拉
+                const themeDropdown = document.getElementById('themeDropdown');
+                if (themeDropdown) themeDropdown.classList.remove('open');
+                return;
+            }
+            // 选择语言
             if (e.target.matches('[data-lang]')) {
                 this.switchLanguage(e.target.getAttribute('data-lang'));
+                // 关闭下拉
+                const dropdown = document.getElementById('langDropdown');
+                if (dropdown) dropdown.classList.remove('open');
+                return;
             }
+            // 点击其他区域关闭下拉
+            const dropdown = document.getElementById('langDropdown');
+            if (dropdown) dropdown.classList.remove('open');
         });
     }
 }

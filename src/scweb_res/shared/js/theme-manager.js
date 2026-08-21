@@ -15,7 +15,7 @@ class ThemeManager {
     static VALID_THEMES = ['light', 'dark', 'wk-light', 'wk-dark'];
 
     constructor() {
-        this.currentTheme = 'light';
+        this.currentTheme = 'wk-light';
         this.isTransitioning = false;
         this.init();
     }
@@ -49,6 +49,9 @@ class ThemeManager {
         } else if (this.getSystemTheme() === 'dark') {
             // 系统暗色时默认用现代暗色主题
             this.currentTheme = 'dark';
+        } else {
+            // 新用户默认工坊亮色
+            this.currentTheme = 'wk-light';
         }
         this.applyTheme(this.currentTheme);
         this.updateThemeButtons();
@@ -147,13 +150,19 @@ class ThemeManager {
     }
 
     /**
-     * 更新所有主题按钮的 active 状态
+     * 更新所有主题按钮的 active 状态和下拉菜单切换按钮
      */
     updateThemeButtons() {
         document.querySelectorAll('[data-theme]').forEach(button => {
             const theme = button.getAttribute('data-theme');
             button.classList.toggle('active', theme === this.currentTheme);
         });
+        // 更新下拉菜单切换按钮
+        const toggle = document.getElementById('themeToggle');
+        if (toggle) {
+            const meta = this.getThemeMeta(this.currentTheme);
+            toggle.innerHTML = `${meta.icon} <span class="arrow">▼</span>`;
+        }
     }
 
     /**
@@ -194,9 +203,26 @@ class ThemeManager {
      */
     bindEventListeners() {
         document.addEventListener('click', (e) => {
+            // 下拉菜单切换
+            if (e.target.id === 'themeToggle' || e.target.closest('#themeToggle')) {
+                const dropdown = document.getElementById('themeDropdown');
+                if (dropdown) dropdown.classList.toggle('open');
+                // 关闭语言下拉
+                const langDropdown = document.getElementById('langDropdown');
+                if (langDropdown) langDropdown.classList.remove('open');
+                return;
+            }
+            // 选择主题
             if (e.target.matches('[data-theme]')) {
                 this.switchTheme(e.target.getAttribute('data-theme'));
+                // 关闭下拉
+                const dropdown = document.getElementById('themeDropdown');
+                if (dropdown) dropdown.classList.remove('open');
+                return;
             }
+            // 点击其他区域关闭下拉
+            const dropdown = document.getElementById('themeDropdown');
+            if (dropdown) dropdown.classList.remove('open');
         });
     }
 }
