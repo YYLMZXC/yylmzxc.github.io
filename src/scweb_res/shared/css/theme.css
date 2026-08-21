@@ -142,6 +142,34 @@ body.dark .theme-toast {
     color: #fff;
 }
 
+/* 下拉菜单 */
+body.dark .site-name {
+    background: #2d3748;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+body.dark .logo-text {
+    color: var(--text-light);
+}
+body.dark .dropdown-toggle {
+    background: #2d3748;
+    color: var(--text-light);
+    box-shadow: var(--shadow-dark);
+}
+body.dark .dropdown-toggle:hover {
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+body.dark .dropdown-menu {
+    background: #2d3748;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+body.dark .dropdown-item {
+    color: var(--text-light);
+}
+body.dark .dropdown-item:hover {
+    background: rgba(102, 126, 234, 0.2);
+    color: #a0aec0;
+}
+
 /* 系统偏好深色模式自动检测（旧代码保留，兼容 body:not(.light) 选择器） */
 @media (prefers-color-scheme: dark) {
     body:not(.light) {
@@ -311,6 +339,49 @@ body.wk-light .language-btn.active {
     color: #fff !important;
     text-shadow: 1px 1px 0 var(--wk-grass-dark);
     box-shadow: 3px 3px 0 rgba(49, 46, 38, .3) !important;
+}
+
+/* 下拉菜单 */
+body.wk-light .site-name {
+    background: var(--wk-paper-elv);
+    border: 2px solid var(--wk-border);
+    box-shadow: var(--wk-hard-shadow);
+}
+body.wk-light .logo-text {
+    color: var(--wk-text);
+    font-family: var(--wk-pixel-font);
+}
+body.wk-light .dropdown-toggle {
+    background: #9b6b3e;
+    color: #fff8e8;
+    border: 3px solid var(--wk-wood-btn-rb);
+    border-top-color: var(--wk-wood-btn-lt);
+    border-left-color: var(--wk-wood-btn-lt);
+    box-shadow: 3px 3px 0 rgba(49, 46, 38, .3);
+    font-family: var(--wk-pixel-font);
+}
+body.wk-light .dropdown-toggle:hover {
+    filter: brightness(1.08);
+    transform: translate(-1px, -1px);
+    box-shadow: 5px 5px 0 rgba(49, 46, 38, .35);
+}
+body.wk-light .dropdown-menu {
+    background: var(--wk-paper-elv);
+    border: 2px solid var(--wk-border);
+    box-shadow: var(--wk-hard-shadow);
+}
+body.wk-light .dropdown-item {
+    color: var(--wk-text);
+    font-family: var(--wk-pixel-font);
+}
+body.wk-light .dropdown-item:hover {
+    background: var(--wk-paper-soft);
+    color: var(--wk-grass-dark);
+}
+body.wk-light .dropdown-item.active {
+    background: var(--wk-grass);
+    color: #fff;
+    text-shadow: 1px 1px 0 var(--wk-grass-dark);
 }
 
 body.wk-light .language-select,

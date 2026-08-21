@@ -25,7 +25,6 @@ body {
     flex: 0 0 auto;
     margin: 0 auto 0 0;
     padding: 8px 16px;
-    border: 2px solid var(--border-light);
     border-radius: 12px;
     background: var(--card-bg);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
@@ -153,7 +152,7 @@ body {
     align-items: center;
     gap: 6px;
     padding: 8px 14px;
-    border: 2px solid var(--border-light);
+    border: none;
     border-radius: 10px;
     background: var(--card-bg);
     color: var(--text-primary);
@@ -162,11 +161,12 @@ body {
     cursor: pointer;
     transition: all 0.2s ease;
     white-space: nowrap;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
 }
 
 .dropdown-toggle:hover {
-    border-color: #667eea;
-    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.15);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+    transform: translateY(-1px);
 }
 
 .dropdown-toggle .arrow {
@@ -183,10 +183,9 @@ body {
     top: calc(100% + 6px);
     right: 0;
     min-width: 140px;
-    background: var(--card-bg);
-    border: 1px solid var(--border-light);
+    background: var(--bg-color, #fff);
     border-radius: 10px;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
     padding: 6px;
     opacity: 0;
     visibility: hidden;
