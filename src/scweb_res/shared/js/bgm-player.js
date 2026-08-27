@@ -320,7 +320,7 @@ var BgmUI = (function () {
                 '<div class="bgm-panel-title">🎵 背景音乐</div>' +
             '</div>' +
             '<div class="bgm-now-playing">' +
-                '<img class="bgm-cover" id="bgmCover" src="' + _defaultCover + '" alt="封面" draggable="false">' +
+                '<div class="bgm-cover" id="bgmCover"><img src="' + _defaultCover + '" alt="封面" draggable="false"></div>' +
                 '<div class="bgm-now-playing-info">' +
                     '<p class="bgm-track-name" id="bgmTrackName">未播放</p>' +
                     '<p class="bgm-track-album" id="bgmTrackAlbum"></p>' +
@@ -356,11 +356,14 @@ var BgmUI = (function () {
     }
 
     function updateCover(imgSrc, playing) {
-        var el = document.getElementById('bgmCover');
-        if (!el) return;
-        el.src = imgSrc || _defaultCover;
-        el.onerror = function () { this.src = _defaultCover; };
-        el.classList.toggle('spinning', playing);
+        var container = document.getElementById('bgmCover');
+        if (!container) return;
+        var img = container.querySelector('img');
+        if (img) {
+            img.src = imgSrc || _defaultCover;
+            img.onerror = function () { this.src = _defaultCover; };
+        }
+        container.classList.toggle('spinning', playing);
     }
 
     function updateTrackInfo(track) {
