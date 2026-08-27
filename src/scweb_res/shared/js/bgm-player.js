@@ -152,11 +152,14 @@ var BgmAudio = (function () {
         },
 
         play: function () {
-            var p = _audio.play().then(function () {
-                _playing = true;
-                if (_onPlayStateChange) _onPlayStateChange(true);
-            });
-            return p;
+            // 不使用 audio.play() 返回的 Promise（浏览器原生 Promise 在某些情况下
+            // 即使有 .catch() 仍会报 "Uncaught (in promise)"）
+            // 改用 addEventListener 监听 play/pause/error 事件
+            try {
+                _audio.play();
+            } catch (e) {
+                console.warn('[BGM] play() sync error:', e.message);
+            }
         },
 
         pause: function () {
@@ -572,8 +575,8 @@ var BgmPlayer = (function () {
             BgmAudio.load(idx, false);
 
             // === 自动播放策略 ===
-            // 先尝试有声播放，如果浏览器允许就直接播放
-            // 如果被阻止，等用户首次交互时再播放（100% 可靠）
+            // 第1层：尝试有声播放（部分浏览器直接允许）
+            // 第2层：注册交互监听，用户点击/滚动时解锁 + 播放
             var started = false;
 
             function startPlayback() {
@@ -593,9 +596,9 @@ var BgmPlayer = (function () {
             }
 
             function removeInteractionListeners() {
-                document.removeEventListener('click',    onInteraction);
-                document.removeEventListener('scroll',   onInteraction);
-                document.removeEventListener('keydown',  onInteraction);
+                document.removeEventListener('click',     onInteraction);
+                document.removeEventListener('scroll',    onInteraction);
+                document.removeEventListener('keydown',   onInteraction);
                 document.removeEventListener('touchstart', onInteraction);
             }
 
@@ -606,13 +609,7 @@ var BgmPlayer = (function () {
             document.addEventListener('touchstart', onInteraction);
 
             // 同时尝试直接播放（如果浏览器允许，用户无需点击）
-            BgmAudio.play().then(function () {
-                // 有声播放成功，取消交互监听
-                started = true;
-                removeInteractionListeners();
-            }).catch(function () {
-                // 被阻止，等用户交互（监听器已注册）
-            });
+            BgmAudio.play();
         });
     }
 

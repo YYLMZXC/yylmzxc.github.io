@@ -57,7 +57,11 @@ const AboutLanguageConfig = {
                 yylmzxcPages: 'YYLMZXC Pages',
                 scGps: '生存战争GPS',
                 lanzou: '蓝奏云',
-                mediafire: '联机版MediaFire云盘'
+                mediafire: '联机版MediaFire云盘',
+                baiduZiyuan: '百度资源平台',
+                baiduTongji: '百度统计',
+                bingWebmasters: 'Bing 站长工具',
+                msClarity: 'Microsoft Clarity'
             }
         },
 
@@ -105,7 +109,11 @@ const AboutLanguageConfig = {
                 yylmzxcPages: 'YYLMZXC Pages',
                 scGps: 'SC Survivalcraft GPS',
                 lanzou: 'Lanzou Cloud',
-                mediafire: 'Multiplayer MediaFire Cloud'
+                mediafire: 'Multiplayer MediaFire Cloud',
+                baiduZiyuan: 'Baidu Resource Platform',
+                baiduTongji: 'Baidu Analytics',
+                bingWebmasters: 'Bing Webmasters',
+                msClarity: 'Microsoft Clarity'
             }
         },
         
@@ -153,7 +161,11 @@ const AboutLanguageConfig = {
                 yylmzxcPages: 'YYLMZXC Pages',
                 scGps: 'SC Survivalcraft GPS',
                 lanzou: 'Lanzou Cloud',
-                mediafire: 'Multiplayer MediaFire Cloud'
+                mediafire: 'Multiplayer MediaFire Cloud',
+                baiduZiyuan: 'Baidu Resource Platform',
+                baiduTongji: 'Baidu Analytics',
+                bingWebmasters: 'Bing Webmasters',
+                msClarity: 'Microsoft Clarity'
             }
         },
         
@@ -201,7 +213,11 @@ const AboutLanguageConfig = {
                 yylmzxcPages: 'YYLMZXC Pages',
                 scGps: 'SC Survivalcraft GPS',
                 lanzou: 'Lanzou Cloud',
-                mediafire: 'Multiplayer MediaFire Cloud'
+                mediafire: 'Multiplayer MediaFire Cloud',
+                baiduZiyuan: 'Baidu Resource Platform',
+                baiduTongji: 'Baidu Analytics',
+                bingWebmasters: 'Bing Webmasters',
+                msClarity: 'Microsoft Clarity'
             }
         }
     },
@@ -217,7 +233,11 @@ const AboutLanguageConfig = {
             { title: 'links.cloudflare', url: 'https://www.cloudflare.com/', external: true },
             { title: 'links.projectRepo', url: 'https://cnb.cool/SurvivalcraftTool/scweb', external: true },
             { title: 'links.gname', url: 'https://www.gname.com/', external: true },
-            { title: 'links.boce', url: 'https://www.boce.com/http', external: true }
+            { title: 'links.boce', url: 'https://www.boce.com/http', external: true },
+            { title: 'links.baiduZiyuan', url: 'https://ziyuan.baidu.com/', external: true },
+            { title: 'links.baiduTongji', url: 'https://tongji.baidu.com/', external: true },
+            { title: 'links.bingWebmasters', url: 'https://www.bing.com/webmasters', external: true },
+            { title: 'links.msClarity', url: 'https://clarity.microsoft.com/', external: true }
         ],
         ai: [
             { title: 'links.aiToolsNav', url: 'https://ai-bot.cn/', external: true },

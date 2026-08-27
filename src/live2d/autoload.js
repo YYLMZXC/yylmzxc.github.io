@@ -47,6 +47,7 @@ const Live2DLoader = {
      * @returns {Promise<string>} 加载成功返回 url
      */
     load: function (url, type) {
+        console.log('[Live2D] Loading ' + type + ': ' + url);
         return new Promise(function (resolve, reject) {
             var tag;
             if (type === 'css') {
@@ -59,10 +60,17 @@ const Live2DLoader = {
                 tag.src = url;
             }
             if (tag) {
-                tag.onload  = function () { resolve(url); };
-                tag.onerror = function () { reject(url); };
+                tag.onload  = function () {
+                    console.log('[Live2D] ✓ Loaded ' + type + ': ' + url);
+                    resolve(url);
+                };
+                tag.onerror = function () {
+                    console.error('[Live2D] ✗ Failed to load ' + type + ': ' + url);
+                    reject(url);
+                };
                 document.head.appendChild(tag);
             } else {
+                console.error('[Live2D] Unknown resource type: ' + type);
                 reject(url);
             }
         });
@@ -74,15 +82,19 @@ const Live2DLoader = {
      * @returns {Promise<void>}
      */
     loadAll: function (items) {
+        console.log('[Live2D] Loading ' + items.length + ' resources...');
         return Promise.all(items.map(function (item) {
             return Live2DLoader.load(item.url, item.type);
-        })).then(function () {});
+        })).then(function () {
+            console.log('[Live2D] All resources loaded successfully');
+        });
     },
 
     /**
      * 修复跨域 Image（Live2D Cubism 需要）
      */
     patchImageCORS: function () {
+        console.log('[Live2D] Patching Image constructor for CORS');
         var OrigImage = window.Image;
         window.Image = function () {
             var img = new (Function.prototype.bind.apply(OrigImage, [null].concat(Array.from(arguments))));
@@ -98,47 +110,65 @@ const Live2DLoader = {
      */
     patchTouchDrag: function () {
         var waifu = document.getElementById('waifu');
-        if (!waifu) return;
+        if (!waifu) {
+            console.warn('[Live2D] #waifu element not found, skipping touch drag patch');
+            return;
+        }
+        console.log('[Live2D] Patching touch drag support');
 
-        var winW = window.innerWidth;
-        var winH = window.innerHeight;
+        var startLeft = 0;
+        var startTop = 0;
+        var startX = 0;
+        var startY = 0;
+        var dragging = false;
+        var moved = false;
+        var DRAG_THRESHOLD = 10; // 移动超过 10px 才判定为拖拽
 
         function onTouchStart(e) {
             if (e.touches.length !== 1) return;
-            var touch = e.touches[0];
-            var canvas = document.getElementById('live2d');
-            if (!canvas) return;
-
-            var rect = canvas.getBoundingClientRect();
-            var offsetX = touch.clientX - rect.left;
-            var offsetY = touch.clientY - rect.top;
-
-            function onTouchMove(ev) {
-                ev.preventDefault();
-                var t = ev.touches[0];
-                var x = t.clientX - offsetX;
-                var y = t.clientY - offsetY;
-                x = Math.max(0, Math.min(x, winW - waifu.offsetWidth));
-                y = Math.max(0, Math.min(y, winH - waifu.offsetHeight));
-                waifu.style.left = x + 'px';
-                waifu.style.top = y + 'px';
-            }
-
-            function onTouchEnd() {
-                document.removeEventListener('touchmove', onTouchMove);
-                document.removeEventListener('touchend', onTouchEnd);
-            }
+            var t = e.touches[0];
+            startLeft = parseInt(waifu.style.left, 10) || 0;
+            startTop  = parseInt(waifu.style.top, 10)  || 0;
+            startX = t.clientX;
+            startY = t.clientY;
+            dragging = false;
+            moved = false;
+            console.log('[Live2D] Touch start at (' + t.clientX + ', ' + t.clientY + ')');
 
             document.addEventListener('touchmove', onTouchMove, { passive: false });
             document.addEventListener('touchend', onTouchEnd);
         }
 
-        waifu.addEventListener('touchstart', onTouchStart, { passive: true });
+        function onTouchMove(ev) {
+            var t = ev.touches[0];
+            var dx = t.clientX - startX;
+            var dy = t.clientY - startY;
 
-        window.addEventListener('resize', function () {
-            winW = window.innerWidth;
-            winH = window.innerHeight;
-        });
+            if (!dragging) {
+                // 移动距离超过阈值才开始拖拽，否则放行给对话/点击
+                if (Math.abs(dx) > DRAG_THRESHOLD || Math.abs(dy) > DRAG_THRESHOLD) {
+                    dragging = true;
+                } else {
+                    return;
+                }
+            }
+
+            moved = true;
+            ev.preventDefault(); // 只在确认拖拽后才阻止默认行为
+            var x = Math.max(0, Math.min(startLeft + dx, window.innerWidth  - waifu.offsetWidth));
+            var y = Math.max(0, Math.min(startTop  + dy, window.innerHeight - waifu.offsetHeight));
+            waifu.style.left = x + 'px';
+            waifu.style.top  = y + 'px';
+        }
+
+        function onTouchEnd() {
+            if (moved) console.log('[Live2D] Touch end — waifu moved to (' + waifu.style.left + ', ' + waifu.style.top + ')');
+            else console.log('[Live2D] Touch end — tap (no drag)');
+            document.removeEventListener('touchmove', onTouchMove);
+            document.removeEventListener('touchend', onTouchEnd);
+        }
+
+        waifu.addEventListener('touchstart', onTouchStart, { passive: true });
     },
 
     /**
@@ -146,13 +176,19 @@ const Live2DLoader = {
      */
     patchMobileTools: function () {
         var isMobile = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
-        if (!isMobile) return;
+        if (!isMobile) {
+            console.log('[Live2D] Desktop detected, skipping mobile tools patch');
+            return;
+        }
+        console.log('[Live2D] Mobile detected, applying tool bar patch');
 
         var style = document.createElement('style');
         style.textContent =
-            '#waifu-tool { opacity: 1 !important; }' +
-            '#waifu-tips { opacity: 1 !important; min-height: 50px; }' +
-            '#waifu { bottom: 0 !important; transform: none !important; }';
+            '#waifu-tool { opacity: 1 !important; pointer-events: auto !important; }' +
+            '#waifu-tips { opacity: 1 !important; min-height: 50px; pointer-events: auto !important; }' +
+            '#waifu-tips a { pointer-events: auto !important; }' +
+            '#waifu { bottom: 0 !important; transform: none !important; touch-action: none; }' +
+            '#live2d { touch-action: none; }';
         document.head.appendChild(style);
     },
 };
@@ -163,6 +199,15 @@ const Live2DLoader = {
  * ================================================================ */
 const Live2DInit = (function () {
     function boot() {
+        console.log('[Live2D] Initializing...');
+        console.log('[Live2D] Config:', JSON.stringify({
+            modelId:   Live2DConfig.modelId,
+            cdnPath:   Live2DConfig.cdnPath,
+            localPath: Live2DConfig.localPath,
+            drag:      Live2DConfig.drag,
+            tools:     Live2DConfig.tools,
+            logLevel:  Live2DConfig.logLevel,
+        }, null, 2));
         var C = Live2DConfig;
 
         /* 1. 修复跨域 */
@@ -173,6 +218,7 @@ const Live2DInit = (function () {
             { url: C.waifuCss,    type: 'css' },
             { url: C.waifuTipsJs, type: 'js'  },
         ]).then(function () {
+            console.log('[Live2D] Resources ready, initializing widget...');
             /* 3. 初始化看板娘 */
             initWidget({
                 waifuPath:           C.waifuJson,
@@ -184,10 +230,14 @@ const Live2DInit = (function () {
                 drag:                C.drag,
                 showToggleAfterQuit: C.showToggleAfterQuit,
             });
+            console.log('[Live2D] Widget initialized');
 
             /* 4. 移动端增强：触摸拖拽 + 工具栏常驻 */
             Live2DLoader.patchTouchDrag();
             Live2DLoader.patchMobileTools();
+            console.log('[Live2D] ✓ All patches applied, ready!');
+        }).catch(function (err) {
+            console.error('[Live2D] Initialization failed:', err);
         });
     }
 
