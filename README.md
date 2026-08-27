@@ -70,7 +70,6 @@ scweb/
 │   ├── dashboard.html                    # 信息仪表板
 │   ├── about.html                        # 关于我们
 │   ├── proxy.php                         # API 代理
-│   ├── site-config.js                    # 站点功能配置（BGM/看板娘开关）
 │   ├── bgm/                              # 背景音乐（多文件夹）
 │   │   ├── bgm-manifest.json             # 自动生成的音乐清单
 │   │   └── AlbumName/                    # 每个子目录 = 一张专辑
@@ -125,22 +124,6 @@ scweb/
 └── README.md
 ```
 
-## ⚙️ 站点配置
-
-编辑 `src/site-config.js` 控制功能开关，修改后刷新页面即可生效：
-
-```js
-window.SITE_CONFIG = {
-    bgm: {
-        enabled:  true,   // BGM 播放器总开关（false 隐藏播放器）
-        autoPlay: true,   // 是否自动播放（false 需手动点击播放）
-    },
-    live2d: {
-        enabled:  true,   // 看板娘总开关（false 不加载任何 Live2D 资源）
-    },
-};
-```
-
 ## 🎵 背景音乐系统
 
 **Windows 用户：** 双击 `src/扫描BGM目录.bat` 一键扫描。
@@ -179,7 +162,6 @@ Live2DInit（编排层）
 - **音频**: Web Audio API 自动播放解锁
 - **3D**: Live2D Cubism SDK（Cubism 2 + 5）
 - **代码编辑**: CodeMirror 5（Mod 开发工具）
-- **配置**: 集中配置文件（`site-config.js`），一键开关功能模块
 - **部署**: GitHub Pages 自动部署（GitHub Actions）
 
 ## 📄 页面说明
