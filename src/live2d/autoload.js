@@ -252,9 +252,15 @@ const Live2DInit = (function () {
 })();
 
 /* ---- 启动 ---- */
-var _live2dCfg = (window.SITE_CONFIG && window.SITE_CONFIG.live2d) || {};
-if (_live2dCfg.enabled !== false) {
-    Live2DInit.boot();
-} else {
-    console.log('[Live2D] 已禁用 (site-config.js live2d.enabled = false)');
-}
+(function () {
+    function _cfg(key, fallback) {
+        try { var v = localStorage.getItem('settings_' + key); return v !== null ? v === 'true' : fallback; }
+        catch (_) { return fallback; }
+    }
+    var _live2dCfg = (window.SITE_CONFIG && window.SITE_CONFIG.live2d) || {};
+    if (_cfg('live2d_enabled', _live2dCfg.enabled !== false)) {
+        Live2DInit.boot();
+    } else {
+        console.log('[Live2D] 已禁用 (用户偏好或 site-config.js live2d.enabled = false)');
+    }
+})();

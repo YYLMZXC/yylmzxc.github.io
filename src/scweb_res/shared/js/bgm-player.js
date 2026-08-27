@@ -614,10 +614,14 @@ var BgmPlayer = (function () {
     }
 
     function init() {
-        /* 0. 读取站点配置 */
-        var cfg = (window.SITE_CONFIG && window.SITE_CONFIG.bgm) || {};
-        if (cfg.enabled === false) return;   // BGM 播放器已禁用，完全不初始化
-        var autoPlay = cfg.autoPlay !== false; // 默认自动播放
+        /* 0. 读取配置：用户偏好(localStorage) > 站点默认(site-config.js) */
+        function _cfg(key, fallback) {
+            try { var v = localStorage.getItem('settings_' + key); return v !== null ? v === 'true' : fallback; }
+            catch (_) { return fallback; }
+        }
+        var _bgmCfg = (window.SITE_CONFIG && window.SITE_CONFIG.bgm) || {};
+        if (!_cfg('bgm_enabled', _bgmCfg.enabled !== false)) return;   // BGM 已禁用
+        var autoPlay = _cfg('bgm_autoplay', _bgmCfg.autoPlay !== false);
 
         /* 1. 创建 DOM */
         BgmUI.create();

@@ -17,6 +17,7 @@ class App {
         this.themeManager = null;
         this.languageManager = null;
         this.siteInfoManager = null;
+        this.settingsManager = null;
         this.services = null;
     }
 
@@ -55,12 +56,22 @@ class App {
             this.siteInfoManager.init();
         }
 
+        // 设置管理器（BGM / Live2D 开关）
+        if (this.options.settings !== false && window.SettingsManager) {
+            this.settingsManager = new SettingsManager(this.dropdownManager);
+            const settingsDropdown = document.getElementById('settingsDropdown');
+            if (settingsDropdown) {
+                this.dropdownManager.register('settingsDropdown', settingsDropdown, '#settingsToggle');
+            }
+        }
+
         // 组装共享服务集合，供页面管理器构造注入
         this.services = {
             dropdownManager: this.dropdownManager,
             themeManager: this.themeManager,
             languageManager: this.languageManager,
             siteInfoManager: this.siteInfoManager,
+            settingsManager: this.settingsManager,
             utils: window.SCUtils
         };
 
