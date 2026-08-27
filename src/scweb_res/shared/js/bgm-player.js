@@ -614,6 +614,11 @@ var BgmPlayer = (function () {
     }
 
     function init() {
+        /* 0. 读取站点配置 */
+        var cfg = (window.SITE_CONFIG && window.SITE_CONFIG.bgm) || {};
+        if (cfg.enabled === false) return;   // BGM 播放器已禁用，完全不初始化
+        var autoPlay = cfg.autoPlay !== false; // 默认自动播放
+
         /* 1. 创建 DOM */
         BgmUI.create();
 
@@ -677,6 +682,8 @@ var BgmPlayer = (function () {
 
             // 预加载曲目（不播放）
             BgmAudio.load(idx, false);
+
+            if (!autoPlay) return;   // autoPlay=false：仅预加载，不播放
 
             // === 自动播放策略 ===
             // 第1层：尝试有声播放（部分浏览器直接允许）

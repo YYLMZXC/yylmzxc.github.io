@@ -10,7 +10,7 @@
 window.SITE_CONFIG = {
     bgm: {
         enabled:  true,   // BGM 播放器总开关
-        autoPlay: true,   // 是否自动播放
+        autoPlay: false,   // 是否自动播放
     },
     live2d: {
         enabled:  true,   // 看板娘总开关
