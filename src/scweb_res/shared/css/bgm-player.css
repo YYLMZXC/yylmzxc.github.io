@@ -1,9 +1,84 @@
 /**
  * 生存战争网 - BGM 背景音乐播放器
  * 侧边浮动音乐图标 + 展开式播放列表面板
+ * 支持 4 种主题：light / dark / wk-light / wk-dark
  */
 
-/* ===== 浮动音乐图标 ===== */
+/* ====================================================================
+ *  默认变量（亮色主题）
+ * ==================================================================== */
+:root {
+    --bgm-primary: #7c8cf0;
+    --bgm-secondary: #9b6fc7;
+    --bgm-shadow: rgba(124, 140, 240, 0.4);
+    --bgm-shadow-hover: rgba(102, 126, 234, 0.6);
+    --bgm-panel-bg: #fff;
+    --bgm-panel-border: #e9ecef;
+    --bgm-text: #333;
+    --bgm-text-secondary: #888;
+    --bgm-light-bg: #f8f9fa;
+    --bgm-accent-bg: rgba(102, 126, 234, 0.06);
+    --bgm-accent-bg-active: rgba(102, 126, 234, 0.1);
+    --bgm-divider: #e9ecef;
+}
+
+/* ====================================================================
+ *  暗色主题
+ * ==================================================================== */
+body.dark {
+    --bgm-primary: #8a9af2;
+    --bgm-secondary: #a87dd4;
+    --bgm-shadow: rgba(138, 154, 242, 0.3);
+    --bgm-shadow-hover: rgba(102, 126, 234, 0.5);
+    --bgm-panel-bg: #2d3748;
+    --bgm-panel-border: #4a5568;
+    --bgm-text: #e2e8f0;
+    --bgm-text-secondary: #a0aec0;
+    --bgm-light-bg: rgba(45, 55, 72, 0.6);
+    --bgm-accent-bg: rgba(102, 126, 234, 0.12);
+    --bgm-accent-bg-active: rgba(102, 126, 234, 0.2);
+    --bgm-divider: #4a5568;
+}
+
+/* ====================================================================
+ *  工坊亮色主题
+ * ==================================================================== */
+body.wk-light {
+    --bgm-primary: #6dc46d;
+    --bgm-secondary: #55aa55;
+    --bgm-shadow: rgba(109, 196, 109, 0.3);
+    --bgm-shadow-hover: rgba(85, 170, 85, 0.5);
+    --bgm-panel-bg: var(--wk-paper-elv);
+    --bgm-panel-border: var(--wk-border);
+    --bgm-text: var(--wk-text);
+    --bgm-text-secondary: var(--wk-text-2);
+    --bgm-light-bg: var(--wk-paper-soft);
+    --bgm-accent-bg: rgba(85, 170, 85, 0.1);
+    --bgm-accent-bg-active: rgba(85, 170, 85, 0.18);
+    --bgm-divider: var(--wk-divider);
+}
+
+/* ====================================================================
+ *  工坊暗色主题
+ * ==================================================================== */
+body.wk-dark {
+    --bgm-primary: #7ecf78;
+    --bgm-secondary: #69bb63;
+    --bgm-shadow: rgba(126, 207, 120, 0.3);
+    --bgm-shadow-hover: rgba(105, 187, 99, 0.5);
+    --bgm-panel-bg: var(--wk-dark-bg-elv);
+    --bgm-panel-border: var(--wk-border-dark);
+    --bgm-text: var(--wk-text-light);
+    --bgm-text-secondary: var(--wk-text-light-2);
+    --bgm-light-bg: var(--wk-dark-bg-soft);
+    --bgm-accent-bg: rgba(105, 187, 99, 0.12);
+    --bgm-accent-bg-active: rgba(105, 187, 99, 0.22);
+    --bgm-divider: var(--wk-divider-dark);
+}
+
+/* ====================================================================
+ *  浮动音乐图标
+ * ==================================================================== */
 .bgm-fab {
     position: fixed;
     right: 20px;
@@ -13,21 +88,21 @@
     height: 48px;
     border-radius: 50%;
     border: none;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, var(--bgm-primary), var(--bgm-secondary));
     color: #fff;
     font-size: 22px;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 4px 16px rgba(102, 126, 234, 0.4);
+    box-shadow: 0 4px 16px var(--bgm-shadow);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     outline: none;
 }
 
 .bgm-fab:hover {
     transform: scale(1.1);
-    box-shadow: 0 6px 24px rgba(102, 126, 234, 0.6);
+    box-shadow: 0 6px 24px var(--bgm-shadow-hover);
 }
 
 .bgm-fab.playing {
@@ -35,8 +110,8 @@
 }
 
 @keyframes bgmPulse {
-    0%, 100% { box-shadow: 0 4px 16px rgba(102, 126, 234, 0.4); }
-    50% { box-shadow: 0 6px 24px rgba(118, 75, 162, 0.6); }
+    0%, 100% { box-shadow: 0 4px 16px var(--bgm-shadow); }
+    50%      { box-shadow: 0 6px 24px var(--bgm-shadow-hover); }
 }
 
 .bgm-fab .bgm-icon {
@@ -48,7 +123,9 @@
     transform: rotate(135deg);
 }
 
-/* ===== 播放列表面板 ===== */
+/* ====================================================================
+ *  播放列表面板
+ * ==================================================================== */
 .bgm-panel {
     position: fixed;
     right: 20px;
@@ -56,10 +133,10 @@
     z-index: 8999;
     width: 300px;
     max-height: 420px;
-    background: var(--card-bg, #fff);
+    background: var(--bgm-panel-bg);
     border-radius: 16px;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
-    border: 1px solid var(--border-light, #e0e0e0);
+    border: 1px solid var(--bgm-panel-border);
     display: flex;
     flex-direction: column;
     opacity: 0;
@@ -78,28 +155,30 @@
 /* 面板头部 */
 .bgm-panel-header {
     padding: 14px 16px 10px;
-    border-bottom: 1px solid var(--border-light, #e0e0e0);
+    border-bottom: 1px solid var(--bgm-divider);
     flex-shrink: 0;
 }
 
 .bgm-panel-title {
     font-size: 14px;
     font-weight: 600;
-    color: var(--text-primary, #333);
+    color: var(--bgm-text);
     margin: 0 0 8px;
     display: flex;
     align-items: center;
     gap: 6px;
 }
 
-/* 当前播放信息（含封面） */
+/* ====================================================================
+ *  当前播放信息（含封面）
+ * ==================================================================== */
 .bgm-now-playing {
     display: flex;
     align-items: center;
     gap: 12px;
     padding: 12px 16px;
-    background: var(--light-bg, #f8f9fa);
-    border-bottom: 1px solid var(--border-light, #e0e0e0);
+    background: var(--bgm-light-bg);
+    border-bottom: 1px solid var(--bgm-divider);
     flex-shrink: 0;
 }
 
@@ -109,7 +188,7 @@
     border-radius: 10px;
     flex-shrink: 0;
     overflow: hidden;
-    background: var(--border-light, #e0e0e0);
+    background: var(--bgm-divider);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
     transition: border-radius 0.3s ease, box-shadow 0.3s ease;
 }
@@ -124,7 +203,7 @@
 .bgm-cover.spinning {
     animation: bgmSpin 4s linear infinite;
     border-radius: 50%;
-    box-shadow: 0 2px 12px rgba(102, 126, 234, 0.4);
+    box-shadow: 0 2px 12px var(--bgm-shadow);
 }
 
 @keyframes bgmSpin {
@@ -140,7 +219,7 @@
 .bgm-track-name {
     font-size: 13px;
     font-weight: 500;
-    color: var(--text-primary, #333);
+    color: var(--bgm-text);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -149,14 +228,16 @@
 
 .bgm-track-album {
     font-size: 11px;
-    color: var(--text-secondary, #888);
+    color: var(--bgm-text-secondary);
     margin: 2px 0 0;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
 }
 
-/* 进度条 */
+/* ====================================================================
+ *  进度条
+ * ==================================================================== */
 .bgm-progress-wrap {
     padding: 4px 16px 8px;
     flex-shrink: 0;
@@ -165,7 +246,7 @@
 .bgm-progress-bar {
     width: 100%;
     height: 4px;
-    background: var(--border-light, #ddd);
+    background: var(--bgm-divider);
     border-radius: 2px;
     cursor: pointer;
     position: relative;
@@ -174,7 +255,7 @@
 
 .bgm-progress-fill {
     height: 100%;
-    background: linear-gradient(90deg, #667eea, #764ba2);
+    background: linear-gradient(90deg, var(--bgm-primary), var(--bgm-secondary));
     border-radius: 2px;
     width: 0%;
     transition: width 0.1s linear;
@@ -189,11 +270,13 @@
     display: flex;
     justify-content: space-between;
     font-size: 10px;
-    color: var(--text-secondary, #999);
+    color: var(--bgm-text-secondary);
     margin-top: 3px;
 }
 
-/* 播放控制按钮 */
+/* ====================================================================
+ *  播放控制按钮
+ * ==================================================================== */
 .bgm-controls {
     display: flex;
     align-items: center;
@@ -206,7 +289,7 @@
 .bgm-ctrl-btn {
     border: none;
     background: transparent;
-    color: var(--text-primary, #555);
+    color: var(--bgm-text-secondary);
     font-size: 18px;
     cursor: pointer;
     width: 36px;
@@ -219,26 +302,28 @@
 }
 
 .bgm-ctrl-btn:hover {
-    background: rgba(102, 126, 234, 0.1);
-    color: #667eea;
+    background: var(--bgm-accent-bg);
+    color: var(--bgm-primary);
 }
 
 .bgm-ctrl-btn.bgm-play-btn {
     width: 44px;
     height: 44px;
     font-size: 22px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, var(--bgm-primary), var(--bgm-secondary));
     color: #fff;
-    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+    box-shadow: 0 2px 8px var(--bgm-shadow);
 }
 
 .bgm-ctrl-btn.bgm-play-btn:hover {
     transform: scale(1.08);
-    box-shadow: 0 4px 16px rgba(102, 126, 234, 0.5);
+    box-shadow: 0 4px 16px var(--bgm-shadow-hover);
     color: #fff;
 }
 
-/* 音量控制 */
+/* ====================================================================
+ *  音量控制
+ * ==================================================================== */
 .bgm-volume-wrap {
     display: flex;
     align-items: center;
@@ -249,7 +334,7 @@
 
 .bgm-volume-icon {
     font-size: 14px;
-    color: var(--text-secondary, #888);
+    color: var(--bgm-text-secondary);
     cursor: pointer;
     flex-shrink: 0;
 }
@@ -259,7 +344,7 @@
     -webkit-appearance: none;
     appearance: none;
     height: 4px;
-    background: var(--border-light, #ddd);
+    background: var(--bgm-divider);
     border-radius: 2px;
     outline: none;
     cursor: pointer;
@@ -270,7 +355,7 @@
     width: 14px;
     height: 14px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #667eea, #764ba2);
+    background: linear-gradient(135deg, var(--bgm-primary), var(--bgm-secondary));
     cursor: pointer;
     box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
 }
@@ -279,13 +364,15 @@
     width: 14px;
     height: 14px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #667eea, #764ba2);
+    background: linear-gradient(135deg, var(--bgm-primary), var(--bgm-secondary));
     cursor: pointer;
     border: none;
     box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
 }
 
-/* 播放列表 */
+/* ====================================================================
+ *  播放列表
+ * ==================================================================== */
 .bgm-playlist {
     flex: 1;
     overflow-y: auto;
@@ -293,18 +380,9 @@
     min-height: 0;
 }
 
-.bgm-playlist::-webkit-scrollbar {
-    width: 4px;
-}
-
-.bgm-playlist::-webkit-scrollbar-track {
-    background: transparent;
-}
-
-.bgm-playlist::-webkit-scrollbar-thumb {
-    background: var(--border-light, #ccc);
-    border-radius: 2px;
-}
+.bgm-playlist::-webkit-scrollbar       { width: 4px; }
+.bgm-playlist::-webkit-scrollbar-track { background: transparent; }
+.bgm-playlist::-webkit-scrollbar-thumb { background: var(--bgm-divider); border-radius: 2px; }
 
 /* 专辑分组标题 */
 .bgm-playlist-group {
@@ -314,10 +392,10 @@
     padding: 10px 16px 4px;
     font-size: 11px;
     font-weight: 600;
-    color: var(--text-secondary, #999);
+    color: var(--bgm-text-secondary);
     text-transform: uppercase;
     letter-spacing: 0.03em;
-    border-top: 1px solid var(--border-light, #eee);
+    border-top: 1px solid var(--bgm-divider);
     margin-top: 4px;
 }
 
@@ -333,7 +411,7 @@
     border-radius: 4px;
     object-fit: cover;
     flex-shrink: 0;
-    background: var(--border-light, #e0e0e0);
+    background: var(--bgm-divider);
 }
 
 .bgm-playlist-group-name {
@@ -347,7 +425,7 @@
     padding: 20px 16px;
     text-align: center;
     font-size: 13px;
-    color: var(--text-secondary, #aaa);
+    color: var(--bgm-text-secondary);
 }
 
 .bgm-playlist-item {
@@ -358,7 +436,7 @@
     cursor: pointer;
     transition: background 0.15s ease;
     font-size: 13px;
-    color: var(--text-primary, #333);
+    color: var(--bgm-text);
 }
 
 .bgm-playlist-cover {
@@ -367,29 +445,29 @@
     border-radius: 6px;
     object-fit: cover;
     flex-shrink: 0;
-    background: var(--border-light, #e0e0e0);
+    background: var(--bgm-divider);
 }
 
 .bgm-playlist-item:hover {
-    background: rgba(102, 126, 234, 0.06);
+    background: var(--bgm-accent-bg);
 }
 
 .bgm-playlist-item.active {
-    background: rgba(102, 126, 234, 0.1);
-    color: #667eea;
+    background: var(--bgm-accent-bg-active);
+    color: var(--bgm-primary);
     font-weight: 500;
 }
 
 .bgm-playlist-item .bgm-item-index {
     font-size: 11px;
-    color: var(--text-secondary, #aaa);
+    color: var(--bgm-text-secondary);
     width: 18px;
     text-align: center;
     flex-shrink: 0;
 }
 
 .bgm-playlist-item.active .bgm-item-index {
-    color: #667eea;
+    color: var(--bgm-primary);
 }
 
 .bgm-playlist-item .bgm-item-name {
@@ -399,23 +477,79 @@
     text-overflow: ellipsis;
 }
 
-/* 工坊像素风格适配 */
+/* ====================================================================
+ *  工坊像素风格特殊处理
+ * ==================================================================== */
 body.wk-light .bgm-fab,
 body.wk-dark .bgm-fab {
-    border-radius: 8px;
+    border-radius: 50% !important;
+    font-family: var(--wk-pixel-font);
+    box-shadow: 3px 3px 0 rgba(49, 46, 38, 0.3);
+}
+
+body.wk-light .bgm-fab:hover,
+body.wk-dark .bgm-fab:hover {
+    box-shadow: 4px 4px 0 rgba(49, 46, 38, 0.4);
+}
+
+body.wk-dark .bgm-fab {
+    box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.4);
+}
+
+body.wk-dark .bgm-fab:hover {
+    box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.5);
 }
 
 body.wk-light .bgm-panel,
 body.wk-dark .bgm-panel {
-    border-radius: 8px;
+    border-radius: 12px;
+    border: 2px solid var(--bgm-panel-border);
+    box-shadow: var(--wk-hard-shadow);
+}
+
+body.wk-dark .bgm-panel {
+    box-shadow: var(--wk-hard-shadow-dark);
 }
 
 body.wk-light .bgm-ctrl-btn.bgm-play-btn,
 body.wk-dark .bgm-ctrl-btn.bgm-play-btn {
-    border-radius: 8px;
+    border-radius: 50% !important;
 }
 
-/* 响应式 */
+body.wk-light .bgm-cover,
+body.wk-dark .bgm-cover {
+    border-radius: 10px !important;
+}
+
+body.wk-light .bgm-playlist-group-cover,
+body.wk-dark .bgm-playlist-group-cover {
+    border-radius: 4px;
+}
+
+body.wk-light .bgm-playlist-cover,
+body.wk-dark .bgm-playlist-cover {
+    border-radius: 6px;
+}
+
+body.wk-light .bgm-volume-slider::-webkit-slider-thumb,
+body.wk-dark .bgm-volume-slider::-webkit-slider-thumb {
+    border-radius: 50% !important;
+}
+
+body.wk-light .bgm-volume-slider::-moz-range-thumb,
+body.wk-dark .bgm-volume-slider::-moz-range-thumb {
+    border-radius: 50% !important;
+}
+
+body.wk-light .bgm-panel-title,
+body.wk-dark .bgm-panel-title {
+    font-family: var(--wk-pixel-font);
+    font-weight: 800;
+}
+
+/* ====================================================================
+ *  响应式
+ * ==================================================================== */
 @media (max-width: 480px) {
     .bgm-panel {
         right: 10px;
