@@ -504,16 +504,29 @@ var BgmUI = (function () {
                 return Math.max(0, Math.min(1, x / rect.width));
             }
 
+            function formatTime(s) {
+                if (isNaN(s) || !isFinite(s)) return '0:00';
+                var m = Math.floor(s / 60);
+                var sec = Math.floor(s % 60);
+                return m + ':' + (sec < 10 ? '0' : '') + sec;
+            }
+
             bar.addEventListener('click', function (e) {
                 e.stopPropagation();
-                callbacks.onSeek(getSeekPct(e));
+                var pct = getSeekPct(e);
+                var targetTime = pct * BgmAudio.duration;
+                console.log('[BGM] 进度条点击: ' + (pct * 100).toFixed(1) + '% → ' + formatTime(targetTime) + ' / ' + formatTime(BgmAudio.duration));
+                callbacks.onSeek(pct);
             });
 
             // 鼠标拖拽
             bar.addEventListener('mousedown', function (e) {
                 e.preventDefault();
                 dragging = true;
-                callbacks.onSeek(getSeekPct(e));
+                var pct = getSeekPct(e);
+                var targetTime = pct * BgmAudio.duration;
+                console.log('[BGM] 拖拽开始(鼠标): ' + (pct * 100).toFixed(1) + '% → ' + formatTime(targetTime));
+                callbacks.onSeek(pct);
                 document.addEventListener('mousemove', onDragMove);
                 document.addEventListener('mouseup', onDragEnd);
             });
@@ -521,18 +534,32 @@ var BgmUI = (function () {
             // 触摸拖拽
             bar.addEventListener('touchstart', function (e) {
                 dragging = true;
-                callbacks.onSeek(getSeekPct(e));
+                var pct = getSeekPct(e);
+                var targetTime = pct * BgmAudio.duration;
+                console.log('[BGM] 拖拽开始(触摸): ' + (pct * 100).toFixed(1) + '% → ' + formatTime(targetTime));
+                callbacks.onSeek(pct);
                 document.addEventListener('touchmove', onDragMove, { passive: false });
                 document.addEventListener('touchend', onDragEnd);
             }, { passive: true });
 
+            var _logThrottle = 0;
             function onDragMove(e) {
                 if (!dragging) return;
                 e.preventDefault();
-                callbacks.onSeek(getSeekPct(e));
+                var pct = getSeekPct(e);
+                // 节流日志：每 200ms 最多输出一次
+                var now = Date.now();
+                if (now - _logThrottle > 200) {
+                    var targetTime = pct * BgmAudio.duration;
+                    console.log('[BGM] 拖拽中: ' + (pct * 100).toFixed(1) + '% → ' + formatTime(targetTime));
+                    _logThrottle = now;
+                }
+                callbacks.onSeek(pct);
             }
 
             function onDragEnd() {
+                var pct = getSeekPct({ clientX: 0 }); // 简化，实际值已在最后一次 onDragMove 中设置
+                console.log('[BGM] 拖拽结束');
                 dragging = false;
                 document.removeEventListener('mousemove', onDragMove);
                 document.removeEventListener('mouseup', onDragEnd);
@@ -579,6 +606,13 @@ var BgmUI = (function () {
  *  职责：协调 BgmStore / BgmAudio / BgmUI，处理初始化与自动播放
  * ================================================================ */
 var BgmPlayer = (function () {
+    function formatTime(s) {
+        if (isNaN(s) || !isFinite(s)) return '0:00';
+        var m = Math.floor(s / 60);
+        var sec = Math.floor(s % 60);
+        return m + ':' + (sec < 10 ? '0' : '') + sec;
+    }
+
     function init() {
         /* 1. 创建 DOM */
         BgmUI.create();
@@ -621,7 +655,10 @@ var BgmPlayer = (function () {
                 }
             },
             onSeek: function (pct) {
-                BgmAudio.currentTime = pct * BgmAudio.duration;
+                var targetTime = pct * BgmAudio.duration;
+                var currentTime = BgmAudio.currentTime;
+                console.log('[BGM] seek执行: ' + formatTime(currentTime) + ' → ' + formatTime(targetTime) + ' (差值: ' + (targetTime - currentTime > 0 ? '+' : '') + (targetTime - currentTime).toFixed(1) + 's)');
+                BgmAudio.currentTime = targetTime;
             }
         });
 
