@@ -14,9 +14,10 @@ class ThemeManager {
      */
     static VALID_THEMES = ['light', 'dark', 'wk-light', 'wk-dark'];
 
-    constructor() {
+    constructor(dropdownManager) {
         this.currentTheme = 'wk-light';
         this.isTransitioning = false;
+        this._dropdownManager = dropdownManager || null;
         this.init();
     }
 
@@ -25,7 +26,7 @@ class ThemeManager {
      */
     init() {
         this.setInitialTheme();
-        this.bindEventListeners();
+        this.bindEventListeners(this._dropdownManager);
         console.log(`[ThemeManager] 初始化完成，当前主题：${this.currentTheme}`);
     }
 
@@ -200,29 +201,25 @@ class ThemeManager {
 
     /**
      * 绑定主题按钮的点击事件（事件委托）
+     * @param {DropdownManager} [dropdownManager] - 下拉菜单管理器（可选，提供互斥逻辑）
      */
-    bindEventListeners() {
+    bindEventListeners(dropdownManager) {
         document.addEventListener('click', (e) => {
             // 下拉菜单切换
             if (e.target.id === 'themeToggle' || e.target.closest('#themeToggle')) {
-                const dropdown = document.getElementById('themeDropdown');
-                if (dropdown) dropdown.classList.toggle('open');
-                // 关闭语言下拉
-                const langDropdown = document.getElementById('langDropdown');
-                if (langDropdown) langDropdown.classList.remove('open');
+                if (dropdownManager) {
+                    dropdownManager.toggle('themeDropdown');
+                }
                 return;
             }
             // 选择主题
             if (e.target.matches('[data-theme]')) {
                 this.switchTheme(e.target.getAttribute('data-theme'));
-                // 关闭下拉
-                const dropdown = document.getElementById('themeDropdown');
-                if (dropdown) dropdown.classList.remove('open');
+                if (dropdownManager) {
+                    dropdownManager.closeAll();
+                }
                 return;
             }
-            // 点击其他区域关闭下拉
-            const dropdown = document.getElementById('themeDropdown');
-            if (dropdown) dropdown.classList.remove('open');
         });
     }
 }

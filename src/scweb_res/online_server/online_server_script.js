@@ -16,7 +16,6 @@ class OnlineServerManager {
         this.themeManager = app.themeManager;
         this.languageManager = app.languageManager;
         this.siteInfoManager = app.siteInfoManager;
-        this.serverConfig = app.languageManager.config;
 
         // API 配置
         this.apiUrl = 'https://api.sckey.net/server/serverlist';
@@ -150,8 +149,7 @@ class OnlineServerManager {
      */
     getTranslations(lang) {
         const langToUse = lang || (this.languageManager ? this.languageManager.currentLang : 'zh');
-        const config = this.serverConfig;
-        return config.translations[langToUse] || config.translations[config.default];
+        return this.languageManager.getTranslations(langToUse);
     }
 
     /**

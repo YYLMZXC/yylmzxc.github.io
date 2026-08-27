@@ -27,15 +27,26 @@ class App {
     init() {
         console.log('[App] 开始初始化...');
 
-        // 主题管理器（无依赖）
+        // 下拉菜单管理器（消除 ThemeManager 与 LanguageManager 的互斥耦合）
+        this.dropdownManager = new DropdownManager();
+
+        // 主题管理器（注入下拉菜单管理器）
         if (this.options.theme !== false) {
-            this.themeManager = new ThemeManager();
+            this.themeManager = new ThemeManager(this.dropdownManager);
+            const themeDropdown = document.getElementById('themeDropdown');
+            if (themeDropdown) {
+                this.dropdownManager.register('themeDropdown', themeDropdown, '#themeToggle');
+            }
         }
 
-        // 语言管理器（依赖语言配置，默认启用）
+        // 语言管理器（注入语言配置和下拉菜单管理器）
         if (this.options.language !== false && this.options.languageConfig) {
-            this.languageManager = new LanguageManager(this.options.languageConfig);
+            this.languageManager = new LanguageManager(this.options.languageConfig, this.dropdownManager);
             this.languageManager.init();
+            const langDropdown = document.getElementById('langDropdown');
+            if (langDropdown) {
+                this.dropdownManager.register('langDropdown', langDropdown, '#langToggle');
+            }
         }
 
         // 站点信息管理器（依赖语言管理器）
@@ -46,6 +57,7 @@ class App {
 
         // 组装共享服务集合，供页面管理器构造注入
         this.services = {
+            dropdownManager: this.dropdownManager,
             themeManager: this.themeManager,
             languageManager: this.languageManager,
             siteInfoManager: this.siteInfoManager,

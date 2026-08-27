@@ -134,7 +134,7 @@ class ServerListView {
      * @returns {string} HTML 字符串
      */
     generateServerItem(server, index) {
-        const networkType = window.SCUtils.getNetworkType(server.ip);
+        const networkType = window.SCServerUtils.getNetworkType(server.ip);
         const hasPort = server.ip.includes(':');
         const displayIp = hasPort ? server.ip : server.ip + ':28887';
         const serverId = server.id || `server-${index}`;

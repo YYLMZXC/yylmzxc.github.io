@@ -12,10 +12,11 @@ class LanguageManager {
      * @param {string} config.storageKey - localStorage 存储键名
      * @param {Object} config.translations - 翻译文本对象
      */
-    constructor(config) {
+    constructor(config, dropdownManager) {
         this.currentLang = config.default || 'zh';
         this.config = config;
         this.storageKey = config.storageKey || 'preferredLanguage';
+        this._dropdownManager = dropdownManager || null;
     }
 
     /**
@@ -28,6 +29,14 @@ class LanguageManager {
         this.updateLanguageButtons();
         
         console.log(`[LanguageManager] 初始化完成，当前语言：${this.currentLang}`);
+    }
+
+    /**
+     * 设置下拉菜单管理器（延迟注入，用于解决循环依赖）
+     * @param {DropdownManager} dropdownManager
+     */
+    setDropdownManager(dropdownManager) {
+        this._dropdownManager = dropdownManager;
     }
 
     /**
@@ -86,6 +95,16 @@ class LanguageManager {
      */
     saveLanguage(lang) {
         localStorage.setItem(this.storageKey, lang);
+    }
+
+    /**
+     * 获取指定语言的完整翻译对象
+     * @param {string} [lang] - 语言代码，默认使用当前语言
+     * @returns {Object} 翻译对象
+     */
+    getTranslations(lang) {
+        lang = lang || this.currentLang;
+        return this.config.translations[lang] || this.config.translations[this.config.default];
     }
 
     /**
@@ -253,24 +272,19 @@ class LanguageManager {
         document.addEventListener('click', (e) => {
             // 下拉菜单切换
             if (e.target.id === 'langToggle' || e.target.closest('#langToggle')) {
-                const dropdown = document.getElementById('langDropdown');
-                if (dropdown) dropdown.classList.toggle('open');
-                // 关闭主题下拉
-                const themeDropdown = document.getElementById('themeDropdown');
-                if (themeDropdown) themeDropdown.classList.remove('open');
+                if (this._dropdownManager) {
+                    this._dropdownManager.toggle('langDropdown');
+                }
                 return;
             }
             // 选择语言
             if (e.target.matches('[data-lang]')) {
                 this.switchLanguage(e.target.getAttribute('data-lang'));
-                // 关闭下拉
-                const dropdown = document.getElementById('langDropdown');
-                if (dropdown) dropdown.classList.remove('open');
+                if (this._dropdownManager) {
+                    this._dropdownManager.closeAll();
+                }
                 return;
             }
-            // 点击其他区域关闭下拉
-            const dropdown = document.getElementById('langDropdown');
-            if (dropdown) dropdown.classList.remove('open');
         });
     }
 }

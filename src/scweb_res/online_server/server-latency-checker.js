@@ -73,7 +73,7 @@ class ServerLatencyChecker {
 
         if (!ip) return;
 
-        const { host, port } = window.SCUtils.parseIpPort(ip);
+        const { host, port } = window.SCServerUtils.parseIpPort(ip);
         const pingUrl = `${this.pingUrl}?host=${encodeURIComponent(host)}&port=${encodeURIComponent(port)}`;
         const serverItem = latencyElement.closest('.server-item');
         const statusElement = serverItem ? serverItem.querySelector('.server-status') : null;
