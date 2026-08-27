@@ -381,3 +381,16 @@ body {
         font-size: 11px;
     }
 }
+
+/* ===== Live2D 看板娘响应式 ===== */
+#waifu {
+    transform: scale(0.4);
+    transform-origin: left bottom;
+}
+
+@media (max-width: 767px) {
+    #waifu {
+        transform: scale(0.3);
+        transform-origin: left bottom;
+    }
+}
