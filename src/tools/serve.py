@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 生存战争网 - 本地开发服务器
-处理大文件传输时的 ConnectionResetError（浏览器中断连接）
+开发环境禁用缓存
 """
 import http.server
 import socketserver
@@ -11,7 +11,7 @@ import sys
 PORT = int(sys.argv[1]) if len(sys.argv) > 1 else 8000
 
 class DevHTTPHandler(http.server.SimpleHTTPRequestHandler):
-    """开发服务器：抑制大文件传输错误 + 禁用缓存"""
+    """开发服务器：禁用缓存"""
 
     def end_headers(self):
         # 开发环境禁用缓存，确保每次刷新获取最新文件
@@ -19,12 +19,6 @@ class DevHTTPHandler(http.server.SimpleHTTPRequestHandler):
         self.send_header('Pragma', 'no-cache')
         self.send_header('Expires', '0')
         super().end_headers()
-
-    def copyfile(self, source, outputfile):
-        try:
-            super().copyfile(source, outputfile)
-        except (ConnectionResetError, BrokenPipeError, ConnectionAbortedError):
-            pass  # 客户端提前断开连接（如大音频文件 seek），静默忽略
 
 os.chdir(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
