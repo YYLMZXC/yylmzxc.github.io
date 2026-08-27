@@ -242,6 +242,7 @@ const AboutLanguageConfig = {
      */
     navigation: {
         tools: [
+            { title: 'links.dashboard', url: 'dashboard.html', external: false },
             { title: 'links.photoroomBg', url: 'https://www.photoroom.com/zh/tools/transparent-background', external: true },
             { title: 'links.blockbench', url: 'https://web.blockbench.net/', external: true },
             { title: 'links.meshReader', url: 'tools/mesh-reader.html', external: false },
@@ -265,7 +266,6 @@ const AboutLanguageConfig = {
             { title: 'links.faxianAi', url: 'https://www.faxianai.com/', external: true }
         ],
         other: [
-            { title: 'links.dashboard', url: 'dashboard.html', external: false },
             { title: 'links.deepseek', url: 'https://chat.deepseek.com/', external: true },
             { title: 'links.waybackMachine', url: 'https://web.archive.org/', external: true },
             { title: 'links.yylmzxcPages', url: 'https://yylmzxc.github.io', external: true },
