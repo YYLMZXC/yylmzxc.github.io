@@ -139,10 +139,13 @@
     margin: 0;
 }
 
-.bgm-track-artist {
+.bgm-track-album {
     font-size: 11px;
     color: var(--text-secondary, #888);
     margin: 2px 0 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 /* 进度条 */
@@ -293,6 +296,50 @@
 .bgm-playlist::-webkit-scrollbar-thumb {
     background: var(--border-light, #ccc);
     border-radius: 2px;
+}
+
+/* 专辑分组标题 */
+.bgm-playlist-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px 4px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-secondary, #999);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    border-top: 1px solid var(--border-light, #eee);
+    margin-top: 4px;
+}
+
+.bgm-playlist-group:first-child {
+    border-top: none;
+    margin-top: 0;
+    padding-top: 6px;
+}
+
+.bgm-playlist-group-cover {
+    width: 22px;
+    height: 22px;
+    border-radius: 4px;
+    object-fit: cover;
+    flex-shrink: 0;
+    background: var(--border-light, #e0e0e0);
+}
+
+.bgm-playlist-group-name {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* 空列表提示 */
+.bgm-playlist-empty {
+    padding: 20px 16px;
+    text-align: center;
+    font-size: 13px;
+    color: var(--text-secondary, #aaa);
 }
 
 .bgm-playlist-item {

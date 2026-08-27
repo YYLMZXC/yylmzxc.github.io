@@ -1,0 +1,50 @@
+[
+  {
+    "name": "LoveColoredIllusionPapillonOST",
+    "cover": "./bgm/LoveColoredIllusionPapillonOST/Main.jpg",
+    "tracks": [
+      {
+        "src": "./bgm/LoveColoredIllusionPapillonOST/01.无意识定格.mp3",
+        "name": "01.无意识定格"
+      },
+      {
+        "src": "./bgm/LoveColoredIllusionPapillonOST/02.心悸恋语Whisper.mp3",
+        "name": "02.心悸恋语Whisper"
+      },
+      {
+        "src": "./bgm/LoveColoredIllusionPapillonOST/03.献给你的荆棘之歌(Remix).mp3",
+        "name": "03.献给你的荆棘之歌(Remix)"
+      },
+      {
+        "src": "./bgm/LoveColoredIllusionPapillonOST/04.无意识定格(Instrumental).mp3",
+        "name": "04.无意识定格(Instrumental)"
+      },
+      {
+        "src": "./bgm/LoveColoredIllusionPapillonOST/05.心悸恋语Whisper(Instrumental).mp3",
+        "name": "05.心悸恋语Whisper(Instrumental)"
+      },
+      {
+        "src": "./bgm/LoveColoredIllusionPapillonOST/06.献给你的荆棘之歌(Remix)(Instrumental).mp3",
+        "name": "06.献给你的荆棘之歌(Remix)(Instrumental)"
+      }
+    ]
+  },
+  {
+    "name": "RoseIdolOST",
+    "cover": "./bgm/RoseIdolOST/Main.png",
+    "tracks": [
+      {
+        "src": "./bgm/RoseIdolOST/蔷薇偶像 (Live at @Gamepulse武道馆).mp3",
+        "name": "蔷薇偶像 (Live at @Gamepulse武道馆)"
+      },
+      {
+        "src": "./bgm/RoseIdolOST/献给你的荆棘之歌(Acoustic.ver).mp3",
+        "name": "献给你的荆棘之歌(Acoustic.ver)"
+      },
+      {
+        "src": "./bgm/RoseIdolOST/小石DISCO.wav",
+        "name": "小石DISCO"
+      }
+    ]
+  }
+]

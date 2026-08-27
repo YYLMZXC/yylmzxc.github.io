@@ -8,6 +8,9 @@
  * │  ├─ BgmAudio  — 音频引擎（播放/暂停/切歌/音量）│
  * │  └─ BgmUI     — 界面渲染（DOM 构建/更新）       │
  * └─────────────────────────────────────────────────┘
+ *
+ * 支持多文件夹 BGM，通过 bgm-manifest.json 自动识别目录
+ * 新增音乐：运行 node tools/bgm-scan.mjs 重新生成清单
  */
 ;(function () {
 'use strict';
@@ -30,7 +33,6 @@ var BgmStore = {
         try { localStorage.setItem(this._NS + key, String(value)); } catch (_) {}
     },
 
-    /* 便捷方法 */
     getVolume:  function ()  { return parseInt(this.get('volume', '70'), 10); },
     setVolume:  function (v) { this.set('volume', v); },
     getTrackIdx: function ()  { return parseInt(this.get('track', '0'), 10); },
@@ -44,37 +46,59 @@ var BgmStore = {
  * ================================================================ */
 var BgmAudio = (function () {
     var DEFAULT_COVER = './scweb_res/sczzw.png';
+    var MANIFEST_URL = './bgm/bgm-manifest.json';
 
-    var TRACKS = [
-        { src: './bgm/蔷薇偶像 (Live at @Gamepulse武道馆).mp3', name: '蔷薇偶像 (Live at @Gamepulse武道馆)', img: '' },
-        { src: './bgm/小石DISCO.wav',                          name: '小石DISCO',                          img: '' },
-        { src: './bgm/献给你的荆棘之歌(Acoustic.ver).mp3',      name: '献给你的荆棘之歌 (Acoustic.ver)',      img: '' }
-    ];
-
-    var _audio    = new Audio();
-    var _index    = 0;
-    var _playing  = false;
+    var _albums    = [];       // 原始专辑数据
+    var _flatTracks = [];      // 扁平化后的播放列表（带 album 元数据）
+    var _audio     = new Audio();
+    var _index     = 0;
+    var _playing   = false;
     var _mutedByUser = false;
 
     _audio.preload = 'auto';
     _audio.loop    = false;
 
-    /* ---------- 回调注册 ---------- */
-    var _onPlayStateChange = null;  // function(playing)
-    var _onTrackChange     = null;  // function(index, track)
-    var _onTimeUpdate      = null;  // function(currentTime, duration)
-    var _onEnded           = null;  // function()
+    /* ---------- 回调 ---------- */
+    var _onPlayStateChange = null;
+    var _onTrackChange     = null;
+    var _onTimeUpdate      = null;
+    var _onEnded           = null;
+    var _onLoad            = null;  // manifest 加载完成
+
+    /* ---------- 扁平化专辑 → 播放列表 ---------- */
+    function _flattenAlbums(albums) {
+        var list = [];
+        for (var a = 0; a < albums.length; a++) {
+            var album = albums[a];
+            for (var t = 0; t < album.tracks.length; t++) {
+                var track = album.tracks[t];
+                list.push({
+                    src:   track.src,
+                    name:  track.name,
+                    album: album.name,
+                    cover: album.cover || DEFAULT_COVER
+                });
+            }
+        }
+        return list;
+    }
 
     return {
         /* --- 属性 --- */
-        tracks: TRACKS,
-        get index()    { return _index; },
-        get playing()  { return _playing; },
-        get muted()    { return _audio.muted; },
+        DEFAULT_COVER: DEFAULT_COVER,
+        get albums()     { return _albums; },
+        get flatTracks() { return _flatTracks; },
+        get index()      { return _index; },
+        get playing()    { return _playing; },
+        get muted()      { return _audio.muted; },
         get mutedByUser() { return _mutedByUser; },
-        get duration() { return _audio.duration || 0; },
+        get duration()   { return _audio.duration || 0; },
         get currentTime() { return _audio.currentTime || 0; },
         set currentTime(t) { _audio.currentTime = t; },
+
+        currentTrack: function () {
+            return _flatTracks[_index] || null;
+        },
 
         /* --- 回调绑定 --- */
         on: function (event, fn) {
@@ -82,17 +106,41 @@ var BgmAudio = (function () {
             if (event === 'trackChange') _onTrackChange = fn;
             if (event === 'timeUpdate')  _onTimeUpdate = fn;
             if (event === 'ended')       _onEnded = fn;
+            if (event === 'load')        _onLoad = fn;
+        },
+
+        /* --- 加载清单 --- */
+        loadManifest: function () {
+            return fetch(MANIFEST_URL + '?v=' + Date.now())
+                .then(function (res) {
+                    if (!res.ok) throw new Error(res.status);
+                    return res.json();
+                })
+                .then(function (data) {
+                    _albums = data;
+                    _flatTracks = _flattenAlbums(data);
+                    if (_onLoad) _onLoad(_albums, _flatTracks);
+                    return _flatTracks;
+                })
+                .catch(function (err) {
+                    console.warn('[BGM] 清单加载失败:', err);
+                    _albums = [];
+                    _flatTracks = [];
+                    return [];
+                });
         },
 
         /* --- 核心操作 --- */
         load: function (idx, autoplay) {
-            if (idx < 0 || idx >= TRACKS.length) idx = 0;
+            if (_flatTracks.length === 0) return;
+            if (idx < 0 || idx >= _flatTracks.length) idx = 0;
             _index = idx;
-            _audio.src = TRACKS[idx].src;
+            var track = _flatTracks[idx];
+            _audio.src = track.src;
             _audio.load();
 
             BgmStore.setTrackIdx(idx);
-            if (_onTrackChange) _onTrackChange(idx, TRACKS[idx]);
+            if (_onTrackChange) _onTrackChange(idx, track);
 
             if (autoplay) this.play();
         },
@@ -115,11 +163,13 @@ var BgmAudio = (function () {
         },
 
         next: function () {
-            this.load((_index + 1) % TRACKS.length, true);
+            if (_flatTracks.length === 0) return;
+            this.load((_index + 1) % _flatTracks.length, true);
         },
 
         prev: function () {
-            this.load((_index - 1 + TRACKS.length) % TRACKS.length, true);
+            if (_flatTracks.length === 0) return;
+            this.load((_index - 1 + _flatTracks.length) % _flatTracks.length, true);
         },
 
         /* --- 音量 --- */
@@ -157,7 +207,7 @@ var BgmAudio = (function () {
             }
         },
 
-        /* --- 内部事件绑定（由 init 调用一次） --- */
+        /* --- 内部事件绑定 --- */
         _bindAudioEvents: function () {
             var self = this;
             _audio.addEventListener('timeupdate', function () {
@@ -188,6 +238,7 @@ var BgmUI = (function () {
     var _fab   = null;
     var _panel = null;
     var _panelOpen = false;
+    var _defaultCover = BgmAudio.DEFAULT_COVER;
 
     /* ---------- DOM 构建 ---------- */
     function create() {
@@ -205,9 +256,10 @@ var BgmUI = (function () {
                 '<div class="bgm-panel-title">🎵 背景音乐</div>' +
             '</div>' +
             '<div class="bgm-now-playing">' +
-                '<img class="bgm-cover" id="bgmCover" src="' + DEFAULT_COVER + '" alt="封面" draggable="false">' +
+                '<img class="bgm-cover" id="bgmCover" src="' + _defaultCover + '" alt="封面" draggable="false">' +
                 '<div class="bgm-now-playing-info">' +
                     '<p class="bgm-track-name" id="bgmTrackName">未播放</p>' +
+                    '<p class="bgm-track-album" id="bgmTrackAlbum"></p>' +
                 '</div>' +
             '</div>' +
             '<div class="bgm-progress-wrap">' +
@@ -232,7 +284,7 @@ var BgmUI = (function () {
         document.body.appendChild(_panel);
     }
 
-    /* ---------- 更新方法（纯展示，无逻辑） ---------- */
+    /* ---------- 更新方法 ---------- */
     function updatePlayBtn(playing) {
         var btn = document.getElementById('bgmPlayBtn');
         if (btn) btn.textContent = playing ? '⏸' : '▶';
@@ -242,14 +294,19 @@ var BgmUI = (function () {
     function updateCover(imgSrc, playing) {
         var el = document.getElementById('bgmCover');
         if (!el) return;
-        el.src = imgSrc || DEFAULT_COVER;
-        el.onerror = function () { this.src = DEFAULT_COVER; };
+        el.src = imgSrc || _defaultCover;
+        el.onerror = function () { this.src = _defaultCover; };
         el.classList.toggle('spinning', playing);
     }
 
-    function updateTrackName(name) {
-        var el = document.getElementById('bgmTrackName');
-        if (el) el.textContent = name || '未播放';
+    function updateTrackInfo(track) {
+        var nameEl = document.getElementById('bgmTrackName');
+        var albumEl = document.getElementById('bgmTrackAlbum');
+        if (nameEl) nameEl.textContent = track ? track.name : '未播放';
+        if (albumEl) {
+            albumEl.textContent = (track && track.album) ? track.album : '';
+            albumEl.style.display = (track && track.album) ? '' : 'none';
+        }
     }
 
     function updateProgress(currentTime, duration) {
@@ -263,17 +320,41 @@ var BgmUI = (function () {
         if (tot)  tot.textContent  = _fmtTime(duration);
     }
 
-    function renderPlaylist(tracks, activeIdx, playing) {
+    /**
+     * 渲染播放列表（含专辑分组标题）
+     * @param {Array} flatTracks  扁平化播放列表
+     * @param {number} activeIdx  当前播放索引
+     * @param {boolean} playing   是否正在播放
+     */
+    function renderPlaylist(flatTracks, activeIdx, playing) {
         var list = document.getElementById('bgmPlaylist');
         if (!list) return;
+
+        if (flatTracks.length === 0) {
+            list.innerHTML = '<div class="bgm-playlist-empty">暂无音乐</div>';
+            return;
+        }
+
         var html = '';
-        for (var i = 0; i < tracks.length; i++) {
+        var lastAlbum = '';
+
+        for (var i = 0; i < flatTracks.length; i++) {
+            var track = flatTracks[i];
             var isActive = i === activeIdx;
-            var coverSrc = tracks[i].img || DEFAULT_COVER;
+
+            // 专辑分组标题
+            if (track.album !== lastAlbum) {
+                lastAlbum = track.album;
+                var albumCover = track.cover || _defaultCover;
+                html += '<div class="bgm-playlist-group">' +
+                    '<img class="bgm-playlist-group-cover" src="' + albumCover + '" alt="" draggable="false" onerror="this.src=\'' + _defaultCover + '\'">' +
+                    '<span class="bgm-playlist-group-name">' + _escHtml(track.album) + '</span>' +
+                '</div>';
+            }
+
             html += '<div class="bgm-playlist-item' + (isActive ? ' active' : '') + '" data-index="' + i + '">' +
-                '<img class="bgm-playlist-cover" src="' + coverSrc + '" alt="" draggable="false" onerror="this.src=\'' + DEFAULT_COVER + '\'">' +
                 '<span class="bgm-item-index">' + (isActive && playing ? '♫' : (i + 1)) + '</span>' +
-                '<span class="bgm-item-name">' + tracks[i].name + '</span>' +
+                '<span class="bgm-item-name">' + _escHtml(track.name) + '</span>' +
             '</div>';
         }
         list.innerHTML = html;
@@ -295,7 +376,7 @@ var BgmUI = (function () {
         _fab.classList.toggle('open', _panelOpen);
     }
 
-    /* ---------- 事件委托（转发用户操作） ---------- */
+    /* ---------- 事件委托 ---------- */
     function bindActions(callbacks) {
         _fab.addEventListener('click', callbacks.onTogglePanel);
 
@@ -338,11 +419,15 @@ var BgmUI = (function () {
         return m + ':' + (sec < 10 ? '0' : '') + sec;
     }
 
+    function _escHtml(s) {
+        return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
     return {
         create: create,
         updatePlayBtn: updatePlayBtn,
         updateCover: updateCover,
-        updateTrackName: updateTrackName,
+        updateTrackInfo: updateTrackInfo,
         updateProgress: updateProgress,
         renderPlaylist: renderPlaylist,
         setVolumeSlider: setVolumeSlider,
@@ -361,31 +446,24 @@ var BgmPlayer = (function () {
         /* 1. 创建 DOM */
         BgmUI.create();
 
-        /* 2. 恢复状态 */
-        var vol  = BgmStore.getVolume();
-        var idx  = BgmStore.getTrackIdx();
-        BgmAudio.setVolume(vol);
-        BgmUI.setVolumeSlider(vol);
-        BgmUI.setVolumeIcon(vol);
-
-        /* 3. 绑定音频引擎回调 → UI 更新 */
+        /* 2. 绑定音频引擎回调 → UI 更新 */
         BgmAudio.on('stateChange', function (playing) {
             BgmUI.updatePlayBtn(playing);
-            BgmUI.renderPlaylist(BgmAudio.tracks, BgmAudio.index, playing);
-            var track = BgmAudio.tracks[BgmAudio.index];
-            BgmUI.updateCover(track.img, playing);
+            var track = BgmAudio.currentTrack();
+            if (track) BgmUI.updateCover(track.cover, playing);
+            BgmUI.renderPlaylist(BgmAudio.flatTracks, BgmAudio.index, playing);
         });
         BgmAudio.on('trackChange', function (i, track) {
-            BgmUI.updateTrackName(track.name);
-            BgmUI.updateCover(track.img, BgmAudio.playing);
-            BgmUI.renderPlaylist(BgmAudio.tracks, i, BgmAudio.playing);
+            BgmUI.updateTrackInfo(track);
+            BgmUI.updateCover(track.cover, BgmAudio.playing);
+            BgmUI.renderPlaylist(BgmAudio.flatTracks, i, BgmAudio.playing);
         });
         BgmAudio.on('timeUpdate', function (cur, dur) {
             BgmUI.updateProgress(cur, dur);
         });
         BgmAudio._bindAudioEvents();
 
-        /* 4. 绑定 UI 事件 → 音频引擎操作 */
+        /* 3. 绑定 UI 事件 → 音频引擎操作 */
         BgmUI.bindActions({
             onTogglePanel:  function ()  { BgmUI.togglePanel(); },
             onPlay:         function ()  { BgmAudio.toggle(); },
@@ -410,22 +488,36 @@ var BgmPlayer = (function () {
             }
         });
 
-        /* 5. 自动播放（静音启动 → 首次交互后取消静音） */
-        BgmAudio.startMuted();
-        BgmAudio.load(idx, true);
+        /* 4. 恢复状态 */
+        var vol = BgmStore.getVolume();
+        BgmAudio.setVolume(vol);
+        BgmUI.setVolumeSlider(vol);
+        BgmUI.setVolumeIcon(vol);
 
-        var unmute = function () {
-            BgmAudio.unmuteIfAllowed();
-            var v = BgmAudio.getVolumePercent();
-            BgmUI.setVolumeSlider(v);
-            BgmUI.setVolumeIcon(v);
-            document.removeEventListener('click',    unmute);
-            document.removeEventListener('scroll',   unmute);
-            document.removeEventListener('keydown',  unmute);
-        };
-        document.addEventListener('click',   unmute);
-        document.addEventListener('scroll',  unmute);
-        document.addEventListener('keydown', unmute);
+        /* 5. 加载清单 → 自动播放 */
+        BgmAudio.loadManifest().then(function (tracks) {
+            if (tracks.length === 0) return;
+
+            var idx = BgmStore.getTrackIdx();
+            if (idx >= tracks.length) idx = 0;
+
+            BgmAudio.startMuted();
+            BgmAudio.load(idx, true);
+
+            // 首次用户交互时取消静音
+            var unmute = function () {
+                BgmAudio.unmuteIfAllowed();
+                var v = BgmAudio.getVolumePercent();
+                BgmUI.setVolumeSlider(v);
+                BgmUI.setVolumeIcon(v);
+                document.removeEventListener('click',   unmute);
+                document.removeEventListener('scroll',  unmute);
+                document.removeEventListener('keydown', unmute);
+            };
+            document.addEventListener('click',   unmute);
+            document.addEventListener('scroll',  unmute);
+            document.addEventListener('keydown', unmute);
+        });
     }
 
     return { init: init };
