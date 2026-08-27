@@ -565,30 +565,51 @@ var BgmPlayer = (function () {
             var idx = BgmStore.getTrackIdx();
             if (idx >= tracks.length) idx = 0;
 
-            // === 策略：先尝试有声播放，失败则静音兜底 ===
+            // 预加载曲目（不播放）
             BgmAudio.load(idx, false);
-            BgmAudio.play().catch(function () {
-                // 有声播放被阻止，静音兜底
-                BgmAudio.startMuted();
-                BgmAudio.load(idx, true);
-            });
 
-            // 首次用户交互时：解锁 AudioContext + 取消静音 + 确保播放
-            var onFirstInteraction = function () {
+            // === 自动播放策略 ===
+            // 先尝试有声播放，如果浏览器允许就直接播放
+            // 如果被阻止，等用户首次交互时再播放（100% 可靠）
+            var started = false;
+
+            function startPlayback() {
+                if (started) return;
+                started = true;
                 BgmAudio.unlockAudioContext();
                 BgmAudio.unmuteIfAllowed();
-                // 确保音频正在播放（取消静音后可能需要重新触发）
-                if (!BgmAudio.playing) BgmAudio.play();
+                BgmAudio.play();
                 var v = BgmAudio.getVolumePercent();
                 BgmUI.setVolumeSlider(v);
                 BgmUI.setVolumeIcon(v);
-                document.removeEventListener('click',    onFirstInteraction);
-                document.removeEventListener('scroll',   onFirstInteraction);
-                document.removeEventListener('keydown',  onFirstInteraction);
-            };
-            document.addEventListener('click',    onFirstInteraction);
-            document.addEventListener('scroll',   onFirstInteraction);
-            document.addEventListener('keydown',  onFirstInteraction);
+                removeInteractionListeners();
+            }
+
+            function onInteraction() {
+                startPlayback();
+            }
+
+            function removeInteractionListeners() {
+                document.removeEventListener('click',    onInteraction);
+                document.removeEventListener('scroll',   onInteraction);
+                document.removeEventListener('keydown',  onInteraction);
+                document.removeEventListener('touchstart', onInteraction);
+            }
+
+            // 注册交互监听（始终注册，确保至少有一次能播放）
+            document.addEventListener('click',     onInteraction);
+            document.addEventListener('scroll',    onInteraction);
+            document.addEventListener('keydown',   onInteraction);
+            document.addEventListener('touchstart', onInteraction);
+
+            // 同时尝试直接播放（如果浏览器允许，用户无需点击）
+            BgmAudio.play().then(function () {
+                // 有声播放成功，取消交互监听
+                started = true;
+                removeInteractionListeners();
+            }).catch(function () {
+                // 被阻止，等用户交互（监听器已注册）
+            });
         });
     }
 
