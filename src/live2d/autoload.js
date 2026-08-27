@@ -252,4 +252,9 @@ const Live2DInit = (function () {
 })();
 
 /* ---- 启动 ---- */
-Live2DInit.boot();
+var _live2dCfg = (window.SITE_CONFIG && window.SITE_CONFIG.live2d) || {};
+if (_live2dCfg.enabled !== false) {
+    Live2DInit.boot();
+} else {
+    console.log('[Live2D] 已禁用 (site-config.js live2d.enabled = false)');
+}
