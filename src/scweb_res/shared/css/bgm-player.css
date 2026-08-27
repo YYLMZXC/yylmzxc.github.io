@@ -185,7 +185,7 @@ body.wk-dark {
 .bgm-cover {
     width: 56px;
     height: 56px;
-    border-radius: 10px;
+    border-radius: 50%;
     flex-shrink: 0;
     overflow: hidden;
     background: var(--bgm-divider);
@@ -529,7 +529,7 @@ body.wk-dark .bgm-ctrl-btn.bgm-play-btn {
 
 body.wk-light .bgm-cover,
 body.wk-dark .bgm-cover {
-    border-radius: 10px !important;
+    border-radius: 50% !important;
 }
 
 body.wk-light .bgm-playlist-group-cover,
