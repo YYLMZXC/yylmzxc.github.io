@@ -1,3 +1,4 @@
 @echo off
-python -m http.server 8000
+cd /d "%~dp0"
+python tools/serve.py 8000
 pause
