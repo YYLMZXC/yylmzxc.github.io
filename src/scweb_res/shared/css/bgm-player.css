@@ -239,7 +239,7 @@ body.wk-dark {
  *  进度条
  * ==================================================================== */
 .bgm-progress-wrap {
-    padding: 4px 16px 8px;
+    padding: 8px 16px 8px;
     flex-shrink: 0;
 }
 
@@ -251,6 +251,17 @@ body.wk-dark {
     cursor: pointer;
     position: relative;
     overflow: hidden;
+}
+
+/* 扩大可点击/可拖拽区域 */
+.bgm-progress-bar::before {
+    content: '';
+    position: absolute;
+    top: -8px;
+    left: 0;
+    right: 0;
+    bottom: -8px;
+    z-index: 1;
 }
 
 .bgm-progress-fill {

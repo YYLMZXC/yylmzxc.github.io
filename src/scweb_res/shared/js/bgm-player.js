@@ -100,7 +100,22 @@ var BgmAudio = (function () {
         get mutedByUser() { return _mutedByUser; },
         get duration()   { return _audio.duration || 0; },
         get currentTime() { return _audio.currentTime || 0; },
-        set currentTime(t) { _audio.currentTime = t; },
+        set currentTime(t) {
+            var wasPlaying = !_audio.paused;
+            try {
+                _audio.currentTime = t;
+            } catch (e) {
+                console.warn('[BGM] seek failed, retrying...', e.message);
+                // seek 失败时先 load 再重试
+                _audio.load();
+                var self = this;
+                _audio.addEventListener('canplay', function handler() {
+                    _audio.removeEventListener('canplay', handler);
+                    try { _audio.currentTime = t; } catch (_) {}
+                    if (wasPlaying) _audio.play();
+                });
+            }
+        },
 
         currentTrack: function () {
             return _flatTracks[_index] || null;
@@ -292,6 +307,16 @@ var BgmAudio = (function () {
                 _playing = false;
                 if (_onPlayStateChange) _onPlayStateChange(false);
             });
+            // seek 完成后强制刷新进度条（timeupdate 在长歌曲 seek 后可能延迟）
+            _audio.addEventListener('seeked', function () {
+                console.log('[BGM] seeked to', _audio.currentTime.toFixed(1));
+                if (_onTimeUpdate) _onTimeUpdate(_audio.currentTime, _audio.duration);
+            });
+            // 音频错误处理
+            _audio.addEventListener('error', function () {
+                var err = _audio.error;
+                console.warn('[BGM] Audio error:', err ? ('code=' + err.code + ' msg=' + err.message) : 'unknown');
+            });
         }
     };
 })();
@@ -468,11 +493,53 @@ var BgmUI = (function () {
             callbacks.onMuteToggle();
         });
 
-        document.getElementById('bgmProgressBar').addEventListener('click', function (e) {
-            e.stopPropagation();
-            var rect = this.getBoundingClientRect();
-            callbacks.onSeek((e.clientX - rect.left) / rect.width);
-        });
+        /* --- 进度条：点击 + 拖拽 seek --- */
+        (function () {
+            var bar = document.getElementById('bgmProgressBar');
+            var dragging = false;
+
+            function getSeekPct(e) {
+                var rect = bar.getBoundingClientRect();
+                var x = (e.touches ? e.touches[0].clientX : e.clientX) - rect.left;
+                return Math.max(0, Math.min(1, x / rect.width));
+            }
+
+            bar.addEventListener('click', function (e) {
+                e.stopPropagation();
+                callbacks.onSeek(getSeekPct(e));
+            });
+
+            // 鼠标拖拽
+            bar.addEventListener('mousedown', function (e) {
+                e.preventDefault();
+                dragging = true;
+                callbacks.onSeek(getSeekPct(e));
+                document.addEventListener('mousemove', onDragMove);
+                document.addEventListener('mouseup', onDragEnd);
+            });
+
+            // 触摸拖拽
+            bar.addEventListener('touchstart', function (e) {
+                dragging = true;
+                callbacks.onSeek(getSeekPct(e));
+                document.addEventListener('touchmove', onDragMove, { passive: false });
+                document.addEventListener('touchend', onDragEnd);
+            }, { passive: true });
+
+            function onDragMove(e) {
+                if (!dragging) return;
+                e.preventDefault();
+                callbacks.onSeek(getSeekPct(e));
+            }
+
+            function onDragEnd() {
+                dragging = false;
+                document.removeEventListener('mousemove', onDragMove);
+                document.removeEventListener('mouseup', onDragEnd);
+                document.removeEventListener('touchmove', onDragMove);
+                document.removeEventListener('touchend', onDragEnd);
+            }
+        })();
 
         _panel.querySelector('.bgm-playlist').addEventListener('click', function (e) {
             var item = e.target.closest('.bgm-playlist-item');
