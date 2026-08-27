@@ -32,6 +32,7 @@ const AboutLanguageConfig = {
                 workshop: '生存战争工坊',
                 workshopDesc: '点击访问生存战争工坊官网',
                 bookmarks: '📌 收藏导航',
+                toolsNavigation: '🔧 工具导航',
                 aiNavigation: '🤖 AI导航',
                 otherNavigation: '🧭 其他导航',
                 cloudflareDesc: '点击访问Cloudflare官网（域名解析）',
@@ -61,7 +62,9 @@ const AboutLanguageConfig = {
                 baiduZiyuan: '百度资源平台',
                 baiduTongji: '百度统计',
                 bingWebmasters: 'Bing 站长工具',
-                msClarity: 'Microsoft Clarity'
+                msClarity: 'Microsoft Clarity',
+                photoroomBg: 'Photoroom 透明背景',
+                blockbench: 'Blockbench 3D编辑器'
             }
         },
 
@@ -84,6 +87,7 @@ const AboutLanguageConfig = {
                 workshop: 'SurvivalCraft Workshop',
                 workshopDesc: 'Click to visit the SurvivalCraft Workshop official website',
                 bookmarks: '📌 Bookmarks',
+                toolsNavigation: '🔧 Tools',
                 aiNavigation: '🤖 AI Navigation',
                 otherNavigation: '🧭 Other Navigation',
                 cloudflareDesc: 'Click to visit the Cloudflare official website (DNS)',
@@ -113,7 +117,9 @@ const AboutLanguageConfig = {
                 baiduZiyuan: 'Baidu Resource Platform',
                 baiduTongji: 'Baidu Analytics',
                 bingWebmasters: 'Bing Webmasters',
-                msClarity: 'Microsoft Clarity'
+                msClarity: 'Microsoft Clarity',
+                photoroomBg: 'Photoroom Transparent Background',
+                blockbench: 'Blockbench 3D Editor'
             }
         },
         
@@ -136,6 +142,7 @@ const AboutLanguageConfig = {
                 workshop: 'Мастерская SurvivalCraft',
                 workshopDesc: 'Нажмите, чтобы посетить официальный сайт Мастерской SurvivalCraft',
                 bookmarks: '📌 Закладки',
+                toolsNavigation: '🔧 Инструменты',
                 aiNavigation: '🤖 AI Навигация',
                 otherNavigation: '🧭 Другая Навигация',
                 cloudflareDesc: 'Нажмите, чтобы посетить официальный сайт Cloudflare (DNS)',
@@ -165,7 +172,9 @@ const AboutLanguageConfig = {
                 baiduZiyuan: 'Baidu Resource Platform',
                 baiduTongji: 'Baidu Analytics',
                 bingWebmasters: 'Bing Webmasters',
-                msClarity: 'Microsoft Clarity'
+                msClarity: 'Microsoft Clarity',
+                photoroomBg: 'Photoroom Фон Прозрачный',
+                blockbench: 'Blockbench 3D Редактор'
             }
         },
         
@@ -188,6 +197,7 @@ const AboutLanguageConfig = {
                 workshop: 'Taller de SurvivalCraft',
                 workshopDesc: 'Haz clic para visitar el sitio web oficial del Taller de SurvivalCraft',
                 bookmarks: '📌 Marcadores',
+                toolsNavigation: '🔧 Herramientas',
                 aiNavigation: '🤖 Navegación IA',
                 otherNavigation: '🧭 Otra Navegación',
                 cloudflareDesc: 'Haz clic para visitar el sitio web oficial de Cloudflare (DNS)',
@@ -217,7 +227,9 @@ const AboutLanguageConfig = {
                 baiduZiyuan: 'Baidu Resource Platform',
                 baiduTongji: 'Baidu Analytics',
                 bingWebmasters: 'Bing Webmasters',
-                msClarity: 'Microsoft Clarity'
+                msClarity: 'Microsoft Clarity',
+                photoroomBg: 'Photoroom Fondo Transparente',
+                blockbench: 'Blockbench Editor 3D'
             }
         }
     },
@@ -229,6 +241,12 @@ const AboutLanguageConfig = {
      * - other: 其他导航
      */
     navigation: {
+        tools: [
+            { title: 'links.photoroomBg', url: 'https://www.photoroom.com/zh/tools/transparent-background', external: true },
+            { title: 'links.blockbench', url: 'https://web.blockbench.net/', external: true },
+            { title: 'links.meshReader', url: 'tools/mesh-reader.html', external: false },
+            { title: 'links.modDevKit', url: 'tools/mod-dev-kit.html', external: false }
+        ],
         bookmarks: [
             { title: 'links.cloudflare', url: 'https://www.cloudflare.com/', external: true },
             { title: 'links.projectRepo', url: 'https://cnb.cool/SurvivalcraftTool/scweb', external: true },
@@ -248,8 +266,6 @@ const AboutLanguageConfig = {
         ],
         other: [
             { title: 'links.dashboard', url: 'dashboard.html', external: false },
-            { title: 'links.meshReader', url: 'tools/mesh-reader.html', external: false },
-            { title: 'links.modDevKit', url: 'tools/mod-dev-kit.html', external: false },
             { title: 'links.deepseek', url: 'https://chat.deepseek.com/', external: true },
             { title: 'links.waybackMachine', url: 'https://web.archive.org/', external: true },
             { title: 'links.yylmzxcPages', url: 'https://yylmzxc.github.io', external: true },
