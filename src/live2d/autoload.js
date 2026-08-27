@@ -127,6 +127,12 @@ const Live2DLoader = {
         function onTouchStart(e) {
             if (e.touches.length !== 1) return;
             var t = e.touches[0];
+            // 从 bottom 切换到 top/left 布局，与 initWidget 的桌面拖拽保持一致
+            var curBottom = parseInt(waifu.style.bottom, 10);
+            if (!isNaN(curBottom)) {
+                waifu.style.top  = (window.innerHeight - curBottom - waifu.offsetHeight) + 'px';
+            }
+            waifu.classList.add('waifu-dragging');
             startLeft = parseInt(waifu.style.left, 10) || 0;
             startTop  = parseInt(waifu.style.top, 10)  || 0;
             startX = t.clientX;
@@ -188,6 +194,7 @@ const Live2DLoader = {
             '#waifu-tips { opacity: 1 !important; min-height: 50px; pointer-events: auto !important; }' +
             '#waifu-tips a { pointer-events: auto !important; }' +
             '#waifu { bottom: 0 !important; transform: none !important; touch-action: none; }' +
+            '#waifu.waifu-dragging { bottom: auto !important; }' +
             '#live2d { touch-action: none; }';
         document.head.appendChild(style);
     },
