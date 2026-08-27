@@ -13,6 +13,6 @@ window.SITE_CONFIG = {
         autoPlay: false,   // 是否自动播放
     },
     live2d: {
-        enabled:  true,   // 看板娘总开关
+        enabled:  false,   // 看板娘总开关
     },
 };
