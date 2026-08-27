@@ -47,7 +47,10 @@
    python tools/serve.py        # Python（支持热重载 + 端口冲突自动释放）
    npm run dev                  # Node.js（需 package.json）
    ```
-   Windows 下可双击 `src/用Npm启动开发服务器.bat` 或 `src/用Python启动开发服务器.bat` 一键启动。
+   Windows 下可双击以下脚本一键启动：
+   - `src/用Npm启动开发服务器.bat` — NPM 启动
+   - `src/用Python启动开发服务器.bat` — Python 启动
+   - `src/扫描BGM目录.bat` — 扫描 BGM 目录生成音乐清单
 
 3. **访问网站**
    - 首页：`http://localhost:8000`
@@ -116,11 +119,14 @@ scweb/
 │   │       ├── mesh-reader/              # Mesh 读取器样式/脚本
 │   │       └── mod-dev-kit/              # Mod 工具包样式/脚本
 │   └── 用Npm启动开发服务器.bat             # Windows 一键启动脚本
-│   └── 用Python启动开发服务器.bat          # Windows 一键启动脚本
+│   ├── 用Python启动开发服务器.bat          # Windows 一键启动脚本
+│   └── 扫描BGM目录.bat                    # BGM 目录扫描脚本
 └── README.md
 ```
 
 ## 🎵 背景音乐系统
+
+**Windows 用户：** 双击 `src/扫描BGM目录.bat` 一键扫描。
 
 ```
 BgmPlayer（编排层）

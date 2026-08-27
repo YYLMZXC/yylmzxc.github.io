@@ -1,5 +1,15 @@
 [
   {
+    "name": "DLC2OST",
+    "cover": "./bgm/DLC2OST/Main.png",
+    "tracks": [
+      {
+        "src": "./bgm/DLC2OST/01.不朽不灭，永世业火.mp3",
+        "name": "01.不朽不灭，永世业火"
+      }
+    ]
+  },
+  {
     "name": "LoveColoredIllusionPapillonOST",
     "cover": "./bgm/LoveColoredIllusionPapillonOST/Main.jpg",
     "tracks": [
