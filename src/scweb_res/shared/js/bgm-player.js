@@ -43,10 +43,12 @@ var BgmStore = {
  *  对外通过回调通知 UI 层，不直接操作 DOM
  * ================================================================ */
 var BgmAudio = (function () {
+    var DEFAULT_COVER = './scweb_res/sczzw.png';
+
     var TRACKS = [
-        { src: './bgm/蔷薇偶像 (Live at @Gamepulse武道馆).mp3', name: '蔷薇偶像 (Live at @Gamepulse武道馆)' },
-        { src: './bgm/小石DISCO.wav',                          name: '小石DISCO' },
-        { src: './bgm/献给你的荆棘之歌(Acoustic.ver).mp3',      name: '献给你的荆棘之歌 (Acoustic.ver)' }
+        { src: './bgm/蔷薇偶像 (Live at @Gamepulse武道馆).mp3', name: '蔷薇偶像 (Live at @Gamepulse武道馆)', img: '' },
+        { src: './bgm/小石DISCO.wav',                          name: '小石DISCO',                          img: '' },
+        { src: './bgm/献给你的荆棘之歌(Acoustic.ver).mp3',      name: '献给你的荆棘之歌 (Acoustic.ver)',      img: '' }
     ];
 
     var _audio    = new Audio();
@@ -203,7 +205,10 @@ var BgmUI = (function () {
                 '<div class="bgm-panel-title">🎵 背景音乐</div>' +
             '</div>' +
             '<div class="bgm-now-playing">' +
-                '<p class="bgm-track-name" id="bgmTrackName">未播放</p>' +
+                '<img class="bgm-cover" id="bgmCover" src="' + DEFAULT_COVER + '" alt="封面" draggable="false">' +
+                '<div class="bgm-now-playing-info">' +
+                    '<p class="bgm-track-name" id="bgmTrackName">未播放</p>' +
+                '</div>' +
             '</div>' +
             '<div class="bgm-progress-wrap">' +
                 '<div class="bgm-progress-bar" id="bgmProgressBar">' +
@@ -234,6 +239,14 @@ var BgmUI = (function () {
         if (_fab) _fab.classList.toggle('playing', playing);
     }
 
+    function updateCover(imgSrc, playing) {
+        var el = document.getElementById('bgmCover');
+        if (!el) return;
+        el.src = imgSrc || DEFAULT_COVER;
+        el.onerror = function () { this.src = DEFAULT_COVER; };
+        el.classList.toggle('spinning', playing);
+    }
+
     function updateTrackName(name) {
         var el = document.getElementById('bgmTrackName');
         if (el) el.textContent = name || '未播放';
@@ -256,7 +269,9 @@ var BgmUI = (function () {
         var html = '';
         for (var i = 0; i < tracks.length; i++) {
             var isActive = i === activeIdx;
+            var coverSrc = tracks[i].img || DEFAULT_COVER;
             html += '<div class="bgm-playlist-item' + (isActive ? ' active' : '') + '" data-index="' + i + '">' +
+                '<img class="bgm-playlist-cover" src="' + coverSrc + '" alt="" draggable="false" onerror="this.src=\'' + DEFAULT_COVER + '\'">' +
                 '<span class="bgm-item-index">' + (isActive && playing ? '♫' : (i + 1)) + '</span>' +
                 '<span class="bgm-item-name">' + tracks[i].name + '</span>' +
             '</div>';
@@ -326,6 +341,7 @@ var BgmUI = (function () {
     return {
         create: create,
         updatePlayBtn: updatePlayBtn,
+        updateCover: updateCover,
         updateTrackName: updateTrackName,
         updateProgress: updateProgress,
         renderPlaylist: renderPlaylist,
@@ -356,9 +372,12 @@ var BgmPlayer = (function () {
         BgmAudio.on('stateChange', function (playing) {
             BgmUI.updatePlayBtn(playing);
             BgmUI.renderPlaylist(BgmAudio.tracks, BgmAudio.index, playing);
+            var track = BgmAudio.tracks[BgmAudio.index];
+            BgmUI.updateCover(track.img, playing);
         });
         BgmAudio.on('trackChange', function (i, track) {
             BgmUI.updateTrackName(track.name);
+            BgmUI.updateCover(track.img, BgmAudio.playing);
             BgmUI.renderPlaylist(BgmAudio.tracks, i, BgmAudio.playing);
         });
         BgmAudio.on('timeUpdate', function (cur, dur) {
