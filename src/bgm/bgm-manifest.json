@@ -56,5 +56,35 @@
         "name": "小石DISCO"
       }
     ]
+  },
+  {
+    "name": "SCMusic",
+    "cover": "",
+    "tracks": [
+      {
+        "src": "./bgm/SCMusic/AloneForever.ogg",
+        "name": "AloneForever"
+      },
+      {
+        "src": "./bgm/SCMusic/NativeAmerican.ogg",
+        "name": "NativeAmerican"
+      },
+      {
+        "src": "./bgm/SCMusic/NativeAmericanFluteSpirit.ogg",
+        "name": "NativeAmericanFluteSpirit"
+      },
+      {
+        "src": "./bgm/SCMusic/NativeAmericanHeart.ogg",
+        "name": "NativeAmericanHeart"
+      },
+      {
+        "src": "./bgm/SCMusic/NativeAmericanPeaceFlute.ogg",
+        "name": "NativeAmericanPeaceFlute"
+      },
+      {
+        "src": "./bgm/SCMusic/NativeIndianChant.ogg",
+        "name": "NativeIndianChant"
+      }
+    ]
   }
 ]
