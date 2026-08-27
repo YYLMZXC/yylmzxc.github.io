@@ -91,6 +91,70 @@ const Live2DLoader = {
         };
         window.Image.prototype = OrigImage.prototype;
     },
+
+    /**
+     * 为移动端添加触摸拖拽支持
+     * 原版 live2d-widget 只绑定了 mousedown，手机无法拖动
+     */
+    patchTouchDrag: function () {
+        var waifu = document.getElementById('waifu');
+        if (!waifu) return;
+
+        var winW = window.innerWidth;
+        var winH = window.innerHeight;
+
+        function onTouchStart(e) {
+            if (e.touches.length !== 1) return;
+            var touch = e.touches[0];
+            var canvas = document.getElementById('live2d');
+            if (!canvas) return;
+
+            var rect = canvas.getBoundingClientRect();
+            var offsetX = touch.clientX - rect.left;
+            var offsetY = touch.clientY - rect.top;
+
+            function onTouchMove(ev) {
+                ev.preventDefault();
+                var t = ev.touches[0];
+                var x = t.clientX - offsetX;
+                var y = t.clientY - offsetY;
+                x = Math.max(0, Math.min(x, winW - waifu.offsetWidth));
+                y = Math.max(0, Math.min(y, winH - waifu.offsetHeight));
+                waifu.style.left = x + 'px';
+                waifu.style.top = y + 'px';
+            }
+
+            function onTouchEnd() {
+                document.removeEventListener('touchmove', onTouchMove);
+                document.removeEventListener('touchend', onTouchEnd);
+            }
+
+            document.addEventListener('touchmove', onTouchMove, { passive: false });
+            document.addEventListener('touchend', onTouchEnd);
+        }
+
+        waifu.addEventListener('touchstart', onTouchStart, { passive: true });
+
+        window.addEventListener('resize', function () {
+            winW = window.innerWidth;
+            winH = window.innerHeight;
+        });
+    },
+
+    /**
+     * 移动端始终显示工具栏（原版仅 hover 显示）
+     */
+    patchMobileTools: function () {
+        var isMobile = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+        if (!isMobile) return;
+
+        var style = document.createElement('style');
+        style.textContent =
+            '#waifu-tool { opacity: 1 !important; }' +
+            '#waifu-tips { opacity: 1 !important; min-height: 50px; }' +
+            '#waifu { bottom: 0 !important; transform: none !important; }';
+        document.head.appendChild(style);
+    },
 };
 
 /* ================================================================
@@ -120,6 +184,10 @@ const Live2DInit = (function () {
                 drag:                C.drag,
                 showToggleAfterQuit: C.showToggleAfterQuit,
             });
+
+            /* 4. 移动端增强：触摸拖拽 + 工具栏常驻 */
+            Live2DLoader.patchTouchDrag();
+            Live2DLoader.patchMobileTools();
         });
     }
 
