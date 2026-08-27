@@ -55,6 +55,12 @@ var BgmAudio = (function () {
     var _playing   = false;
     var _mutedByUser = false;
 
+    /* --- Web Audio API：用于解锁自动播放 --- */
+    var _ctx = null;       // AudioContext
+    var _gain = null;      // GainNode（控制音量）
+    var _source = null;    // MediaElementSourceNode
+    var _ctxUnlocked = false;
+
     _audio.preload = 'auto';
     _audio.loop    = false;
 
@@ -146,10 +152,11 @@ var BgmAudio = (function () {
         },
 
         play: function () {
-            _audio.play().then(function () {
+            var p = _audio.play().then(function () {
                 _playing = true;
                 if (_onPlayStateChange) _onPlayStateChange(true);
-            }).catch(function () {});
+            });
+            return p;
         },
 
         pause: function () {
@@ -172,30 +179,83 @@ var BgmAudio = (function () {
             this.load((_index - 1 + _flatTracks.length) % _flatTracks.length, true);
         },
 
-        /* --- 音量 --- */
+        /* --- 音量（走 GainNode） --- */
         setVolume: function (v) {
-            _audio.volume = v / 100;
+            if (_gain) {
+                _gain.gain.value = v / 100;
+            } else {
+                _audio.volume = v / 100;
+            }
             BgmStore.setVolume(v);
         },
 
         getVolumePercent: function () {
+            if (_gain) return Math.round(_gain.gain.value * 100);
             return Math.round(_audio.volume * 100);
         },
 
         mute: function () {
             _mutedByUser = true;
-            _audio._savedVol = _audio.volume;
-            _audio.volume = 0;
+            if (_gain) {
+                _audio._savedGain = _gain.gain.value;
+                _gain.gain.value = 0;
+            } else {
+                _audio._savedVol = _audio.volume;
+                _audio.volume = 0;
+            }
         },
 
         unmute: function () {
             _mutedByUser = false;
-            _audio.muted = false;
-            var v = _audio._savedVol || 0.7;
-            _audio.volume = v;
+            if (_gain) {
+                _gain.gain.value = _audio._savedGain || BgmStore.getVolume() / 100;
+            } else {
+                _audio.volume = _audio._savedVol || 0.7;
+            }
         },
 
-        /* --- 浏览器自动播放适配 --- */
+        /* --- Web Audio API 解锁 --- */
+        /**
+         * 在首次用户手势中调用，创建 AudioContext 并解锁自动播放
+         * 之后 audio.play() 不再需要用户手势
+         */
+        unlockAudioContext: function () {
+            if (_ctxUnlocked) return;
+            try {
+                var AC = window.AudioContext || window.webkitAudioContext;
+                if (!AC) return;
+                if (!_ctx) {
+                    _ctx = new AC();
+                    _gain = _ctx.createGain();
+                    _gain.gain.value = BgmStore.getVolume() / 100;
+                    _source = _ctx.createMediaElementSource(_audio);
+                    _source.connect(_gain);
+                    _gain.connect(_ctx.destination);
+                }
+                if (_ctx.state === 'suspended') {
+                    _ctx.resume();
+                }
+                // 播放静音 buffer 解锁
+                var buf = _ctx.createBuffer(1, 1, 22050);
+                var src = _ctx.createBufferSource();
+                src.buffer = buf;
+                src.connect(_ctx.destination);
+                src.start(0);
+                _ctxUnlocked = true;
+                console.log('[BGM] AudioContext 已解锁');
+            } catch (e) {
+                console.warn('[BGM] AudioContext 解锁失败:', e);
+            }
+        },
+
+        /**
+         * 检查 AudioContext 是否已解锁
+         */
+        isUnlocked: function () {
+            return _ctxUnlocked;
+        },
+
+        /* --- 浏览器自动播放兼容（静音兜底） --- */
         startMuted: function () {
             _audio.muted = true;
         },
@@ -203,7 +263,11 @@ var BgmAudio = (function () {
         unmuteIfAllowed: function () {
             if (_audio.muted && !_mutedByUser) {
                 _audio.muted = false;
-                _audio.volume = BgmStore.getVolume() / 100;
+                if (_gain) {
+                    _gain.gain.value = BgmStore.getVolume() / 100;
+                } else {
+                    _audio.volume = BgmStore.getVolume() / 100;
+                }
             }
         },
 
@@ -501,22 +565,30 @@ var BgmPlayer = (function () {
             var idx = BgmStore.getTrackIdx();
             if (idx >= tracks.length) idx = 0;
 
-            BgmAudio.startMuted();
-            BgmAudio.load(idx, true);
+            // === 策略：先尝试有声播放，失败则静音兜底 ===
+            BgmAudio.load(idx, false);
+            BgmAudio.play().catch(function () {
+                // 有声播放被阻止，静音兜底
+                BgmAudio.startMuted();
+                BgmAudio.load(idx, true);
+            });
 
-            // 首次用户交互时取消静音
-            var unmute = function () {
+            // 首次用户交互时：解锁 AudioContext + 取消静音 + 确保播放
+            var onFirstInteraction = function () {
+                BgmAudio.unlockAudioContext();
                 BgmAudio.unmuteIfAllowed();
+                // 确保音频正在播放（取消静音后可能需要重新触发）
+                if (!BgmAudio.playing) BgmAudio.play();
                 var v = BgmAudio.getVolumePercent();
                 BgmUI.setVolumeSlider(v);
                 BgmUI.setVolumeIcon(v);
-                document.removeEventListener('click',   unmute);
-                document.removeEventListener('scroll',  unmute);
-                document.removeEventListener('keydown', unmute);
+                document.removeEventListener('click',    onFirstInteraction);
+                document.removeEventListener('scroll',   onFirstInteraction);
+                document.removeEventListener('keydown',  onFirstInteraction);
             };
-            document.addEventListener('click',   unmute);
-            document.addEventListener('scroll',  unmute);
-            document.addEventListener('keydown', unmute);
+            document.addEventListener('click',    onFirstInteraction);
+            document.addEventListener('scroll',   onFirstInteraction);
+            document.addEventListener('keydown',  onFirstInteraction);
         });
     }
 
