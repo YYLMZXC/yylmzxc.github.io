@@ -205,28 +205,47 @@ const Live2DLoader = {
  *  职责：协调 Config 和 Loader，完成初始化
  * ================================================================ */
 const Live2DInit = (function () {
-    function boot() {
-        console.log('[Live2D] Initializing...');
-        console.log('[Live2D] Config:', JSON.stringify({
-            modelId:   Live2DConfig.modelId,
-            cdnPath:   Live2DConfig.cdnPath,
-            localPath: Live2DConfig.localPath,
-            drag:      Live2DConfig.drag,
-            tools:     Live2DConfig.tools,
-            logLevel:  Live2DConfig.logLevel,
-        }, null, 2));
+    var _loaded = false;
+
+    /**
+     * 创建切换按钮（不加载任何资源）
+     */
+    function _createToggleButton() {
+        document.body.insertAdjacentHTML('beforeend',
+            '<div id="waifu-toggle">' +
+            '  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512">' +
+            '    <path d="M96 64a64 64 0 1 1 128 0A64 64 0 1 1 96 64zm48 320l0 96c0 17.7-14.3 32-32 32s-32-14.3-32-32l0-192.2L59.1 321c-9.4 15-29.2 19.4-44.1 10S-4.5 301.9 4.9 287l39.9-63.3C69.7 184 113.2 160 160 160s90.3 24 115.2 63.6L315.1 287c9.4 15 4.9 34.7-10 44.1s-34.7 4.9-44.1-10L240 287.8 240 480c0 17.7-14.3 32-32 32s-32-14.3-32-32l0-96-32 0z"/>' +
+            '  </svg>' +
+            '</div>');
+        var btn = document.getElementById('waifu-toggle');
+        btn.classList.add('waifu-toggle-active');
+        btn.addEventListener('click', function () {
+            if (!_loaded) {
+                _loaded = true;
+                loadWidget();
+            } else {
+                var waifu = document.getElementById('waifu');
+                if (waifu && waifu.classList.contains('waifu-hidden')) {
+                    waifu.classList.remove('waifu-hidden');
+                    waifu.classList.add('waifu-active');
+                }
+            }
+        });
+        console.log('[Live2D] Toggle button created (widget not loaded)');
+    }
+
+    /**
+     * 懒加载：首次点击时才加载资源并初始化看板娘
+     */
+    function loadWidget() {
+        console.log('[Live2D] Loading widget...');
         var C = Live2DConfig;
-
-        /* 1. 修复跨域 */
         Live2DLoader.patchImageCORS();
-
-        /* 2. 加载核心资源 */
         Live2DLoader.loadAll([
             { url: C.waifuCss,    type: 'css' },
             { url: C.waifuTipsJs, type: 'js'  },
         ]).then(function () {
             console.log('[Live2D] Resources ready, initializing widget...');
-            /* 3. 初始化看板娘 */
             initWidget({
                 waifuPath:           C.waifuJson,
                 cdnPath:             C.cdnPath,
@@ -238,14 +257,35 @@ const Live2DInit = (function () {
                 showToggleAfterQuit: C.showToggleAfterQuit,
             });
             console.log('[Live2D] Widget initialized');
-
-            /* 4. 移动端增强：触摸拖拽 + 工具栏常驻 */
             Live2DLoader.patchTouchDrag();
             Live2DLoader.patchMobileTools();
             console.log('[Live2D] ✓ All patches applied, ready!');
         }).catch(function (err) {
             console.error('[Live2D] Initialization failed:', err);
+            _loaded = false;
         });
+    }
+
+    function boot() {
+        /* 检查配置开关 */
+        var cfg = (window.SITE_CONFIG || {}).live2d || {};
+        if (cfg.enabled === false) {
+            console.log('[Live2D] Disabled by site config');
+            return;
+        }
+
+        console.log('[Live2D] Initializing (lazy)...');
+        console.log('[Live2D] Config:', JSON.stringify({
+            modelId:   Live2DConfig.modelId,
+            cdnPath:   Live2DConfig.cdnPath,
+            localPath: Live2DConfig.localPath,
+            drag:      Live2DConfig.drag,
+            tools:     Live2DConfig.tools,
+            logLevel:  Live2DConfig.logLevel,
+        }, null, 2));
+
+        /* 默认隐藏：仅创建切换按钮，不加载资源 */
+        _createToggleButton();
     }
 
     return { boot: boot };

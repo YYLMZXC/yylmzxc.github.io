@@ -15,6 +15,14 @@
 ;(function () {
 'use strict';
 
+/* --- 配置检查：禁用时跳过全部初始化 --- */
+var _bgmCfg = (window.SITE_CONFIG || {}).bgm || {};
+if (_bgmCfg.enabled === false) {
+    console.log('[BGM] Disabled by site config');
+    return;
+}
+var _bgmAutoPlay = _bgmCfg.autoPlay !== false;
+
 /* ================================================================
  *  BgmStore — 持久化存储
  *  职责：读写 localStorage，对上层屏蔽存储细节
@@ -678,9 +686,12 @@ var BgmPlayer = (function () {
             // 预加载曲目（不播放）
             BgmAudio.load(idx, false);
 
-            // === 自动播放策略 ===
-            // 第1层：尝试有声播放（部分浏览器直接允许）
-            // 第2层：注册交互监听，用户点击/滚动时解锁 + 播放
+            // === 自动播放策略（可通过 site-config.js 关闭） ===
+            if (!_bgmAutoPlay) {
+                console.log('[BGM] Auto-play disabled by site config');
+                return;
+            }
+
             var started = false;
 
             function startPlayback() {
