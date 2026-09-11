@@ -669,7 +669,50 @@ class DashboardPageManager {
     /* ---------------- 网络请求 ---------------- */
 
     /**
-     * 请求服务端视角信息（proxy.php?action=clientinfo）
+     * 请求服务端视角信息，按部署方式挑可用的一条路：
+     *   1) Node 后端  base + /api/clientinfo  —— 用「启动主页(带数据库).bat」跑起来时走这条；
+     *   2) PHP 代理   ./proxy.php?action=clientinfo —— 纯 PHP 托管（Apache 等）时走这条。
+     *   两种托管各只擅长一种：Node 不解释 PHP，纯 PHP 环境没有 /api/*，
+     *   因此两条都试，取先成功的一条；都失败由调用方降级显示。
+     * @param {AbortSignal} signal - 超时中止信号
+     * @returns {Promise<Object>} 服务端视角数据
+     */
+    async requestClientInfo(signal) {
+        const base = (window.SCUtils && SCUtils.apiBase) ? SCUtils.apiBase() : '';
+        const candidates = [
+            base + '/api/clientinfo?t=' + Date.now(),
+            './proxy.php?action=clientinfo&t=' + Date.now()
+        ];
+
+        let lastErr = null;
+        for (const url of candidates) {
+            try {
+                const response = await fetch(url, {
+                    headers: { 'Accept': 'application/json' },
+                    cache: 'no-store',
+                    signal
+                });
+                if (!response.ok) throw new Error('HTTP ' + response.status);
+
+                // 不是 JSON 说明这条路根本没被服务端逻辑处理（Node 会原样吐 proxy.php 源码），
+                // 直接跳过，交给下一条候选
+                const ct = response.headers.get('content-type') || '';
+                if (ct.indexOf('json') < 0) throw new Error('非 JSON 响应');
+
+                const json = await response.json();
+                if (!json || json.success !== true || !json.data) {
+                    throw new Error((json && json.msg) || 'API 响应异常');
+                }
+                return json.data;
+            } catch (err) {
+                lastErr = err;
+            }
+        }
+        throw lastErr || new Error('服务端信息不可用');
+    }
+
+    /**
+     * 请求服务端视角信息
      * 失败时优雅降级：显示不可用提示，问候条使用"未知"
      */
     async fetchClientInfo() {
@@ -683,19 +726,7 @@ class DashboardPageManager {
         const timer = setTimeout(() => controller.abort(), 10000);
 
         try {
-            const response = await fetch('./proxy.php?action=clientinfo&t=' + Date.now(), {
-                headers: { 'Accept': 'application/json' },
-                cache: 'no-store',
-                signal: controller.signal
-            });
-            if (!response.ok) throw new Error('HTTP ' + response.status);
-
-            const json = await response.json();
-            if (!json || json.success !== true || !json.data) {
-                throw new Error((json && json.msg) || 'API 响应异常');
-            }
-
-            this.serverData = json.data;
+            this.serverData = await this.requestClientInfo(controller.signal);
             this.renderServerInfo();
         } catch (err) {
             console.warn('[DashboardPageManager] 服务端信息获取失败：', err.message || err);

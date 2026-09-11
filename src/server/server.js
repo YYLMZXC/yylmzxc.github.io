@@ -87,6 +87,65 @@ api.get('/health', async function (req, res) {
   res.json(h);
 });
 
+/* ---------------- 客户端信息（服务器视角） ----------------
+   信息仪表板用它显示访客的真实 IP / 请求头 / 服务端软件等。
+   纯 PHP 托管时该页读 proxy.php?action=clientinfo；Node 后端运行时 PHP 不会被解释，
+   于是在这里提供等价接口，前端优先走本接口、失败再回退 proxy.php。 */
+
+// IPv4 映射地址（::ffff:127.0.0.1）还原成 IPv4，与 PHP 的 REMOTE_ADDR 观感一致
+function normIp(ip) {
+  return String(ip || '').replace(/^::ffff:/i, '');
+}
+
+// 取客户端真实 IP：转发头优先级与 proxy.php 的 getClientIp 保持一致
+function clientIp(req) {
+  const h = req.headers;
+  const forwarded = ['x-forwarded-for', 'x-real-ip', 'cf-connecting-ip', 'client-ip'];
+  for (const name of forwarded) {
+    const raw = h[name];
+    if (raw) {
+      const first = String(raw).split(',')[0].trim();
+      if (first) return normIp(first);
+    }
+  }
+  return normIp(req.socket.remoteAddress);
+}
+
+api.get('/clientinfo', function (req, res) {
+  const h = req.headers;
+  res.set('Cache-Control', 'no-store');
+  res.json({
+    success: true,
+    data: {
+      // 客户端地址信息
+      ip: clientIp(req),
+      remoteAddr: normIp(req.socket.remoteAddress),
+      xForwardedFor: h['x-forwarded-for'] || '',
+      xRealIp: h['x-real-ip'] || '',
+      // 客户端请求头
+      userAgent: h['user-agent'] || '',
+      acceptLanguage: h['accept-language'] || '',
+      acceptEncoding: h['accept-encoding'] || '',
+      accept: h['accept'] || '',
+      referer: h['referer'] || '',
+      // 请求信息
+      requestMethod: req.method,
+      requestUri: req.originalUrl,
+      requestTime: Math.floor(Date.now() / 1000),
+      // 服务端信息
+      serverAddr: normIp(req.socket.localAddress),
+      serverName: String(h.host || '').split(':')[0],
+      serverSoftware: 'Node.js/' + process.version + ' (Express)',
+      serverProtocol: 'HTTP/' + req.httpVersion,
+      https: !!req.secure,
+      // Client Hints（Chrome 等浏览器可能携带，可能为空）
+      secChUa: h['sec-ch-ua'] || '',
+      secChUaPlatform: h['sec-ch-ua-platform'] || '',
+      secChUaMobile: h['sec-ch-ua-mobile'] || ''
+    }
+  });
+});
+
 /* ---------------- 站点导航数据（首页 / 关于页） ----------------
    整份 JSON 存在 site_nav 表里，分组用 page 字段区分页面；
    读接口开放（首页与关于页任何人都要能看到导航），写接口要求已登录。

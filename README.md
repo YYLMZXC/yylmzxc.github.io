@@ -207,6 +207,7 @@ SCApp.create()            ← 组合根：创建并注入各管理器（app.js�
 | 方法 | 路径 | 说明 |
 |------|------|------|
 | GET | `/api/health` | 健康检查（含数据库连通状态） |
+| GET | `/api/clientinfo` | 仪表板「服务器视角」信息（IP / 请求头 / 服务端软件等；纯 PHP 托管时改由 `proxy.php?action=clientinfo` 提供） |
 | GET | `/api/mods` | 列出 mod 及其加载状态（未启用的也在列表里） |
 | GET | `/api/site-nav` | 读取导航数据 |
 | PUT | `/api/site-nav` | 保存导航数据（需登录） |
