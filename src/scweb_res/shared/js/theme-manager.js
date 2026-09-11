@@ -10,12 +10,19 @@
  */
 class ThemeManager {
     /**
-     * 合法主题列表，用于校验
+     * 合法主题列表 / 默认主题：唯一来源是 src/site-constants.js（与后端同源）。
+     * 该文件在本脚本之前加载；万一缺席则退化为空列表 / wk-light，页面仍可用。
      */
-    static VALID_THEMES = ['light', 'dark', 'wk-light', 'wk-dark'];
+    static get VALID_THEMES() {
+        return (window.SITE_CONSTANTS && window.SITE_CONSTANTS.themes) || [];
+    }
+
+    static get FALLBACK_THEME() {
+        return (window.SITE_CONSTANTS && window.SITE_CONSTANTS.fallbackTheme) || 'wk-light';
+    }
 
     constructor(dropdownManager) {
-        this.currentTheme = 'wk-light';
+        this.currentTheme = ThemeManager.FALLBACK_THEME;
         this.isTransitioning = false;
         this._dropdownManager = dropdownManager || null;
         this.init();
@@ -54,7 +61,7 @@ class ThemeManager {
         } else if (this.getSystemTheme() === 'dark') {
             this.currentTheme = 'dark';
         } else {
-            this.currentTheme = 'wk-light';
+            this.currentTheme = ThemeManager.FALLBACK_THEME;
         }
         this.applyTheme(this.currentTheme);
         this.updateThemeButtons();
@@ -130,8 +137,8 @@ class ThemeManager {
     applyTheme(theme) {
         const body = document.body;
 
-        // 清除所有主题类
-        body.classList.remove('light', 'dark', 'wk-light', 'wk-dark');
+        // 清除所有主题类（列表来自 site-constants.js，增设主题时这里不用改）
+        body.classList.remove(...ThemeManager.VALID_THEMES);
 
         // 添加当前主题类
         body.classList.add(theme);

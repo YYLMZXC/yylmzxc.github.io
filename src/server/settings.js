@@ -13,18 +13,20 @@
 const fs = require('fs');
 const path = require('path');
 const vm = require('vm');
+// 合法取值表（主题 / 导航来源）与前端同源，见 src/site-constants.js
+const SITE_CONSTANTS = require('../site-constants.js');
 
 // 后端在 src/server/ 下，上一级 src/ 即站点前端根
 const WEB_ROOT = path.join(__dirname, '..');
 const FILE = path.join(WEB_ROOT, 'site-config.js');
 const REL = 'site-config.js';
 
-const THEMES = ['light', 'dark', 'wk-light', 'wk-dark'];
-const FALLBACK_THEME = 'wk-light';
+const THEMES = SITE_CONSTANTS.themes;
+const FALLBACK_THEME = SITE_CONSTANTS.fallbackTheme;
 
 // 导航数据来源：web 只读静态文件，db 走数据库
-const NAV_MODES = ['web', 'db'];
-const FALLBACK_NAV_MODE = 'web';
+const NAV_MODES = SITE_CONSTANTS.navModes;
+const FALLBACK_NAV_MODE = SITE_CONSTANTS.fallbackNavMode;
 
 // 读取 site-config.js 里的 window.SITE_CONFIG
 function siteConfig() {

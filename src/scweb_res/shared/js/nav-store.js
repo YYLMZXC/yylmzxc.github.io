@@ -642,10 +642,8 @@ class NavStore {
 
 NavStore.STATIC_SRC = 'scweb_res/nav/nav-default.js';
 
-// 数据里允许出现的页面身份：编辑器按这个顺序出页签，数据里的 page 写别的都归到首页
-NavStore.PAGES = [
-    { id: 'index', name: '首页' },
-    { id: 'about', name: '关于页' }
-];
+// 数据里允许出现的页面身份：唯一来源是 site-constants.js（与后端同一份）；
+// 编辑器按这个顺序出页签，数据里的 page 写别的都归到首页
+NavStore.PAGES = (window.SITE_CONSTANTS && window.SITE_CONSTANTS.pages) || [];
 
 window.NavStore = NavStore;

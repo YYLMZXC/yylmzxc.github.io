@@ -74,12 +74,23 @@ class SettingsStore {
      *  静态默认 / 全局 / 个人 / 生效值（全部同步，供各模块启动时查询）
      * ================================================================ */
 
-    static THEMES = ['light', 'dark', 'wk-light', 'wk-dark'];
-    static FALLBACK_THEME = 'wk-light';
+    // 合法主题 / 导航来源 / 默认值：唯一来源是 site-constants.js（与后端同一份）
+    static get THEMES() {
+        return (window.SITE_CONSTANTS && window.SITE_CONSTANTS.themes) || [];
+    }
+
+    static get FALLBACK_THEME() {
+        return (window.SITE_CONSTANTS && window.SITE_CONSTANTS.fallbackTheme) || 'wk-light';
+    }
 
     // 导航数据来源：'web' 静态文件（只读，不依赖后端）/ 'db' 数据库
-    static NAV_MODES = ['web', 'db'];
-    static FALLBACK_NAV_MODE = 'web';
+    static get NAV_MODES() {
+        return (window.SITE_CONSTANTS && window.SITE_CONSTANTS.navModes) || [];
+    }
+
+    static get FALLBACK_NAV_MODE() {
+        return (window.SITE_CONSTANTS && window.SITE_CONSTANTS.fallbackNavMode) || 'web';
+    }
 
     static isValidTheme(t) {
         return SettingsStore.THEMES.indexOf(String(t)) >= 0;

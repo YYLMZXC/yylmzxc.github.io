@@ -12,6 +12,8 @@
 const fs = require('fs');
 const path = require('path');
 const vm = require('vm');
+// 页面身份表与前端同源，见 src/site-constants.js
+const SITE_CONSTANTS = require('../site-constants.js');
 
 // 后端在 src/server/ 下，上一级 src/ 即站点前端根
 const WEB_ROOT = path.join(__dirname, '..');
@@ -20,8 +22,8 @@ const FILE = path.join(WEB_ROOT, 'scweb_res', 'nav', 'nav-default.js');
 // 对外的相对路径：写进接口回包，前端与日志都用它，避免暴露服务器绝对路径
 const REL = 'scweb_res/nav/nav-default.js';
 
-// 数据里允许出现的页面身份，与前端 NavStore.PAGES 一致；写别的都归到首页
-const PAGES = ['index', 'about'];
+// 数据里允许出现的页面身份，与前端同源（site-constants.js）；写别的都归到首页
+const PAGES = SITE_CONSTANTS.pages.map(function (p) { return p.id; });
 
 // v1：只有首页，分组没有 page 字段；v2：分组带 page（首页 + 关于页）
 const CURRENT_VERSION = 2;
