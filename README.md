@@ -69,10 +69,10 @@
 ### 带数据库运行（站点导航 / 设置可编辑，并加载 mod）
 
 静态服务器打开时是 `web` 模式（只读，导航读 `src/scweb_res/nav/nav-default.js`）。
-要让导航与站点设置能在页面上登录、编辑、导入导出，并支持「同步到静态文件」，需要启动仓库根目录下的后端：
+要让导航与站点设置能在页面上登录、编辑、导入导出，并支持「同步到静态文件」，需要启动 `src/server` 下的后端：
 
 ```bash
-cd server
+cd src/server
 npm install
 npm start        # 监听 127.0.0.1:8000，同时托管 src/ 与 /api/*，并加载已启用的 mod
 ```
@@ -80,7 +80,7 @@ npm start        # 监听 127.0.0.1:8000，同时托管 src/ 与 /api/*，并加
 Windows 下也可以直接双击 `src/启动主页(带数据库).bat`（自动装依赖并打开浏览器）；
 要同时打开主页与导航站，双击 `src/启动双数据库.bat` 即可 —— 两者启动的是同一个后端进程。
 
-- 服务配置：`server/config.json`（HTTP `127.0.0.1:8000`；MySQL `127.0.0.1:3306`，默认 `root / root`，库名 `scweb`）。
+- 服务配置：`src/server/config.json`（HTTP `127.0.0.1:8000`；MySQL `127.0.0.1:3306`，默认 `root / root`，库名 `scweb`）。
 - 后端首次启动会自动建库建表，并用 `src/scweb_res/nav/nav-default.js` 填充初始导航数据。
 - 默认账号：`admin / admin`（会话有效期 8 小时），登录后请在页面 ⚙️ 设置下拉的「账号」里修改。
 - 健康检查：<http://127.0.0.1:8000/api/health>
@@ -158,20 +158,20 @@ scweb/
 │   │   ├── yylmzxc.html                  # 导航站页面
 │   │   ├── res/                          # 页面资源（脚本 / 样式 / 出厂数据 / 上传图片）
 │   │   └── server/                       # mod 后端（独立运行入口 + 接口 + 数据层）
+│   ├── server/                           # 后端：静态托管 + /api/* + MySQL 持久化 + mod 加载
+│   │   ├── server.js                     # Express 入口与 /api/* 路由
+│   │   ├── mods.js                       # mod 加载器（扫描 mod.json，把 mod 后端挂进本进程）
+│   │   ├── db.js                         # MySQL 连接池
+│   │   ├── account.js                    # 登录 / 会话 / 改密
+│   │   ├── settings.js                   # 站点设置（site_settings 表）
+│   │   ├── sitenav.js                    # 站点导航（读写 + 同步到静态文件）
+│   │   ├── config.js / config.json       # 服务端口、数据库、账号、mod 开关
+│   │   └── package.json
 │   ├── 用Npm启动开发服务器.bat             # Windows 一键启动（npx live-server）
 │   ├── 用Python启动开发服务器.bat          # Windows 一键启动（serve.py）
 │   ├── 启动主页(带数据库).bat               # 启动主页 + 后端（MySQL，并加载 mod）
 │   ├── 启动双数据库.bat                    # 同上，并额外打开导航站（库：scweb + yylmzxc_nav）
 │   └── 扫描BGM目录.bat                    # BGM 目录扫描脚本
-├── server/                               # 后端：静态托管 + /api/* + MySQL 持久化 + mod 加载
-│   ├── server.js                         # Express 入口与 /api/* 路由
-│   ├── mods.js                           # mod 加载器（扫描 mod.json，把 mod 后端挂进本进程）
-│   ├── db.js                             # MySQL 连接池
-│   ├── account.js                        # 登录 / 会话 / 改密
-│   ├── settings.js                       # 站点设置（site_settings 表）
-│   ├── sitenav.js                        # 站点导航（读写 + 同步到静态文件）
-│   ├── config.js / config.json           # 服务端口、数据库、账号、mod 开关
-│   └── package.json
 └── README.md
 ```
 
@@ -227,7 +227,7 @@ mod 自己的接口挂在 `mod.json` 的 `apiPath` 下，与主站接口共用�
 `src/` 下的**每个一级子目录只要带一份 `mod.json`，就是一个 mod**：
 它自带前端页面（由主站静态托管自动生效），可选自带后端；加载与否只是配置上的一个开关。
 
-- **加载**：`server/config.json` 的 `mods.enabled` 是总开关，`mods.overrides.<名称>` 可逐个指定
+- **加载**：`src/server/config.json` 的 `mods.enabled` 是总开关，`mods.overrides.<名称>` 可逐个指定
   `true / false`；两者都没写时看 `mod.json` 里的 `enabled`。改完重启后端即可。
 - **接口**：mod 后端放在 `<mod>/server/index.js`，导出 `init(ctx)` / `router(ctx)` / `close(ctx)`；
   宿主会把 `express`、`mysql2` 与 `ctx.log` 交给它 —— 因此 mod 目录**不需要自带 `node_modules`**，
@@ -241,7 +241,7 @@ mod 自己的接口挂在 `mod.json` 的 `apiPath` 下，与主站接口共用�
 以导航站（mod `yylmzxcweb`）为例：
 
 ```
-server/mods.js 扫描 src/*/mod.json
+src/server/mods.js 扫描 src/*/mod.json
   └── yylmzxcweb（已启用）
       ├── 前端  /yylmzxcweb/yylmzxc.html     ← src/ 本来就是静态根，目录即访问目录
       └── 后端  /yylmzxcweb/api/*            ← require 该 mod 的 server/index.js 后挂载

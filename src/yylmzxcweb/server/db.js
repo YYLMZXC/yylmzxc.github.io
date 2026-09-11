@@ -1,23 +1,37 @@
 /* ============================================================
-   生存战争网 · 数据访问层（MySQL）
-   自动建库建表；首次启动时用静态数据文件 scweb_res/nav/nav-default.js 填充。
+   YYLMZXC 导航站 · 数据访问层（MySQL）
+   自动建库建表；首次启动时用出厂数据 nav-default.js 填充。
    库 / 表被删掉（例如手工 DROP DATABASE）后不必重启后端：
-   下一次请求会重新建库建表并重试，只是数据只能回到那份静态文件。
-   数据模型：业务数据两张单行 JSON 表——site_nav（站点导航：首页 / 关于页）
-   与 site_settings（站点全局设置：BGM / 自动播放 / 看板娘 / 默认主题），
+   下一次请求会重新建库建表并重试，只是数据只能回到出厂数据。
+   数据模型：内容三张表 settings(单行) / groups / links，
    外加账号与会话两张表：账号密码只存在这里，浏览器不保存任何凭据。
-   静态数据文件本身的读写属于另一职责，见 sitenav.js / settings.js；
+   出厂数据文件本身的读写属于另一职责，见 staticdata.js；
    密码哈希与会话策略属于账号服务，见 account.js；
    连接参数统一读自 config.json，见 config.js。
    ============================================================ */
 'use strict';
 
-const mysql = require('mysql2/promise');
 const CONFIG = require('./config');
-const sitenav = require('./sitenav');
-const settings = require('./settings');
+const staticdata = require('./staticdata');
 
-const DB_NAME = CONFIG.mysql.database || 'scweb';
+// 数据库驱动：独立运行时用本目录自带的依赖；被主站作为 mod 加载时，
+// 宿主会把它那份 mysql2 传进来（见 use），于是 mod 目录不必自备 node_modules。
+// 延迟到真正连接时才 require，避免仅 require 本模块就产生一次依赖解析。
+let driver = null;
+function use(mysql) {
+  if (mysql) driver = mysql;
+}
+function mysql() {
+  if (!driver) driver = require('mysql2/promise');
+  return driver;
+}
+
+const DB_NAME = CONFIG.mysql.database || 'yylmzxc_nav';
+
+// 默认头像：没有自定义头像时使用本机图片（与前端 Nav.util.DEFAULT_AVATAR 保持一致）
+const DEFAULT_AVATAR = 'res/img.png';
+// 旧版出厂默认头像（外部链接）；库里仍是它时一次性订正为 DEFAULT_AVATAR（见 connect）
+const LEGACY_DEFAULT_AVATAR = 'https://lh3.googleusercontent.com/a/ACg8ocKdGmvHcgUM-klYHYHRKbdhiLZl9ird-CyADSrQgrWHPQ=s96-c';
 
 let pool = null;
 let ready = null;    // 建库建表的进行中 / 已完成状态（见 init）
@@ -39,6 +53,38 @@ function baseOptions() {
 }
 
 const DDL = [
+  `CREATE TABLE IF NOT EXISTS nav_settings (
+     id TINYINT UNSIGNED NOT NULL PRIMARY KEY,
+     title VARCHAR(255) NOT NULL DEFAULT '',
+     description TEXT,
+     background TEXT,
+     profile_name VARCHAR(255) NOT NULL DEFAULT '',
+     profile_avatar TEXT,
+     profile_links LONGTEXT,
+     updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+   ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`,
+
+  `CREATE TABLE IF NOT EXISTS nav_groups (
+     id VARCHAR(64) NOT NULL PRIMARY KEY,
+     name VARCHAR(255) NOT NULL DEFAULT '',
+     sort_order INT NOT NULL DEFAULT 0,
+     collapsed TINYINT(1) NOT NULL DEFAULT 0,
+     column_index INT NOT NULL DEFAULT 0
+   ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`,
+
+  `CREATE TABLE IF NOT EXISTS nav_links (
+     id VARCHAR(64) NOT NULL PRIMARY KEY,
+     group_id VARCHAR(64) NOT NULL,
+     title VARCHAR(512) NOT NULL DEFAULT '',
+     url VARCHAR(1024) NOT NULL DEFAULT '',
+     favicon VARCHAR(1024) NOT NULL DEFAULT '',
+     is_rss TINYINT(1) NOT NULL DEFAULT 0,
+     sort_order INT NOT NULL DEFAULT 0,
+     KEY idx_nav_links_group (group_id),
+     CONSTRAINT fk_nav_links_group FOREIGN KEY (group_id)
+       REFERENCES nav_groups (id) ON DELETE CASCADE
+   ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`,
+
   // 账号只有一行（id = 1）。只存 scrypt 加盐哈希，明文密码不落库
   `CREATE TABLE IF NOT EXISTS nav_account (
      id TINYINT UNSIGNED NOT NULL PRIMARY KEY,
@@ -54,23 +100,6 @@ const DDL = [
      expires_at DATETIME NOT NULL,
      created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
      KEY idx_nav_sessions_expires (expires_at)
-   ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`,
-
-  // 站点导航数据（首页 / 关于页）：整份 JSON 存一行。
-  // 单行 JSON 而非拆表，是因为导航的数据结构（分页 + 分组 + 多语言标题键）还在演进，
-  // 拆成列反而每次改结构都要动表；整份读写的语义也与「导入 / 导出 / 转换」天然对齐。
-  `CREATE TABLE IF NOT EXISTS site_nav (
-     id TINYINT UNSIGNED NOT NULL PRIMARY KEY,
-     data LONGTEXT,
-     updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-   ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`,
-
-  // 站点全局设置（启用 BGM / 自动播放 / 看板娘 / 默认主题）：同样整份 JSON 存一行。
-  // 与 site_nav 分表，是因为两者读写时机与权限含义不同：导航是页面内容，这里是站点开关。
-  `CREATE TABLE IF NOT EXISTS site_settings (
-     id TINYINT UNSIGNED NOT NULL PRIMARY KEY,
-     data LONGTEXT,
-     updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`
 ];
 
@@ -105,7 +134,7 @@ const STAGE_TEXT = {
   'connect': '连接 MySQL 服务',
   'create-db': '创建数据库 ' + DB_NAME,
   'ddl': '创建数据表',
-  'seed': '写入初始数据',
+  'seed': '写入出厂数据',
   'load': '读取数据',
   'save': '写入数据'
 };
@@ -298,12 +327,12 @@ function deniedAndMissing() {
 
 /* ---------------- 初始化与自愈 ---------------- */
 
-// 建库 + 建表 + 空库时填充初始数据。只负责「把库表准备好」，可重复执行。
+// 建库 + 建表 + 空库时填充出厂数据。只负责「把库表准备好」，可重复执行。
 // stage 记录出错时走到了哪一步：同样是权限不足，建库和写数据的提示完全不同（见 diagnose）。
 async function connect() {
   let stage = 'connect';
   try {
-    const root = await mysql.createConnection(baseOptions());
+    const root = await mysql().createConnection(baseOptions());
     try {
       stage = 'create-db';
       try {
@@ -327,27 +356,26 @@ async function connect() {
     }
 
     stage = 'ddl';
-    pool = mysql.createPool(Object.assign({ database: DB_NAME }, baseOptions()));
+    pool = mysql().createPool(Object.assign({ database: DB_NAME }, baseOptions()));
     for (const sql of DDL) await pool.query(sql);
 
-    // 站点导航（首页 / 关于页）在首次启动时用静态文件填一次，
-    // 否则数据库模式下第一次打开页面会是空的。
     stage = 'seed';
-    const [siteRows] = await pool.query('SELECT id FROM site_nav WHERE id = 1');
-    if (!siteRows.length) {
-      const sd = sitenav.read();
-      if (sd) {
-        await writeSiteNav(pool, sitenav.normalize(sd) || sd);
-        console.log('已用静态数据文件初始化站点导航');
+    const [rows] = await pool.query('SELECT id FROM nav_settings WHERE id = 1');
+    if (!rows.length) {
+      const d = staticdata.read();
+      if (d) {
+        await writeAll(d);
+        console.log('已用出厂数据初始化数据库');
       }
     }
 
-    // 站点全局设置同理：空库时用 site-config.js 里的默认值填一次
-    const [setRows] = await pool.query('SELECT id FROM site_settings WHERE id = 1');
-    if (!setRows.length) {
-      await writeSiteSettings(pool, settings.defaults());
-      console.log('已用 site-config.js 的默认值初始化站点设置');
-    }
+    // 默认头像由「外部链接」改为本机图片 res/img.png：老库里仍留着那个出厂链接时订正过来。
+    // 只认出厂值，用户自己填的头像链接不动；改完再启动就匹配不到，等于只跑一次。
+    const [fixed] = await pool.query(
+      'UPDATE nav_settings SET profile_avatar = ? WHERE id = 1 AND profile_avatar = ?',
+      [DEFAULT_AVATAR, LEGACY_DEFAULT_AVATAR]
+    );
+    if (fixed.affectedRows) console.log('默认头像已改为 ' + DEFAULT_AVATAR);
 
     lastError = null;
   } catch (e) {
@@ -377,7 +405,7 @@ function isLost(e) {
 }
 
 // 所有查询的统一入口：发现库 / 表不见了就先重建再重试一次，
-// 所以运行中手工删库不必重启后端（代价是数据只能回到静态文件那一份）。
+// 所以运行中手工删库不必重启后端（代价是数据只能回到出厂数据）。
 async function run(query) {
   await init();
   try {
@@ -403,66 +431,135 @@ function safeParse(text, fallback) {
   try { return JSON.parse(text); } catch (e) { return fallback; }
 }
 
-/* ---------------- 站点导航数据（首页 / 关于页） ----------------
-   整份 JSON 存在 site_nav 单行里：读回来就是前端直接用的那份结构，
-   不做字段级拆解，因此导入 / 导出 / 转换三条路径 round-trip 完全一致。
-   分组带 page 字段标明归属页面，格式升级（v1 只有首页）见 sitenav.upgrade。 */
+async function loadNav() {
+  const settings = await q('SELECT * FROM nav_settings WHERE id = 1');
+  if (!settings.length) return null;
+  const s = settings[0];
 
-async function loadSiteNav() {
-  const rows = await q('SELECT data FROM site_nav WHERE id = 1');
-  if (!rows.length) return null;
+  const groupRows = await q('SELECT * FROM nav_groups ORDER BY sort_order, id');
+  const linkRows = await q('SELECT * FROM nav_links ORDER BY sort_order, id');
 
-  const d = safeParse(rows[0].data, null);
-  if (!d || !Array.isArray(d.groups)) return null;
+  const buckets = {};
+  linkRows.forEach(function (l) {
+    (buckets[l.group_id] = buckets[l.group_id] || []).push(l);
+  });
 
-  // 老数据（v1 只有首页）顺手升级并落库一次，之后读到的就是当前格式
-  const up = sitenav.upgrade(d);
-  if (up.changed) {
-    await saveSiteNav(up.data);
-    console.log('已把 site_nav 里的老数据升级为多页面格式（首页 + 关于页）');
+  return {
+    version: 1,
+    title: s.title || '导航',
+    description: s.description || '',
+    background: s.background || '',
+    profile: {
+      name: s.profile_name || '',
+      avatar: s.profile_avatar || '',
+      links: safeParse(s.profile_links, [])
+    },
+    groups: groupRows.map(function (g) {
+      var group = {
+        id: g.id,
+        name: g.name,
+        column: g.column_index,
+        links: (buckets[g.id] || []).map(function (l) {
+          const link = { id: l.id, title: l.title, url: l.url };
+          if (l.favicon) link.favicon = l.favicon;
+          if (l.is_rss) link.rss = true;
+          return link;
+        })
+      };
+      if (g.collapsed) group.collapsed = true;   // 仅收起时写入，保持导出文件干净
+      return group;
+    })
+  };
+}
+
+/* ---------------- 写入（整份覆盖，事务） ---------------- */
+
+// 真正落库的那一段：调用前连接池必须已就绪（connect 与 saveNav 都已经等过 init）
+async function writeAll(data) {
+  const profile = data.profile || {};
+  const groups = Array.isArray(data.groups) ? data.groups : [];
+
+  const conn = await pool.getConnection();
+  try {
+    await conn.beginTransaction();
+
+    // 先删子表再删父表，避免外键约束
+    await conn.query('DELETE FROM nav_links');
+    await conn.query('DELETE FROM nav_groups');
+
+    await conn.query(
+      `INSERT INTO nav_settings
+         (id, title, description, background, profile_name, profile_avatar, profile_links)
+       VALUES (1, ?, ?, ?, ?, ?, ?)
+       ON DUPLICATE KEY UPDATE
+         title = VALUES(title),
+         description = VALUES(description),
+         background = VALUES(background),
+         profile_name = VALUES(profile_name),
+         profile_avatar = VALUES(profile_avatar),
+         profile_links = VALUES(profile_links)`,
+      [
+        String(data.title || ''),
+        String(data.description || ''),
+        String(data.background || ''),
+        String(profile.name || ''),
+        String(profile.avatar || ''),
+        JSON.stringify(Array.isArray(profile.links) ? profile.links : [])
+      ]
+    );
+
+    for (let i = 0; i < groups.length; i++) {
+      const g = groups[i] || {};
+      const gid = String(g.id || ('g' + (i + 1)));
+      await conn.query(
+        'INSERT INTO nav_groups (id, name, sort_order, collapsed, column_index) VALUES (?, ?, ?, ?, ?)',
+        [gid, String(g.name || ''), i, g.collapsed ? 1 : 0, Number(g.column) || 0]
+      );
+
+      const links = Array.isArray(g.links) ? g.links : [];
+      for (let j = 0; j < links.length; j++) {
+        const l = links[j] || {};
+        await conn.query(
+          `INSERT INTO nav_links (id, group_id, title, url, favicon, is_rss, sort_order)
+           VALUES (?, ?, ?, ?, ?, ?, ?)`,
+          [
+            String(l.id || (gid + '_l' + (j + 1))),
+            gid,
+            String(l.title || ''),
+            String(l.url || ''),
+            String(l.favicon || ''),
+            l.rss ? 1 : 0,
+            j
+          ]
+        );
+      }
+    }
+
+    await conn.commit();
+  } catch (e) {
+    await conn.rollback();
+    throw e;
+  } finally {
+    conn.release();
   }
-  return up.data;
 }
 
-// 真正落库的那一段，直接拿连接用。
-// 不能走 q()/run()：初始化时 connect() 自己也要写这一行，而 run() 会 await init()，
-// 那个时刻 init() 返回的正是「正在跑的 connect」——自己等自己，直接死锁。
-async function writeSiteNav(conn, data) {
-  await conn.query(
-    `INSERT INTO site_nav (id, data) VALUES (1, ?)
-     ON DUPLICATE KEY UPDATE data = VALUES(data)`,
-    [JSON.stringify(data)]
-  );
-}
-
-async function saveSiteNav(data) {
-  await run(function (p) { return writeSiteNav(p, data); });
-}
-
-/* ---------------- 站点全局设置 ----------------
-   同样整份 JSON 存单行；读回来是前端直接用的那份结构（见 settings.js 的 normalize）。 */
-
-async function loadSiteSettings() {
-  const rows = await q('SELECT data FROM site_settings WHERE id = 1');
-  if (!rows.length) return null;
-  const d = safeParse(rows[0].data, null);
-  return (d && typeof d === 'object') ? d : null;
-}
-
-// 与 writeSiteNav 同理：初始化时 connect() 自己也要写这一行，不能走 run()（会自等死锁）
-async function writeSiteSettings(conn, data) {
-  await conn.query(
-    `INSERT INTO site_settings (id, data) VALUES (1, ?)
-     ON DUPLICATE KEY UPDATE data = VALUES(data)`,
-    [JSON.stringify(data)]
-  );
-}
-
-async function saveSiteSettings(data) {
-  await run(function (p) { return writeSiteSettings(p, data); });
+// 整份覆盖写入。库表被删掉时重建一次再整体重写，避免白改一场
+async function saveNav(data) {
+  await init();
+  try {
+    return await writeAll(data);
+  } catch (e) {
+    if (!isLost(e)) throw e;
+    pool = null;
+    ready = null;
+    await init();
+    return writeAll(data);
+  }
 }
 
 /* ---------------- 账号与会话 ---------------- */
+
 async function loadAccount() {
   const rows = await q('SELECT * FROM nav_account WHERE id = 1');
   return rows.length ? rows[0] : null;
@@ -531,8 +628,7 @@ async function health() {
     });
   }
   try {
-    await pool.query('SELECT id FROM site_nav WHERE id = 1');
-    await pool.query('SELECT id FROM site_settings WHERE id = 1');
+    await pool.query('SELECT id FROM nav_settings WHERE id = 1');
     await pool.query('SELECT id FROM nav_account WHERE id = 1');
     return { ok: true, database: DB_NAME, target: TARGET };
   } catch (e) {
@@ -540,15 +636,23 @@ async function health() {
   }
 }
 
+// 释放连接池：进程退出前调用，让被主站加载的这一次运行能干净收尾
+async function close() {
+  const p = pool;
+  pool = null;
+  ready = null;
+  if (p) await p.end();
+}
+
 module.exports = {
+  use: use,
+  close: close,
   init: init,
   health: health,
   explain: explain,
   diagnose: diagnose,
-  loadSiteNav: loadSiteNav,
-  saveSiteNav: saveSiteNav,
-  loadSiteSettings: loadSiteSettings,
-  saveSiteSettings: saveSiteSettings,
+  loadNav: loadNav,
+  saveNav: saveNav,
   loadAccount: loadAccount,
   saveAccount: saveAccount,
   createSession: createSession,

@@ -15,11 +15,11 @@ for /f "tokens=5" %%p in ('netstat -ano ^| findstr ":8000" ^| findstr "LISTENING
   taskkill /f /pid %%p >nul 2>nul
 )
 
-rem 后端在仓库根的 server 目录，首次运行自动安装依赖
+rem 后端在 src 目录下的 server 目录，首次运行自动安装依赖
 rem 各 mod 的依赖由主站后端统一提供（见 server\mods.js），无需单独安装
-if not exist "..\server\node_modules" (
+if not exist "server\node_modules" (
   echo 正在安装后端依赖 ...
-  pushd "..\server"
+  pushd "server"
   call npm install --no-fund --no-audit
   popd
 )
@@ -39,7 +39,7 @@ rem 用独立进程执行，不阻塞下面的服务；/min 避免多弹一个�
 start "" /min cmd /c "ping -n 3 127.0.0.1 >nul & start http://localhost:8000/index.html"
 start "" /min cmd /c "ping -n 3 127.0.0.1 >nul & start http://localhost:8000/yylmzxcweb/yylmzxc.html"
 
-node "..\server\server.js"
+node "server\server.js"
 
 echo.
 echo 服务已退出。

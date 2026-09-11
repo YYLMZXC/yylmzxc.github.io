@@ -5,7 +5,7 @@
    2) 提供 /api/* 接口：站点导航的读写与导出、站点全局设置的读写、账号登录与会话；
    3) 加载 mod：src/ 下带 mod.json 的子目录（如 yylmzxcweb 导航站）按 config.json 的
       mods 段决定加载与否，其接口在本进程内挂载——于是一个进程可同时连多个库。
-  启动：在仓库根目录执行 node server/server.js
+  启动：在仓库根目录执行 node src/server/server.js
    （或双击 src/启动主页(带数据库).bat，脚本会把依赖装好并自动开浏览器）
    ============================================================ */
 'use strict';
@@ -45,8 +45,8 @@ const TLS_KEY = process.env.SCWEB_TLS_KEY || DOMAIN.key || '';
 const TLS_CERT = process.env.SCWEB_TLS_CERT || DOMAIN.cert || '';
 const TLS_CHAIN = process.env.SCWEB_TLS_CHAIN || DOMAIN.chain || '';
 
-// 站点根目录：本进程在仓库根的 server/ 下，同级还有一个 src/ 放整个前端
-const WEB_ROOT = path.join(__dirname, '..', 'src');
+// 站点根目录：本进程在 src/server/ 下，上一级 src/ 就是整个前端
+const WEB_ROOT = path.join(__dirname, '..');
 
 const app = express();
 app.use(express.json({ limit: '20mb' }));

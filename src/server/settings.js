@@ -14,8 +14,8 @@ const fs = require('fs');
 const path = require('path');
 const vm = require('vm');
 
-// 后端在 server/ 下，上一级即仓库根，站点前端在它的 src/ 里
-const WEB_ROOT = path.join(__dirname, '..', 'src');
+// 后端在 src/server/ 下，上一级 src/ 即站点前端根
+const WEB_ROOT = path.join(__dirname, '..');
 const FILE = path.join(WEB_ROOT, 'site-config.js');
 const REL = 'site-config.js';
 

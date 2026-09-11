@@ -27,8 +27,8 @@ const fs = require('fs');
 const path = require('path');
 const CONFIG = require('./config');
 
-// 站点根：本文件在仓库根的 server/ 下，同级 src/ 就是静态站点（也是 mod 的容器）
-const WEB_ROOT = path.join(__dirname, '..', 'src');
+// 站点根：本文件在 src/server/ 下，上一级 src/ 就是静态站点（也是 mod 的容器）
+const WEB_ROOT = path.join(__dirname, '..');
 const MANIFEST = 'mod.json';
 
 // mod 的后端固定放在 server/ 子目录下：与前端资源分开，静态托管时整目录屏蔽

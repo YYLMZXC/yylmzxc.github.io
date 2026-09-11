@@ -1,0 +1,26 @@
+{
+  "server": {
+    "port": 8000,
+    "host": "127.0.0.1",
+    "domain": {
+      "httpPort": 0,
+      "httpsPort": 0,
+      "key": "",
+      "cert": "",
+      "chain": ""
+    }
+  },
+  "mysql": {
+    "host": "127.0.0.1",
+    "port": 3306,
+    "user": "root",
+    "password": "root",
+    "database": "yylmzxc_nav",
+    "connectionLimit": 5
+  },
+  "auth": {
+    "user": "yylmzxc",
+    "pass": "yylmzxc",
+    "sessionHours": 8
+  }
+}
