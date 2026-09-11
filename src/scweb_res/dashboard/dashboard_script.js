@@ -7,7 +7,7 @@
  *   - BrowserInfoCollector   纯前端信息采集（只读 navigator/screen/window/performance，无 DOM 依赖）
  *   - DashboardPageManager   页面编排门面：渲染区块、请求服务端信息、绑定事件
  *
- * 依赖注入：共享管理器（ThemeManager/LanguageManager/SiteInfoManager）由组合根 SCApp.create 创建后注入
+ * 依赖注入：由组合根 SCApp.create 创建后注入；本页仅使用 LanguageManager（主题 / 站点信息由各自管理器自行绑定）
  */
 
 /* ========================================================================
@@ -236,8 +236,9 @@ class BrowserInfoCollector {
 
     /**
      * 采集存储信息
+     * @param {Function} [onEstimate] - 异步存储估算就绪后的回调（该值无法随返回值同步给出）
      */
-    static collectStorage() {
+    static collectStorage(onEstimate) {
         const result = {
             localStorage: false, sessionStorage: false,
             indexedDB: false, cacheAPI: false,
@@ -255,8 +256,8 @@ class BrowserInfoCollector {
                 const usedMB = est.usage ? (est.usage / 1024 / 1024).toFixed(1) : '?';
                 const totalMB = est.quota ? (est.quota / 1024 / 1024).toFixed(0) : '?';
                 result.storageEstimate = usedMB + ' / ' + totalMB + ' MB';
-                // Re-render after async data arrives
-                document.dispatchEvent(new CustomEvent('storageEstimateReady'));
+                // 异步值就绪后回调页面层重渲染，采集器自身不碰 DOM
+                if (typeof onEstimate === 'function') onEstimate(result);
             }).catch(() => {});
         }
         return result;
@@ -341,9 +342,8 @@ class BrowserInfoCollector {
 class DashboardPageManager {
     constructor(app) {
         this.app = app;
-        this.themeManager = app.themeManager;
+        // 本页只用到语言管理器；主题 / 站点信息由各自管理器自行绑定，无需在此持有
         this.languageManager = app.languageManager;
-        this.siteInfoManager = app.siteInfoManager;
 
         // 数据缓存（语言切换时重渲染使用）
         this.serverData = null;
@@ -380,6 +380,10 @@ class DashboardPageManager {
         this.gamingData = BrowserInfoCollector.collectGaming();
         this.securityData = BrowserInfoCollector.collectSecurity();
         this.deviceData = BrowserInfoCollector.collectDevice();
+        // 存储估算含异步部分：先同步采集，估算就绪后由回调重渲染该区块
+        this.storageData = BrowserInfoCollector.collectStorage(() => {
+            this.renderList('storageInfoList', this.buildStorageRows());
+        });
 
         this.renderAll();
         this.startClock();
@@ -710,11 +714,6 @@ class DashboardPageManager {
     bindEvents() {
         // 语言切换：由 LanguageManager 全局委托处理，此处仅重渲染动态区块
         document.addEventListener('languageChanged', () => this.renderAll());
-
-        // 存储估算异步就绪后重渲染存储区块
-        document.addEventListener('storageEstimateReady', () => {
-            this.renderList('storageInfoList', this.buildStorageRows());
-        });
 
         // 刷新按钮
         const refreshBtn = document.getElementById('refreshBtn');

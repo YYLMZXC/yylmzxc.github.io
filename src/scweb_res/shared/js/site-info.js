@@ -34,8 +34,8 @@ class SiteInfoManager {
      */
     updateSiteInfo() {
         const currentUrl = window.location.hostname + (window.location.port ? ':' + window.location.port : '');
-        const lang = this.languageManager.currentLang;
-        const translations = this.languageManager.config.translations[lang];
+        // 只走 LanguageManager 公开接口，不直接读其内部 currentLang / config
+        const translations = this.languageManager.getTranslations();
 
         this.updateCurrentAddress(currentUrl, translations);
         this.updateShortUrls(translations);

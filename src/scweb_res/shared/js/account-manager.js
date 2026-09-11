@@ -62,6 +62,14 @@ class AccountManager {
     }
 
     /**
+     * 是否已登录（对外公开接口，供导航面板 / 编辑器 / 设置面板判定权限，避免它们直读 state）
+     * @returns {boolean}
+     */
+    isLoggedIn() {
+        return !!(this.state && this.state.loggedIn);
+    }
+
+    /**
      * 登录状态变化后广播，导航数据面板据此刷新（未登录时不能导入 / 转换）
      */
     _announce() {

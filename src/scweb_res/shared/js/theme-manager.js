@@ -76,12 +76,22 @@ class ThemeManager {
     }
 
     /**
+     * 个人主题的存储键：唯一来源是 SettingsStore.THEME_KEY，避免两处各自持有同一个键。
+     * ThemeManager 先于 SettingsStore 加载，故运行时取；未加载时降级为同名键。
+     * @returns {string}
+     */
+    getStorageKey() {
+        const S = window.SettingsStore;
+        return (S && S.THEME_KEY) || 'preferredTheme';
+    }
+
+    /**
      * 从 localStorage 获取用户保存的主题偏好
      * @returns {string|null} 合法主题字符串或 null
      */
     getSavedTheme() {
         try {
-            const saved = localStorage.getItem('preferredTheme');
+            const saved = localStorage.getItem(this.getStorageKey());
             return this.isValidTheme(saved) ? saved : null;
         } catch (e) {
             console.warn('[ThemeManager] localStorage 不可用:', e);
@@ -106,7 +116,7 @@ class ThemeManager {
      */
     saveTheme(theme) {
         try {
-            localStorage.setItem('preferredTheme', theme);
+            localStorage.setItem(this.getStorageKey(), theme);
         } catch (e) {
             console.warn('[ThemeManager] 无法保存主题到 localStorage:', e);
         }

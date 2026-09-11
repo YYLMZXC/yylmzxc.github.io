@@ -52,8 +52,8 @@ class NavPanel {
     /** 是否已登录：页面没装账号模块时不在本地拦，交给后端去拒绝（与编辑器一致） */
     _loggedIn() {
         const acc = this.app && this.app.accountManager;
-        if (!acc || !acc.state) return true;
-        return !!acc.state.loggedIn;
+        if (!acc || typeof acc.isLoggedIn !== 'function') return true;
+        return acc.isLoggedIn();
     }
 
     /* ================================================================

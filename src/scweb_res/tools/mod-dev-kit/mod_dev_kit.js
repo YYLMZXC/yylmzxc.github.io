@@ -287,24 +287,27 @@ class ModDevKitPageManager {
 
     /** 编辑器内容变化回调：自动检测语言类型 */
     onEditorChange() {
+        if (!this.editor) return;
         var val = this.editor.getValue().trim();
         var detected = EmmetBridge.detectType(val);
 
         var lngEl = document.getElementById('lng');
         if (lngEl) lngEl.textContent = detected.label;
 
+        // 目标编辑器可能不存在（页面未提供 #dst），统一判空后再设置
+        var dst = this.dst;
         var fnameEl = document.getElementById('fname');
         if (detected.label === 'CSV') {
             this.editor.setOption('mode', '');
-            this.dst.setOption('mode', '');
+            if (dst) dst.setOption('mode', '');
             if (fnameEl) fnameEl.value = 'out.csv';
         } else if (detected.label === 'xml') {
             this.editor.setOption('mode', 'xml');
-            this.dst.setOption('mode', '');
+            if (dst) dst.setOption('mode', '');
             if (fnameEl) fnameEl.value = 'out.txt';
         } else {
             this.editor.setOption('mode', 'css');
-            this.dst.setOption('mode', 'xml');
+            if (dst) dst.setOption('mode', 'xml');
             if (fnameEl) fnameEl.value = 'out.xml';
         }
     }
