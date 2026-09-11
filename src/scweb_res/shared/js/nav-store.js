@@ -147,9 +147,9 @@ class NavStore {
 
     /** 整份数据替换（载入 / 切换模式 / 导入 / 转换后都用它） */
     setData(data) {
-        this.state.data = data;
+        this.state.data = NavStore.repairData(data);
         this.emit({ type: 'data' });
-        return data;
+        return this.state.data;
     }
 
     setOnline(next) {
@@ -250,6 +250,29 @@ class NavStore {
 
         if (!looksDomain || looksLocalFile) return u;
         return 'https://' + u;
+    }
+
+    /**
+     * 修回历史脏数据：旧版编辑器会把站内页面补成 https://mesh-reader.html。
+     * 「协议头 + 页面文件名」不是真实域名（.html/.php 等本就不是顶级域），
+     * 一律去掉协议头还原成站内相对路径，静态文件 / 数据库里存的旧值都能自愈。
+     */
+    static repairUrl(u) {
+        return String(u || '').replace(
+            /^https?:\/\/(?:www\.)?([^/?#\s]+\.(?:html?|php|jsp|aspx?))$/i,
+            '$1'
+        );
+    }
+
+    /** 整份数据过一遍 repairUrl（载入入口统一调用，见 setData） */
+    static repairData(data) {
+        if (!data || !Array.isArray(data.groups)) return data;
+        data.groups.forEach(g => {
+            (Array.isArray(g && g.links) ? g.links : []).forEach(l => {
+                if (l) l.url = NavStore.repairUrl(l.url);
+            });
+        });
+        return data;
     }
 
     /** 取主机名（去掉 www.），链接名称留空时用它兜底 */
@@ -601,7 +624,7 @@ class NavStore {
             if (!g.name && !g.key) g.name = '未命名分组';
             g.links = (Array.isArray(g.links) ? g.links : []).map((l, li) => {
                 l.id = l.id || (g.id + '-l' + (li + 1));
-                l.url = String(l.url || '').trim();
+                l.url = NavStore.repairUrl(String(l.url || '').trim());
                 return l;
             }).filter(l => l.url);
         });
