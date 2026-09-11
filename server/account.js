@@ -1,5 +1,5 @@
 /* ============================================================
-   YYLMZXC 导航站 · 账号与会话
+   生存战争网 · 账号与会话
    账号密码只存在数据库里：scrypt + 随机盐哈希，明文既不落库也不落浏览器。
    登录态用一个 HttpOnly 会话 Cookie 承载，令牌本身同样落库，
    因此服务端可以随时撤销（退出登录 / 改密码）。
@@ -13,10 +13,14 @@ const CONFIG = require('./config');
 
 const AUTH = CONFIG.auth || {};
 
-const COOKIE_NAME = 'nav_sid';
+const COOKIE_NAME = 'scweb_sid';
 const SESSION_HOURS = Number(AUTH.sessionHours) > 0 ? Number(AUTH.sessionHours) : 8;
 const KEY_BYTES = 64;     // scrypt 输出长度（十六进制后 128 字符）
 const SALT_BYTES = 16;
+
+// 默认账号：建过之后 config.json 里的值就不再生效，只用于首次初始化与「删表后重建」
+const DEFAULT_USER = 'admin';
+const DEFAULT_PASS = 'admin';
 
 /* ---------------- 密码哈希 ---------------- */
 
@@ -75,10 +79,11 @@ async function ensure() {
   const acc = await db.loadAccount();
   if (acc) return acc;
 
-  const user = String(AUTH.user || 'yylmzxc');
+  const user = String(AUTH.user || DEFAULT_USER);
+  const pass = String(AUTH.pass || DEFAULT_PASS);
   const salt = newSalt();
-  await db.saveAccount({ user: user, hash: hash(AUTH.pass || 'yylmzxc', salt), salt: salt });
-  console.log('已创建默认账号：' + user + '（可在页面的「账号面板」中修改）');
+  await db.saveAccount({ user: user, hash: hash(pass, salt), salt: salt });
+  console.log('已创建默认账号：' + user + '（初始密码见 server/config.json 的 auth.pass，请尽快在页面「账号」里修改）');
   return db.loadAccount();
 }
 

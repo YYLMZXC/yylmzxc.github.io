@@ -1,8 +1,8 @@
 {
-  "name": "yylmzxc-nav-server",
+  "name": "scweb-server",
   "version": "1.0.0",
   "private": true,
-  "description": "YYLMZXC 导航站后端：静态托管 + MySQL 持久化",
+  "description": "生存战争网后端：静态托管 + MySQL 持久化（独立数据库）",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"

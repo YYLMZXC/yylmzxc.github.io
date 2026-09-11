@@ -15,12 +15,12 @@
     "port": 3306,
     "user": "root",
     "password": "root",
-    "database": "yylmzxc_nav",
+    "database": "scweb",
     "connectionLimit": 5
   },
   "auth": {
-    "user": "yylmzxc",
-    "pass": "yylmzxc",
+    "user": "admin",
+    "pass": "admin",
     "sessionHours": 8
   }
 }

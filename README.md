@@ -60,6 +60,25 @@
    - Mod 开发工具：`http://localhost:8000/tools/mod-dev-kit.html`
    - 模型 Mesh 读取器：`http://localhost:8000/tools/mesh-reader.html`
 
+### 带数据库运行（首页社区导航可编辑）
+
+`src/` 是纯静态站点，用上面的静态服务器打开即可（web 模式，只读）。
+要让首页的「社区导航」能在页面上登录、编辑、导入导出，并支持「同步到静态文件」，需要启动仓库根目录下的后端：
+
+```bash
+cd server
+npm install
+npm start        # 监听 127.0.0.1:8000，同时托管 src/ 与 /api/*
+```
+
+Windows 下也可以直接双击 `src/启动主页(带数据库).bat`（自动装依赖并打开浏览器）。
+
+- 数据库：`server/config.json`（默认 `root / root`，库名 `scweb`）。
+  后端首次启动会自动建库建表，并用 `src/scweb_res/nav/nav-default.js` 填充初始数据。
+- 默认账号：`admin / admin`，登录后请在页面设置下拉的「账号」里修改。
+- 健康检查：<http://127.0.0.1:8000/api/health>
+- 部署到 GitHub Pages 时没有后端，站点会自动以只读的 web 模式运行。
+
 ## 📁 项目结构
 
 ```
@@ -120,7 +139,9 @@ scweb/
 │   │       └── mod-dev-kit/              # Mod 工具包样式/脚本
 │   └── 用Npm启动开发服务器.bat             # Windows 一键启动脚本
 │   ├── 用Python启动开发服务器.bat          # Windows 一键启动脚本
+│   ├── 启动主页(带数据库).bat               # 启动主页 + 后端（MySQL）
 │   └── 扫描BGM目录.bat                    # BGM 目录扫描脚本
+├── server/                               # 后端：静态托管 + /api/* + MySQL 持久化
 └── README.md
 ```
 
