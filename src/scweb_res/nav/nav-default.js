@@ -337,6 +337,13 @@ window.SITE_NAV_DEFAULT = {
           "title": "Blockbench 3D编辑器",
           "url": "https://web.blockbench.net/",
           "external": true
+        },
+        {
+          "id": "lmtwyavas4l30",
+          "title": "yylmzxc_web",
+          "url": "yylmzxcweb/yylmzxc.html",
+          "external": true,
+          "key": ""
         }
       ]
     },
