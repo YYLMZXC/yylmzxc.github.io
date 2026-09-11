@@ -41,21 +41,38 @@ class ThemeManager {
 
     /**
      * 设置初始主题
-     * 优先级：localStorage 保存 > 系统偏好深色自动切到对应暗色 > 默认亮色(light)
+     * 优先级：个人保存 > 站点默认主题（数据库全局设置）> 系统偏好深色 > 工坊亮色(light)
      */
     setInitialTheme() {
-        const savedTheme = this.getSavedTheme();
+        const savedTheme = this.getSavedTheme();        // 个人在本机选过的
+        const siteTheme = this.getSiteDefaultTheme();   // 站点默认（管理员在设置里配的）
+
         if (savedTheme) {
             this.currentTheme = savedTheme;
+        } else if (siteTheme) {
+            this.currentTheme = siteTheme;
         } else if (this.getSystemTheme() === 'dark') {
-            // 系统暗色时默认用现代暗色主题
             this.currentTheme = 'dark';
         } else {
-            // 新用户默认工坊亮色
             this.currentTheme = 'wk-light';
         }
         this.applyTheme(this.currentTheme);
         this.updateThemeButtons();
+    }
+
+    /**
+     * 站点默认主题：优先取全局设置（数据库 / 离线缓存），取不到再回退 site-config.js。
+     * 未个人选过主题的访客用它，所以个人保存永远优先。
+     * @returns {string} 合法主题，取不到时返回空串
+     */
+    getSiteDefaultTheme() {
+        const S = window.SettingsStore;
+        if (S && S.getDefaultTheme) {
+            const t = S.getDefaultTheme();
+            if (this.isValidTheme(t)) return t;
+        }
+        const cfg = (window.SITE_CONFIG) || {};
+        return this.isValidTheme(cfg.defaultTheme) ? cfg.defaultTheme : '';
     }
 
     /**

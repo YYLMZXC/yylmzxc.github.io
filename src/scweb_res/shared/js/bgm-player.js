@@ -614,14 +614,17 @@ var BgmPlayer = (function () {
     }
 
     function init() {
-        /* 0. 读取配置：用户偏好(localStorage) > 站点默认(site-config.js) */
-        function _cfg(key, fallback) {
+        /* 0. 读取配置：个人覆盖 > 全局设置（数据库 / 离线缓存）> site-config.js 默认。
+              取值统一走 SettingsStore；它没加载时退回旧的 localStorage 逻辑。 */
+        function _legacy(key, fallback) {
             try { var v = localStorage.getItem('settings_' + key); return v !== null ? v === 'true' : fallback; }
             catch (_) { return fallback; }
         }
+        var S = window.SettingsStore;
         var _bgmCfg = (window.SITE_CONFIG && window.SITE_CONFIG.bgm) || {};
-        if (!_cfg('bgm_enabled', _bgmCfg.enabled !== false)) return;   // BGM 已禁用
-        var autoPlay = _cfg('bgm_autoplay', _bgmCfg.autoPlay !== false);
+
+        if (!(S ? S.getBgmEnabled() : _legacy('bgm_enabled', _bgmCfg.enabled !== false))) return;   // BGM 已禁用
+        var autoPlay = S ? S.getBgmAutoPlay() : _legacy('bgm_autoplay', _bgmCfg.autoPlay !== false);
 
         /* 1. 创建 DOM */
         BgmUI.create();

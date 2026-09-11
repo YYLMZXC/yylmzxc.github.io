@@ -2,7 +2,7 @@
    生存战争网 · 后端服务（独立进程，不依赖任何其它站点模块）
    1) 托管站点前端 src/：默认首页 index.html，
       首页的「社区导航」数据来自 MySQL，落库在 config.json 指定的独立数据库里；
-   2) 提供 /api/* 接口：首页导航的读写与导出、账号登录与会话。
+   2) 提供 /api/* 接口：首页导航的读写与导出、站点全局设置的读写、账号登录与会话。
    启动：在仓库根目录执行 node server/server.js
    （或双击 src/启动主页(带数据库).bat，脚本会把依赖装好并自动开浏览器）
    ============================================================ */
@@ -16,6 +16,7 @@ const express = require('express');
 const CONFIG = require('./config');
 const db = require('./db');
 const sitenav = require('./sitenav');
+const siteSettings = require('./settings');
 const account = require('./account');
 
 const PORT = CONFIG.server.port || 8000;
@@ -89,10 +90,10 @@ api.get('/health', async function (req, res) {
 
 // 写操作的统一门槛：未登录直接回 401，前端据此弹出「请先登录」的提示。
 // 返回登录态对象；未登录时已自行回应，调用方看到 falsy 直接 return 即可。
-async function requireLogin(req, res) {
+async function requireLogin(req, res, message) {
   const s = await account.session(account.tokenOf(req));
   if (!s.loggedIn) {
-    res.status(401).json({ ok: false, code: 'UNAUTHORIZED', error: '请先登录后再修改导航数据' });
+    res.status(401).json({ ok: false, code: 'UNAUTHORIZED', error: message || '请先登录后再操作' });
     return null;
   }
   return s;
@@ -115,7 +116,7 @@ api.put('/site-nav', async function (req, res) {
     return;
   }
   try {
-    if (!await requireLogin(req, res)) return;
+    if (!await requireLogin(req, res, '请先登录后再修改导航数据')) return;
     await db.saveSiteNav(data);
     res.json({ ok: true });
   } catch (e) {
@@ -127,7 +128,7 @@ api.put('/site-nav', async function (req, res) {
 // 使站点脱离数据库也能照常显示导航（不传 data 时直接取库里的数据写入）
 api.post('/site-nav/to-static', async function (req, res) {
   try {
-    if (!await requireLogin(req, res)) return;
+    if (!await requireLogin(req, res, '请先登录后再修改导航数据')) return;
     const body = req.body || {};
     const data = (body.data && Array.isArray(body.data.groups)) ? body.data : await db.loadSiteNav();
     if (!data || !Array.isArray(data.groups)) {
@@ -146,6 +147,34 @@ api.post('/site-nav/to-static', async function (req, res) {
     });
   } catch (e) {
     failDb(res, e, 'POST /api/site-nav/to-static');
+  }
+});
+
+/* ---------------- 站点全局设置 ----------------
+   启用 BGM / 自动播放 / 看板娘 / 默认主题，整份 JSON 存在 site_settings 表里。
+   读接口开放（每个访客都要按它决定 BGM / 看板娘 / 主题），
+   写接口要求已登录——这里改的是「所有访客的默认值」。
+   前端会把读到的一份缓存在本地，连不上后端时用缓存兜底。 */
+
+api.get('/site-settings', async function (req, res) {
+  try {
+    res.set('Cache-Control', 'no-store');
+    const data = await db.loadSiteSettings();
+    res.json({ ok: true, data: siteSettings.normalize(data || siteSettings.defaults()) });
+  } catch (e) {
+    failDb(res, e, 'GET /api/site-settings');
+  }
+});
+
+// 整份覆盖保存：缺项 / 脏值由 settings.normalize 补齐，前端不必自己做校验
+api.put('/site-settings', async function (req, res) {
+  const data = siteSettings.normalize(req.body);
+  try {
+    if (!await requireLogin(req, res, '请先登录后再修改站点设置')) return;
+    await db.saveSiteSettings(data);
+    res.json({ ok: true, data: data });
+  } catch (e) {
+    failDb(res, e, 'PUT /api/site-settings');
   }
 });
 

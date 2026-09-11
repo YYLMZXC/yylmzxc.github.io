@@ -253,14 +253,18 @@ const Live2DInit = (function () {
 
 /* ---- 启动 ---- */
 (function () {
-    function _cfg(key, fallback) {
+    // 取值：个人覆盖 > 全局设置（数据库 / 离线缓存）> site-config.js 默认，统一走 SettingsStore
+    function _legacy(key, fallback) {
         try { var v = localStorage.getItem('settings_' + key); return v !== null ? v === 'true' : fallback; }
         catch (_) { return fallback; }
     }
+    var S = window.SettingsStore;
     var _live2dCfg = (window.SITE_CONFIG && window.SITE_CONFIG.live2d) || {};
-    if (_cfg('live2d_enabled', _live2dCfg.enabled !== false)) {
+    var enabled = S ? S.getLive2dEnabled() : _legacy('live2d_enabled', _live2dCfg.enabled !== false);
+
+    if (enabled) {
         Live2DInit.boot();
     } else {
-        console.log('[Live2D] 已禁用 (用户偏好或 site-config.js live2d.enabled = false)');
+        console.log('[Live2D] 已禁用 (个人偏好 / 全局设置 / site-config.js live2d.enabled = false)');
     }
 })();

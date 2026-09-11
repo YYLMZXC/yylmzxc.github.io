@@ -433,6 +433,34 @@ body {
     opacity: 0.85;
 }
 
+/* 默认主题下拉：与开关同排，靠右摆放 */
+.settings-select {
+    max-width: 58%;
+    padding: 4px 6px;
+    font-size: 13px;
+    color: var(--text-primary, #333);
+    background: #fff;
+    border: 1px solid var(--border-color, #e0e0e0);
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.settings-select:focus {
+    outline: none;
+    border-color: #667eea;
+}
+
+.settings-select:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+body.dark .settings-select {
+    background: #2d3748;
+    border-color: var(--border-dark, #444);
+    color: var(--text-light, #eee);
+}
+
 .settings-divider {
     height: 1px;
     background: var(--border-color, #e0e0e0);
@@ -472,6 +500,11 @@ body {
 
 .settings-switch:checked::after {
     transform: translateX(18px);
+}
+
+.settings-switch:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
 }
 
 body.dark .settings-switch { background: #555; }

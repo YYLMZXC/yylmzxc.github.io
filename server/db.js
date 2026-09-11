@@ -3,9 +3,10 @@
    自动建库建表；首次启动时用静态数据文件 scweb_res/nav/nav-default.js 填充。
    库 / 表被删掉（例如手工 DROP DATABASE）后不必重启后端：
    下一次请求会重新建库建表并重试，只是数据只能回到那份静态文件。
-   数据模型：业务数据一张 site_nav（首页「社区导航」整份 JSON 存一行），
+   数据模型：业务数据两张单行 JSON 表——site_nav（首页「社区导航」）
+   与 site_settings（站点全局设置：BGM / 自动播放 / 看板娘 / 默认主题），
    外加账号与会话两张表：账号密码只存在这里，浏览器不保存任何凭据。
-   静态数据文件本身的读写属于另一职责，见 sitenav.js；
+   静态数据文件本身的读写属于另一职责，见 sitenav.js / settings.js；
    密码哈希与会话策略属于账号服务，见 account.js；
    连接参数统一读自 config.json，见 config.js。
    ============================================================ */
@@ -14,6 +15,7 @@
 const mysql = require('mysql2/promise');
 const CONFIG = require('./config');
 const sitenav = require('./sitenav');
+const settings = require('./settings');
 
 const DB_NAME = CONFIG.mysql.database || 'scweb';
 
@@ -58,6 +60,14 @@ const DDL = [
   // 单行 JSON 而非拆表，是因为首页导航的数据结构（分组 + 多语言标题键）还在演进，
   // 拆成列反而每次改结构都要动表；整份读写的语义也与「导入 / 导出 / 转换」天然对齐。
   `CREATE TABLE IF NOT EXISTS site_nav (
+     id TINYINT UNSIGNED NOT NULL PRIMARY KEY,
+     data LONGTEXT,
+     updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+   ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`,
+
+  // 站点全局设置（启用 BGM / 自动播放 / 看板娘 / 默认主题）：同样整份 JSON 存一行。
+  // 与 site_nav 分表，是因为两者读写时机与权限含义不同：导航是页面内容，这里是站点开关。
+  `CREATE TABLE IF NOT EXISTS site_settings (
      id TINYINT UNSIGNED NOT NULL PRIMARY KEY,
      data LONGTEXT,
      updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
@@ -332,6 +342,13 @@ async function connect() {
       }
     }
 
+    // 站点全局设置同理：空库时用 site-config.js 里的默认值填一次
+    const [setRows] = await pool.query('SELECT id FROM site_settings WHERE id = 1');
+    if (!setRows.length) {
+      await writeSiteSettings(pool, settings.defaults());
+      console.log('已用 site-config.js 的默认值初始化站点设置');
+    }
+
     lastError = null;
   } catch (e) {
     lastError = diagnose(e, stage);
@@ -412,6 +429,29 @@ async function saveSiteNav(data) {
   await run(function (p) { return writeSiteNav(p, data); });
 }
 
+/* ---------------- 站点全局设置 ----------------
+   同样整份 JSON 存单行；读回来是前端直接用的那份结构（见 settings.js 的 normalize）。 */
+
+async function loadSiteSettings() {
+  const rows = await q('SELECT data FROM site_settings WHERE id = 1');
+  if (!rows.length) return null;
+  const d = safeParse(rows[0].data, null);
+  return (d && typeof d === 'object') ? d : null;
+}
+
+// 与 writeSiteNav 同理：初始化时 connect() 自己也要写这一行，不能走 run()（会自等死锁）
+async function writeSiteSettings(conn, data) {
+  await conn.query(
+    `INSERT INTO site_settings (id, data) VALUES (1, ?)
+     ON DUPLICATE KEY UPDATE data = VALUES(data)`,
+    [JSON.stringify(data)]
+  );
+}
+
+async function saveSiteSettings(data) {
+  await run(function (p) { return writeSiteSettings(p, data); });
+}
+
 /* ---------------- 账号与会话 ---------------- */
 async function loadAccount() {
   const rows = await q('SELECT * FROM nav_account WHERE id = 1');
@@ -482,6 +522,7 @@ async function health() {
   }
   try {
     await pool.query('SELECT id FROM site_nav WHERE id = 1');
+    await pool.query('SELECT id FROM site_settings WHERE id = 1');
     await pool.query('SELECT id FROM nav_account WHERE id = 1');
     return { ok: true, database: DB_NAME, target: TARGET };
   } catch (e) {
@@ -496,6 +537,8 @@ module.exports = {
   diagnose: diagnose,
   loadSiteNav: loadSiteNav,
   saveSiteNav: saveSiteNav,
+  loadSiteSettings: loadSiteSettings,
+  saveSiteSettings: saveSiteSettings,
   loadAccount: loadAccount,
   saveAccount: saveAccount,
   createSession: createSession,

@@ -60,9 +60,10 @@ class App {
             this.siteInfoManager.init();
         }
 
-        // 设置管理器（BGM / Live2D 开关）
+        // 设置管理器（BGM / 看板娘 / 默认主题，含个人 / 全局模式）
+        // 传入 this：面板要读登录态（全局写入需登录）与主题管理器（改主题即时生效）
         if (this.options.settings !== false && window.SettingsManager) {
-            this.settingsManager = new SettingsManager(this.dropdownManager);
+            this.settingsManager = new SettingsManager(this.dropdownManager, this);
             const settingsDropdown = document.getElementById('settingsDropdown');
             if (settingsDropdown) {
                 this.dropdownManager.register('settingsDropdown', settingsDropdown, '#settingsToggle');
