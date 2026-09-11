@@ -325,6 +325,13 @@ window.SITE_NAV_DEFAULT = {
           "external": false
         },
         {
+          "id": "lmtwy2qoqf7ya",
+          "title": "yylmzxc-web",
+          "url": "yylmzxcweb/yylmzxc.html",
+          "external": true,
+          "key": ""
+        },
+        {
           "id": "about-tools-2",
           "key": "photoroomBg",
           "title": "Photoroom 透明背景",
