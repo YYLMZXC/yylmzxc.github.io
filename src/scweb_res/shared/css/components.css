@@ -247,6 +247,40 @@
     transform: translateX(-50%) translateY(0);
 }
 
+/* 通用轻提示（toast.js）：比主题提示多一组状态配色，位置略高以免与之重叠 */
+.sc-toast {
+    position: fixed;
+    bottom: 72px;
+    left: 50%;
+    transform: translateX(-50%) translateY(12px);
+    max-width: min(86vw, 460px);
+    padding: 10px 20px;
+    background: rgba(51, 51, 51, 0.95);
+    color: #fff;
+    border-radius: 10px;
+    font-size: 13px;
+    line-height: 1.5;
+    text-align: center;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s, transform 0.25s;
+    z-index: 9999;
+}
+
+.sc-toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+
+.sc-toast-ok {
+    background: rgba(46, 139, 87, 0.95);
+}
+
+.sc-toast-error {
+    background: rgba(190, 62, 62, 0.95);
+}
+
 /* ========================================================================
    工坊像素风格（body.wk-light / body.wk-dark）补充：
    通用按钮、响应式 4 主题按钮、细节去现代化动画

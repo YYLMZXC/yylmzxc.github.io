@@ -392,8 +392,11 @@ body {
  *  Settings Panel — 设置面板（Toggle Switches）
  * ================================================================ */
 .settings-dropdown-menu {
-    min-width: 200px;
+    min-width: 240px;
     padding: 8px 6px;
+    /* 设置里除了功能开关，还挂着导航数据与账号，面板会长于视口 */
+    max-height: 78vh;
+    overflow-y: auto;
 }
 
 .settings-group {
@@ -475,6 +478,110 @@ body.dark .settings-switch { background: #555; }
 body.dark .settings-switch:checked { background: #667eea; }
 body.wk-light .settings-switch:checked,
 body.wk-dark .settings-switch:checked { background: #4a9; }
+
+/* ================================================================
+ *  Settings Panel — 扩展分区（导航数据 / 账号）
+ *  由 settings-manager.js 的 addGroup() 追加，内容由各模块自备
+ * ================================================================ */
+.settings-status {
+    padding: 2px 6px 6px;
+    font-size: 13px;
+    color: var(--text-primary, #333);
+}
+
+.settings-hint {
+    padding: 4px 6px 2px;
+    font-size: 12px;
+    line-height: 1.5;
+    color: var(--text-secondary, #888);
+    word-break: break-word;
+}
+
+.settings-hint:empty {
+    display: none;
+}
+
+.settings-btn {
+    display: block;
+    width: 100%;
+    margin: 4px 0;
+    padding: 7px 10px;
+    font-size: 13px;
+    text-align: center;
+    color: var(--text-primary, #333);
+    background: rgba(102, 126, 234, 0.08);
+    border: 1px solid var(--border-color, #e0e0e0);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+}
+
+.settings-btn:hover:not(:disabled) {
+    background: rgba(102, 126, 234, 0.18);
+    border-color: #667eea;
+}
+
+.settings-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.settings-btn.primary {
+    background: #667eea;
+    border-color: #667eea;
+    color: #fff;
+}
+
+.settings-btn.primary:hover:not(:disabled) {
+    background: #5a6fd8;
+}
+
+.settings-field {
+    margin: 4px 0;
+}
+
+/* 账号区块的表单只是给密码管理器认的语义壳，不要它自带的边距 */
+.settings-form {
+    margin: 0;
+}
+
+.settings-field input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 7px 9px;
+    font-size: 13px;
+    color: var(--text-primary, #333);
+    background: #fff;
+    border: 1px solid var(--border-color, #e0e0e0);
+    border-radius: 6px;
+}
+
+.settings-field input:focus {
+    outline: none;
+    border-color: #667eea;
+}
+
+body.dark .settings-btn {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: var(--border-dark, #444);
+    color: var(--text-light, #eee);
+}
+
+body.dark .settings-btn:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.14);
+    border-color: #667eea;
+}
+
+body.dark .settings-field input {
+    background: #2d3748;
+    border-color: var(--border-dark, #444);
+    color: var(--text-light, #eee);
+}
+
+body.dark .settings-status,
+body.dark .settings-hint {
+    color: var(--text-muted, #a0aec0);
+}
 
 @media (max-width: 767px) {
     #waifu {

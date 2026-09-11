@@ -26,6 +26,9 @@ class SettingsManager {
             live2dEnabled: live2dCfg.enabled !== false,
         };
 
+        // 由其它模块追加进来的分区（导航数据 / 账号 等），按 id 去重
+        this._groups = {};
+
         this.init();
     }
 
@@ -143,6 +146,43 @@ class SettingsManager {
                 self._set(key, sw.checked);
             }
         });
+    }
+
+    /* ================================================================
+     *  扩展分区
+     *  设置下拉是页面上唯一的「偏好收口」，导航数据、账号这类入口都挂进来，
+     *  避免页面上再散落一批按钮。内容由各模块自己提供，这里只负责摆放。
+     * ================================================================ */
+
+    /**
+     * 往设置下拉末尾追加一个分区，重复调用返回已建好的分区
+     * @param {string} id    - 分区标识
+     * @param {string} label - 分区标题（可为空）
+     * @param {string} html  - 分区内容，由调用方负责转义
+     * @returns {HTMLElement|null} 分区容器
+     */
+    addGroup(id, label, html) {
+        var menu = document.querySelector('#settingsDropdown .settings-dropdown-menu');
+        if (!menu) return null;
+        if (this._groups[id]) return this._groups[id];
+
+        var divider = document.createElement('div');
+        divider.className = 'settings-divider';
+
+        var group = document.createElement('div');
+        group.className = 'settings-group';
+        group.setAttribute('data-settings-group', id);
+        group.innerHTML = (label ? '<div class="settings-label">' + label + '</div>' : '') + (html || '');
+
+        menu.appendChild(divider);
+        menu.appendChild(group);
+        this._groups[id] = group;
+        return group;
+    }
+
+    /** 取已追加的分区容器，未追加时返回 null */
+    getGroup(id) {
+        return this._groups[id] || null;
     }
 }
 

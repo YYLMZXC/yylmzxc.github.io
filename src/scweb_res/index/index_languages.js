@@ -322,52 +322,11 @@ const IndexLanguageConfig = {
         }
     },
     
-    /**
-     * 导航链接配置
-     * 每个链接对象包含 title（翻译键路径）、url（链接地址）、external（是否外部链接）
-     * - cn: 中文路线导航（主要面向中国用户）
-     * - os: 海外路线导航（面向国际用户）
-     * - other: 其他导航
-     */
-    navigation: {
-        cn: [
-            { title: 'links.scCommunity', url: 'https://test.suancaixianyu.cn/', external: true },
-            { title: 'links.backupCommunity', url: 'https://www.scbbs.top/', external: true },
-            { title: 'links.scKey', url: 'https://sckey.net', external: true },
-            { title: 'links.scWiki', url: 'https://docs.scwk.net/', external: true },
-            { title: 'links.scWorkshop', url: 'https://www.scwk.net', external: true },
-            { title: 'links.scYuqueWiki', url: 'https://www.yuque.com/u589148/sc', external: true },
-            { title: 'links.scYuqueAPImod', url: 'https://www.yuque.com/u589148/wf2knt', external: true },
-            { title: 'links.serverPlugin', url: 'https://soh.jiil.top/', external: true },
-            { title: 'links.modWebsite', url: 'https://www.scmod.cn/', external: true },
-            { title: 'links.scLauncher', url: 'https://sc.btos.top/', external: true },
-            { title: 'links.jiilForum', url: 'https://bbs.jiil.top/', external: true },
-            { title: 'links.scBox', url: 'https://scbox.zh.kg/', external: true }
-        ],
-        os: [
-            { title: 'links.russianScCommunity', url: 'https://vk.com/fans_club_survivalcraft', external: true },
-            { title: 'links.originalScCommunity', url: 'https://www.tapatalk.com/groups/survivalcraft/discussion/all', external: true },
-            { title: 'links.internationalModSite', url: 'https://survivalcraft2mods.blogspot.com/', external: true },
-            { title: 'links.thenoswadScSite', url: 'https://survivalcraft.dev/', external: true },
-            { title: 'links.officialBlog', url: 'https://kaalus.wordpress.com/', external: true },
-            { title: 'links.mirahezeWiki', url: 'https://survivalcraft.miraheze.org', external: true },
-            { title: 'links.fandomWiki', url: 'https://survivalcraft.fandom.com', external: true }
-        ],
-        other: [
-            { title: 'links.scSpm', url: 'https://gitee.com/SC-SPM', external: true },
-            { title: 'links.scApiDownload', url: 'https://gitee.com/SC-SPM/SurvivalcraftApi/releases', external: true },
-            { title: 'links.scNetDownload', url: 'https://gitee.com/SC-SPM/SurvivalcraftNet/releases', external: true }
-        ],
-        outdated: [
-            { title: 'links.taptapForum', url: 'https://www.taptap.cn/app/30823/topic', external: true },
-            { title: 'links.ta4399Sc', url: 'https://news.4399.com/sczz/', external: true },
-            { title: 'links.scZhihu', url: 'https://www.zhihu.com/topic/21226084', external: true },
-            { title: 'links.sc7723', url: 'https://www.7723.cn/search/%E7%94%9F%E5%AD%98%E6%88%98%E4%BA%89', external: true },
-            { title: 'links.ccplay', url: 'https://m2.ccplay.cn/search?q=%E7%94%9F%E5%AD%98%E6%88%98%E4%BA%89', external: true },
-            { title: 'links.xiaoheihe', url: 'https://www.xiaoheihe.cn/app/topic/link/600968', external: true },
-            { title: 'links.tieba', url: 'https://tieba.baidu.com/f?kw=%E7%94%9F%E5%AD%98%E6%88%98%E4%BA%89', external: true }
-        ]
-    }
 };
+
+// 导航链接（区块标题 + 链接清单）已迁出到数据层：
+//   scweb_res/nav/nav-default.js（web 模式的数据源，可由后台导出覆盖）
+// 本文件只保留多语言词条，区块标题取 translations.sections[key]，
+// 链接标题取 translations.links[key]，见 index_script.js。
 
 window.IndexLanguageConfig = IndexLanguageConfig;

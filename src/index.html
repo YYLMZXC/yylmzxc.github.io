@@ -84,30 +84,9 @@
             <div class="row">
                 <div class="col-mb-12 col-12" id="main" role="main">
                     <div class="post-content">
-                        
-                        <section class="nav-section">
-                            <h3 id="cnNavigationTitle">🌏 CN中文导航</h3>
-                            <div class="banner-grid" id="cnNavigationLinks">
-                            </div>
-                        </section>
-
-                        <section class="nav-section">
-                            <h3 id="osNavigationTitle">🌍 OS海外导航</h3>
-                            <div class="banner-grid" id="osNavigationLinks">
-                            </div>
-                        </section>
-
-                        <section class="nav-section">
-                            <h3 id="otherNavigationTitle">📌 其他导航</h3>
-                            <div class="banner-grid" id="otherNavigationLinks">
-                            </div>
-                        </section>
-
-                        <section class="nav-section">
-                            <h3 id="outdatedNavigationTitle">📜 可能过时导航</h3>
-                            <div class="banner-grid" id="outdatedNavigationLinks">
-                            </div>
-                        </section>
+                        <!-- 社区导航：区块数量、标题与链接由数据层渲染（web 模式读静态文件，
+                             数据库模式读 MySQL），见 index_script.js / nav-store.js -->
+                        <div id="siteNavigationSections"></div>
                     </div>
                 </div>
             </div>
@@ -132,9 +111,15 @@
     <script src="./scweb_res/shared/js/site-info.js?v=20260723"></script>
     <script src="./site-config.js"></script>
     <script src="./scweb_res/shared/js/settings-manager.js"></script>
+    <script src="./scweb_res/shared/js/toast.js"></script>
+    <script src="./scweb_res/shared/js/nav-api.js"></script>
+    <script src="./scweb_res/shared/js/nav-store.js"></script>
+    <script src="./scweb_res/shared/js/account-manager.js"></script>
     <script src="./scweb_res/shared/js/app.js?v=20260821"></script>
     <script src="./scweb_res/shared/js/bgm-player.js?v=20260827"></script>
+    <script src="./scweb_res/nav/nav-default.js"></script>
     <script src="./scweb_res/index/index_languages.js?v=20260725"></script>
+    <script src="./scweb_res/index/index_nav_panel.js"></script>
     <script src="./scweb_res/index/index_script.js?v=20260820"></script>
     
     <script src="./live2d/autoload.js"></script>

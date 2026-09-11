@@ -11,6 +11,8 @@ class App {
      * @param {boolean} [options.language] - 是否启用语言管理（默认 true）
      * @param {Object} [options.languageConfig] - 合并后的语言配置对象
      * @param {boolean} [options.siteInfo] - 是否启用站点信息管理（默认 true，需语言管理器可用）
+     * @param {boolean} [options.navData] - 是否启用首页导航数据层（默认 true，需 nav-store.js 已加载）
+     * @param {boolean} [options.account] - 是否启用账号面板（默认 true，需 account-manager.js 已加载）
      */
     constructor(options = {}) {
         this.options = options;
@@ -18,6 +20,8 @@ class App {
         this.languageManager = null;
         this.siteInfoManager = null;
         this.settingsManager = null;
+        this.navStore = null;
+        this.accountManager = null;
         this.services = null;
     }
 
@@ -65,6 +69,18 @@ class App {
             }
         }
 
+        // 首页导航数据层（web 模式 / 数据库模式）。脚本没加载时静默跳过，
+        // 这样不含导航数据的页面（如 tools 子页）不必额外引这两个脚本。
+        if (this.options.navData !== false && window.NavStore && window.NavApi) {
+            this.navStore = new NavStore(window.NavApi);
+        }
+
+        // 账号面板：登录 / 退出 / 改密码，入口收在设置下拉里
+        if (this.options.account !== false && window.AccountManager && window.NavApi && this.settingsManager) {
+            this.accountManager = new AccountManager(window.NavApi, this.settingsManager);
+            this.accountManager.init();
+        }
+
         // 组装共享服务集合，供页面管理器构造注入
         this.services = {
             dropdownManager: this.dropdownManager,
@@ -72,6 +88,8 @@ class App {
             languageManager: this.languageManager,
             siteInfoManager: this.siteInfoManager,
             settingsManager: this.settingsManager,
+            navStore: this.navStore,
+            accountManager: this.accountManager,
             utils: window.SCUtils
         };
 

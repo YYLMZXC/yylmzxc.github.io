@@ -1,13 +1,14 @@
 /**
  * 生存战争网 - 首页脚本
- * 负责首页导航区块渲染、语言切换响应
+ * 负责把「社区导航」数据画成 DOM，并响应语言切换。
+ * 数据来源交给数据层（NavStore）：web 模式读静态文件，数据库模式读 MySQL，
+ * 因此这里不再依赖写死的 navigation 配置，区块数量、标题、链接都随数据变化。
  * 通过构造注入（依赖注入）获取共享管理器，页面只处理页面特有逻辑
  */
 
 /**
  * 首页管理器类
- * 负责渲染导航链接、响应语言切换事件
- * 依赖的 ThemeManager / LanguageManager / SiteInfoManager 由组合根 App 统一创建并注入
+ * 依赖的 ThemeManager / LanguageManager / SiteInfoManager / NavStore 由组合根 App 统一创建并注入
  */
 class IndexPageManager {
     constructor(app) {
@@ -15,108 +16,131 @@ class IndexPageManager {
         this.themeManager = app.themeManager;
         this.languageManager = app.languageManager;
         this.siteInfoManager = app.siteInfoManager;
+        this.settingsManager = app.settingsManager || null;
+        this.navStore = app.navStore || null;
+        this.navPanel = null;
         this.init();
     }
 
     /**
-     * 初始化首页：渲染导航链接、更新页面特有内容并绑定事件
+     * 初始化首页：绑定事件 → 渲染导航 → 载入数据
      */
     init() {
-        const lang = this.languageManager.currentLang;
-        this.renderNavigationLinks(lang);
-        this.updatePageSpecificContent(lang);
         this.bindEvents();
+        this.initNavigation();
         console.log('[IndexPageManager] 初始化完成');
     }
 
     /**
      * 绑定事件监听
-     * 监听语言切换事件，自动重新渲染导航链接和页面特定内容
+     * 语言切换后标题与链接都要按新语言重画
      */
     bindEvents() {
-        document.addEventListener('languageChanged', (e) => {
-            const lang = e.detail ? e.detail.lang : this.languageManager.currentLang;
-            this.renderNavigationLinks(lang);
-            this.updatePageSpecificContent(lang);
+        document.addEventListener('languageChanged', () => {
+            this.renderNavigation();
+        });
+    }
+
+    /* ================================================================
+     *  导航区块
+     * ================================================================ */
+
+    initNavigation() {
+        if (!this.navStore) {
+            console.warn('[IndexPageManager] 未找到导航数据层，首页导航保持为空');
+            return;
+        }
+
+        // 先把内存里的静态数据画出来，避免等接口时页面空白
+        this.renderNavigation();
+
+        // 模式切换 / 导入 / 导出 / 转换的入口挂在设置下拉里
+        if (this.settingsManager && window.IndexNavPanel) {
+            this.navPanel = new IndexNavPanel(this.navStore, this.settingsManager);
+            this.navPanel.init();
+        }
+
+        this.navStore.subscribe(() => this.renderNavigation());
+        this.navStore.load().then(() => {
+            const mode = NavStore.modeText(this.navStore.state.mode);
+            console.log('[IndexPageManager] 导航数据已载入（' + mode + '）', this.navStore.stats());
         });
     }
 
     /**
-     * 更新页面特定内容（区块标题等）
-     * @param {string} lang - 当前语言代码
+     * 按当前数据与当前语言重画所有导航区块
      */
-    updatePageSpecificContent(lang) {
-        const translations = this.languageManager.config.translations[lang];
-        if (!translations) return;
+    renderNavigation() {
+        const container = document.getElementById('siteNavigationSections');
+        if (!container || !this.navStore) return;
 
-        if (translations.sections) {
-            const cnTitle = document.getElementById('cnNavigationTitle');
-            const osTitle = document.getElementById('osNavigationTitle');
-            const otherTitle = document.getElementById('otherNavigationTitle');
-            const outdatedTitle = document.getElementById('outdatedNavigationTitle');
-            if (cnTitle && translations.sections.cnNavigation) {
-                cnTitle.textContent = translations.sections.cnNavigation;
-            }
-            if (osTitle && translations.sections.osNavigation) {
-                osTitle.textContent = translations.sections.osNavigation;
-            }
-            if (otherTitle && translations.sections.otherNavigation) {
-                otherTitle.textContent = translations.sections.otherNavigation;
-            }
-            if (outdatedTitle && translations.sections.outdatedNavigation) {
-                outdatedTitle.textContent = translations.sections.outdatedNavigation;
-            }
-        }
-    }
-
-    /**
-     * 渲染导航链接区块
-     * 根据当前语言获取翻译文本，动态生成导航链接元素
-     * @param {string} lang - 当前语言代码
-     */
-    renderNavigationLinks(lang) {
-        const config = this.languageManager.config;
-        const translations = config.translations[lang] || config.translations[config.default];
-
-        if (config.navigation) {
-            this.renderLinkGroup('cnNavigationLinks', config.navigation.cn, translations.links);
-            this.renderLinkGroup('osNavigationLinks', config.navigation.os, translations.links);
-            this.renderLinkGroup('otherNavigationLinks', config.navigation.other, translations.links);
-            this.renderLinkGroup('outdatedNavigationLinks', config.navigation.outdated, translations.links);
-        }
-    }
-
-    /**
-     * 渲染一组导航链接到指定容器
-     * @param {string} containerId - 容器元素ID
-     * @param {Array} links - 链接配置数组 [{title, url, external}]
-     * @param {Object} translations - 当前语言的链接翻译文本
-     */
-    renderLinkGroup(containerId, links, translations) {
-        const container = document.getElementById(containerId);
-        if (!container || !links || !translations) return;
-
+        const translations = this.languageManager.getTranslations();
         const fragment = document.createDocumentFragment();
 
-        links.forEach(link => {
-            const linkKey = link.title.replace('links.', '');
-            const linkText = translations[linkKey] || linkKey;
+        this.navStore.groups().forEach(group => {
+            const links = (group.links || []).filter(link => link.url);
+            if (!links.length) return;   // 空分组不占版面
 
-            const a = document.createElement('a');
-            a.href = link.url;
-            a.textContent = linkText;
-            a.className = 'nav-link';
+            const section = document.createElement('section');
+            section.className = 'nav-section';
 
-            if (link.external) {
-                a.target = '_blank';
-                a.rel = 'noopener noreferrer';
-            }
+            const title = document.createElement('h3');
+            title.textContent = this.groupTitle(group, translations);
+            section.appendChild(title);
 
-            fragment.appendChild(a);
+            const grid = document.createElement('div');
+            grid.className = 'banner-grid';
+            links.forEach(link => grid.appendChild(this.linkElement(link, translations)));
+            section.appendChild(grid);
+
+            fragment.appendChild(section);
         });
 
         container.innerHTML = '';
         container.appendChild(fragment);
+    }
+
+    /**
+     * 分组标题：优先用多语言词条，取不到时回退到数据里的原文
+     * @param {Object} group - { key, name }
+     * @param {Object} translations - 当前语言的词条表
+     */
+    groupTitle(group, translations) {
+        const fromI18n = (group.key && translations.sections) ? translations.sections[group.key] : '';
+        return fromI18n || group.name || group.key || '';
+    }
+
+    /**
+     * 链接标题：优先用多语言词条，取不到时回退到数据里的原文
+     * （所以导入的纯文本标题不需要额外准备词条也能正常显示）
+     * @param {Object} link - { key, title, url }
+     * @param {Object} translations - 当前语言的词条表
+     */
+    linkTitle(link, translations) {
+        const fromI18n = (link.key && translations.links) ? translations.links[link.key] : '';
+        return fromI18n || link.title || link.url || '';
+    }
+
+    /**
+     * 生成一个导航链接元素
+     * @param {Object} link - { key, title, url, external }
+     * @param {Object} translations - 当前语言的词条表
+     */
+    linkElement(link, translations) {
+        const text = this.linkTitle(link, translations);
+
+        const a = document.createElement('a');
+        a.href = link.url;
+        a.textContent = text;
+        a.title = text;
+        a.className = 'nav-link';
+
+        if (link.external) {
+            a.target = '_blank';
+            a.rel = 'noopener noreferrer';
+        }
+
+        return a;
     }
 }
 
