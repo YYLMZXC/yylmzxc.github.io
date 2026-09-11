@@ -100,10 +100,7 @@ class SettingsManager {
                         '<label class="settings-row">' +
                             '<span>站点默认</span>' +
                             '<select class="settings-select" data-setting="defaultTheme">' +
-                                '<option value="light">☀️ 白天模式</option>' +
-                                '<option value="dark">🌙 黑夜模式</option>' +
-                                '<option value="wk-light">🌿 工坊亮色</option>' +
-                                '<option value="wk-dark">🪵 工坊暗色</option>' +
+                                this._options('theme') +
                             '</select>' +
                         '</label>' +
                     '</div>' +
@@ -113,8 +110,7 @@ class SettingsManager {
                         '<label class="settings-row">' +
                             '<span>站点默认</span>' +
                             '<select class="settings-select" data-setting="navMode">' +
-                                '<option value="web">📄 静态文件</option>' +
-                                '<option value="db">🗄️ 数据库</option>' +
+                                this._options('navMode') +
                             '</select>' +
                         '</label>' +
                         '<div class="settings-hint">决定访客首次打开时从哪里读导航；若在本机「导航数据」里切换过模式，仍以本机选择的为准。</div>' +
@@ -134,6 +130,19 @@ class SettingsManager {
         this.group = document.querySelector('#settingsDropdown .settings-dropdown-menu');
         this.statusEl = this.group ? this.group.querySelector('[data-settings-status]') : null;
         this.hintEl = this.group ? this.group.querySelector('[data-settings-hint]') : null;
+    }
+
+    /**
+     * 生成下拉选项：取值与文案都来自 site-constants.js，增设主题 / 来源时这里不用改
+     * @param {'theme'|'navMode'} kind
+     * @returns {string} <option> 串
+     */
+    _options(kind) {
+        var C = window.SITE_CONSTANTS || {};
+        var list = (kind === 'theme' ? C.themes : C.navModes) || [];
+        return list.map(function (o) {
+            return '<option value="' + o.id + '">' + o.icon + ' ' + o.name + '</option>';
+        }).join('');
     }
 
     _bindEvents() {

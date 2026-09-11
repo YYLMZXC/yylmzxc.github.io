@@ -1,20 +1,22 @@
 /**
  * 生存战争网 - 主题管理器
- * 支持 4 种主题切换，支持 localStorage 持久化和系统主题检测
- * 主题列表：
- *   - light:     现代风格亮色（默认）
- *   - dark:      现代风格暗色
- *   - wk-light:  工坊像素风格亮色（参考 scwk 复古游戏风）
- *   - wk-dark:   工坊像素风格暗色
+ * 支持主题切换、localStorage 持久化和系统主题检测
+ * 主题清单（id / 图标 / 文案 / 亮暗语义）的唯一来源是 site-constants.js，
+ * 切换菜单、设置面板下拉、Toast 文案与前后端校验都读它；增设主题请在那边加一行。
  * 挂载到全局 window.ThemeManager
  */
 class ThemeManager {
     /**
-     * 合法主题列表 / 默认主题：唯一来源是 src/site-constants.js（与后端同源）。
-     * 该文件在本脚本之前加载；万一缺席则退化为空列表 / wk-light，页面仍可用。
+     * 主题表（含 icon / name / scheme）/ 合法 id 列表 / 默认主题：
+     * 唯一来源是 src/site-constants.js（与后端同源，切换菜单与 Toast 文案也读它）。
+     * 该文件在本脚本之前加载；万一缺席则退化为空表，页面仍可用。
      */
-    static get VALID_THEMES() {
+    static get THEMES() {
         return (window.SITE_CONSTANTS && window.SITE_CONSTANTS.themes) || [];
+    }
+
+    static get VALID_THEMES() {
+        return (window.SITE_CONSTANTS && window.SITE_CONSTANTS.themeIds) || [];
     }
 
     static get FALLBACK_THEME() {
@@ -32,6 +34,7 @@ class ThemeManager {
      * 初始化主题管理器：设置初始主题并绑定事件
      */
     init() {
+        this.renderThemeButtons();
         this.setInitialTheme();
         this.bindEventListeners(this._dropdownManager);
         console.log(`[ThemeManager] 初始化完成，当前主题：${this.currentTheme}`);
@@ -143,12 +146,10 @@ class ThemeManager {
         // 添加当前主题类
         body.classList.add(theme);
 
-        // 同步添加基础语义类，兼容只针对 light/dark 的旧样式
-        if (theme === 'light' || theme === 'wk-light') {
-            body.classList.add('light');
-        } else {
-            body.classList.add('dark');
-        }
+        // 同步添加基础语义类，兼容只针对 light/dark 的旧样式；
+        // 亮 / 暗由主题表里的 scheme 决定，增设主题时这里不用改
+        const meta = ThemeManager.THEMES.find(t => t.id === theme);
+        body.classList.add(meta && meta.scheme === 'light' ? 'light' : 'dark');
     }
 
     /**
@@ -185,6 +186,18 @@ class ThemeManager {
     }
 
     /**
+     * 渲染顶部切换菜单的条目：内容来自 site-constants.js，
+     * 增设主题时这里不用改（各页 HTML 里只留一个空的 .dropdown-menu 容器）
+     */
+    renderThemeButtons() {
+        const menu = document.querySelector('#themeDropdown .dropdown-menu');
+        if (!menu) return;
+        menu.innerHTML = ThemeManager.THEMES.map(theme =>
+            `<button class="dropdown-item" data-theme="${theme.id}">${theme.icon} ${theme.name}</button>`
+        ).join('');
+    }
+
+    /**
      * 更新所有主题按钮的 active 状态和下拉菜单切换按钮
      */
     updateThemeButtons() {
@@ -201,18 +214,12 @@ class ThemeManager {
     }
 
     /**
-     * 获取主题的人类可读名字和图标，用于 Toast
+     * 获取主题的人类可读名字和图标（切换按钮、Toast 用），文案来自 site-constants.js
      * @param {string} theme
      * @returns {{icon: string, name: string}}
      */
     getThemeMeta(theme) {
-        const meta = {
-            'light':    { icon: '☀️', name: '白天模式' },
-            'dark':     { icon: '🌙', name: '黑夜模式' },
-            'wk-light': { icon: '🌿', name: '工坊模式（亮色）' },
-            'wk-dark':  { icon: '🪵', name: '工坊模式（暗色）' },
-        };
-        return meta[theme] || meta['light'];
+        return ThemeManager.THEMES.find(t => t.id === theme) || { icon: '', name: theme };
     }
 
     /**

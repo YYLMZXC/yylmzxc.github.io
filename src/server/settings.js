@@ -21,11 +21,11 @@ const WEB_ROOT = path.join(__dirname, '..');
 const FILE = path.join(WEB_ROOT, 'site-config.js');
 const REL = 'site-config.js';
 
-const THEMES = SITE_CONSTANTS.themes;
+const THEMES = SITE_CONSTANTS.themeIds;
 const FALLBACK_THEME = SITE_CONSTANTS.fallbackTheme;
 
 // 导航数据来源：web 只读静态文件，db 走数据库
-const NAV_MODES = SITE_CONSTANTS.navModes;
+const NAV_MODES = SITE_CONSTANTS.navModeIds;
 const FALLBACK_NAV_MODE = SITE_CONSTANTS.fallbackNavMode;
 
 // 读取 site-config.js 里的 window.SITE_CONFIG

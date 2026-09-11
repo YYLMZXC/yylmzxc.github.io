@@ -74,9 +74,9 @@ class SettingsStore {
      *  静态默认 / 全局 / 个人 / 生效值（全部同步，供各模块启动时查询）
      * ================================================================ */
 
-    // 合法主题 / 导航来源 / 默认值：唯一来源是 site-constants.js（与后端同一份）
+    // 合法主题 / 导航来源 id / 默认值：唯一来源是 site-constants.js（与后端同一份）
     static get THEMES() {
-        return (window.SITE_CONSTANTS && window.SITE_CONSTANTS.themes) || [];
+        return (window.SITE_CONSTANTS && window.SITE_CONSTANTS.themeIds) || [];
     }
 
     static get FALLBACK_THEME() {
@@ -85,7 +85,7 @@ class SettingsStore {
 
     // 导航数据来源：'web' 静态文件（只读，不依赖后端）/ 'db' 数据库
     static get NAV_MODES() {
-        return (window.SITE_CONSTANTS && window.SITE_CONSTANTS.navModes) || [];
+        return (window.SITE_CONSTANTS && window.SITE_CONSTANTS.navModeIds) || [];
     }
 
     static get FALLBACK_NAV_MODE() {
