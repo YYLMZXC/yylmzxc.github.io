@@ -1,18 +1,21 @@
 /**
  * 生存战争网 - 首页导航数据面板（设置下拉里的「导航数据」分区）
  *
- * 把数据层的「模式切换 / 导入 / 导出 / 转换」搬到界面上，
+ * 把数据层的「编辑 / 模式切换 / 导入 / 导出 / 转换」搬到界面上，
  * 只做「按钮 → 数据层方法 → 提示」的编排，不碰数据结构本身。
+ * 逐条的增删改由 IndexNavEditor 负责，本模块只负责把入口摆出来。
  * 挂载到全局 window.IndexNavPanel
  */
 class IndexNavPanel {
     /**
      * @param {Object} store - NavStore 实例
      * @param {Object} settingsManager - 设置下拉，用于追加「导航数据」分区
+     * @param {Object} [editor] - IndexNavEditor 实例，「编辑导航」按钮打开它
      */
-    constructor(store, settingsManager) {
+    constructor(store, settingsManager, editor) {
         this.store = store;
         this.settings = settingsManager;
+        this.editor = editor || null;
         this.group = null;
         this.statusEl = null;
         this.hintEl = null;
@@ -24,6 +27,7 @@ class IndexNavPanel {
 
         this.group = this.settings.addGroup('siteNav', '🧭 导航数据', '' +
             '<div class="settings-status" data-nav-status>—</div>' +
+            '<button type="button" class="settings-btn primary" data-nav-act="edit">编辑导航</button>' +
             '<button type="button" class="settings-btn" data-nav-act="mode">切换模式</button>' +
             '<button type="button" class="settings-btn" data-nav-act="import">导入 JSON</button>' +
             '<button type="button" class="settings-btn" data-nav-act="export">导出 JSON</button>' +
@@ -56,6 +60,8 @@ class IndexNavPanel {
 
         const canWrite = s.mode === 'db' && s.online;
         this._btn('mode').textContent = s.mode === 'db' ? '切换回 web 模式' : '切换到数据库模式';
+        // 编辑还要求已登录：写接口要身份，没登录点了也存不下来
+        this._btn('edit').disabled = this.editor ? !this.editor.canEdit() : !canWrite;
         this._btn('import').disabled = !canWrite;      // web 模式只读，导入无处可存
         this._btn('convert').disabled = !s.online;     // 转换需要后端
 
@@ -73,9 +79,9 @@ class IndexNavPanel {
             return 'web 模式下导航读自静态文件 scweb_res/nav/nav-default.js，不受数据库影响。';
         }
         if (!canWrite) {
-            return '当前未连上后端，暂不能导入或转换。';
+            return '当前未连上后端，暂不能编辑或导入。';
         }
-        return '数据库模式下，导入会写回 MySQL；转换会把当前数据写入静态文件，供 web 模式使用。';
+        return '数据库模式下可以直接编辑导航，改动即时写回 MySQL；转换会把当前数据写入静态文件，供 web 模式使用。';
     }
 
     _btn(act) {
@@ -91,10 +97,20 @@ class IndexNavPanel {
         if (!btn || !this.group.contains(btn)) return;
 
         const act = btn.getAttribute('data-nav-act');
-        if (act === 'mode') this._toggleMode(btn);
+        if (act === 'edit') this._openEditor();
+        else if (act === 'mode') this._toggleMode(btn);
         else if (act === 'import') this._pickFile();
         else if (act === 'export') this._export();
         else if (act === 'convert') this._convert(btn);
+    }
+
+    _openEditor() {
+        if (!this.editor) return;
+        // 编辑器是整屏遮罩，下拉还开着会压在它上面，先收起来
+        if (this.editor.open()) {
+            const dropdown = document.getElementById('settingsDropdown');
+            if (dropdown) dropdown.classList.remove('open');
+        }
     }
 
     _toggleMode(btn) {
@@ -194,9 +210,18 @@ class IndexNavPanel {
 
     _busy(btn, busy, text) {
         if (!btn) return;
-        btn.disabled = busy;
-        if (text) btn.textContent = text;
-        else this.sync();
+
+        if (busy) {
+            // 记下进忙碌前的文案，「转换中…」这类临时字要能还原回去
+            if (btn.dataset.idleText === undefined) btn.dataset.idleText = btn.textContent;
+            btn.disabled = true;
+            btn.textContent = text || btn.dataset.idleText;
+            return;
+        }
+
+        btn.disabled = false;
+        btn.textContent = btn.dataset.idleText || btn.textContent;
+        this.sync();   // 模式按钮的文案由 sync 决定，放在还原之后
     }
 }
 

@@ -142,8 +142,63 @@ class NavStore {
         return { groups: this.groups().length, links: links };
     }
 
+    /** 按 id 取分组，取不到返回 null */
+    findGroup(gid) {
+        return this.groups().filter(g => g.id === gid)[0] || null;
+    }
+
+    /** 按 id 取分组下的链接，取不到返回 null */
+    findLink(gid, lid) {
+        const g = this.findGroup(gid);
+        if (!g) return null;
+        return (g.links || []).filter(l => l.id === lid)[0] || null;
+    }
+
     static modeText(mode) {
         return mode === 'db' ? '数据库模式' : 'web 模式（只读）';
+    }
+
+    /* ================================================================
+     *  格式化工具（编辑器与渲染共用同一套，避免两处判定不一致）
+     * ================================================================ */
+
+    /** 生成一行内不会重复的 id，如 'g' → 'glm8x3ka4f2' */
+    static uid(prefix) {
+        return (prefix || 'x') + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+    }
+
+    /** 补全协议头，让用户只填域名也能存 */
+    static normalizeUrl(u) {
+        u = String(u || '').trim();
+        if (!u) return '';
+        return /^[a-zA-Z][a-zA-Z0-9+.-]*:/.test(u) ? u : 'https://' + u;
+    }
+
+    /** 取主机名（去掉 www.），链接名称留空时用它兜底 */
+    static hostOf(url) {
+        try { return new URL(url).hostname.replace(/^www\./, ''); }
+        catch (e) { return ''; }
+    }
+
+    /**
+     * 分组标题：优先用多语言词条，取不到时回退到数据里的原文
+     * @param {Object} group - { key, name }
+     * @param {Object} translations - 当前语言的词条表
+     */
+    static groupTitle(group, translations) {
+        const fromI18n = (group.key && translations && translations.sections) ? translations.sections[group.key] : '';
+        return fromI18n || group.name || group.key || '';
+    }
+
+    /**
+     * 链接标题：优先用多语言词条，取不到时回退到数据里的原文
+     * （所以纯文本标题不需要额外准备词条也能正常显示）
+     * @param {Object} link - { key, title, url }
+     * @param {Object} translations - 当前语言的词条表
+     */
+    static linkTitle(link, translations) {
+        const fromI18n = (link.key && translations && translations.links) ? translations.links[link.key] : '';
+        return fromI18n || link.title || link.url || '';
     }
 
     /** 最近一次同步到静态文件的时间（0 表示从未同步） */
@@ -166,6 +221,15 @@ class NavStore {
                 label: '未连接后端服务',
                 reason: '后端没有回应',
                 hint: '请先运行「启动主页(带数据库).bat」把后端跑起来；若通过域名访问，还要确认已把 /api/ 转发到 127.0.0.1:8000。'
+            };
+        }
+        // 未登录：后端是通的，只是这道写操作需要身份，别跟「连不上」混为一谈
+        if (e.code === NavStore.UNAUTHORIZED || e.status === 401) {
+            return {
+                kind: 'auth',
+                label: '未登录，无法保存',
+                reason: e.message || '请先登录',
+                hint: '在设置下拉的「账号」里登录后再改。'
             };
         }
         return {
@@ -280,13 +344,138 @@ class NavStore {
             this.state.lastError = null;
             return true;
         }).catch(e => {
-            this.setOnline(false);
-            this.setLastError(this.describeError(e));
-            this.emit({ type: 'error', error: this.state.lastError });
+            const err = this.describeError(e);
+            if (err.kind !== 'auth') this.setOnline(false);   // 未登录是权限问题，后端本身是通的
+            this.setLastError(err);
+            this.emit({ type: 'error', error: err });
             return false;
         }));
 
         return this._channel;
+    }
+
+    /* ================================================================
+     *  字段级编辑（分组 / 链接的增删改与排序）
+     *  编辑器上的每一次改动都走这里：改完立刻广播并写回数据库，
+     *  与「整份导入」共用同一条写回队列，不会出现两份相互覆盖的写入。
+     *  web 模式是只读的，调用方动手前先看 canEdit()。
+     * ================================================================ */
+
+    /** 改完数据的统一收尾：先让界面重画，再把整份数据写回数据库 */
+    _commit() {
+        this.emit({ type: 'data' });
+        return this.save();
+    }
+
+    /**
+     * 把数组里第 i 项朝 dir 方向挪一格
+     * @param {Array} arr - 直接操作的原数组（来自 state，改的就是数据本身）
+     * @param {number} i - 当前下标
+     * @param {number} dir -  -1 上移 / 1 下移
+     * @returns {boolean} 是否真的移动了（已经在头尾时返回 false，界面不必重画）
+     */
+    _moveIn(arr, i, dir) {
+        const j = i + dir;
+        if (i < 0 || j < 0 || j >= arr.length) return false;
+
+        const moved = arr.splice(i, 1)[0];
+        arr.splice(j, 0, moved);
+        this._commit();
+        return true;
+    }
+
+    /* ---------------- 分组 ---------------- */
+
+    /**
+     * 新增分组（追加到末尾）
+     * @param {Object} [attrs] - { name, key }
+     * @returns {Object} 新分组
+     */
+    addGroup(attrs) {
+        const g = Object.assign({ id: NavStore.uid('g'), name: '', links: [] }, attrs || {});
+        this.groups().push(g);
+        this._commit();
+        return g;
+    }
+
+    /**
+     * 修改分组字段，只覆盖传进来的那几个
+     * @returns {Object|null} 改完的分组
+     */
+    updateGroup(gid, patch) {
+        const g = this.findGroup(gid);
+        if (!g) return null;
+
+        Object.assign(g, patch);
+        this._commit();
+        return g;
+    }
+
+    /** 删除分组，连同组内链接一起删掉 */
+    removeGroup(gid) {
+        const rest = this.groups().filter(g => g.id !== gid);
+        if (rest.length === this.groups().length) return false;
+
+        this.state.data.groups = rest;
+        this._commit();
+        return true;
+    }
+
+    /** 分组排序：dir 为 -1 上移、1 下移 */
+    moveGroup(gid, dir) {
+        return this._moveIn(this.groups(), this.groups().map(g => g.id).indexOf(gid), dir);
+    }
+
+    /* ---------------- 链接 ---------------- */
+
+    /**
+     * 往分组末尾添加一条链接
+     * @param {string} gid
+     * @param {Object} [attrs] - { title, url, key, external }
+     * @returns {Object|null} 新链接；分组不存在时返回 null
+     */
+    addLink(gid, attrs) {
+        const g = this.findGroup(gid);
+        if (!g) return null;
+
+        const l = Object.assign({ id: NavStore.uid('l'), title: '', url: '', external: true }, attrs || {});
+        g.links = g.links || [];
+        g.links.push(l);
+        this._commit();
+        return l;
+    }
+
+    /**
+     * 修改链接字段，只覆盖传进来的那几个
+     * @returns {Object|null} 改完的链接
+     */
+    updateLink(gid, lid, patch) {
+        const l = this.findLink(gid, lid);
+        if (!l) return null;
+
+        Object.assign(l, patch);
+        this._commit();
+        return l;
+    }
+
+    /** 从分组里删掉一条链接 */
+    removeLink(gid, lid) {
+        const g = this.findGroup(gid);
+        if (!g) return false;
+
+        const rest = (g.links || []).filter(l => l.id !== lid);
+        if (rest.length === (g.links || []).length) return false;
+
+        g.links = rest;
+        this._commit();
+        return true;
+    }
+
+    /** 链接排序：dir 为 -1 上移、1 下移 */
+    moveLink(gid, lid, dir) {
+        const g = this.findGroup(gid);
+        if (!g) return false;
+        return this._moveIn(g.links || [], (g.links || []).map(l => l.id).indexOf(lid), dir);
     }
 
     /* ================================================================
@@ -367,5 +556,6 @@ class NavStore {
 
 NavStore.STATIC_SRC = 'scweb_res/nav/nav-default.js';
 NavStore.NOT_API = 'NOT_API';
+NavStore.UNAUTHORIZED = 'UNAUTHORIZED';
 
 window.NavStore = NavStore;

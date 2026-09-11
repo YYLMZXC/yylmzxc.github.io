@@ -8,12 +8,11 @@
  * - nav: 导航菜单文本
  * - search: 搜索框分类和占位符
  * - site: 站点地址相关文本
- * - sections: 区块标题
- * - links: 导航链接的显示文本
- * 
- * navigation 字段定义导航链接结构（URL 和外部链接标记），
- * 实际显示文本由 translations.links 中的对应键提供
- * 
+ * - sections: 区块标题（含社区导航各区块，键名与数据层 groups[].key 对应）
+ * - links: 导航链接的显示文本（键名与数据层 links[].title 对应）
+ *
+ * 导航区块与链接清单（URL、分组）由数据层提供，见 scweb_res/nav/nav-default.js。
+ *
  * 挂载到全局 window.IndexLanguageConfig
  */
 const IndexLanguageConfig = {
