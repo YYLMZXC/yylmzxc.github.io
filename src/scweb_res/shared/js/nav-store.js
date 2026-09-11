@@ -227,11 +227,29 @@ class NavStore {
         return (prefix || 'x') + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
     }
 
-    /** 补全协议头，让用户只填域名也能存 */
+    /**
+     * 补全协议头，让用户只填域名也能存。
+     * 站内页面保持相对路径原样返回——否则像 mesh-reader.html 会被补成
+     * https://mesh-reader.html，点开自然打不开（本地尤其明显）。
+     */
     static normalizeUrl(u) {
         u = String(u || '').trim();
         if (!u) return '';
-        return /^[a-zA-Z][a-zA-Z0-9+.-]*:/.test(u) ? u : 'https://' + u;
+        // 已带协议头（http: / https: / mailto: 等）原样保留；
+        // 形如 example.com:8080 的「域名:端口」不算协议头（冒号后是数字）
+        if (/^[a-zA-Z][a-zA-Z0-9+.-]*:/.test(u) && !/^[a-zA-Z][a-zA-Z0-9.-]*:\d/.test(u)) return u;
+        // 协议相对 //host、站内相对路径 ./ ../ /、锚点 #、查询 ? 原样保留
+        if (/^(\/\/|\.{1,2}\/|\/|#|\?)/.test(u)) return u;
+
+        // 首个路径段不像域名（如 tools/mesh-reader.html），当站内相对路径
+        const firstSeg = u.split(/[/?#]/)[0];
+        const looksDomain = /^[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*\.[a-zA-Z]{2,}(:\d+)?$/.test(firstSeg);
+        // 整串就是一个本站文件（如 mesh-reader.html）：带页面 / 资源后缀，同样按相对路径
+        const looksLocalFile = u.indexOf('/') < 0 &&
+            /\.(html?|php|aspx?|jsp|md|json|xml|txt|css|js|svg|png|jpe?g|gif|webp|ico|pdf|zip|mp3|ogg|wav)$/i.test(u);
+
+        if (!looksDomain || looksLocalFile) return u;
+        return 'https://' + u;
     }
 
     /** 取主机名（去掉 www.），链接名称留空时用它兜底 */

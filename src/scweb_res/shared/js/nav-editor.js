@@ -413,7 +413,8 @@ class NavEditor {
             fields: [
                 {
                     key: 'url', label: '网址', value: link ? link.url || '' : '',
-                    placeholder: 'https://example.com（只填域名也行）'
+                    placeholder: 'https://example.com 或站内页面 mesh-reader.html',
+                    hint: '外部站点只填域名也行（自动补 https://）；本站页面写文件名或 ./xxx.html 即可，不会被补成 https。'
                 },
                 {
                     key: 'title', label: '名称', value: link ? link.title || '' : '',

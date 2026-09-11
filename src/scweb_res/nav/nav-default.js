@@ -1,14 +1,12 @@
 /* 生存战争网 · 站点导航静态数据文件（web 模式的数据源）。
    内容由「转换 → 同步到静态文件」从 MySQL 导出生成，请勿手改。
-   分组用 page 字段标明归属：index（首页）/ about（关于页），
-   两个页面各自渲染自己那一份，编辑入口见「设置 → 导航数据 → 编辑导航」。 */
+   分组用 page 字段标明归属：index（首页）/ about（关于页）。 */
 window.SITE_NAV_DEFAULT = {
   "version": 2,
-  "title": "生存战争网·站点导航",
+  "title": "生存战争网·社区导航",
   "groups": [
     {
       "id": "cn",
-      "page": "index",
       "key": "cnNavigation",
       "name": "🌏 CN中文导航",
       "links": [
@@ -89,11 +87,11 @@ window.SITE_NAV_DEFAULT = {
           "url": "https://bbs.jiil.top/",
           "external": true
         }
-      ]
+      ],
+      "page": "index"
     },
     {
       "id": "os",
-      "page": "index",
       "key": "osNavigation",
       "name": "🌍 OS海外导航",
       "links": [
@@ -146,11 +144,11 @@ window.SITE_NAV_DEFAULT = {
           "url": "https://survivalcraft.fandom.com",
           "external": true
         }
-      ]
+      ],
+      "page": "index"
     },
     {
       "id": "other",
-      "page": "index",
       "key": "otherNavigation",
       "name": "📌 其他导航",
       "links": [
@@ -175,11 +173,11 @@ window.SITE_NAV_DEFAULT = {
           "url": "https://gitee.com/SC-SPM/SurvivalcraftNet/releases",
           "external": true
         }
-      ]
+      ],
+      "page": "index"
     },
     {
       "id": "outdated",
-      "page": "index",
       "key": "outdatedNavigation",
       "name": "📜 可能过时导航",
       "links": [
@@ -232,7 +230,8 @@ window.SITE_NAV_DEFAULT = {
           "url": "https://tieba.baidu.com/f?kw=%E7%94%9F%E5%AD%98%E6%88%98%E4%BA%89",
           "external": true
         }
-      ]
+      ],
+      "page": "index"
     },
     {
       "id": "about-bookmarks",
@@ -312,6 +311,20 @@ window.SITE_NAV_DEFAULT = {
           "external": false
         },
         {
+          "id": "about-tools-5",
+          "key": "modDevKit",
+          "title": "生存战争Mod开发工具包",
+          "url": "https://mod-dev-kit.html",
+          "external": false
+        },
+        {
+          "id": "about-tools-4",
+          "key": "meshReader",
+          "title": "模型Meshes读取器",
+          "url": "https://mesh-reader.html",
+          "external": false
+        },
+        {
           "id": "about-tools-2",
           "key": "photoroomBg",
           "title": "Photoroom 透明背景",
@@ -324,20 +337,6 @@ window.SITE_NAV_DEFAULT = {
           "title": "Blockbench 3D编辑器",
           "url": "https://web.blockbench.net/",
           "external": true
-        },
-        {
-          "id": "about-tools-4",
-          "key": "meshReader",
-          "title": "模型Meshes读取器",
-          "url": "mesh-reader.html",
-          "external": false
-        },
-        {
-          "id": "about-tools-5",
-          "key": "modDevKit",
-          "title": "生存战争Mod开发工具包",
-          "url": "mod-dev-kit.html",
-          "external": false
         }
       ]
     },
