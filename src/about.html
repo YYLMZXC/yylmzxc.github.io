@@ -15,6 +15,7 @@
     <link rel="stylesheet" href="./scweb_res/shared/css/components.css?v=20260821">
     <link rel="stylesheet" href="./scweb_res/shared/css/theme.css?v=20260821c">
     <link rel="stylesheet" href="./scweb_res/shared/css/layout.css?v=20260821">
+    <link rel="stylesheet" href="./scweb_res/shared/css/nav-editor.css?v=20260911">
     <link rel="stylesheet" href="./scweb_res/shared/css/bgm-player.css?v=20260827">
     <link rel="icon" type="image/x-icon" href="./scweb_res/favicon.ico">
     <style>
@@ -114,29 +115,11 @@
                             </p>
                         </section>
 
-                        <section class="nav-section">
-                            <h3 id="bookmarksNavigationTitle" style="color: #495057; margin-bottom: 10px;" data-i18n="about.bookmarks">📌 收藏导航</h3>
-                            <div class="banner-grid" id="bookmarksNavigationLinks">
-                            </div>
-                        </section>
-
-                        <section class="nav-section">
-                            <h3 id="toolsNavigationTitle" style="color: #495057; margin-bottom: 10px;" data-i18n="about.toolsNavigation">🔧 工具导航</h3>
-                            <div class="banner-grid" id="toolsNavigationLinks">
-                            </div>
-                        </section>
-
-                        <section class="nav-section">
-                            <h3 id="aiNavigationTitle" style="color: #495057; margin-bottom: 10px;" data-i18n="about.aiNavigation">🤖 AI导航</h3>
-                            <div class="banner-grid" id="aiNavigationLinks">
-                            </div>
-                        </section>
-
-                        <section class="nav-section">
-                            <h3 id="otherNavigationTitle" style="color: #495057; margin-bottom: 10px;" data-i18n="about.otherNavigation">🧭 其他导航</h3>
-                            <div class="banner-grid" id="otherNavigationLinks">
-                            </div>
-                        </section>
+                        <!-- 关于页导航：与首页共用一份数据（分组带 page=about），
+                             区块数量、标题与链接由数据层渲染，
+                             可在设置下拉的「导航数据 → 编辑导航」里修改，
+                             见 about_script.js / nav-render.js / nav-store.js -->
+                        <div id="aboutNavigationSections"></div>
                     </div>
                 </div>
             </div>
@@ -161,15 +144,21 @@
     <script src="./scweb_res/about/about_languages.js?v=20260911"></script>
     <script src="./scweb_res/shared/js/site-info.js?v=20260723"></script>
     <script src="./site-config.js"></script>
-    <script src="./scweb_res/shared/js/settings-store.js"></script>
-    <script src="./scweb_res/shared/js/settings-manager.js"></script>
+    <script src="./scweb_res/shared/js/settings-store.js?v=20260911"></script>
+    <script src="./scweb_res/shared/js/settings-manager.js?v=20260911"></script>
     <!-- 账号分区与轻提示：设置下拉里的登录入口，以及保存后的回执 -->
     <script src="./scweb_res/shared/js/toast.js"></script>
     <script src="./scweb_res/shared/js/nav-api.js"></script>
+    <script src="./scweb_res/shared/js/nav-store.js?v=20260911"></script>
+    <script src="./scweb_res/shared/js/nav-render.js?v=20260911"></script>
     <script src="./scweb_res/shared/js/account-manager.js"></script>
-    <script src="./scweb_res/shared/js/app.js?v=20260821"></script>
+    <script src="./scweb_res/shared/js/app.js?v=20260911"></script>
+    <script src="./scweb_res/nav/nav-default.js"></script>
+    <!-- 导航数据的编辑入口（设置下拉里的「导航数据」分区，可切换首页 / 关于页） -->
+    <script src="./scweb_res/shared/js/nav-editor.js?v=20260911"></script>
+    <script src="./scweb_res/shared/js/nav-panel.js?v=20260911"></script>
     <script src="./scweb_res/shared/js/bgm-player.js?v=20260827"></script>
-    <script src="./scweb_res/about/about_script.js?v=20260820a"></script>
+    <script src="./scweb_res/about/about_script.js?v=20260911"></script>
     
     <script src="./live2d/autoload.js"></script>
     <script src="./scweb_res/shared/js/analytics.js?v=20260827"></script>

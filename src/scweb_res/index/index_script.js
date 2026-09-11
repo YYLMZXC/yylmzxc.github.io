@@ -55,15 +55,15 @@ class IndexPageManager {
         // 先把内存里的静态数据画出来，避免等接口时页面空白
         this.renderNavigation();
 
-        // 逐条增删改的编辑器，入口在设置下拉的「导航数据」里
-        if (window.IndexNavEditor) {
-            this.navEditor = new IndexNavEditor(this.navStore, this.app);
+        // 逐条增删改的编辑器，入口在设置下拉的「导航数据」里（可在首页 / 关于页之间切换）
+        if (window.NavEditor) {
+            this.navEditor = new NavEditor(this.navStore, this.app);
             this.navEditor.init();
         }
 
         // 编辑 / 模式切换 / 导入 / 导出 / 转换的入口挂在设置下拉里
-        if (this.settingsManager && window.IndexNavPanel) {
-            this.navPanel = new IndexNavPanel(this.navStore, this.settingsManager, this.navEditor, this.app);
+        if (this.settingsManager && window.NavPanel) {
+            this.navPanel = new NavPanel(this.navStore, this.settingsManager, this.navEditor, this.app);
             this.navPanel.init();
         }
 
@@ -75,60 +75,15 @@ class IndexPageManager {
     }
 
     /**
-     * 按当前数据与当前语言重画所有导航区块
+     * 按当前数据与当前语言重画所有导航区块（区块结构见 NavRender）
      */
     renderNavigation() {
         const container = document.getElementById('siteNavigationSections');
-        if (!container || !this.navStore) return;
+        if (!container || !this.navStore || !window.NavRender) return;
 
-        const translations = this.languageManager.getTranslations();
-        const fragment = document.createDocumentFragment();
-
-        this.navStore.groups().forEach(group => {
-            const links = (group.links || []).filter(link => link.url);
-            if (!links.length) return;   // 空分组不占版面
-
-            const section = document.createElement('section');
-            section.className = 'nav-section';
-
-            const title = document.createElement('h3');
-            title.textContent = NavStore.groupTitle(group, translations);
-            section.appendChild(title);
-
-            const grid = document.createElement('div');
-            grid.className = 'banner-grid';
-            links.forEach(link => grid.appendChild(this.linkElement(link, translations)));
-            section.appendChild(grid);
-
-            fragment.appendChild(section);
-        });
-
-        container.innerHTML = '';
-        container.appendChild(fragment);
-    }
-
-    /**
-     * 生成一个导航链接元素
-     * 标题的「词条优先、原文兜底」由 NavStore.linkTitle 统一判定，
-     * 与编辑器里显示的名字保持同一份逻辑
-     * @param {Object} link - { key, title, url, external }
-     * @param {Object} translations - 当前语言的词条表
-     */
-    linkElement(link, translations) {
-        const text = NavStore.linkTitle(link, translations);
-
-        const a = document.createElement('a');
-        a.href = link.url;
-        a.textContent = text;
-        a.title = text;
-        a.className = 'nav-link';
-
-        if (link.external) {
-            a.target = '_blank';
-            a.rel = 'noopener noreferrer';
-        }
-
-        return a;
+        // 首页的区块标题在 translations.sections 里（关于页在 translations.about）
+        const translations = NavStore.translationsFor(this.navStore.page, this.languageManager.getTranslations());
+        NavRender.sections(container, this.navStore, translations);
     }
 }
 

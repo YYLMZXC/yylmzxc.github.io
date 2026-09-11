@@ -1,5 +1,9 @@
 /**
- * 生存战争网 - 首页「社区导航」数据层
+ * 生存战争网 - 站点导航数据层（首页 / 关于页共用一份数据文档）
+ *
+ * 数据分页：每个分组带 page 字段标明属于哪个页面（见 NavStore.PAGES），
+ * 一个页面只渲染自己那一份；实例在构造时绑定「本页面身份」，
+ * 编辑器可以跨页编辑（按 page 取分组，见 groups(page)）。
  *
  * 两种浏览模式，默认 web 模式（页面不依赖任何后端也能照常显示）：
  *   web 模式 'web' —— 只读。数据固定来自静态数据文件 scweb_res/nav/nav-default.js，
@@ -17,9 +21,11 @@
 class NavStore {
     /**
      * @param {Object} [api] - 接口封装，默认取 window.NavApi
+     * @param {string} [page] - 本页面身份：'index'（首页）| 'about'（关于页）
      */
-    constructor(api) {
+    constructor(api, page) {
         this.api = api || window.NavApi;
+        this.page = NavStore.normalizePage(page);
 
         // 全部存储键名的唯一出处
         this._KEYS = {
@@ -49,7 +55,7 @@ class NavStore {
         const d = window.SITE_NAV_DEFAULT;
         return (d && Array.isArray(d.groups))
             ? NavStore.clone(d)
-            : { version: 1, title: '社区导航', groups: [] };
+            : { version: 2, title: '站点导航', groups: [] };
     }
 
     /** 用新数据覆盖内存中的静态数据（转换后调用，使 web 模式立刻与文件一致） */
@@ -59,6 +65,31 @@ class NavStore {
     }
 
     static clone(value) { return JSON.parse(JSON.stringify(value)); }
+
+    /** 页面身份归一：没写 / 写错的分组一律算首页（v1 老数据没有 page 字段） */
+    static normalizePage(page) {
+        const id = String(page || '');
+        return NavStore.PAGES.filter(p => p.id === id).length ? id : 'index';
+    }
+
+    /** 页面名的中文说法，提示语里用 */
+    static pageText(page) {
+        const p = NavStore.PAGES.filter(x => x.id === NavStore.normalizePage(page))[0];
+        return p ? p.name : '首页';
+    }
+
+    /**
+     * 取某个页面要用的词条表：区块标题首页在 translations.sections、关于页在
+     * translations.about，链接词条两边都在 translations.links
+     * @returns {{sections:Object, links:Object}} 可直接喂给 groupTitle / linkTitle
+     */
+    static translationsFor(page, translations) {
+        const t = translations || {};
+        return {
+            sections: (NavStore.normalizePage(page) === 'about' ? t.about : t.sections) || {},
+            links: t.links || {}
+        };
+    }
 
     // 重新拉取静态数据文件（带缓存穿透）；无论成败都 resolve，
     // 由调用方决定如何回退，避免把「取文件失败」扩散成异常。
@@ -136,18 +167,44 @@ class NavStore {
     /** 只有连上数据库才允许改数据，避免出现「改了却存不下来」的错觉 */
     canEdit() { return this.state.mode === 'db' && this.state.online; }
 
-    groups() { return (this.state.data && this.state.data.groups) || []; }
+    /** 整份数据里的全部分组（两个页面混在一起；导出、按 id 查找用） */
+    allGroups() { return (this.state.data && this.state.data.groups) || []; }
 
-    /** 当前数据的规模，提示语里用来交代「导出了多少」 */
-    stats() {
-        let links = 0;
-        this.groups().forEach(g => { links += (g.links || []).length; });
-        return { groups: this.groups().length, links: links };
+    /**
+     * 某个页面的分组，保持数据里的先后顺序
+     * @param {string} [page] - 不传则取本页面身份（this.page）
+     */
+    groups(page) {
+        const want = NavStore.normalizePage(page || this.page);
+        return this.allGroups().filter(g => NavStore.normalizePage(g.page) === want);
     }
 
-    /** 按 id 取分组，取不到返回 null */
+    /** 某个分组属于哪个页面 */
+    pageOf(gid) {
+        const g = this.findGroup(gid);
+        return NavStore.normalizePage(g && g.page);
+    }
+
+    /** 某个页面（不传则本页面）的规模，提示语里用来交代「导出了多少」 */
+    stats(page) {
+        return NavStore.count(this.groups(page));
+    }
+
+    /** 两个页面合计的规模 */
+    statsAll() {
+        return NavStore.count(this.allGroups());
+    }
+
+    static count(groups) {
+        const list = groups || [];
+        let links = 0;
+        list.forEach(g => { links += (g.links || []).length; });
+        return { groups: list.length, links: links };
+    }
+
+    /** 按 id 取分组（id 跨页面唯一），取不到返回 null */
     findGroup(gid) {
-        return this.groups().filter(g => g.id === gid)[0] || null;
+        return this.allGroups().filter(g => g.id === gid)[0] || null;
     }
 
     /** 按 id 取分组下的链接，取不到返回 null */
@@ -412,13 +469,20 @@ class NavStore {
     /* ---------------- 分组 ---------------- */
 
     /**
-     * 新增分组（追加到末尾）
+     * 新增分组（追加到末尾；同页面的分组相对顺序不变，跨页面互不干扰）
      * @param {Object} [attrs] - { name, key }
+     * @param {string} [page] - 归属页面，不传则本页面身份
      * @returns {Object} 新分组
      */
-    addGroup(attrs) {
-        const g = Object.assign({ id: NavStore.uid('g'), name: '', links: [] }, attrs || {});
-        this.groups().push(g);
+    addGroup(attrs, page) {
+        const g = Object.assign({
+            id: NavStore.uid('g'),
+            page: NavStore.normalizePage(page || this.page),
+            name: '',
+            links: []
+        }, attrs || {});
+        g.page = NavStore.normalizePage(g.page);
+        this.allGroups().push(g);
         this._commit();
         return g;
     }
@@ -438,17 +502,31 @@ class NavStore {
 
     /** 删除分组，连同组内链接一起删掉 */
     removeGroup(gid) {
-        const rest = this.groups().filter(g => g.id !== gid);
-        if (rest.length === this.groups().length) return false;
+        const all = this.allGroups();
+        const rest = all.filter(g => g.id !== gid);
+        if (rest.length === all.length) return false;
 
         this.state.data.groups = rest;
         this._commit();
         return true;
     }
 
-    /** 分组排序：dir 为 -1 上移、1 下移 */
+    /**
+     * 分组排序：dir 为 -1 上移、1 下移，只在所属页面内挪动
+     * （两个页面的分组混在同一个数组里，先按页面算出顺序，再换算成数组里的真实位置）
+     */
     moveGroup(gid, dir) {
-        return this._moveIn(this.groups(), this.groups().map(g => g.id).indexOf(gid), dir);
+        const list = this.groups(this.pageOf(gid));
+        const i = list.map(g => g.id).indexOf(gid);
+        const j = i + dir;
+        if (i < 0 || j < 0 || j >= list.length) return false;
+
+        const all = this.allGroups();
+        const moved = all.splice(all.indexOf(list[i]), 1)[0];
+        const anchor = all.indexOf(list[j]);
+        all.splice(dir < 0 ? anchor : anchor + 1, 0, moved);
+        this._commit();
+        return true;
     }
 
     /* ---------------- 链接 ---------------- */
@@ -516,9 +594,10 @@ class NavStore {
             throw new Error('格式不正确：缺少 groups 数组');
         }
         const data = NavStore.clone(parsed);
-        data.version = data.version || 1;
+        data.version = 2;   // 当前格式：分组带 page 字段（v1 老数据导进来按首页补齐）
         data.groups.forEach((g, gi) => {
             g.id = g.id || ('g' + (gi + 1));
+            g.page = NavStore.normalizePage(g.page);
             if (!g.name && !g.key) g.name = '未命名分组';
             g.links = (Array.isArray(g.links) ? g.links : []).map((l, li) => {
                 l.id = l.id || (g.id + '-l' + (li + 1));
@@ -543,10 +622,10 @@ class NavStore {
         return this.save().then(saved => ({ saved: saved, data: data }));
     }
 
-    /** 导出当前页面的数据为 JSON 文件 */
+    /** 导出整份数据（首页 + 关于页）为 JSON 文件，用于备份 / 迁移 */
     exportData() {
         const data = this.state.data || {};
-        const name = String(data.title || '社区导航').replace(/[\\/:*?"<>|]+/g, '_');
+        const name = String(data.title || '站点导航').replace(/[\\/:*?"<>|]+/g, '_');
         const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json;charset=utf-8' });
         const url = URL.createObjectURL(blob);
 
@@ -582,5 +661,11 @@ class NavStore {
 NavStore.STATIC_SRC = 'scweb_res/nav/nav-default.js';
 NavStore.NOT_API = 'NOT_API';
 NavStore.UNAUTHORIZED = 'UNAUTHORIZED';
+
+// 数据里允许出现的页面身份：编辑器按这个顺序出页签，数据里的 page 写别的都归到首页
+NavStore.PAGES = [
+    { id: 'index', name: '首页' },
+    { id: 'about', name: '关于页' }
+];
 
 window.NavStore = NavStore;

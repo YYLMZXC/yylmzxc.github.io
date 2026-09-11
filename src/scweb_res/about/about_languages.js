@@ -232,48 +232,11 @@ const AboutLanguageConfig = {
                 blockbench: 'Blockbench Editor 3D'
             }
         }
-    },
-
-    /**
-     * 导航链接配置
-     * - bookmarks: 收藏导航
-     * - ai: AI导航
-     * - other: 其他导航
-     */
-    navigation: {
-        tools: [
-            { title: 'links.dashboard', url: 'dashboard.html', external: false },
-            { title: 'links.photoroomBg', url: 'https://www.photoroom.com/zh/tools/transparent-background', external: true },
-            { title: 'links.blockbench', url: 'https://web.blockbench.net/', external: true },
-            { title: 'links.meshReader', url: 'tools/mesh-reader.html', external: false },
-            { title: 'links.modDevKit', url: 'tools/mod-dev-kit.html', external: false }
-        ],
-        bookmarks: [
-            { title: 'links.cloudflare', url: 'https://www.cloudflare.com/', external: true },
-            { title: 'links.projectRepo', url: 'https://cnb.cool/SurvivalcraftTool/scweb', external: true },
-            { title: 'links.gname', url: 'https://www.gname.com/', external: true },
-            { title: 'links.boce', url: 'https://www.boce.com/http', external: true },
-            { title: 'links.baiduZiyuan', url: 'https://ziyuan.baidu.com/', external: true },
-            { title: 'links.baiduTongji', url: 'https://tongji.baidu.com/', external: true },
-            { title: 'links.bingWebmasters', url: 'https://www.bing.com/webmasters', external: true },
-            { title: 'links.msClarity', url: 'https://clarity.microsoft.com/', external: true }
-        ],
-        ai: [
-            { title: 'links.aiToolsNav', url: 'https://ai-bot.cn/', external: true },
-            { title: 'links.amz123', url: 'https://www.amz123.com/ai', external: true },
-            { title: 'links.yupiAi', url: 'https://ai.codefather.cn/', external: true },
-            { title: 'links.uisdcAi', url: 'https://hao.uisdc.com/ai/', external: true },
-            { title: 'links.faxianAi', url: 'https://www.faxianai.com/', external: true }
-        ],
-        other: [
-            { title: 'links.deepseek', url: 'https://chat.deepseek.com/', external: true },
-            { title: 'links.waybackMachine', url: 'https://web.archive.org/', external: true },
-            { title: 'links.yylmzxcPages', url: 'https://yylmzxc.github.io', external: true },
-            { title: 'links.scGps', url: 'https://sc-survivalcraft-gps.github.io/', external: true },
-            { title: 'links.lanzou', url: 'https://www.lanzoui.com/', external: true },
-            { title: 'links.mediafire', url: 'https://app.mediafire.com/folder/8skcfeiacfo5x/beta_test_dev', external: true }
-        ]
     }
+
+    // 关于页的导航链接已挪进数据层（scweb_res/nav/nav-default.js 或 MySQL，
+    // 分组带 page='about'），可在设置下拉的「导航数据 → 编辑导航」里逐条编辑；
+    // 链接的多语言名称仍是上面的 translations.*.links，key 与数据里的 key 对应
 };
 
 window.AboutLanguageConfig = AboutLanguageConfig;

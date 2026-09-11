@@ -3,7 +3,7 @@
    自动建库建表；首次启动时用静态数据文件 scweb_res/nav/nav-default.js 填充。
    库 / 表被删掉（例如手工 DROP DATABASE）后不必重启后端：
    下一次请求会重新建库建表并重试，只是数据只能回到那份静态文件。
-   数据模型：业务数据两张单行 JSON 表——site_nav（首页「社区导航」）
+   数据模型：业务数据两张单行 JSON 表——site_nav（站点导航：首页 / 关于页）
    与 site_settings（站点全局设置：BGM / 自动播放 / 看板娘 / 默认主题），
    外加账号与会话两张表：账号密码只存在这里，浏览器不保存任何凭据。
    静态数据文件本身的读写属于另一职责，见 sitenav.js / settings.js；
@@ -56,8 +56,8 @@ const DDL = [
      KEY idx_nav_sessions_expires (expires_at)
    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`,
 
-  // 首页「社区导航」数据：整份 JSON 存一行。
-  // 单行 JSON 而非拆表，是因为首页导航的数据结构（分组 + 多语言标题键）还在演进，
+  // 站点导航数据（首页 / 关于页）：整份 JSON 存一行。
+  // 单行 JSON 而非拆表，是因为导航的数据结构（分页 + 分组 + 多语言标题键）还在演进，
   // 拆成列反而每次改结构都要动表；整份读写的语义也与「导入 / 导出 / 转换」天然对齐。
   `CREATE TABLE IF NOT EXISTS site_nav (
      id TINYINT UNSIGNED NOT NULL PRIMARY KEY,
@@ -330,15 +330,15 @@ async function connect() {
     pool = mysql.createPool(Object.assign({ database: DB_NAME }, baseOptions()));
     for (const sql of DDL) await pool.query(sql);
 
-    // 首页「社区导航」在首次启动时用静态文件填一次，
-    // 否则数据库模式下第一次打开首页会是空的。
+    // 站点导航（首页 / 关于页）在首次启动时用静态文件填一次，
+    // 否则数据库模式下第一次打开页面会是空的。
     stage = 'seed';
     const [siteRows] = await pool.query('SELECT id FROM site_nav WHERE id = 1');
     if (!siteRows.length) {
       const sd = sitenav.read();
       if (sd) {
-        await writeSiteNav(pool, sd);
-        console.log('已用静态数据文件初始化首页导航');
+        await writeSiteNav(pool, sitenav.normalize(sd) || sd);
+        console.log('已用静态数据文件初始化站点导航');
       }
     }
 
@@ -403,15 +403,25 @@ function safeParse(text, fallback) {
   try { return JSON.parse(text); } catch (e) { return fallback; }
 }
 
-/* ---------------- 首页「社区导航」数据 ----------------
+/* ---------------- 站点导航数据（首页 / 关于页） ----------------
    整份 JSON 存在 site_nav 单行里：读回来就是前端直接用的那份结构，
-   不做字段级拆解，因此导入 / 导出 / 转换三条路径 round-trip 完全一致。 */
+   不做字段级拆解，因此导入 / 导出 / 转换三条路径 round-trip 完全一致。
+   分组带 page 字段标明归属页面，格式升级（v1 只有首页）见 sitenav.upgrade。 */
 
 async function loadSiteNav() {
   const rows = await q('SELECT data FROM site_nav WHERE id = 1');
   if (!rows.length) return null;
+
   const d = safeParse(rows[0].data, null);
-  return (d && Array.isArray(d.groups)) ? d : null;
+  if (!d || !Array.isArray(d.groups)) return null;
+
+  // 老数据（v1 只有首页）顺手升级并落库一次，之后读到的就是当前格式
+  const up = sitenav.upgrade(d);
+  if (up.changed) {
+    await saveSiteNav(up.data);
+    console.log('已把 site_nav 里的老数据升级为多页面格式（首页 + 关于页）');
+  }
+  return up.data;
 }
 
 // 真正落库的那一段，直接拿连接用。

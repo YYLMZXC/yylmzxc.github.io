@@ -1,16 +1,20 @@
 /**
- * 生存战争网 - 首页「社区导航」编辑器
+ * 生存战争网 - 站点导航编辑器（首页 / 关于页共用）
  *
  * 在设置下拉里点「编辑导航」打开，成组地添加 / 修改 / 删除 / 排序：
  *   分组：改名、指定多语言词条、上下移、删除（连同组内链接）
  *   链接：网址、名称、多语言词条、是否新窗口打开、上下移、删除
  *
+ * 顶部的页签决定「正在编辑哪个页面」（见 NavStore.PAGES），
+ * 换页签只换编辑视角，实例绑定的本页面身份（store.page）不受影响，
+ * 因此可以在这个编辑器的任意页签里改两个页面的导航。
+ *
  * 分工：本模块只负责「界面与交互」，数据改动一律交给 NavStore，
  * 改完由数据层写回数据库并广播 data 事件，本模块收到后重画，
  * 因此这里不持有数据的副本，也没有「界面和数据谁为准」的问题。
- * 挂载到全局 window.IndexNavEditor
+ * 挂载到全局 window.NavEditor
  */
-class IndexNavEditor {
+class NavEditor {
     /**
      * @param {Object} store - NavStore 实例
      * @param {Object} [app] - 共享服务集合，用于按当前语言取词条
@@ -19,7 +23,12 @@ class IndexNavEditor {
         this.store = store;
         this.app = app || null;
 
+        // 正在编辑的页面：默认从本页面开始，可以在页签里换
+        this.page = NavStore.normalizePage(store && store.page);
+
         this.root = null;      // 整个遮罩层
+        this.titleEl = null;   // 标题（跟着页签走）
+        this.tabsEl = null;    // 页面页签
         this.bodyEl = null;    // 列表 / 表单的容器
         this._form = null;     // 正在填的表单描述；为 null 表示列表视图
     }
@@ -121,12 +130,16 @@ class IndexNavEditor {
         card.className = 'nv-editor-card';
         card.setAttribute('role', 'dialog');
         card.setAttribute('aria-modal', 'true');
-        card.setAttribute('aria-label', '编辑社区导航');
+        card.setAttribute('aria-label', '编辑站点导航');
 
         const head = document.createElement('div');
         head.className = 'nv-editor-head';
-        head.appendChild(this._el('span', 'nv-editor-title', '编辑社区导航'));
+        this.titleEl = this._el('span', 'nv-editor-title', '编辑导航');
+        head.appendChild(this.titleEl);
         head.appendChild(this._opBtn('close', '', '', '✕', '关闭', false, 'nv-editor-close'));
+
+        const tabs = document.createElement('div');
+        tabs.className = 'nv-editor-tabs';
 
         const body = document.createElement('div');
         body.className = 'nv-editor-body';
@@ -134,10 +147,11 @@ class IndexNavEditor {
         const foot = document.createElement('div');
         foot.className = 'nv-editor-foot';
         foot.appendChild(this._el('span', 'nv-editor-tip',
-            '改动会立即写入数据库；要让 web 模式也生效，请在设置里执行「转换：数据库 → 静态文件」。'));
+            '改动会立即写入数据库；「转换：数据库 → 静态文件」会把首页与关于页一起写入静态文件，供 web 模式使用。'));
         foot.appendChild(this._opBtn('close', '', '', '完成', '关闭编辑器'));
 
         card.appendChild(head);
+        card.appendChild(tabs);
         card.appendChild(body);
         card.appendChild(foot);
         root.appendChild(mask);
@@ -145,6 +159,7 @@ class IndexNavEditor {
         document.body.appendChild(root);
 
         this.root = root;
+        this.tabsEl = tabs;
         this.bodyEl = body;
     }
 
@@ -190,10 +205,44 @@ class IndexNavEditor {
         return b;
     }
 
-    /** 当前语言的词条表，用来把 key 翻成显示名 */
-    _translations() {
+    /**
+     * 某个页面（不传则正在编辑的页面）的词条表，用来把 key 翻成显示名
+     * 首页的区块标题在 translations.sections，关于页在 translations.about
+     */
+    _translations(page) {
         const lm = this.app && this.app.languageManager;
-        return (lm && lm.getTranslations) ? lm.getTranslations() : {};
+        const all = (lm && lm.getTranslations) ? lm.getTranslations() : {};
+        return NavStore.translationsFor(page || this.page, all);
+    }
+
+    /* ================================================================
+     *  页签
+     * ================================================================ */
+
+    /** 页面页签：顺便带出各页的分组数量，一眼能看出哪页是空的 */
+    _renderTabs() {
+        if (!this.tabsEl) return;
+
+        this.tabsEl.innerHTML = '';
+        if (this.titleEl) this.titleEl.textContent = '编辑导航 · ' + NavStore.pageText(this.page);
+
+        NavStore.PAGES.forEach(p => {
+            const n = this.store.groups(p.id).length;
+            const b = this._el('button', 'nv-tab' + (p.id === this.page ? ' active' : ''),
+                p.name + '（' + n + '）');
+            b.type = 'button';
+            b.setAttribute('data-act', 'page');
+            b.setAttribute('data-page', p.id);
+            this.tabsEl.appendChild(b);
+        });
+    }
+
+    /** 切换正在编辑的页面：只换编辑视角，数据与 store.page 都不动 */
+    _switchPage(page) {
+        const next = NavStore.normalizePage(page);
+        if (next === this.page) return;
+        this.page = next;
+        this._renderList();
     }
 
     /* ================================================================
@@ -206,12 +255,14 @@ class IndexNavEditor {
         const box = this.bodyEl;
         const keepTop = box.scrollTop;      // 重画后别把用户滚回顶部
         box.innerHTML = '';
+        this._renderTabs();
 
-        const groups = this.store.groups();
+        const groups = this.store.groups(this.page);
         const translations = this._translations();
 
         if (!groups.length) {
-            box.appendChild(this._el('div', 'nv-empty', '还没有任何分组，点下面的「新增分组」开始添加。'));
+            box.appendChild(this._el('div', 'nv-empty',
+                '「' + NavStore.pageText(this.page) + '」还没有任何分组，点下面的「新增分组」开始添加。'));
         }
 
         groups.forEach((g, gi) => box.appendChild(this._groupEl(g, gi, groups.length, translations)));
@@ -334,7 +385,8 @@ class IndexNavEditor {
             kind: 'group',
             isNew: isNew,
             gid: isNew ? '' : group.id,
-            title: isNew ? '新增分组' : '编辑分组',
+            page: this.page,     // 新增时记下归属页面，保存时按它落到对应页面
+            title: (isNew ? '新增分组' : '编辑分组') + ' · ' + NavStore.pageText(this.page),
             fields: [
                 {
                     key: 'name', label: '分组名称', value: group ? group.name || '' : '',
@@ -396,6 +448,7 @@ class IndexNavEditor {
 
         switch (act) {
             case 'close': return this.close();
+            case 'page': return this._switchPage(btn.getAttribute('data-page'));
             case 'group-add': return this._openGroupForm(null);
             case 'group-edit': return this._openGroupForm(this.store.findGroup(gid));
             case 'group-del': return this._removeGroup(gid);
@@ -459,7 +512,7 @@ class IndexNavEditor {
     }
 
     _applyNew(f, patch) {
-        if (f.kind === 'group') this.store.addGroup(patch);
+        if (f.kind === 'group') this.store.addGroup(patch, f.page || this.page);
         else this.store.addLink(f.gid, patch);
     }
 
@@ -473,7 +526,7 @@ class IndexNavEditor {
         if (!g) return;
 
         const n = (g.links || []).length;
-        const name = NavStore.groupTitle(g, this._translations());
+        const name = NavStore.groupTitle(g, this._translations(this.store.pageOf(gid)));
         const ok = window.confirm(
             '确定删除分组「' + name + '」' + (n ? '及其中的 ' + n + ' 条链接' : '') + '吗？'
         );
@@ -487,7 +540,8 @@ class IndexNavEditor {
         const l = this.store.findLink(gid, lid);
         if (!l) return;
 
-        const ok = window.confirm('确定删除链接「' + NavStore.linkTitle(l, this._translations()) + '」吗？');
+        const ok = window.confirm('确定删除链接「' +
+            NavStore.linkTitle(l, this._translations(this.store.pageOf(gid))) + '」吗？');
         if (!ok) return;
 
         this.store.removeLink(gid, lid);
@@ -495,4 +549,4 @@ class IndexNavEditor {
     }
 }
 
-window.IndexNavEditor = IndexNavEditor;
+window.NavEditor = NavEditor;

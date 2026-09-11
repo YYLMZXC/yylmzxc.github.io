@@ -179,6 +179,17 @@
 }
 
 /* ===== 横幅/导航链接网格 ===== */
+/* 导航区块由 NavRender 生成，首页与关于页共用这套结构与类名：
+   首页在 index_main.css 里另有自己的一套标题样式（会覆盖这里的默认值） */
+.nav-section {
+    margin: 10px 0;
+}
+
+.nav-section h3 {
+    color: #495057;
+    margin-bottom: 10px;
+}
+
 .banner-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));

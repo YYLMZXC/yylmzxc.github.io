@@ -1,16 +1,17 @@
 /**
- * 生存战争网 - 首页导航数据面板（设置下拉里的「导航数据」分区）
+ * 生存战争网 - 站点导航数据面板（设置下拉里的「导航数据」分区，首页 / 关于页共用）
  *
  * 把数据层的「编辑 / 模式切换 / 导入 / 导出 / 转换」搬到界面上，
  * 只做「按钮 → 数据层方法 → 提示」的编排，不碰数据结构本身。
- * 逐条的增删改由 IndexNavEditor 负责，本模块只负责把入口摆出来。
- * 挂载到全局 window.IndexNavPanel
+ * 逐条的增删改由 NavEditor 负责（它可以在首页 / 关于页之间切换），
+ * 本模块只负责把入口摆出来，并交代清楚「当前页面用的是哪一份数据」。
+ * 挂载到全局 window.NavPanel
  */
-class IndexNavPanel {
+class NavPanel {
     /**
-     * @param {Object} store - NavStore 实例
+     * @param {Object} store - NavStore 实例（绑定本页面身份）
      * @param {Object} settingsManager - 设置下拉，用于追加「导航数据」分区
-     * @param {Object} [editor] - IndexNavEditor 实例，「编辑导航」按钮打开它
+     * @param {Object} [editor] - NavEditor 实例，「编辑导航」按钮打开它
      * @param {Object} [app] - 共享服务集合，用于读取登录态（写操作要身份）
      */
     constructor(store, settingsManager, editor, app) {
@@ -64,7 +65,8 @@ class IndexNavPanel {
         const s = this.store.state;
 
         if (this.statusEl) {
-            this.statusEl.textContent = NavStore.modeText(s.mode) + (s.online ? '' : '（未连接）');
+            this.statusEl.textContent = NavStore.modeText(s.mode) + (s.online ? '' : '（未连接）') +
+                ' · 本页：' + NavStore.pageText(this.store.page);
         }
 
         const canWrite = s.mode === 'db' && s.online;
@@ -94,7 +96,8 @@ class IndexNavPanel {
         if (!this._loggedIn()) {
             return '转换、导入与编辑都需要登录：请在设置下拉的「账号」里登录后再操作。';
         }
-        return '数据库模式下可以直接编辑导航，改动即时写回 MySQL；转换会把当前数据写入静态文件，供 web 模式使用。';
+        return '数据库模式下可以直接编辑导航，改动即时写回 MySQL；「编辑导航」里可切换首页 / 关于页，' +
+            '转换会把两个页面的数据一起写入静态文件，供 web 模式使用。';
     }
 
     _btn(act) {
@@ -131,9 +134,9 @@ class IndexNavPanel {
         this._busy(btn, true, goingDb ? '连接中…' : '切换中…');
 
         this.store.switchMode(goingDb ? 'db' : 'web').then(() => {
-            const stats = this.store.stats();
+            const stats = this.store.statsAll();
             SCToast.ok('已切换到' + NavStore.modeText(this.store.state.mode) +
-                '，共 ' + stats.groups + ' 组 / ' + stats.links + ' 条链接');
+                '，共 ' + stats.groups + ' 组 / ' + stats.links + ' 条链接（首页 + 关于页）');
         }).catch(e => {
             SCToast.error('切换到数据库模式失败：' + (e.message || '未知错误'));
         }).then(() => {
@@ -146,8 +149,9 @@ class IndexNavPanel {
 
     _export() {
         const data = this.store.exportData();
-        const stats = this.store.stats();
-        SCToast.ok('已导出《' + (data.title || '社区导航') + '》' + stats.groups + ' 组 / ' + stats.links + ' 条链接');
+        const stats = this.store.statsAll();
+        SCToast.ok('已导出《' + (data.title || '站点导航') + '》' +
+            stats.groups + ' 组 / ' + stats.links + ' 条链接（首页 + 关于页）');
     }
 
     _pickFile() {
@@ -194,7 +198,7 @@ class IndexNavPanel {
 
     // 导入结果的说法取决于「有没有真写进数据库」：web 模式只改了页面，必须讲清楚
     _afterWrite(saved, fileName) {
-        const stats = this.store.stats();
+        const stats = this.store.statsAll();
         if (this.store.state.mode !== 'db') {
             SCToast.info('已在页面上载入《' + fileName + '》' + stats.groups + ' 组 / ' + stats.links + ' 条链接（当前是 web 模式，未写入数据库）');
             return;
@@ -214,10 +218,10 @@ class IndexNavPanel {
             return;
         }
 
-        const stats = this.store.stats();
+        const stats = this.store.statsAll();
         const ok = window.confirm(
             '将把当前数据库中的导航数据写入静态文件 scweb_res/nav/nav-default.js\n' +
-            '（' + stats.groups + ' 组 / ' + stats.links + ' 条链接），用于 web 模式。\n\n' +
+            '（首页 + 关于页，共 ' + stats.groups + ' 组 / ' + stats.links + ' 条链接），用于 web 模式。\n\n' +
             '该文件会被整份覆盖，是否继续？'
         );
         if (!ok) return;
@@ -252,4 +256,4 @@ class IndexNavPanel {
     }
 }
 
-window.IndexNavPanel = IndexNavPanel;
+window.NavPanel = NavPanel;

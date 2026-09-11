@@ -1,11 +1,14 @@
-/* 生存战争网 · 首页「社区导航」静态数据文件（web 模式的数据源）。
-   内容由「转换 → 同步到静态文件」从 MySQL 导出生成，请勿手改。 */
+/* 生存战争网 · 站点导航静态数据文件（web 模式的数据源）。
+   内容由「转换 → 同步到静态文件」从 MySQL 导出生成，请勿手改。
+   分组用 page 字段标明归属：index（首页）/ about（关于页），
+   两个页面各自渲染自己那一份，编辑入口见「设置 → 导航数据 → 编辑导航」。 */
 window.SITE_NAV_DEFAULT = {
-  "version": 1,
-  "title": "生存战争网·社区导航",
+  "version": 2,
+  "title": "生存战争网·站点导航",
   "groups": [
     {
       "id": "cn",
+      "page": "index",
       "key": "cnNavigation",
       "name": "🌏 CN中文导航",
       "links": [
@@ -90,6 +93,7 @@ window.SITE_NAV_DEFAULT = {
     },
     {
       "id": "os",
+      "page": "index",
       "key": "osNavigation",
       "name": "🌍 OS海外导航",
       "links": [
@@ -146,6 +150,7 @@ window.SITE_NAV_DEFAULT = {
     },
     {
       "id": "other",
+      "page": "index",
       "key": "otherNavigation",
       "name": "📌 其他导航",
       "links": [
@@ -174,6 +179,7 @@ window.SITE_NAV_DEFAULT = {
     },
     {
       "id": "outdated",
+      "page": "index",
       "key": "outdatedNavigation",
       "name": "📜 可能过时导航",
       "links": [
@@ -224,6 +230,206 @@ window.SITE_NAV_DEFAULT = {
           "key": "tieba",
           "title": "贴吧生存战争",
           "url": "https://tieba.baidu.com/f?kw=%E7%94%9F%E5%AD%98%E6%88%98%E4%BA%89",
+          "external": true
+        }
+      ]
+    },
+    {
+      "id": "about-bookmarks",
+      "page": "about",
+      "key": "bookmarks",
+      "name": "📌 收藏导航",
+      "links": [
+        {
+          "id": "about-bookmarks-1",
+          "key": "cloudflare",
+          "title": "Cloudflare（域名解析）",
+          "url": "https://www.cloudflare.com/",
+          "external": true
+        },
+        {
+          "id": "about-bookmarks-2",
+          "key": "projectRepo",
+          "title": "项目源代码仓库",
+          "url": "https://cnb.cool/SurvivalcraftTool/scweb",
+          "external": true
+        },
+        {
+          "id": "about-bookmarks-3",
+          "key": "gname",
+          "title": "gname（域名管理）",
+          "url": "https://www.gname.com/",
+          "external": true
+        },
+        {
+          "id": "about-bookmarks-4",
+          "key": "boce",
+          "title": "boce测速",
+          "url": "https://www.boce.com/http",
+          "external": true
+        },
+        {
+          "id": "about-bookmarks-5",
+          "key": "baiduZiyuan",
+          "title": "百度资源平台",
+          "url": "https://ziyuan.baidu.com/",
+          "external": true
+        },
+        {
+          "id": "about-bookmarks-6",
+          "key": "baiduTongji",
+          "title": "百度统计",
+          "url": "https://tongji.baidu.com/",
+          "external": true
+        },
+        {
+          "id": "about-bookmarks-7",
+          "key": "bingWebmasters",
+          "title": "Bing 站长工具",
+          "url": "https://www.bing.com/webmasters",
+          "external": true
+        },
+        {
+          "id": "about-bookmarks-8",
+          "key": "msClarity",
+          "title": "Microsoft Clarity",
+          "url": "https://clarity.microsoft.com/",
+          "external": true
+        }
+      ]
+    },
+    {
+      "id": "about-tools",
+      "page": "about",
+      "key": "toolsNavigation",
+      "name": "🔧 工具导航",
+      "links": [
+        {
+          "id": "about-tools-1",
+          "key": "dashboard",
+          "title": "信息仪表板",
+          "url": "dashboard.html",
+          "external": false
+        },
+        {
+          "id": "about-tools-2",
+          "key": "photoroomBg",
+          "title": "Photoroom 透明背景",
+          "url": "https://www.photoroom.com/zh/tools/transparent-background",
+          "external": true
+        },
+        {
+          "id": "about-tools-3",
+          "key": "blockbench",
+          "title": "Blockbench 3D编辑器",
+          "url": "https://web.blockbench.net/",
+          "external": true
+        },
+        {
+          "id": "about-tools-4",
+          "key": "meshReader",
+          "title": "模型Meshes读取器",
+          "url": "tools/mesh-reader.html",
+          "external": false
+        },
+        {
+          "id": "about-tools-5",
+          "key": "modDevKit",
+          "title": "生存战争Mod开发工具包",
+          "url": "tools/mod-dev-kit.html",
+          "external": false
+        }
+      ]
+    },
+    {
+      "id": "about-ai",
+      "page": "about",
+      "key": "aiNavigation",
+      "name": "🤖 AI导航",
+      "links": [
+        {
+          "id": "about-ai-1",
+          "key": "aiToolsNav",
+          "title": "AI工具导航",
+          "url": "https://ai-bot.cn/",
+          "external": true
+        },
+        {
+          "id": "about-ai-2",
+          "key": "amz123",
+          "title": "AMZ123跨境导航",
+          "url": "https://www.amz123.com/ai",
+          "external": true
+        },
+        {
+          "id": "about-ai-3",
+          "key": "yupiAi",
+          "title": "鱼皮AI导航",
+          "url": "https://ai.codefather.cn/",
+          "external": true
+        },
+        {
+          "id": "about-ai-4",
+          "key": "uisdcAi",
+          "title": "优设AI导航",
+          "url": "https://hao.uisdc.com/ai/",
+          "external": true
+        },
+        {
+          "id": "about-ai-5",
+          "key": "faxianAi",
+          "title": "发现AI",
+          "url": "https://www.faxianai.com/",
+          "external": true
+        }
+      ]
+    },
+    {
+      "id": "about-other",
+      "page": "about",
+      "key": "otherNavigation",
+      "name": "🧭 其他导航",
+      "links": [
+        {
+          "id": "about-other-1",
+          "key": "deepseek",
+          "title": "DeepSeek",
+          "url": "https://chat.deepseek.com/",
+          "external": true
+        },
+        {
+          "id": "about-other-2",
+          "key": "waybackMachine",
+          "title": "时光机",
+          "url": "https://web.archive.org/",
+          "external": true
+        },
+        {
+          "id": "about-other-3",
+          "key": "yylmzxcPages",
+          "title": "YYLMZXC Pages",
+          "url": "https://yylmzxc.github.io",
+          "external": true
+        },
+        {
+          "id": "about-other-4",
+          "key": "scGps",
+          "title": "生存战争GPS",
+          "url": "https://sc-survivalcraft-gps.github.io/",
+          "external": true
+        },
+        {
+          "id": "about-other-5",
+          "key": "lanzou",
+          "title": "蓝奏云",
+          "url": "https://www.lanzoui.com/",
+          "external": true
+        },
+        {
+          "id": "about-other-6",
+          "key": "mediafire",
+          "title": "联机版MediaFire云盘",
+          "url": "https://app.mediafire.com/folder/8skcfeiacfo5x/beta_test_dev",
           "external": true
         }
       ]

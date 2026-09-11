@@ -2,13 +2,14 @@
   ========================================================================
   生存战争网 - 首页
   主要功能:
-  - 展示导航链接（中文路线 CN / 海外路线 OS）
+  - 展示导航链接（数据来自 nav-store，可在设置下拉的「导航数据」里编辑）
   - 主题切换（亮色/深色/跟随系统）
   - 多语言支持（中文/English/Русский）
   依赖资源:
-  - 共享 CSS: base.css, grid.css, components.css, theme.css, layout.css
+  - 共享 CSS: base.css, grid.css, components.css, theme.css, layout.css, nav-editor.css
   - 页面 CSS: index_main.css
-  - 共享 JS: utils.js, theme-manager.js, language-manager.js, site-info.js, site-language-config.js
+  - 共享 JS: utils.js, theme-manager.js, language-manager.js, site-info.js, site-language-config.js,
+             nav-store.js, nav-render.js, nav-editor.js, nav-panel.js
   - 页面 JS: index_languages.js, index_script.js
   ========================================================================
 -->
@@ -31,6 +32,7 @@
     <link rel="stylesheet" href="./scweb_res/shared/css/layout.css?v=20260821">
     <link rel="stylesheet" href="./scweb_res/shared/css/bgm-player.css?v=20260827">
     <link rel="stylesheet" href="./scweb_res/index/index_main.css?v=20260724">
+    <link rel="stylesheet" href="./scweb_res/shared/css/nav-editor.css?v=20260911">
     <link rel="icon" type="image/x-icon" href="./scweb_res/favicon.ico">
     <link rel="canonical" href="index.html">
 </head>
@@ -110,18 +112,19 @@
     <script src="./scweb_res/shared/js/site-language-config.js?v=20260725"></script>
     <script src="./scweb_res/shared/js/site-info.js?v=20260723"></script>
     <script src="./site-config.js"></script>
-    <script src="./scweb_res/shared/js/settings-store.js"></script>
-    <script src="./scweb_res/shared/js/settings-manager.js"></script>
+    <script src="./scweb_res/shared/js/settings-store.js?v=20260911"></script>
+    <script src="./scweb_res/shared/js/settings-manager.js?v=20260911"></script>
     <script src="./scweb_res/shared/js/toast.js"></script>
     <script src="./scweb_res/shared/js/nav-api.js"></script>
-    <script src="./scweb_res/shared/js/nav-store.js"></script>
+    <script src="./scweb_res/shared/js/nav-store.js?v=20260911"></script>
+    <script src="./scweb_res/shared/js/nav-render.js?v=20260911"></script>
     <script src="./scweb_res/shared/js/account-manager.js"></script>
-    <script src="./scweb_res/shared/js/app.js?v=20260821"></script>
+    <script src="./scweb_res/shared/js/app.js?v=20260911"></script>
     <script src="./scweb_res/shared/js/bgm-player.js?v=20260827"></script>
     <script src="./scweb_res/nav/nav-default.js"></script>
     <script src="./scweb_res/index/index_languages.js?v=20260725"></script>
-    <script src="./scweb_res/index/index_nav_editor.js"></script>
-    <script src="./scweb_res/index/index_nav_panel.js"></script>
+    <script src="./scweb_res/shared/js/nav-editor.js?v=20260911"></script>
+    <script src="./scweb_res/shared/js/nav-panel.js?v=20260911"></script>
     <script src="./scweb_res/index/index_script.js?v=20260911"></script>
     
     <script src="./live2d/autoload.js"></script>

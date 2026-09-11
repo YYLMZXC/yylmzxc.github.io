@@ -1,8 +1,8 @@
 /* ============================================================
    生存战争网 · 后端服务（独立进程，不依赖任何其它站点模块）
    1) 托管站点前端 src/：默认首页 index.html，
-      首页的「社区导航」数据来自 MySQL，落库在 config.json 指定的独立数据库里；
-   2) 提供 /api/* 接口：首页导航的读写与导出、站点全局设置的读写、账号登录与会话。
+      站点导航（首页 / 关于页）数据来自 MySQL，落库在 config.json 指定的独立数据库里；
+   2) 提供 /api/* 接口：站点导航的读写与导出、站点全局设置的读写、账号登录与会话。
    启动：在仓库根目录执行 node server/server.js
    （或双击 src/启动主页(带数据库).bat，脚本会把依赖装好并自动开浏览器）
    ============================================================ */
@@ -84,9 +84,10 @@ api.get('/health', async function (req, res) {
   res.json(h);
 });
 
-/* ---------------- 首页「社区导航」数据 ----------------
-   整份 JSON 存在 site_nav 表里：读接口开放（首页任何人都要能看到导航），
-   写接口要求已登录。 */
+/* ---------------- 站点导航数据（首页 / 关于页） ----------------
+   整份 JSON 存在 site_nav 表里，分组用 page 字段区分页面；
+   读接口开放（首页与关于页任何人都要能看到导航），写接口要求已登录。
+   老数据（v1 只有首页）在 db.loadSiteNav 里自动升级。 */
 
 // 写操作的统一门槛：未登录直接回 401，前端据此弹出「请先登录」的提示。
 // 返回登录态对象；未登录时已自行回应，调用方看到 falsy 直接 return 即可。
@@ -108,10 +109,10 @@ api.get('/site-nav', async function (req, res) {
   }
 });
 
-// 整份覆盖保存
+// 整份覆盖保存：分组页号 / 缺项由 sitenav.normalize 规整，前端不必自己做校验
 api.put('/site-nav', async function (req, res) {
-  const data = req.body;
-  if (!data || typeof data !== 'object' || !Array.isArray(data.groups)) {
+  const data = sitenav.normalize(req.body);
+  if (!data) {
     res.status(400).json({ ok: false, error: '数据格式不正确' });
     return;
   }
@@ -124,13 +125,13 @@ api.put('/site-nav', async function (req, res) {
   }
 });
 
-// 数据库 → 静态前端：把首页导航固化成 web 模式的数据文件，
+// 数据库 → 静态前端：把站点导航（首页 + 关于页）固化成 web 模式的数据文件，
 // 使站点脱离数据库也能照常显示导航（不传 data 时直接取库里的数据写入）
 api.post('/site-nav/to-static', async function (req, res) {
   try {
     if (!await requireLogin(req, res, '请先登录后再修改导航数据')) return;
     const body = req.body || {};
-    const data = (body.data && Array.isArray(body.data.groups)) ? body.data : await db.loadSiteNav();
+    const data = sitenav.normalize(body.data) || await db.loadSiteNav();
     if (!data || !Array.isArray(data.groups)) {
       res.status(400).json({ ok: false, error: '没有可导出的数据' });
       return;
