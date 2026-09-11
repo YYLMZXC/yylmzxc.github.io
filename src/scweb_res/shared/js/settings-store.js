@@ -235,19 +235,13 @@ class SettingsStore {
     }
 
     /* ================================================================
-     *  HTTP（自带，不依赖 NavApi：任意页面引入本模块即可用）
+     *  HTTP（不依赖 NavApi；基路径取自 SCUtils，见 utils.js）
      * ================================================================ */
 
     static NOT_API = 'NOT_API';
 
-    static base() {
-        if (typeof window.SITE_NAV_API_BASE === 'string') {
-            return window.SITE_NAV_API_BASE.replace(/\/$/, '');
-        }
-        const p = String(window.location.pathname || '/');
-        const i = p.lastIndexOf('/');
-        return i > 0 ? p.slice(0, i) : '';
-    }
+    /** 接口基路径：实现见 SCUtils.apiBase（与 NavApi 共用一份） */
+    static base() { return window.SCUtils.apiBase(); }
 
     static url(p) { return SettingsStore.base() + '/api' + p; }
 

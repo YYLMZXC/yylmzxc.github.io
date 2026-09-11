@@ -49,7 +49,7 @@ class NavEditor {
             // 界面上数据已经变了，不讲一声用户会以为已经存进去了
             if (e && e.type === 'error') {
                 if (this.root && !this.root.hidden) {
-                    SCToast.error('改动没能存入数据库：' + ((e.error && e.error.reason) || '未知错误'));
+                    SCUtils.toast('error', '改动没能存入数据库：' + ((e.error && e.error.reason) || '未知错误'));
                 }
                 return;
             }
@@ -95,7 +95,7 @@ class NavEditor {
     open() {
         if (!this.store || !this.root) return false;
         if (!this.canEdit()) {
-            SCToast.error(this._denyReason());
+            SCUtils.toast('error', this._denyReason());
             return false;
         }
 
@@ -477,7 +477,7 @@ class NavEditor {
         if (f.isNew) this._applyNew(f, patch);
         else this._applyEdit(f, patch);
 
-        SCToast.ok(f.isNew ? '已添加' : '已保存');
+        SCUtils.toast('ok', f.isNew ? '已添加' : '已保存');
     }
 
     /**
@@ -490,7 +490,7 @@ class NavEditor {
         const name = String(v.name || '').trim();
         const key = String(v.key || '').trim();
         if (!name && !key) {
-            SCToast.error('请填写分组名称，或指定一个多语言词条');
+            SCUtils.toast('error', '请填写分组名称，或指定一个多语言词条');
             return null;
         }
         return { name: name || key, key: key };
@@ -500,7 +500,7 @@ class NavEditor {
     _linkPatch(v) {
         const url = NavStore.normalizeUrl(v.url);
         if (!url) {
-            SCToast.error('请填写网址');
+            SCUtils.toast('error', '请填写网址');
             return null;
         }
         return {
@@ -533,7 +533,7 @@ class NavEditor {
         if (!ok) return;
 
         this.store.removeGroup(gid);
-        SCToast.ok('已删除分组');
+        SCUtils.toast('ok', '已删除分组');
     }
 
     _removeLink(gid, lid) {
@@ -545,7 +545,7 @@ class NavEditor {
         if (!ok) return;
 
         this.store.removeLink(gid, lid);
-        SCToast.ok('已删除链接');
+        SCUtils.toast('ok', '已删除链接');
     }
 }
 

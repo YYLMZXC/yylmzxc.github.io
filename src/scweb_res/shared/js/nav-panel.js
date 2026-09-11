@@ -135,10 +135,10 @@ class NavPanel {
 
         this.store.switchMode(goingDb ? 'db' : 'web').then(() => {
             const stats = this.store.statsAll();
-            SCToast.ok('已切换到' + NavStore.modeText(this.store.state.mode) +
+            SCUtils.toast('ok', '已切换到' + NavStore.modeText(this.store.state.mode) +
                 '，共 ' + stats.groups + ' 组 / ' + stats.links + ' 条链接（首页 + 关于页）');
         }).catch(e => {
-            SCToast.error('切换到数据库模式失败：' + (e.message || '未知错误'));
+            SCUtils.toast('error', '切换到数据库模式失败：' + (e.message || '未知错误'));
         }).then(() => {
             this._busy(btn, false, '');
             this.sync();
@@ -150,14 +150,14 @@ class NavPanel {
     _export() {
         const data = this.store.exportData();
         const stats = this.store.statsAll();
-        SCToast.ok('已导出《' + (data.title || '站点导航') + '》' +
+        SCUtils.toast('ok', '已导出《' + (data.title || '站点导航') + '》' +
             stats.groups + ' 组 / ' + stats.links + ' 条链接（首页 + 关于页）');
     }
 
     _pickFile() {
         // 按钮在未登录时本是置灰的，这里再拦一道，防止状态不同步时误触发
         if (!this._loggedIn()) {
-            SCToast.error('请先在设置下拉的「账号」里登录，登录后才能导入');
+            SCUtils.toast('error', '请先在设置下拉的「账号」里登录，登录后才能导入');
             return;
         }
 
@@ -183,14 +183,14 @@ class NavPanel {
             try {
                 parsed = JSON.parse(reader.result);
             } catch (err) {
-                SCToast.error('不是合法的 JSON 文件');
+                SCUtils.toast('error', '不是合法的 JSON 文件');
                 return;
             }
 
             this.store.importData(parsed).then(r => {
                 this._afterWrite(r.saved, file.name);
             }).catch(err => {
-                SCToast.error('导入失败：' + (err.message || '未知错误'));
+                SCUtils.toast('error', '导入失败：' + (err.message || '未知错误'));
             });
         };
         reader.readAsText(file, 'utf-8');
@@ -200,13 +200,13 @@ class NavPanel {
     _afterWrite(saved, fileName) {
         const stats = this.store.statsAll();
         if (this.store.state.mode !== 'db') {
-            SCToast.info('已在页面上载入《' + fileName + '》' + stats.groups + ' 组 / ' + stats.links + ' 条链接（当前是 web 模式，未写入数据库）');
+            SCUtils.toast('info', '已在页面上载入《' + fileName + '》' + stats.groups + ' 组 / ' + stats.links + ' 条链接（当前是 web 模式，未写入数据库）');
             return;
         }
         if (saved) {
-            SCToast.ok('导入成功，已写入数据库：' + stats.groups + ' 组 / ' + stats.links + ' 条链接');
+            SCUtils.toast('ok', '导入成功，已写入数据库：' + stats.groups + ' 组 / ' + stats.links + ' 条链接');
         } else {
-            SCToast.error('导入的内容已载入页面，但写入数据库失败：' +
+            SCUtils.toast('error', '导入的内容已载入页面，但写入数据库失败：' +
                 (this.store.state.lastError ? this.store.state.lastError.reason : '未知错误'));
         }
     }
@@ -214,7 +214,7 @@ class NavPanel {
     _convert(btn) {
         // 按钮在未登录时本是置灰的，这里再拦一道，防止状态不同步时误触发
         if (!this._loggedIn()) {
-            SCToast.error('请先在设置下拉的「账号」里登录，登录后才能转换');
+            SCUtils.toast('error', '请先在设置下拉的「账号」里登录，登录后才能转换');
             return;
         }
 
@@ -230,9 +230,9 @@ class NavPanel {
         this.store.convertToStatic().then(r => {
             const g = (r && r.groups) || stats.groups;
             const l = (r && r.links) || stats.links;
-            SCToast.ok('转换完成：已写入 ' + ((r && r.file) || NavStore.STATIC_SRC) + '（' + g + ' 组 / ' + l + ' 条链接）');
+            SCUtils.toast('ok', '转换完成：已写入 ' + ((r && r.file) || NavStore.STATIC_SRC) + '（' + g + ' 组 / ' + l + ' 条链接）');
         }).catch(e => {
-            SCToast.error('转换失败：' + (e.message || '未知错误'));
+            SCUtils.toast('error', '转换失败：' + (e.message || '未知错误'));
         }).then(() => {
             this._busy(btn, false, '');
             this.sync();

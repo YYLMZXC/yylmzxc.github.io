@@ -329,14 +329,14 @@ window.SITE_NAV_DEFAULT = {
           "id": "about-tools-4",
           "key": "meshReader",
           "title": "模型Meshes读取器",
-          "url": "tools/mesh-reader.html",
+          "url": "mesh-reader.html",
           "external": false
         },
         {
           "id": "about-tools-5",
           "key": "modDevKit",
           "title": "生存战争Mod开发工具包",
-          "url": "tools/mod-dev-kit.html",
+          "url": "mod-dev-kit.html",
           "external": false
         }
       ]

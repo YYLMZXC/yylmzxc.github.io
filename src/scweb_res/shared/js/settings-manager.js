@@ -319,10 +319,7 @@ class SettingsManager {
     }
 
     _toast(kind, message) {
-        const t = window.SCToast;
-        if (!t) return;
-        const fn = t[kind] || t.info;
-        if (fn) fn.call(t, message);
+        SCUtils.toast(kind, message);
     }
 
     /* ================================================================

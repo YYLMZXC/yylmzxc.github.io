@@ -57,8 +57,8 @@
    - 服务器列表：`http://localhost:8000/online_server.html`
    - 信息仪表板：`http://localhost:8000/dashboard.html`
    - 关于页面：`http://localhost:8000/about.html`
-   - Mod 开发工具：`http://localhost:8000/tools/mod-dev-kit.html`
-   - 模型 Mesh 读取器：`http://localhost:8000/tools/mesh-reader.html`
+   - Mod 开发工具：`http://localhost:8000/mod-dev-kit.html`
+   - 模型 Mesh 读取器：`http://localhost:8000/mesh-reader.html`
 
 ### 带数据库运行（站点导航可编辑）
 
@@ -193,8 +193,8 @@ Live2DInit（编排层）
 | 联机服务器 | `online_server.html` | 服务器列表、筛选、延迟检测 |
 | 信息仪表板 | `dashboard.html` | IP、浏览器、系统信息 |
 | 关于我们 | `about.html` | 社区介绍、收藏导航 |
-| Mod 开发工具 | `tools/mod-dev-kit.html` | Emmet/XML 互转、BlocksData 编辑、Guid 去重 |
-| 模型 Mesh 读取器 | `tools/mesh-reader.html` | 上传 DAE 文件读取模型 Mesh 名称 |
+| Mod 开发工具 | `mod-dev-kit.html` | Emmet/XML 互转、BlocksData 编辑、Guid 去重 |
+| 模型 Mesh 读取器 | `mesh-reader.html` | 上传 DAE 文件读取模型 Mesh 名称 |
 | 错误页 | `error/*.html` | HTTP 错误页（400-510） |
 
 ## 🙏 致谢

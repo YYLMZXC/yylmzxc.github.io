@@ -71,6 +71,51 @@ window.SCUtils = {
     },
 
     /**
+     * 转义 HTML 特殊字符
+     * 供拼接 HTML 字符串时使用，避免内容破坏结构或注入
+     * @param {*} s - 任意值，null/undefined 视为空串
+     * @returns {string}
+     */
+    escapeHtml(s) {
+        return String(s == null ? '' : s)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;');
+    },
+
+    /**
+     * 接口基路径：跟随页面所在目录，使同一份代码既能部署在域名根，也能部署在子目录。
+     * 需要固定写死时，在本脚本加载之前于页面里设置 window.SITE_NAV_API_BASE。
+     * nav-api.js 与 settings-store.js 共用这一份，避免两处各写一套。
+     * @returns {string}
+     */
+    apiBase() {
+        if (typeof window.SITE_NAV_API_BASE === 'string') {
+            return window.SITE_NAV_API_BASE.replace(/\/$/, '');
+        }
+        const p = String(window.location.pathname || '/');
+        const i = p.lastIndexOf('/');
+        return i > 0 ? p.slice(0, i) : '';
+    },
+
+    /**
+     * 统一的安全轻提示入口：SCToast 未加载时降级为控制台输出，
+     * 避免「模块在、toast.js 不在」时抛出 ReferenceError。
+     * @param {string} kind - info | ok | error
+     * @param {string} message - 提示内容
+     */
+    toast(kind, message) {
+        const t = window.SCToast;
+        if (!t) {
+            console.log('[toast:' + kind + '] ' + message);
+            return;
+        }
+        const fn = t[kind] || t.info;
+        if (fn) fn.call(t, message);
+    },
+
+    /**
      * 合并站点级与页面级语言配置（深度合并）
      * 页面级配置覆盖站点级对应字段，并保留页面级额外顶层字段（如 navigation）
      * @param {Object} baseConfig - 站点级基础配置

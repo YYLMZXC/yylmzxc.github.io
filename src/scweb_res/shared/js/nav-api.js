@@ -11,17 +11,10 @@
  */
 class NavApi {
     /**
-     * 接口基路径：跟随页面所在目录，使同一份代码既能部署在域名根，也能部署在子目录。
+     * 接口基路径：跟随页面所在目录（实现见 SCUtils.apiBase，与 settings-store 共用一份）。
      * 需要固定写死时，在本脚本加载之前于页面里设置 window.SITE_NAV_API_BASE。
      */
-    static base() {
-        if (typeof window.SITE_NAV_API_BASE === 'string') {
-            return window.SITE_NAV_API_BASE.replace(/\/$/, '');
-        }
-        const p = String(window.location.pathname || '/');
-        const i = p.lastIndexOf('/');
-        return i > 0 ? p.slice(0, i) : '';
-    }
+    static base() { return window.SCUtils.apiBase(); }
 
     /** 拼出接口地址，如 api('/site-nav') → /api/site-nav */
     static path(p) { return NavApi.base() + '/api' + p; }

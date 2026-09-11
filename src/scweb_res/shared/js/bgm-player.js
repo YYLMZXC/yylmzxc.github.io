@@ -15,6 +15,16 @@
 ;(function () {
 'use strict';
 
+/**
+ * 秒数 → m:ss（BgmUI 与 BgmPlayer 共用，避免多处各写一份）
+ */
+function fmtTime(s) {
+    if (isNaN(s) || !isFinite(s)) return '0:00';
+    var m = Math.floor(s / 60);
+    var sec = Math.floor(s % 60);
+    return m + ':' + (sec < 10 ? '0' : '') + sec;
+}
+
 /* ================================================================
  *  BgmStore — 持久化存储
  *  职责：读写 localStorage，对上层屏蔽存储细节
@@ -411,8 +421,8 @@ var BgmUI = (function () {
         var cur  = document.getElementById('bgmTimeCurrent');
         var tot  = document.getElementById('bgmTimeTotal');
         if (fill) fill.style.width = pct + '%';
-        if (cur)  cur.textContent  = _fmtTime(currentTime);
-        if (tot)  tot.textContent  = _fmtTime(duration);
+        if (cur)  cur.textContent  = fmtTime(currentTime);
+        if (tot)  tot.textContent  = fmtTime(duration);
     }
 
     /**
@@ -443,13 +453,13 @@ var BgmUI = (function () {
                 var albumCover = track.cover || _defaultCover;
                 html += '<div class="bgm-playlist-group">' +
                     '<img class="bgm-playlist-group-cover" src="' + albumCover + '" alt="" draggable="false" onerror="this.src=\'' + _defaultCover + '\'">' +
-                    '<span class="bgm-playlist-group-name">' + _escHtml(track.album) + '</span>' +
+                    '<span class="bgm-playlist-group-name">' + SCUtils.escapeHtml(track.album) + '</span>' +
                 '</div>';
             }
 
             html += '<div class="bgm-playlist-item' + (isActive ? ' active' : '') + '" data-index="' + i + '">' +
                 '<span class="bgm-item-index">' + (isActive && playing ? '♫' : (i + 1)) + '</span>' +
-                '<span class="bgm-item-name">' + _escHtml(track.name) + '</span>' +
+                '<span class="bgm-item-name">' + SCUtils.escapeHtml(track.name) + '</span>' +
             '</div>';
         }
         list.innerHTML = html;
@@ -504,18 +514,11 @@ var BgmUI = (function () {
                 return Math.max(0, Math.min(1, x / rect.width));
             }
 
-            function formatTime(s) {
-                if (isNaN(s) || !isFinite(s)) return '0:00';
-                var m = Math.floor(s / 60);
-                var sec = Math.floor(s % 60);
-                return m + ':' + (sec < 10 ? '0' : '') + sec;
-            }
-
             bar.addEventListener('click', function (e) {
                 e.stopPropagation();
                 var pct = getSeekPct(e);
                 var targetTime = pct * BgmAudio.duration;
-                console.log('[BGM] 进度条点击: ' + (pct * 100).toFixed(1) + '% → ' + formatTime(targetTime) + ' / ' + formatTime(BgmAudio.duration));
+                console.log('[BGM] 进度条点击: ' + (pct * 100).toFixed(1) + '% → ' + fmtTime(targetTime) + ' / ' + fmtTime(BgmAudio.duration));
                 callbacks.onSeek(pct);
             });
 
@@ -525,7 +528,7 @@ var BgmUI = (function () {
                 dragging = true;
                 var pct = getSeekPct(e);
                 var targetTime = pct * BgmAudio.duration;
-                console.log('[BGM] 拖拽开始(鼠标): ' + (pct * 100).toFixed(1) + '% → ' + formatTime(targetTime));
+                console.log('[BGM] 拖拽开始(鼠标): ' + (pct * 100).toFixed(1) + '% → ' + fmtTime(targetTime));
                 callbacks.onSeek(pct);
                 document.addEventListener('mousemove', onDragMove);
                 document.addEventListener('mouseup', onDragEnd);
@@ -536,7 +539,7 @@ var BgmUI = (function () {
                 dragging = true;
                 var pct = getSeekPct(e);
                 var targetTime = pct * BgmAudio.duration;
-                console.log('[BGM] 拖拽开始(触摸): ' + (pct * 100).toFixed(1) + '% → ' + formatTime(targetTime));
+                console.log('[BGM] 拖拽开始(触摸): ' + (pct * 100).toFixed(1) + '% → ' + fmtTime(targetTime));
                 callbacks.onSeek(pct);
                 document.addEventListener('touchmove', onDragMove, { passive: false });
                 document.addEventListener('touchend', onDragEnd);
@@ -551,7 +554,7 @@ var BgmUI = (function () {
                 var now = Date.now();
                 if (now - _logThrottle > 200) {
                     var targetTime = pct * BgmAudio.duration;
-                    console.log('[BGM] 拖拽中: ' + (pct * 100).toFixed(1) + '% → ' + formatTime(targetTime));
+                    console.log('[BGM] 拖拽中: ' + (pct * 100).toFixed(1) + '% → ' + fmtTime(targetTime));
                     _logThrottle = now;
                 }
                 callbacks.onSeek(pct);
@@ -575,18 +578,6 @@ var BgmUI = (function () {
         });
     }
 
-    /* ---------- 工具 ---------- */
-    function _fmtTime(s) {
-        if (isNaN(s) || !isFinite(s)) return '0:00';
-        var m = Math.floor(s / 60);
-        var sec = Math.floor(s % 60);
-        return m + ':' + (sec < 10 ? '0' : '') + sec;
-    }
-
-    function _escHtml(s) {
-        return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-    }
-
     return {
         create: create,
         updatePlayBtn: updatePlayBtn,
@@ -606,13 +597,6 @@ var BgmUI = (function () {
  *  职责：协调 BgmStore / BgmAudio / BgmUI，处理初始化与自动播放
  * ================================================================ */
 var BgmPlayer = (function () {
-    function formatTime(s) {
-        if (isNaN(s) || !isFinite(s)) return '0:00';
-        var m = Math.floor(s / 60);
-        var sec = Math.floor(s % 60);
-        return m + ':' + (sec < 10 ? '0' : '') + sec;
-    }
-
     function init() {
         /* 0. 读取配置：个人覆盖 > 全局设置（数据库 / 离线缓存）> site-config.js 默认。
               取值统一走 SettingsStore；它没加载时退回旧的 localStorage 逻辑。 */
@@ -669,7 +653,7 @@ var BgmPlayer = (function () {
             onSeek: function (pct) {
                 var targetTime = pct * BgmAudio.duration;
                 var currentTime = BgmAudio.currentTime;
-                console.log('[BGM] seek执行: ' + formatTime(currentTime) + ' → ' + formatTime(targetTime) + ' (差值: ' + (targetTime - currentTime > 0 ? '+' : '') + (targetTime - currentTime).toFixed(1) + 's)');
+                console.log('[BGM] seek执行: ' + fmtTime(currentTime) + ' → ' + fmtTime(targetTime) + ' (差值: ' + (targetTime - currentTime > 0 ? '+' : '') + (targetTime - currentTime).toFixed(1) + 's)');
                 BgmAudio.currentTime = targetTime;
             }
         });
