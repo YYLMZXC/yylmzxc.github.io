@@ -275,29 +275,11 @@ class NavStore {
      * ================================================================ */
 
     describeError(e) {
-        if (!e || e.code === NavStore.NOT_API) {
-            return {
-                kind: 'offline',
-                label: '未连接后端服务',
-                reason: '后端没有回应',
-                hint: '请先运行「启动主页(带数据库).bat」把后端跑起来；若通过域名访问，还要确认已把 /api/ 转发到 127.0.0.1:8000。'
-            };
-        }
-        // 未登录：后端是通的，只是这道写操作需要身份，别跟「连不上」混为一谈
-        if (e.code === NavStore.UNAUTHORIZED || e.status === 401) {
-            return {
-                kind: 'auth',
-                label: '未登录，无法保存',
-                reason: e.message || '请先登录',
-                hint: '在设置下拉的「账号」里登录后再改。'
-            };
-        }
-        return {
-            kind: e.kind || 'unknown',
-            label: e.label || '连接数据库失败',
-            reason: e.message || e.label || '未知错误',
-            hint: e.hint || ''
-        };
+        // 判断规则见 SCUtils.describeError（与设置数据层共用一份），
+        // 这里只补上导航页特有的「域名转发」提示。
+        return window.SCUtils.describeError(e, {
+            offlineHint: '请先运行「启动主页(带数据库).bat」把后端跑起来；若通过域名访问，还要确认已把 /api/ 转发到 127.0.0.1:8000。'
+        });
     }
 
     /* ================================================================
@@ -659,8 +641,6 @@ class NavStore {
 }
 
 NavStore.STATIC_SRC = 'scweb_res/nav/nav-default.js';
-NavStore.NOT_API = 'NOT_API';
-NavStore.UNAUTHORIZED = 'UNAUTHORIZED';
 
 // 数据里允许出现的页面身份：编辑器按这个顺序出页签，数据里的 page 写别的都归到首页
 NavStore.PAGES = [

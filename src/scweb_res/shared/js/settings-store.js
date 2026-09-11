@@ -287,30 +287,15 @@ class SettingsStore {
         }).then(SettingsStore._parse);
     }
 
-    /** 连不上 / 未登录 / 数据库出错，分别说清楚，界面据此提示 */
+    /**
+     * 连不上 / 未登录 / 数据库出错，分别说清楚，界面据此提示。
+     * 判断规则见 SCUtils.describeError（与导航数据层共用一份），
+     * 这里只补上「离线时按本机缓存的设置运行」这句上下文。
+     */
     static describeError(e) {
-        if (!e || e.code === SettingsStore.NOT_API) {
-            return {
-                kind: 'offline',
-                label: '未连接后端服务',
-                reason: '后端没有回应',
-                hint: '请先运行「启动主页(带数据库).bat」把后端跑起来；连不上时按本机缓存的设置运行。'
-            };
-        }
-        if (e.code === 'UNAUTHORIZED' || e.status === 401) {
-            return {
-                kind: 'auth',
-                label: '未登录，无法保存',
-                reason: e.message || '请先登录',
-                hint: '在设置下拉的「账号」里登录后再改。'
-            };
-        }
-        return {
-            kind: e.kind || 'unknown',
-            label: e.label || '连接数据库失败',
-            reason: e.message || e.label || '未知错误',
-            hint: e.hint || ''
-        };
+        return window.SCUtils.describeError(e, {
+            offlineHint: '请先运行「启动主页(带数据库).bat」把后端跑起来；连不上时按本机缓存的设置运行。'
+        });
     }
 
     /* ================================================================

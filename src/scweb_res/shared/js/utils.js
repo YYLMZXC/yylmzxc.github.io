@@ -116,6 +116,44 @@ window.SCUtils = {
     },
 
     /**
+     * 把「连不上后端 / 未登录 / 数据库出错」的错误对象归成一条能照着做的提示。
+     * 判断规则只写这一份，各处只在「离线时的提示语」上讲自己的上下文
+     * （导航页提醒域名转发，设置页提醒离线用缓存），避免两处各判一套、越走越偏。
+     * @param {Object} [e] - 错误对象，可带 code / status / kind / label / hint
+     * @param {Object} [opts] - { offlineHint } 离线（code 为 NOT_API）时的提示语
+     * @returns {{kind:string, label:string, reason:string, hint:string}}
+     */
+    describeError(e, opts) {
+        opts = opts || {};
+
+        // 后端不存在：拿到的是 HTML 页面而非 JSON（code = NOT_API），与「后端报错」区分开
+        if (!e || e.code === 'NOT_API') {
+            return {
+                kind: 'offline',
+                label: '未连接后端服务',
+                reason: '后端没有回应',
+                hint: opts.offlineHint || '请先运行「启动主页(带数据库).bat」把后端跑起来。'
+            };
+        }
+        // 未登录：后端是通的，只是这道写操作需要身份，别跟「连不上」混为一谈
+        if (e.code === 'UNAUTHORIZED' || e.status === 401) {
+            return {
+                kind: 'auth',
+                label: '未登录，无法保存',
+                reason: e.message || '请先登录',
+                hint: '在设置下拉的「账号」里登录后再改。'
+            };
+        }
+        // 其余：结论由后端给出（kind / label / hint 随报错带回），这里原样转述
+        return {
+            kind: e.kind || 'unknown',
+            label: e.label || '连接数据库失败',
+            reason: e.message || e.label || '未知错误',
+            hint: e.hint || ''
+        };
+    },
+
+    /**
      * 合并站点级与页面级语言配置（深度合并）
      * 页面级配置覆盖站点级对应字段，并保留页面级额外顶层字段（如 navigation）
      * @param {Object} baseConfig - 站点级基础配置
