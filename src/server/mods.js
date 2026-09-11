@@ -229,11 +229,16 @@ function list() {
   });
 }
 
-// 静态托管必须屏蔽的相对路径前缀：mod 后端目录里放着配置（含数据库账号密码）
+// 静态托管必须屏蔽的相对路径前缀：我自己和 mod 的后端目录里都放着配置（含数据库账号密码）
 function protectedPaths() {
-  return ['/key'].concat(scan().map(function (rec) {
-    return '/' + rec.manifest.name + '/' + SERVER_DIR;
-  }));
+  // 本文件就在静态根 src/ 之内（src/server/），主站后端目录也必须一并屏蔽，否则会漏 config.json
+  const own = path.relative(WEB_ROOT, __dirname).replace(/\\/g, '/');
+  const prefixes = ['/key'];
+  if (own) prefixes.push('/' + own);
+  scan().forEach(function (rec) {
+    prefixes.push('/' + rec.manifest.name + '/' + SERVER_DIR);
+  });
+  return prefixes;
 }
 
 module.exports = {

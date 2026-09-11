@@ -256,6 +256,7 @@ app.use('/api', api);
 mods.mount(app);
 
 // 静态根里有几处绝不能对外下载的内容，必须先挡掉：
+//   server/       —— 主站自身的后端目录（现已随代码移入 src/server/），含数据库账号密码
 //   key/          —— 网站证书与私钥（域名直连用）
 //   <mod>/server/ —— 各 mod 的后端目录，含 config.json 里的数据库账号密码
 // 前缀清单由 mods.protectedPaths() 给出；再兜底一层：任何 .key / .pem 一律不给。

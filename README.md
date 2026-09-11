@@ -85,7 +85,7 @@ Windows 下也可以直接双击 `src/启动主页(带数据库).bat`（自动�
 - 默认账号：`admin / admin`（会话有效期 8 小时），登录后请在页面 ⚙️ 设置下拉的「账号」里修改。
 - 健康检查：<http://127.0.0.1:8000/api/health>
 - 已加载的 mod：<http://127.0.0.1:8000/api/mods>
-- 部署到 GitHub Pages 时没有后端，站点会自动以只读的 `web` 模式运行。
+- 部署到 GitHub Pages 时没有后端，站点会自动以只读的 `web` 模式运行（CI 发布前会剔除 `server/`、`key/` 等后端目录，见 `.github/workflows/static.yml`）。
 
 ## 📁 项目结构
 
@@ -234,8 +234,8 @@ mod 自己的接口挂在 `mod.json` 的 `apiPath` 下，与主站接口共用�
   整个进程里也只有一个 `express` 实例。接口挂在 `mod.json` 的 `apiPath` 下（默认为 `/<名称>/api`）。
 - **独立运行**：mod 自带的 `server/server.js` 仍可单独启动，把该 mod 当作一个独立站点来跑。
 - **互不影响**：单个 mod 加载或连库失败只影响它自己（日志与 `/api/mods` 里会写明原因），主站照常运行。
-- **安全**：静态托管统一屏蔽各 mod 的 `server/` 目录与 `key/`、`*.key`、`*.pem`，
-  避免 `config.json` 里的数据库账号密码被下载。
+- **安全**：静态托管统一屏蔽主站自身的 `server/` 目录（已随代码移入 `src/server/`）、
+  各 mod 的 `server/` 目录，以及 `key/`、`*.key`、`*.pem`，避免 `config.json` 里的数据库账号密码被下载。
 - **查看状态**：`GET /api/mods`，或看后端启动日志里列出的已加载 mod。
 
 以导航站（mod `yylmzxcweb`）为例：

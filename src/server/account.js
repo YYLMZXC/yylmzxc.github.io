@@ -83,7 +83,7 @@ async function ensure() {
   const pass = String(AUTH.pass || DEFAULT_PASS);
   const salt = newSalt();
   await db.saveAccount({ user: user, hash: hash(pass, salt), salt: salt });
-  console.log('已创建默认账号：' + user + '（初始密码见 server/config.json 的 auth.pass，请尽快在页面「账号」里修改）');
+  console.log('已创建默认账号：' + user + '（初始密码见 src/server/config.json 的 auth.pass，请尽快在页面「账号」里修改）');
   return db.loadAccount();
 }
 

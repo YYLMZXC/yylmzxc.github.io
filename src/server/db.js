@@ -153,12 +153,12 @@ const TROUBLE = {
   ER_ACCESS_DENIED_ERROR: {
     kind: 'auth',
     reason: 'MySQL 拒绝了这个账号：用户名或密码不对',
-    hint: '改 server/config.json 里的 mysql.user / mysql.password，和面板里 MySQL 的账号密码保持一致。'
+    hint: '改 src/server/config.json 里的 mysql.user / mysql.password，和面板里 MySQL 的账号密码保持一致。'
   },
   ER_ACCESS_DENIED_NO_PASSWORD_ERROR: {
     kind: 'auth',
     reason: '这个账号需要密码，但 config.json 里没有填',
-    hint: '在 server/config.json 里补上 mysql.password。'
+    hint: '在 src/server/config.json 里补上 mysql.password。'
   },
   ER_HOST_NOT_PRIVILEGED: {
     kind: 'auth',
@@ -202,7 +202,7 @@ const TROUBLE = {
   ER_NO_DB_ERROR: {
     kind: 'missing',
     reason: '没有选择要操作的数据库',
-    hint: '检查 server/config.json 里的 mysql.database 是否为空。'
+    hint: '检查 src/server/config.json 里的 mysql.database 是否为空。'
   },
 
   // ---- 连接数 ----
@@ -233,7 +233,7 @@ const TROUBLE = {
   NAV_NO_PRIV_AND_MISSING: {
     kind: 'privilege',
     reason: '这个账号没有创建数据库的权限，而且这个库也还不存在',
-    hint: '用 root 手动建库，或把 server/config.json 里的 mysql.user 换成 root。'
+    hint: '用 root 手动建库，或把 src/server/config.json 里的 mysql.user 换成 root。'
   }
 };
 
@@ -526,7 +526,7 @@ async function health() {
       stage: '',
       stageText: '',
       reason: '后端还没有成功连上数据库',
-      hint: '看后端窗口里的报错，或核对 server/config.json 的 mysql 段。',
+      hint: '看后端窗口里的报错，或核对 src/server/config.json 的 mysql 段。',
       detail: ''
     });
   }
