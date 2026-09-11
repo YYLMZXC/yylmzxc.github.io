@@ -1,6 +1,6 @@
 /* ============================================================
    生存战争网 · 站点全局设置的静态默认值
-   四项全局设置（启用 BGM / 自动播放 / 看板娘 / 默认主题）落库在 site_settings 表，
+   五项全局设置（启用 BGM / 自动播放 / 看板娘 / 默认主题 / 导航数据来源）落库在 site_settings 表，
    数据库为空（首次启动）时用这里的默认值填充。
 
    默认值与 site-config.js 同源：这里直接解析那份文件里的 window.SITE_CONFIG，
@@ -22,6 +22,10 @@ const REL = 'site-config.js';
 const THEMES = ['light', 'dark', 'wk-light', 'wk-dark'];
 const FALLBACK_THEME = 'wk-light';
 
+// 导航数据来源：web 只读静态文件，db 走数据库
+const NAV_MODES = ['web', 'db'];
+const FALLBACK_NAV_MODE = 'web';
+
 // 读取 site-config.js 里的 window.SITE_CONFIG
 function siteConfig() {
   if (!fs.existsSync(FILE)) return {};
@@ -35,16 +39,23 @@ function normalizeTheme(t) {
   return THEMES.indexOf(v) >= 0 ? v : FALLBACK_THEME;
 }
 
+function normalizeNavMode(m) {
+  const v = String(m || '');
+  return NAV_MODES.indexOf(v) >= 0 ? v : FALLBACK_NAV_MODE;
+}
+
 // 出厂默认：site-config.js 里没写就是「开着」（与前端旧行为一致）
 function defaults() {
   const c = siteConfig();
   const bgm = c.bgm || {};
   const live2d = c.live2d || {};
+  const nav = c.nav || {};
   return {
     bgmEnabled: bgm.enabled !== false,
     bgmAutoPlay: bgm.autoPlay !== false,
     live2dEnabled: live2d.enabled !== false,
-    defaultTheme: normalizeTheme(c.defaultTheme)
+    defaultTheme: normalizeTheme(c.defaultTheme),
+    navMode: normalizeNavMode(nav.mode)
   };
 }
 
@@ -60,7 +71,8 @@ function normalize(input) {
     bgmEnabled: bool(o.bgmEnabled, d.bgmEnabled),
     bgmAutoPlay: bool(o.bgmAutoPlay, d.bgmAutoPlay),
     live2dEnabled: bool(o.live2dEnabled, d.live2dEnabled),
-    defaultTheme: normalizeTheme(o.defaultTheme || d.defaultTheme)
+    defaultTheme: normalizeTheme(o.defaultTheme || d.defaultTheme),
+    navMode: normalizeNavMode(o.navMode || d.navMode)
   };
 }
 
@@ -69,6 +81,7 @@ module.exports = {
   rel: REL,
   root: WEB_ROOT,
   themes: THEMES,
+  navModes: NAV_MODES,
   defaults: defaults,
   normalize: normalize
 };

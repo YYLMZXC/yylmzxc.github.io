@@ -7,6 +7,9 @@
  *   db  模式 'db'  —— 可写。数据来自 MySQL，导入与转换都会写回数据库；
  *                     连不上时自动降级为只读，并显示上次从数据库取回的镜像。
  *
+ * 首次访问用哪个模式：页面上的「切换模式」选过就按本机选的，没选过则用站点设置
+ * 里的「导航数据来源」（个人覆盖 > 全局值 > site-config.js，见 settings-store.js）。
+ *
  * 存储键名集中在本模块、HTTP 细节交给 NavApi、静态文件细节也收在这里（就一个小函数），
  * 状态变化通过 subscribe/emit 广播，本模块不操作 DOM。
  * 挂载到全局 window.NavStore
@@ -20,7 +23,7 @@ class NavStore {
 
         // 全部存储键名的唯一出处
         this._KEYS = {
-            mode: 'site_nav_mode',          // 用户选择的浏览模式
+            mode: 'site_nav_mode',          // 用户选择的浏览模式（旧键：现统一记在 settings-store 的个人覆盖里，仅在它缺席时用）
             dbCache: 'site_nav_db_cache',   // 数据库模式：断网镜像
             sync: 'site_nav_static_sync'    // 与静态文件同步的最近时间
         };
@@ -244,9 +247,31 @@ class NavStore {
      *  加载与模式切换
      * ================================================================ */
 
-    /** 用户选择的模式：只有显式选过数据库才用数据库，其余一律 web 模式 */
+    /**
+     * 启动时用哪种模式：站点设置里的「导航数据来源」说了算
+     * （本机在「导航数据」里切过模式 = 个人覆盖，优先于全局值与 site-config.js）
+     */
     readPrefer() {
+        const S = window.SettingsStore;
+        if (S && typeof S.getNavMode === 'function') {
+            const m = S.getNavMode();
+            if (m === 'db' || m === 'web') return m;
+        }
+        // 没加载设置数据层时的回退：老键里显式选过数据库才用数据库
         return this._read(this._KEYS.mode) === 'db' ? 'db' : 'web';
+    }
+
+    /**
+     * 记下用户选的模式：统一记进站点设置的个人覆盖，设置面板里那一项读的是同一份值，
+     * 免得「页面按本机选的走、面板却显示站点默认」。
+     */
+    _writePrefer(mode) {
+        const S = window.SettingsStore;
+        if (S && typeof S.setNavMode === 'function') {
+            S.setNavMode(mode);
+            return;
+        }
+        this._write(this._KEYS.mode, mode);
     }
 
     /**
@@ -297,7 +322,7 @@ class NavStore {
             this.state.prefer = 'web';
             this.state.online = true;
             this.state.lastError = null;
-            this._write(this._KEYS.mode, 'web');
+            this._writePrefer('web');
             this.state.data = NavStore.staticFile();
             this.emit({ type: 'mode' });
             this.emit({ type: 'data' });
@@ -309,7 +334,7 @@ class NavStore {
             this.state.prefer = 'db';
             this.state.online = true;
             this.state.lastError = null;
-            this._write(this._KEYS.mode, 'db');
+            this._writePrefer('db');
             this._write(this._KEYS.dbCache, JSON.stringify(data));
             this.state.data = data;
             this.emit({ type: 'mode' });

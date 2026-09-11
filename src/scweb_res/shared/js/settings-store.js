@@ -1,7 +1,7 @@
 /**
  * 生存战争网 - 站点全局设置数据层
  *
- * 四项站点设置：启用 BGM / 自动播放 / 看板娘 / 默认主题。
+ * 五项站点设置：启用 BGM / 自动播放 / 看板娘 / 默认主题 / 导航数据来源。
  *
  * 两种模式（用户在本机的选择，存在 localStorage）：
  *   个人模式 'personal'（默认）—— 改动只写本机，不写数据库；
@@ -51,6 +51,9 @@ class SettingsStore {
     // 个人主题沿用主题管理器既有的键，这样在主题下拉里选的也算个人覆盖
     static THEME_KEY = 'preferredTheme';
 
+    // 旧版把「本机选定的导航来源」单独存在这里，现统一进 personal 的 navMode，仅在迁移时读一次
+    static NAV_MODE_LEGACY_KEY = 'site_nav_mode';
+
     static RELOAD_FLAG = 'sc_settings_reloaded';
 
     static _read(key) {
@@ -74,8 +77,16 @@ class SettingsStore {
     static THEMES = ['light', 'dark', 'wk-light', 'wk-dark'];
     static FALLBACK_THEME = 'wk-light';
 
+    // 导航数据来源：'web' 静态文件（只读，不依赖后端）/ 'db' 数据库
+    static NAV_MODES = ['web', 'db'];
+    static FALLBACK_NAV_MODE = 'web';
+
     static isValidTheme(t) {
         return SettingsStore.THEMES.indexOf(String(t)) >= 0;
+    }
+
+    static isValidNavMode(m) {
+        return SettingsStore.NAV_MODES.indexOf(String(m)) >= 0;
     }
 
     /** site-config.js 里的出厂默认（本模块的最终回退） */
@@ -83,11 +94,13 @@ class SettingsStore {
         const c = (window.SITE_CONFIG) || {};
         const bgm = c.bgm || {};
         const live2d = c.live2d || {};
+        const nav = c.nav || {};
         return {
             bgmEnabled: bgm.enabled !== false,
             bgmAutoPlay: bgm.autoPlay !== false,
             live2dEnabled: live2d.enabled !== false,
-            defaultTheme: SettingsStore.isValidTheme(c.defaultTheme) ? String(c.defaultTheme) : SettingsStore.FALLBACK_THEME
+            defaultTheme: SettingsStore.isValidTheme(c.defaultTheme) ? String(c.defaultTheme) : SettingsStore.FALLBACK_THEME,
+            navMode: SettingsStore.isValidNavMode(nav.mode) ? String(nav.mode) : SettingsStore.FALLBACK_NAV_MODE
         };
     }
 
@@ -101,7 +114,8 @@ class SettingsStore {
             bgmEnabled: typeof c.bgmEnabled === 'boolean' ? c.bgmEnabled : d.bgmEnabled,
             bgmAutoPlay: typeof c.bgmAutoPlay === 'boolean' ? c.bgmAutoPlay : d.bgmAutoPlay,
             live2dEnabled: typeof c.live2dEnabled === 'boolean' ? c.live2dEnabled : d.live2dEnabled,
-            defaultTheme: SettingsStore.isValidTheme(c.defaultTheme) ? String(c.defaultTheme) : d.defaultTheme
+            defaultTheme: SettingsStore.isValidTheme(c.defaultTheme) ? String(c.defaultTheme) : d.defaultTheme,
+            navMode: SettingsStore.isValidNavMode(c.navMode) ? String(c.navMode) : d.navMode
         };
     }
 
@@ -112,6 +126,7 @@ class SettingsStore {
         if (typeof o.bgmEnabled === 'boolean') p.bgmEnabled = o.bgmEnabled;
         if (typeof o.bgmAutoPlay === 'boolean') p.bgmAutoPlay = o.bgmAutoPlay;
         if (typeof o.live2dEnabled === 'boolean') p.live2dEnabled = o.live2dEnabled;
+        if (SettingsStore.isValidNavMode(o.navMode)) p.navMode = String(o.navMode);
 
         const t = SettingsStore._read(SettingsStore.THEME_KEY);
         if (SettingsStore.isValidTheme(t)) p.defaultTheme = String(t);
@@ -129,14 +144,16 @@ class SettingsStore {
     static getBgmAutoPlay() { return !!SettingsStore.effective('bgmAutoPlay'); }
     static getLive2dEnabled() { return !!SettingsStore.effective('live2dEnabled'); }
     static getDefaultTheme() { return String(SettingsStore.effective('defaultTheme')); }
+    static getNavMode() { return String(SettingsStore.effective('navMode') || SettingsStore.FALLBACK_NAV_MODE); }
 
-    /** 四项生效值的指纹，用来判断「这次读回的设置是否与页面已用的一致」 */
+    /** 五项生效值的指纹，用来判断「这次读回的设置是否与页面已用的一致」 */
     static signature() {
         return JSON.stringify([
             SettingsStore.effective('bgmEnabled'),
             SettingsStore.effective('bgmAutoPlay'),
             SettingsStore.effective('live2dEnabled'),
-            SettingsStore.effective('defaultTheme')
+            SettingsStore.effective('defaultTheme'),
+            SettingsStore.effective('navMode')
         ]);
     }
 
@@ -148,7 +165,8 @@ class SettingsStore {
             bgmEnabled: typeof o.bgmEnabled === 'boolean' ? o.bgmEnabled : d.bgmEnabled,
             bgmAutoPlay: typeof o.bgmAutoPlay === 'boolean' ? o.bgmAutoPlay : d.bgmAutoPlay,
             live2dEnabled: typeof o.live2dEnabled === 'boolean' ? o.live2dEnabled : d.live2dEnabled,
-            defaultTheme: SettingsStore.isValidTheme(o.defaultTheme) ? String(o.defaultTheme) : d.defaultTheme
+            defaultTheme: SettingsStore.isValidTheme(o.defaultTheme) ? String(o.defaultTheme) : d.defaultTheme,
+            navMode: SettingsStore.isValidNavMode(o.navMode) ? String(o.navMode) : d.navMode
         };
     }
 
@@ -169,6 +187,14 @@ class SettingsStore {
                 changed = true;
             }
         });
+
+        // 旧版的「本机选定导航来源」独立存在 site_nav_mode 里，一并搬进个人覆盖
+        const navLocal = SettingsStore._read(SettingsStore.NAV_MODE_LEGACY_KEY);
+        if (map.navMode === undefined && SettingsStore.isValidNavMode(navLocal)) {
+            map.navMode = String(navLocal);
+            changed = true;
+        }
+
         if (changed) SettingsStore._write(SettingsStore.KEYS.personal, JSON.stringify(map));
     }
 
@@ -367,6 +393,9 @@ class SettingsStore {
         ['bgmEnabled', 'bgmAutoPlay', 'live2dEnabled'].forEach(k => {
             if (patch[k] !== undefined) map[k] = !!patch[k];
         });
+        if (patch.navMode !== undefined) {
+            map.navMode = SettingsStore.isValidNavMode(patch.navMode) ? String(patch.navMode) : SettingsStore.FALLBACK_NAV_MODE;
+        }
         SettingsStore._write(SettingsStore.KEYS.personal, JSON.stringify(map));
 
         this.emit({ type: 'settings' });
@@ -383,6 +412,17 @@ class SettingsStore {
             SettingsStore._write(SettingsStore.KEYS.personal, JSON.stringify(map));
         }
         this.emit({ type: 'settings' });
+    }
+
+    /**
+     * 记下「本机选定的导航来源」，由 NavStore 在页面上切换模式时调用。
+     * 与设置面板里的那一项是同一份值（个人覆盖），两处不会各说各话。
+     */
+    static setNavMode(mode) {
+        const map = SettingsStore._readJSON(SettingsStore.KEYS.personal, {}) || {};
+        if (SettingsStore.isValidNavMode(mode)) map.navMode = String(mode);
+        else delete map.navMode;
+        SettingsStore._write(SettingsStore.KEYS.personal, JSON.stringify(map));
     }
 
     /**

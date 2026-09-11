@@ -139,6 +139,8 @@ class IndexNavPanel {
         }).then(() => {
             this._busy(btn, false, '');
             this.sync();
+            // 这里选定的来源与设置面板的「导航数据来源」是同一份值，跟着刷新一下
+            if (this.settings && this.settings.sync) this.settings.sync();
         });
     }
 

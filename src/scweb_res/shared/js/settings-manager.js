@@ -1,7 +1,7 @@
 /**
  * 生存战争网 - 设置管理器（⚙️ 设置下拉）
  *
- * 四项站点设置：启用 BGM / 自动播放 / 看板娘 / 默认主题，外加一个「个人 / 全局」模式开关。
+ * 五项站点设置：启用 BGM / 自动播放 / 看板娘 / 默认主题 / 导航数据来源，外加一个「个人 / 全局」模式开关。
  *   个人模式 —— 改动只写本机 localStorage，不写数据库；
  *   全局模式 —— 改动写入数据库（需登录），对所有访客生效。
  * 离线（连不上后端）时按上次缓存的全局值运行，见 settings-store.js。
@@ -56,7 +56,8 @@ class SettingsManager {
                 bgmEnabled: SettingsStore.getBgmEnabled(),
                 bgmAutoPlay: SettingsStore.getBgmAutoPlay(),
                 live2dEnabled: SettingsStore.getLive2dEnabled(),
-                defaultTheme: SettingsStore.getDefaultTheme()
+                defaultTheme: SettingsStore.getDefaultTheme(),
+                navMode: SettingsStore.getNavMode()
             });
         }
     }
@@ -105,6 +106,18 @@ class SettingsManager {
                                 '<option value="wk-dark">🪵 工坊暗色</option>' +
                             '</select>' +
                         '</label>' +
+                    '</div>' +
+                    '<div class="settings-divider"></div>' +
+                    '<div class="settings-group">' +
+                        '<div class="settings-label">🧭 导航数据来源</div>' +
+                        '<label class="settings-row">' +
+                            '<span>站点默认</span>' +
+                            '<select class="settings-select" data-setting="navMode">' +
+                                '<option value="web">📄 静态文件</option>' +
+                                '<option value="db">🗄️ 数据库</option>' +
+                            '</select>' +
+                        '</label>' +
+                        '<div class="settings-hint">决定访客首次打开时从哪里读导航；若在本机「导航数据」里切换过模式，仍以本机选择的为准。</div>' +
                     '</div>' +
                     '<div class="settings-hint" data-settings-hint></div>' +
                 '</div>' +
@@ -196,6 +209,12 @@ class SettingsManager {
             sel.disabled = !editable;
         }
 
+        const navSel = this._control('navMode');
+        if (navSel) {
+            navSel.value = (store ? store.display('navMode') : SettingsStore.getNavMode()) || SettingsStore.FALLBACK_NAV_MODE;
+            navSel.disabled = !editable;
+        }
+
         if (this.hintEl) this.hintEl.textContent = this._hintText(mode, online);
     }
 
@@ -277,7 +296,7 @@ class SettingsManager {
         return patch;
     }
 
-    /** 改完之后的收尾：主题可以直接应用，BGM / 看板娘只能刷新页面重新初始化 */
+    /** 改完之后的收尾：主题可以直接应用，BGM / 看板娘 / 导航来源都在初始化时读一次，只能刷新页面生效 */
     _afterApply(key) {
         if (key === 'defaultTheme') {
             const theme = this.store ? this.store.display('defaultTheme') : SettingsStore.getDefaultTheme();
@@ -289,6 +308,13 @@ class SettingsManager {
             this.sync();
             return;
         }
+
+        // 导航来源只影响「有导航数据的页面」，本页没有导航数据层时不必白刷一次
+        if (key === 'navMode' && !window.NavStore) {
+            this.sync();
+            return;
+        }
+
         location.reload();
     }
 
