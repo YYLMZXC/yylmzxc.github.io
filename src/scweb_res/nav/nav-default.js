@@ -85,13 +85,6 @@ window.SITE_NAV_DEFAULT = {
           "title": "JIIL论坛",
           "url": "https://bbs.jiil.top/",
           "external": true
-        },
-        {
-          "id": "cn-12",
-          "key": "scBox",
-          "title": "新生存战争盒子（老瞎逼维护）",
-          "url": "https://scbox.zh.kg/",
-          "external": true
         }
       ]
     },

@@ -11,11 +11,13 @@ class IndexNavPanel {
      * @param {Object} store - NavStore 实例
      * @param {Object} settingsManager - 设置下拉，用于追加「导航数据」分区
      * @param {Object} [editor] - IndexNavEditor 实例，「编辑导航」按钮打开它
+     * @param {Object} [app] - 共享服务集合，用于读取登录态（写操作要身份）
      */
-    constructor(store, settingsManager, editor) {
+    constructor(store, settingsManager, editor, app) {
         this.store = store;
         this.settings = settingsManager;
         this.editor = editor || null;
+        this.app = app || null;
         this.group = null;
         this.statusEl = null;
         this.hintEl = null;
@@ -46,6 +48,13 @@ class IndexNavPanel {
         this.sync();
     }
 
+    /** 是否已登录：页面没装账号模块时不在本地拦，交给后端去拒绝（与编辑器一致） */
+    _loggedIn() {
+        const acc = this.app && this.app.accountManager;
+        if (!acc || !acc.state) return true;
+        return !!acc.state.loggedIn;
+    }
+
     /* ================================================================
      *  界面状态
      * ================================================================ */
@@ -62,8 +71,9 @@ class IndexNavPanel {
         this._btn('mode').textContent = s.mode === 'db' ? '切换回 web 模式' : '切换到数据库模式';
         // 编辑还要求已登录：写接口要身份，没登录点了也存不下来
         this._btn('edit').disabled = this.editor ? !this.editor.canEdit() : !canWrite;
-        this._btn('import').disabled = !canWrite;      // web 模式只读，导入无处可存
-        this._btn('convert').disabled = !s.online;     // 转换需要后端
+        // 导入与转换都要走写接口（未登录后端会 401）：除了后端在线还要求已登录
+        this._btn('import').disabled = !canWrite || !this._loggedIn();
+        this._btn('convert').disabled = !s.online || !this._loggedIn();
 
         if (this.hintEl) {
             this.hintEl.textContent = this._hintText(s, canWrite);
@@ -80,6 +90,9 @@ class IndexNavPanel {
         }
         if (!canWrite) {
             return '当前未连上后端，暂不能编辑或导入。';
+        }
+        if (!this._loggedIn()) {
+            return '转换、导入与编辑都需要登录：请在设置下拉的「账号」里登录后再操作。';
         }
         return '数据库模式下可以直接编辑导航，改动即时写回 MySQL；转换会把当前数据写入静态文件，供 web 模式使用。';
     }
@@ -136,6 +149,12 @@ class IndexNavPanel {
     }
 
     _pickFile() {
+        // 按钮在未登录时本是置灰的，这里再拦一道，防止状态不同步时误触发
+        if (!this._loggedIn()) {
+            SCToast.error('请先在设置下拉的「账号」里登录，登录后才能导入');
+            return;
+        }
+
         if (!this._picker) {
             this._picker = document.createElement('input');
             this._picker.type = 'file';
@@ -187,6 +206,12 @@ class IndexNavPanel {
     }
 
     _convert(btn) {
+        // 按钮在未登录时本是置灰的，这里再拦一道，防止状态不同步时误触发
+        if (!this._loggedIn()) {
+            SCToast.error('请先在设置下拉的「账号」里登录，登录后才能转换');
+            return;
+        }
+
         const stats = this.store.stats();
         const ok = window.confirm(
             '将把当前数据库中的导航数据写入静态文件 scweb_res/nav/nav-default.js\n' +

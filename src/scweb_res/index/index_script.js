@@ -63,7 +63,7 @@ class IndexPageManager {
 
         // 编辑 / 模式切换 / 导入 / 导出 / 转换的入口挂在设置下拉里
         if (this.settingsManager && window.IndexNavPanel) {
-            this.navPanel = new IndexNavPanel(this.navStore, this.settingsManager, this.navEditor);
+            this.navPanel = new IndexNavPanel(this.navStore, this.settingsManager, this.navEditor, this.app);
             this.navPanel.init();
         }
 
