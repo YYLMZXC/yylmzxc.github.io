@@ -15,18 +15,12 @@
     "port": 3306,
     "user": "root",
     "password": "root",
-    "database": "scweb",
+    "database": "yylmzxc_nav",
     "connectionLimit": 5
   },
   "auth": {
-    "user": "admin",
-    "pass": "admin",
+    "user": "yylmzxc",
+    "pass": "yylmzxc",
     "sessionHours": 8
-  },
-  "mods": {
-    "enabled": true,
-    "overrides": {
-      "yylmzxcweb": true
-    }
   }
 }

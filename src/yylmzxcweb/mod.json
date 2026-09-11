@@ -1,0 +1,10 @@
+{
+  "name": "yylmzxcweb",
+  "title": "YYLMZXC 导航站",
+  "description": "可独立访问的书签导航站：分组书签、背景图、头像与个人链接、RSS 订阅、可视化编辑与账号体系；数据可选落库 MySQL。",
+  "version": "1.0.0",
+  "entry": "yylmzxc.html",
+  "enabled": true,
+  "apiPath": "/yylmzxcweb/api",
+  "server": "server/index.js"
+}

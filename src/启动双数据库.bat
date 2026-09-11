@@ -3,7 +3,9 @@ chcp 65001 >nul
 cd /d "%~dp0"
 
 echo ============================================================
-echo   生存战争网 - 启动服务（主页 index.html + MySQL 数据库 + mod）
+echo   生存战争网 - 启动主站 + mod（一个后端进程，两个数据库）
+echo   主站主页 index.html      库：scweb
+echo   导航站 yylmzxcweb        库：yylmzxc_nav（作为 mod 加载）
 echo ============================================================
 echo.
 
@@ -23,16 +25,19 @@ if not exist "..\server\node_modules" (
 )
 
 echo.
-echo 数据库配置见 server\config.json（默认 root / root，库名 scweb）
-echo 加载哪些 mod 见 server\config.json 的 mods 段（如导航站 yylmzxcweb，默认加载）
+echo 数据库配置：主站见 server\config.json（默认 root / root，库名 scweb）
+echo               导航站见 yylmzxcweb\server\config.json（默认 root / root，库名 yylmzxc_nav）
+echo 加载哪些 mod 见 server\config.json 的 mods 段（把 yylmzxcweb 设为 false 即不再加载）
 echo.
-echo 服务启动后会自动打开浏览器： http://localhost:8000/index.html
-echo 已加载的 mod 会在后端窗口里列出来，也可访问 http://localhost:8000/api/mods 查看
+echo 服务启动后会自动打开主页与导航站：
+echo   http://localhost:8000/index.html
+echo   http://localhost:8000/yylmzxcweb/yylmzxc.html
 echo.
 
 rem 延迟约 2 秒再打开浏览器：等 node 监听端口并完成 MySQL 初始化，避免访问过早打到「无法访问」页
 rem 用独立进程执行，不阻塞下面的服务；/min 避免多弹一个窗口
 start "" /min cmd /c "ping -n 3 127.0.0.1 >nul & start http://localhost:8000/index.html"
+start "" /min cmd /c "ping -n 3 127.0.0.1 >nul & start http://localhost:8000/yylmzxcweb/yylmzxc.html"
 
 node "..\server\server.js"
 

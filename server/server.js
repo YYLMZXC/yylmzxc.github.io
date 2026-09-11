@@ -2,8 +2,10 @@
    生存战争网 · 后端服务（独立进程，不依赖任何其它站点模块）
    1) 托管站点前端 src/：默认首页 index.html，
       站点导航（首页 / 关于页）数据来自 MySQL，落库在 config.json 指定的独立数据库里；
-   2) 提供 /api/* 接口：站点导航的读写与导出、站点全局设置的读写、账号登录与会话。
-   启动：在仓库根目录执行 node server/server.js
+   2) 提供 /api/* 接口：站点导航的读写与导出、站点全局设置的读写、账号登录与会话；
+   3) 加载 mod：src/ 下带 mod.json 的子目录（如 yylmzxcweb 导航站）按 config.json 的
+      mods 段决定加载与否，其接口在本进程内挂载——于是一个进程可同时连多个库。
+  启动：在仓库根目录执行 node server/server.js
    （或双击 src/启动主页(带数据库).bat，脚本会把依赖装好并自动开浏览器）
    ============================================================ */
 'use strict';
@@ -18,6 +20,7 @@ const db = require('./db');
 const sitenav = require('./sitenav');
 const siteSettings = require('./settings');
 const account = require('./account');
+const mods = require('./mods');
 
 const PORT = CONFIG.server.port || 8000;
 
@@ -236,15 +239,32 @@ api.post('/account', async function (req, res) {
   }
 });
 
+/* ---------------- mod 状态 ----------------
+   src/ 下带 mod.json 的子目录都是可插拔扩展（见 mods.js）。
+   前端据此显示 / 隐藏 mod 入口；未启用的 mod 其页面文件仍可直接访问，
+   但接口不会挂载，页面会像后端不在时一样退回只读模式。 */
+
+api.get('/mods', function (req, res) {
+  res.set('Cache-Control', 'no-store');
+  res.json({ ok: true, data: mods.list() });
+});
+
 app.use('/api', api);
 
-// 静态根里有两处绝不能对外下载的内容，必须先挡掉：
-//   key/ —— 网站证书与私钥（域名直连用）
-// 再兜底一层：任何 .key / .pem 一律不给。
+// mod 的后端接口：必须赶在静态托管之前挂上，否则会被当成文件路径。
+// 加载哪些 mod 由 config.json 的 mods 段决定（见 mods.js 的 decide）。
+mods.mount(app);
+
+// 静态根里有几处绝不能对外下载的内容，必须先挡掉：
+//   key/          —— 网站证书与私钥（域名直连用）
+//   <mod>/server/ —— 各 mod 的后端目录，含 config.json 里的数据库账号密码
+// 前缀清单由 mods.protectedPaths() 给出；再兜底一层：任何 .key / .pem 一律不给。
 app.use(function (req, res, next) {
   let p = req.path.toLowerCase();
   try { p = decodeURIComponent(p); } catch (e) { /* 编码异常就按原样判断 */ }
-  const blocked = p === '/key' || p.indexOf('/key/') === 0 || /\.(key|pem)$/.test(p);
+  const blocked = mods.protectedPaths().some(function (prefix) {
+    return p === prefix || p.indexOf(prefix + '/') === 0;
+  }) || /\.(key|pem)$/.test(p);
   if (blocked) {
     res.status(404).type('text/plain').send('Not Found');
     return;
@@ -283,8 +303,17 @@ function tlsMaterial() {
     console.error('');
     process.exit(1);
   }
+
+  // mod 各自的库连不上不该拖垮主站：接口照样挂着，由各 mod 如实回报错误，
+  // 前端据此退回只读（导航站就是这么处理的）。失败原因见日志与 /api/mods。
+  await mods.init();
+
   app.listen(PORT, HOST, function () {
     console.log('数据库已连接：' + db.dbName + '（接口与页面都由本进程提供，健康检查 http://' + HOST + ':' + PORT + '/api/health）');
+    const loaded = mods.list().filter(function (m) { return m.loaded; });
+    console.log('已加载 mod：' + (loaded.length
+      ? loaded.map(function (m) { return m.name + ' → http://' + HOST + ':' + PORT + m.url; }).join('，')
+      : '（无）'));
   });
 
   // 域名直连：Node 自己监听 80 / 443，不再需要 Apache 反代
@@ -312,3 +341,10 @@ function tlsMaterial() {
     }
   }
 })();
+
+// 退出前让各 mod 释放自己占用的资源（数据库连接池等）
+['SIGINT', 'SIGTERM'].forEach(function (sig) {
+  process.on(sig, function () {
+    mods.close().then(function () { process.exit(0); }, function () { process.exit(0); });
+  });
+});
