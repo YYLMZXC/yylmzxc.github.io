@@ -71,12 +71,23 @@ window.Nav = window.Nav || {};
     var bg = document.getElementById('bg');
     if (d.background) {
       bg.classList.remove('no-image');
-      bg.style.backgroundImage = "url('" + d.background + "')";
+      // 背景图常是大图：延后挂地址，把启动带宽让给视口内的导航图标。
+      // 令牌防串台：两次 header()（乐观渲染 + 后端校正）各排各的，
+      // 后一次的同步分支会递增令牌，作废前一次尚未到点的挂图。
+      var tok = ++bgToken;
+      setTimeout(function () {
+        if (tok !== bgToken) return;
+        bg.style.backgroundImage = "url('" + d.background + "')";
+      }, 150);
     } else {
+      bgToken++;
       bg.classList.add('no-image');
       bg.style.backgroundImage = '';
     }
   }
+
+  // 页头可能被连续调用（乐观渲染 + 后端校正），背景挂图需要防串台的令牌
+  var bgToken = 0;
 
   /* ---------------- 编辑模式相关外观 ---------------- */
 
@@ -288,6 +299,23 @@ window.Nav = window.Nav || {};
     document.getElementById('empty').hidden = anyVisible;
   }
 
+  /* ---------------- 数据落屏 ---------------- */
+  // 把一份数据画到界面（页头 + 分组列表）。与最近一次落屏内容一致时跳过重绘：
+  // 乐观首屏与后端结果相同时，不会白白重建整棵树、把图标请求全部重来一遍。
+  // 「要不要画」是视图自身的知识——指纹怎么取、比完调哪两个函数都收在本层，
+  // 装配层只把数据递进来，不必了解渲染细节。
+  var lastPaint = '';
+  function apply(data) {
+    if (!data) return false;
+    // 指纹带上搜索词：同一份数据在关键词变化后是不同的画面，不能跳过
+    var fp = JSON.stringify(data) + '|' + store.state.query;
+    if (fp === lastPaint) return false;
+    lastPaint = fp;
+    header();
+    groups();
+    return true;
+  }
+
   // 清空搜索框。DOM 输入框与 store 状态必须一起改，否则列表仍按旧关键词过滤——
   // 关键词会把不匹配的分组整组滤掉，导入之后不清掉，新分组就会「看不到」。
   // 两处都属于视图状态，因此归本层管，业务层不必去摸输入框。
@@ -333,6 +361,7 @@ window.Nav = window.Nav || {};
   }
 
   Nav.render = {
+    apply: apply,
     header: header,
     groups: groups,
     clearQuery: clearQuery,

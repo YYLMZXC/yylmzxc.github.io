@@ -51,8 +51,7 @@ window.Nav = window.Nav || {};
   function showData(data, save) {
     store.setData(data);
     if (save) store.save();
-    render.header();
-    render.groups();
+    render.apply(data);      // 落屏统一入口：内容未变时由渲染层自行跳过重绘
   }
 
   /* ---------------- 导入 / 导出 / 重置 ---------------- */
@@ -107,8 +106,7 @@ window.Nav = window.Nav || {};
       log('JSON 导入：解析完成', '分组=' + s.groups + '，书签=' + s.links);
 
       nextStage(task, '正在刷新页面…', '共 ' + s.groups + ' 个分组 · ' + s.links + ' 个书签', function () {
-        render.header();
-        render.groups();
+        render.apply(data);
         nextStage(task, '正在写入数据库…', '共 ' + s.links + ' 个书签，请勿关闭页面', function () {
           task.estimate(5000);
           var t0 = Date.now();
@@ -433,8 +431,7 @@ window.Nav = window.Nav || {};
       // 用户只会说「导入没生效」。这里如实报错，别把毛病留给猜。
       try {
         render.clearQuery();   // 搜索关键词会把不匹配的分组整组滤掉，导入后必须先清干净
-        render.header();
-        render.groups();
+        render.apply(store.state.data);   // 合并是就地改动，数据以 store 当前内容为准
       } catch (e) {
         logError('刷新页面失败', e);
         task.abort();
@@ -701,7 +698,7 @@ window.Nav = window.Nav || {};
         if (store.state.mode !== 'static') { dom.toast('静态文件已更新：' + info); return; }
         store.loadStatic().then(function (data) {
           store.setData(data);
-          render.header(); render.groups();
+          render.apply(data);   // 与页面当前内容一致时自然跳过，不多重建一次
           dom.toast('静态文件已更新并重新载入：' + info);
         });
       }).catch(exportFail);

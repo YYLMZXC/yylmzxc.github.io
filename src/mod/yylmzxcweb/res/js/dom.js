@@ -56,6 +56,14 @@ window.Nav = window.Nav || {};
     toast._t = setTimeout(function () { t.classList.remove('show'); }, 1900);
   }
 
+  // 排到浏览器空闲帧执行；不支持 requestIdleCallback 的环境退化为定时器。
+  // 「什么时候算空闲、怎么降级」属于浏览器调度细节，收在本层，
+  // 调用方只表达「这件事靠后做」，不感知具体机制。
+  function defer(fn) {
+    if (window.requestIdleCallback) return window.requestIdleCallback(fn);
+    return setTimeout(fn, 400);
+  }
+
   /* ---------- 进度浮层 ----------
      导入 / 导出这类操作会持续数秒，中途页面还可能被同步计算占满，
      没有可见反馈时用户只会得出「点了没反应」的结论，然后反复点击。
@@ -211,7 +219,7 @@ window.Nav = window.Nav || {};
   }
 
   Nav.dom = {
-    el: el, svg: svg, toast: toast, progress: progress,
+    el: el, svg: svg, toast: toast, defer: defer, progress: progress,
     download: download, pickFile: pickFile, readAsDataURL: readAsDataURL
   };
 })(window.Nav);
