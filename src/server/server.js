@@ -3,7 +3,7 @@
    1) 托管站点前端 src/：默认首页 index.html，
       站点导航（首页 / 关于页）数据来自 MySQL，落库在 config.json 指定的独立数据库里；
    2) 提供 /api/* 接口：站点导航的读写与导出、站点全局设置的读写、账号登录与会话；
-   3) 加载 mod：src/ 下带 mod.json 的子目录（如 yylmzxcweb 导航站）按 config.json 的
+   3) 加载 mod：src/mod/ 下带 mod.json 的子目录（如 yylmzxcweb 导航站）按 config.json 的
       mods 段决定加载与否，其接口在本进程内挂载——于是一个进程可同时连多个库。
 
    本文件只做组装（composition root）与监听，各职责分在：

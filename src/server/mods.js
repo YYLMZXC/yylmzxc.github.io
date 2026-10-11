@@ -1,8 +1,8 @@
 /* ============================================================
    生存战争网 · mod 加载器
-   站点支持「可插拔的模块化扩展」：src/ 下的每个一级子目录只要带一份 mod.json，
-   就是一个 mod——它自带前端页面（由主站静态托管自动生效），可选自带后端
-   （server/index.js 导出的 Router 挂进主站进程）。
+   站点支持「可插拔的模块化扩展」：src/mod/ 下的每个一级子目录只要带一份 mod.json，
+   就是一个 mod——它自带前端页面（由主站静态托管自动生效，访问路径 /mod/<名称>/），
+   可选自带后端（server/index.js 导出的 Router 挂进主站进程）。
    于是同一个 mod 有两种跑法，代码完全一样：
      · 被主站加载 —— 一个进程、一个端口，与主站共用 express / mysql2；
      · 独立运行   —— mod 目录里的 server/server.js 自己起服务。
@@ -27,9 +27,15 @@ const fs = require('fs');
 const path = require('path');
 const CONFIG = require('./config');
 
-// 站点根：本文件在 src/server/ 下，上一级 src/ 就是静态站点（也是 mod 的容器）
+// 站点根：本文件在 src/server/ 下，上一级 src/ 就是静态站点
 const WEB_ROOT = path.join(__dirname, '..');
 const MANIFEST = 'mod.json';
+
+// mod 统一放在 src/mod/ 下：该目录的每个一级子目录都是一个候选 mod，
+// 对应的 URL 前缀是 /mod/<目录名>/
+const MODS_DIR = 'mod';
+const MODS_ROOT = path.join(WEB_ROOT, MODS_DIR);
+const URL_PREFIX = '/' + MODS_DIR;
 
 // mod 的后端固定放在 server/ 子目录下：与前端资源分开，静态托管时整目录屏蔽
 const SERVER_DIR = 'server';
@@ -69,8 +75,8 @@ function readManifest(dir, folder) {
     description: raw.description || '',
     version: raw.version || '',
     entry: raw.entry || 'index.html',
-    // 接口前缀默认 /<目录名>/api：mod 页面位于 /<目录名>/ 下，按目录推导正好是它
-    apiPath: raw.apiPath || ('/' + folder + '/api'),
+    // 接口前缀默认 /mod/<目录名>/api：mod 页面位于 /mod/<目录名>/ 下，按目录推导正好是它
+    apiPath: raw.apiPath || (URL_PREFIX + '/' + folder + '/api'),
     // server 为 false 表示纯前端 mod（无后端）；其余情况默认取 server/index.js
     server: raw.server === false ? '' : (raw.server || (SERVER_DIR + '/' + SERVER_ENTRY)),
     enabled: raw.enabled !== false
@@ -88,22 +94,22 @@ function context(rec, express, mysql) {
   };
 }
 
-// 扫描 src/ 下的一级子目录，读出所有 mod（含未启用的）。重复调用只扫一次。
+// 扫描 src/mod/ 下的一级子目录，读出所有 mod（含未启用的）。重复调用只扫一次。
 function scan() {
   if (records) return records;
   records = [];
 
   let entries;
   try {
-    entries = fs.readdirSync(WEB_ROOT, { withFileTypes: true });
+    entries = fs.readdirSync(MODS_ROOT, { withFileTypes: true });
   } catch (e) {
-    console.error('[mods] 读不出站点根目录 ' + WEB_ROOT + '：' + e.message);
+    console.error('[mods] 读不出 mod 目录 ' + MODS_ROOT + '：' + e.message);
     return records;
   }
 
   entries.forEach(function (ent) {
     if (!ent.isDirectory()) return;
-    const dir = path.join(WEB_ROOT, ent.name);
+    const dir = path.join(MODS_ROOT, ent.name);
     if (!fs.existsSync(path.join(dir, MANIFEST))) return;   // 没有清单就不是 mod
     let manifest;
     try {
@@ -220,7 +226,7 @@ function list() {
       description: m.description,
       version: m.version,
       entry: m.entry,
-      url: '/' + m.name + '/' + m.entry,   // src/ 即站点根，mod 目录就是它的访问目录
+      url: URL_PREFIX + '/' + m.name + '/' + m.entry,   // mod 位于站点根的 mod/ 目录下
       apiPath: m.apiPath,
       enabled: rec.enabled,
       loaded: rec.loaded,
@@ -236,7 +242,7 @@ function protectedPaths() {
   const prefixes = ['/key'];
   if (own) prefixes.push('/' + own);
   scan().forEach(function (rec) {
-    prefixes.push('/' + rec.manifest.name + '/' + SERVER_DIR);
+    prefixes.push(URL_PREFIX + '/' + rec.manifest.name + '/' + SERVER_DIR);
   });
   return prefixes;
 }

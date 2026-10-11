@@ -348,7 +348,7 @@ window.SITE_NAV_DEFAULT = {
         {
           "id": "lmtwyavas4l30",
           "title": "yylmzxc_web",
-          "url": "yylmzxcweb/yylmzxc.html",
+          "url": "mod/yylmzxcweb/yylmzxc.html",
           "external": true,
           "key": ""
         }
