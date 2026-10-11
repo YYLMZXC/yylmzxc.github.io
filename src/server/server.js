@@ -51,8 +51,36 @@ const WEB_ROOT = path.join(__dirname, '..');
 const app = express();
 app.use(express.json({ limit: '20mb' }));
 
+/* ---------------- 日志工具 ----------------
+   统一带本地时间戳，格式：[2026/10/11 20:30:00] 消息。
+   /api/health 会被前端周期性轮询，在请求日志里跳过，避免刷屏。 */
+function ts() {
+  const d = new Date();
+  function pad(n) { return (n < 10 ? '0' : '') + n; }
+  return d.getFullYear() + '/' + pad(d.getMonth() + 1) + '/' + pad(d.getDate()) +
+    ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes()) + ':' + pad(d.getSeconds());
+}
+const log = {
+  info: function (msg) { console.log('[' + ts() + '] ' + msg); },
+  warn: function (msg) { console.warn('[' + ts() + '] ' + msg); },
+  error: function (msg) { console.error('[' + ts() + '] ' + msg); }
+};
+
 // 接口路由集中在一个 Router 里，文件末尾统一挂到 /api 下
 const api = express.Router();
+
+// /api 请求日志：方法 路径 → 状态码（耗时，来源 IP）。
+// 挂在 Router 最前，res 的 finish 事件在响应发完时触发，能拿到最终状态码。
+// /api/health 会被前端周期性轮询，跳过以免刷屏。
+api.use(function (req, res, next) {
+  const start = Date.now();
+  res.on('finish', function () {
+    if (req.path === '/health') return;
+    log.info(req.method + ' ' + req.originalUrl + ' → ' + res.statusCode +
+      '（' + (Date.now() - start) + ' ms，来自 ' + clientIp(req) + '）');
+  });
+  next();
+});
 
 // 数据库类报错统一回应：把「哪种毛病 / 卡在哪一步 / 怎么处理」一起交给前端，
 // 控制台同时留下完整诊断。前端据此区分「服务没开」「账号不对」「没授权」这些不同情况。
@@ -179,8 +207,12 @@ api.put('/site-nav', async function (req, res) {
     return;
   }
   try {
-    if (!await requireLogin(req, res, '请先登录后再修改导航数据')) return;
+    const s = await requireLogin(req, res, '请先登录后再修改导航数据');
+    if (!s) { log.warn('PUT /api/site-nav：未登录，已拒绝（来自 ' + clientIp(req) + '）'); return; }
     await db.saveSiteNav(data);
+    let links = 0;
+    data.groups.forEach(function (g) { links += (g.links || []).length; });
+    log.info('站点导航已保存：' + data.groups.length + ' 组 / ' + links + ' 条链接（操作者：' + s.user + '）');
     res.json({ ok: true });
   } catch (e) {
     failDb(res, e, 'PUT /api/site-nav');
@@ -191,7 +223,8 @@ api.put('/site-nav', async function (req, res) {
 // 使站点脱离数据库也能照常显示导航（不传 data 时直接取库里的数据写入）
 api.post('/site-nav/to-static', async function (req, res) {
   try {
-    if (!await requireLogin(req, res, '请先登录后再修改导航数据')) return;
+    const s = await requireLogin(req, res, '请先登录后再修改导航数据');
+    if (!s) { log.warn('POST /api/site-nav/to-static：未登录，已拒绝（来自 ' + clientIp(req) + '）'); return; }
     const body = req.body || {};
     const data = sitenav.normalize(body.data) || await db.loadSiteNav();
     if (!data || !Array.isArray(data.groups)) {
@@ -201,6 +234,7 @@ api.post('/site-nav/to-static', async function (req, res) {
     sitenav.write(data);
     let links = 0;
     data.groups.forEach(function (g) { links += (g.links || []).length; });
+    log.info('站点导航已固化到静态文件：' + sitenav.rel + '（' + data.groups.length + ' 组 / ' + links + ' 条链接，操作者：' + s.user + '）');
     res.json({
       ok: true,
       file: sitenav.rel,
@@ -233,8 +267,10 @@ api.get('/site-settings', async function (req, res) {
 api.put('/site-settings', async function (req, res) {
   const data = siteSettings.normalize(req.body);
   try {
-    if (!await requireLogin(req, res, '请先登录后再修改站点设置')) return;
+    const s = await requireLogin(req, res, '请先登录后再修改站点设置');
+    if (!s) { log.warn('PUT /api/site-settings：未登录，已拒绝（来自 ' + clientIp(req) + '）'); return; }
     await db.saveSiteSettings(data);
+    log.info('站点设置已保存（操作者：' + s.user + '）：' + JSON.stringify(data));
     res.json({ ok: true, data: data });
   } catch (e) {
     failDb(res, e, 'PUT /api/site-settings');
@@ -250,10 +286,12 @@ api.post('/login', async function (req, res) {
   try {
     const r = await account.login(body.user, body.pass);
     if (!r) {
+      log.warn('登录失败：账号「' + body.user + '」或密码不对（来自 ' + clientIp(req) + '）');
       res.status(401).json({ ok: false, error: '账号或密码错误' });
       return;
     }
     account.setCookie(res, r.token);
+    log.info('登录成功：' + r.user + '（来自 ' + clientIp(req) + '）');
     res.set('Cache-Control', 'no-store');
     res.json({ ok: true, user: r.user });
   } catch (e) {
@@ -274,8 +312,10 @@ api.get('/session', async function (req, res) {
 
 api.post('/logout', async function (req, res) {
   try {
+    const s = await account.session(account.tokenOf(req));
     await account.logout(account.tokenOf(req));
     account.clearCookie(res);
+    log.info('已登出：' + (s.loggedIn ? s.user : '（会话已失效）') + '（来自 ' + clientIp(req) + '）');
     res.json({ ok: true });
   } catch (e) {
     failDb(res, e, 'POST /api/logout');
@@ -286,11 +326,13 @@ api.post('/logout', async function (req, res) {
 api.post('/account', async function (req, res) {
   try {
     const r = await account.update(account.tokenOf(req), req.body || {});
+    log.info('账号信息已更新（新用户名：' + r.user + '，来自 ' + clientIp(req) + '）');
     res.json({ ok: true, user: r.user });
   } catch (e) {
     // 校验类错误（密码不对、账号为空）自带 status，按原样回报；
     // 其余多半是连不上数据库，交给统一诊断。
     if (e.status) {
+      log.warn('账号信息更新被拒绝：' + e.message + '（来自 ' + clientIp(req) + '）');
       res.status(e.status).json({ ok: false, error: e.message });
       return;
     }
@@ -306,6 +348,25 @@ api.post('/account', async function (req, res) {
 api.get('/mods', function (req, res) {
   res.set('Cache-Control', 'no-store');
   res.json({ ok: true, data: mods.list() });
+});
+
+/* ---------------- 前端日志上报 ----------------
+   浏览器侧的日志（logger.js 收集的 console 输出与报错）可通过
+   面板「上报后端」按钮 POST 到这里，转手打进本进程控制台，
+   排查「用户看到了什么」时不用让用户开 DevTools 截图。 */
+api.post('/client-log', function (req, res) {
+  const body = req.body || {};
+  const logs = Array.isArray(body.logs) ? body.logs : [];
+  log.info('收到前端日志上报：' + logs.length + ' 条（页面：' + (body.page || '未知') + '）');
+  // 上限兜底：异常情况下前端送来超量日志也不至于刷爆控制台
+  logs.slice(-200).forEach(function (e) {
+    if (!e || typeof e.text !== 'string') return;
+    const line = '[' + (e.time || '?') + '] [' + (e.level || 'log') + '] ' + e.text;
+    if (e.level === 'error') log.error('  ↳ ' + line);
+    else if (e.level === 'warn') log.warn('  ↳ ' + line);
+    else log.info('  ↳ ' + line);
+  });
+  res.json({ ok: true, received: logs.length });
 });
 
 app.use('/api', api);
@@ -326,6 +387,7 @@ app.use(function (req, res, next) {
     return p === prefix || p.indexOf(prefix + '/') === 0;
   }) || /\.(key|pem)$/.test(p);
   if (blocked) {
+    log.warn('已拦截敏感路径访问：' + req.method + ' ' + req.originalUrl + '（来自 ' + clientIp(req) + '）');
     res.status(404).type('text/plain').send('Not Found');
     return;
   }
@@ -335,6 +397,14 @@ app.use(function (req, res, next) {
 // 静态资源：整个前端目录 src/；目录请求默认由 static 用同级 index.html 响应，
 // 故 / 即主站首页 index.html
 app.use(express.static(WEB_ROOT, { extensions: ['html'], index: 'index.html' }));
+
+// 404 兜底：走到这里的都是「接口没有、文件也没有」的请求。
+// 之前控制台里 /api/site-settings、/api/session 的 404 是浏览器报的，
+// 后端自己一声不吭；记下来才能看出「请求到底有没有到达后端」。
+app.use(function (req, res) {
+  log.warn('404：' + req.method + ' ' + req.originalUrl + '（来自 ' + clientIp(req) + '）');
+  res.status(404).type('text/plain').send('Not Found');
+});
 
 // 读取 HTTPS 证书；链文件单独给出时拼到站点证书后面，形成完整链
 function tlsMaterial() {
@@ -405,6 +475,10 @@ function tlsMaterial() {
 // 退出前让各 mod 释放自己占用的资源（数据库连接池等）
 ['SIGINT', 'SIGTERM'].forEach(function (sig) {
   process.on(sig, function () {
-    mods.close().then(function () { process.exit(0); }, function () { process.exit(0); });
+    log.info('收到 ' + sig + '，正在关闭…');
+    mods.close().then(function () {
+      log.info('已退出');
+      process.exit(0);
+    }, function () { process.exit(0); });
   });
 });
