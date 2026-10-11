@@ -3,7 +3,7 @@
    请求日志中间件 + 各领域子路由。server.js 只负责把这份 Router
    挂到 /api 下；具体接口按领域分在同目录的各文件里：
      health.js / clientinfo.js / site-nav.js / site-settings.js /
-     account.js / mods.js / client-log.js / server-versions.js / serverlist.js
+     account.js / mods.js / client-log.js / server-versions.js / serverlist.js / db-config.js
      ============================================================ */
 'use strict';
 
@@ -20,6 +20,7 @@ const accountRoutes = require('./account');
 const modsRoutes = require('./mods');
 const clientLog = require('./client-log');
 const serverList = require('./serverlist');
+const dbConfigRoutes = require('./db-config');
 
 const api = express.Router();
 
@@ -44,6 +45,7 @@ api.use(clientLog);
 api.use('/site-nav', siteNav);
 api.use('/site-settings', siteSettings);
 api.use('/server-versions', serverVersions);
+api.use('/db-config', dbConfigRoutes);
 api.use('/mods', modsRoutes);
 
 module.exports = api;

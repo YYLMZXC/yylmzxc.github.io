@@ -140,6 +140,24 @@ class NavApi {
     static updateAccount(payload) {
         return NavApi.send(NavApi.path('/account'), 'POST', payload);
     }
+
+    /* ---------------- 数据库连接配置 ---------------- */
+
+    /**
+     * 读取数据库连接配置（需已登录）：{ host, port, user, database, hasPassword }。
+     * 密码不回明文，只有 hasPassword 说明「设没设」。
+     */
+    static getDbConfig() {
+        return NavApi.get(NavApi.path('/db-config')).then(body => (body && body.data) || null);
+    }
+
+    /**
+     * 保存数据库连接配置（需已登录）：后端先拿新参数试连，连得上才生效并重连。
+     * password 留空表示沿用现有密码。
+     */
+    static saveDbConfig(cfg) {
+        return NavApi.send(NavApi.path('/db-config'), 'POST', cfg);
+    }
 }
 
 NavApi.NOT_API = 'NOT_API';

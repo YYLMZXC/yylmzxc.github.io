@@ -18,12 +18,12 @@ const mysql = require('mysql2/promise');
 const CONFIG = require('./config');
 const dbDiagnosis = require('./db-diagnosis');
 
-const DB_NAME = CONFIG.mysql.database || 'scweb';
+let DB_NAME = CONFIG.mysql.database || 'scweb';
 
 // 诊断职责见 db-diagnosis.js：本模块只管存取数据，不背「错误码翻译表」。
 // 用本模块的库名造一份诊断器，连接目标 / 建库环节的说法才与库一致。
 const KIND_TEXT = dbDiagnosis.KIND_TEXT;
-const diag = dbDiagnosis.create(DB_NAME);
+let diag = dbDiagnosis.create(DB_NAME);
 
 let pool = null;
 let ready = null;    // 建库建表的进行中 / 已完成状态（见 init）
@@ -163,6 +163,22 @@ function init(seed) {
     });
   }
   return ready;
+}
+
+// 应用新配置并重建连接（设置面板「🗄️ 数据库」改了 mysql 段后调用，见 routes/db-config.js）：
+// 调用方先用新参数试连、改写 config（原地合并，baseOptions 立刻取到新值），
+// 这里只负责换掉库名与诊断器、结束旧连接池；随后的 init() 会按新参数建库建表，
+// seedHook 保留在模块状态里，新库为空时照样会播种。
+async function reset() {
+  const old = pool;
+  pool = null;
+  ready = null;
+  lastError = null;
+  DB_NAME = CONFIG.mysql.database || 'scweb';
+  diag = dbDiagnosis.create(DB_NAME);
+  if (old) {
+    try { await old.end(); } catch (e) { /* 旧池关不掉不影响按新配置重建 */ }
+  }
 }
 
 // 所有查询的统一入口：发现库 / 表不见了就先重建再重试一次，
@@ -308,9 +324,12 @@ async function health() {
 
 module.exports = {
   init: init,
+  reset: reset,
   health: health,
-  explain: diag.explain,
-  diagnose: diag.diagnose,
+  // 包一层而不是直接给 diag.explain：reset() 会换掉 diag（新库名 / 新连接目标），
+  // 导出的引用必须每次都取当前这一份
+  explain: function (e, stage) { return diag.explain(e, stage); },
+  diagnose: function (e, stage) { return diag.diagnose(e, stage); },
   loadSiteNav: loadSiteNav,
   saveSiteNav: saveSiteNav,
   loadSiteSettings: loadSiteSettings,
@@ -324,5 +343,5 @@ module.exports = {
   deleteSession: deleteSession,
   deleteOtherSessions: deleteOtherSessions,
   purgeSessions: purgeSessions,
-  dbName: DB_NAME
+  get dbName() { return DB_NAME; }   // getter：改库名重连后取到的才是新库名
 };

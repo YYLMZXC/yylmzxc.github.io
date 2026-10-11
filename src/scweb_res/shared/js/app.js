@@ -14,6 +14,7 @@ class App {
      * @param {boolean} [options.navData] - 是否启用导航数据层（默认 true，需 nav-store.js 已加载）
      * @param {string} [options.navPage] - 本页面读取哪一份导航分组：'index'（默认）| 'about'
      * @param {boolean} [options.account] - 是否启用账号面板（默认 true，需 account-manager.js 已加载）
+     * @param {boolean} [options.dbConfig] - 是否启用数据库配置面板（默认 true，需 db-config-manager.js 已加载）
      */
     constructor(options = {}) {
         this.options = options;
@@ -23,6 +24,7 @@ class App {
         this.settingsManager = null;
         this.navStore = null;
         this.accountManager = null;
+        this.dbConfigManager = null;
         this.services = null;
     }
 
@@ -89,6 +91,13 @@ class App {
             this.accountManager.init();
         }
 
+        // 数据库配置面板：改 MySQL 地址 / 端口 / 库名 / 账号密码（需已登录），
+        // 依赖账号面板提供登录态，因此放在账号面板之后创建
+        if (this.options.dbConfig !== false && window.DbConfigManager && window.NavApi && this.settingsManager) {
+            this.dbConfigManager = new DbConfigManager(window.NavApi, this.settingsManager, this);
+            this.dbConfigManager.init();
+        }
+
         // 组装共享服务集合，供页面管理器构造注入
         this.services = {
             dropdownManager: this.dropdownManager,
@@ -98,6 +107,7 @@ class App {
             settingsManager: this.settingsManager,
             navStore: this.navStore,
             accountManager: this.accountManager,
+            dbConfigManager: this.dbConfigManager,
             utils: window.SCUtils
         };
 
