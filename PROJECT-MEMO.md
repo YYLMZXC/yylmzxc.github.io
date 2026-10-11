@@ -55,7 +55,7 @@ Windows 双击：`src/scripts/启动主页(带数据库).bat`；主页+导航站
 |---|---|---|
 | 触发条件 | 纯静态服务器 / GitHub Pages | `src/server` 后端启动 |
 | 导航数据 | `src/scweb_res/nav/nav-default.js`（只读） | MySQL `site_nav` 表（可编辑） |
-| 站点设置 | `src/site-config.js` 默认值 | MySQL `site_settings` 表 |
+| 站点设置 | `src/config/site-config.js` 默认值 | MySQL `site_settings` 表 |
 | 编辑能力 | 无 | 登录后可视化编辑，可「同步到静态文件」 |
 
 前端逻辑：连不上后端自动退回 web 模式；设置按 localStorage 缓存兜底。
@@ -105,7 +105,7 @@ server.js（组装根）── 挂路由 / 托管静态 / 加载 mod / 监听
 
 ## 双端契约：site-constants.js（容易忘的坑）
 
-`src/site-constants.js` 同时给前端（`window.SITE_CONSTANTS`）和后端（`require`）用：
+`src/config/site-constants.js` 同时给前端（`window.SITE_CONSTANTS`）和后端（`require`）用：
 主题表、导航来源表、页面身份表都在这里。**改了它要同时把各 HTML 里引用它的 `?v=版本号` 往前挪一位**，否则浏览器拿旧副本。
 
 ## Mod 机制

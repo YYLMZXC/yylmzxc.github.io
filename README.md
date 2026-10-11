@@ -98,7 +98,9 @@ scweb/
 │   ├── about.html                        # 关于我们
 │   ├── mod-dev-kit.html                  # Mod 开发工具包
 │   ├── mesh-reader.html                  # 模型 Mesh 读取器
-│   ├── site-config.js                    # 站点出厂默认（BGM / 看板娘 / 主题 / 导航来源）
+│   ├── config/                           # 配置（前后端双端契约）
+│   │   ├── site-config.js                # 站点出厂默认（BGM / 看板娘 / 主题 / 导航来源）
+│   │   └── site-constants.js             # 主题 / 导航来源 / 页面身份常量表
 │   ├── proxy.php                         # API 代理（解决跨域，CORS 回退）
 │   ├── bgm/                              # 背景音乐（多文件夹）
 │   │   ├── bgm-manifest.json             # 自动生成的音乐清单
@@ -234,7 +236,7 @@ server.js（组装根）── 挂路由 / 托管静态 / 加载 mod / 监听
 
 - **分层单向**：接口层 → 业务模块 → 数据层。`db.js` 不认识任何业务数据格式——规整 / 升级 / 默认值都在 `sitenav.js` / `settings.js`，`site_nav` 与 `site_settings` 是同一形状的单行 JSON 表，db 只提供通用读写。
 - **依赖注入**：空库播种器由 `server.js` 启动时递给 `db.init(bootstrap.seed)`，删库自愈重建后自动重播；mod 后端复用宿主的 `express` / `mysql2`，整个进程只有一份依赖。
-- **双端契约**：主题 / 导航来源 / 页面身份的常量表在 `src/site-constants.js`（`window` + `module.exports` 双导出），前后端同源，避免改漏一处。
+- **双端契约**：主题 / 导航来源 / 页面身份的常量表在 `src/config/site-constants.js`（`window` + `module.exports` 双导出），前后端同源，避免改漏一处。
 - **横切关注点下沉**：日志（`logger.js`）与客户端 IP 还原（`http-util.js`）是独立工具模块，路由与拦截中间件共用同一份。
 
 ## 🔌 后端接口
@@ -312,7 +314,7 @@ Live2DInit（编排层）
 └── Live2DLoader — 资源加载器（CSS/JS/Image CORS）
 ```
 
-- 开关：优先读本机个人偏好，其次读数据库全局设置，最后回退到 `src/site-config.js` 的 `live2d.enabled`。
+- 开关：优先读本机个人偏好，其次读数据库全局设置，最后回退到 `src/config/site-config.js` 的 `live2d.enabled`。
 - 定制：修改 `src/live2d/autoload.js` 中的 `Live2DConfig` 即可。
 
 ## 🛠️ 技术栈

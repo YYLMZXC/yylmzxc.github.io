@@ -12,8 +12,8 @@
 const fs = require('fs');
 const path = require('path');
 const vm = require('vm');
-// 页面身份表与前端同源，见 src/site-constants.js
-const SITE_CONSTANTS = require('../site-constants.js');
+// 页面身份表与前端同源，见 src/config/site-constants.js
+const SITE_CONSTANTS = require('../config/site-constants.js');
 
 // 后端在 src/server/ 下，上一级 src/ 即站点前端根
 const WEB_ROOT = path.join(__dirname, '..');

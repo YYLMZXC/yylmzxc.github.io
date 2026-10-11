@@ -28,7 +28,7 @@
 ```
 静态文件（出厂值，永远可用）  <->  MySQL（编辑后的值，需要后端）
    scweb_res/nav/nav-default.js        site_nav 表
-   site-config.js                      site_settings 表
+   config/site-config.js               site_settings 表
 ```
 
 由此推导：
@@ -82,7 +82,7 @@
 | 登录 / 会话 / 密码策略 | `src/server/account.js` |
 | 导航数据的合法格式 | `src/server/sitenav.js` + 前端 `nav-store.js` |
 | 站点设置的项（加一个开关） | `src/server/settings.js` + 前端 `settings-store.js` / `settings-manager.js` |
-| 主题 / 语言 / 页面身份常量 | `src/site-constants.js`（改完 bump HTML 里的 `?v=`） |
+| 主题 / 语言 / 页面身份常量 | `src/config/site-constants.js`（改完 bump HTML 里的 `?v=`） |
 | 数据库连接 / 建表 | `src/server/config.json` + `db.js` 的 DDL |
 | 报错提示文案 | `src/server/db-diagnosis.js` |
 | 首页 / 关于页布局 | `index.html` + `scweb_res/index/`、`about/` |

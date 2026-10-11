@@ -13,13 +13,13 @@
 const fs = require('fs');
 const path = require('path');
 const vm = require('vm');
-// 合法取值表（主题 / 导航来源）与前端同源，见 src/site-constants.js
-const SITE_CONSTANTS = require('../site-constants.js');
+// 合法取值表（主题 / 导航来源）与前端同源，见 src/config/site-constants.js
+const SITE_CONSTANTS = require('../config/site-constants.js');
 
-// 后端在 src/server/ 下，上一级 src/ 即站点前端根
+// 后端在 src/server/ 下，上一级 src/ 即站点前端根，配置文件统一在 src/config/ 下
 const WEB_ROOT = path.join(__dirname, '..');
-const FILE = path.join(WEB_ROOT, 'site-config.js');
-const REL = 'site-config.js';
+const FILE = path.join(WEB_ROOT, 'config', 'site-config.js');
+const REL = 'config/site-config.js';
 
 const THEMES = SITE_CONSTANTS.themeIds;
 const FALLBACK_THEME = SITE_CONSTANTS.fallbackTheme;
