@@ -308,6 +308,19 @@ body.editing .group-head .title { background: var(--field-bg); }
   overflow-y: auto;
   overscroll-behavior: contain;
 }
+
+/* 触屏设备（不限视口宽度）：取消分组内层滚动。
+   内层滚动 + overscroll-behavior: contain 会把滑动手势困在分组里——
+   分组滚到底后页面整体也无法继续滚动，这是手机端「无法整体滑动」的根源。
+   与底部 html.touch 类（由 main.js 检测 ontouchstart 添加）双保险，
+   覆盖 pointer 媒体查询不可靠的 WebView。 */
+@media (pointer: coarse) {
+  .group-body { max-height: none; overflow: visible; overscroll-behavior: auto; }
+}
+html.touch .group-body { max-height: none; overflow: visible; overscroll-behavior: auto; }
+html.touch { -webkit-overflow-scrolling: touch; }
+/* 触屏上所有可点元素只保留点按与平移：从任何元素起手的滑动都交给页面滚动 */
+html.touch a, html.touch button, html.touch .group-head, html.touch label { touch-action: manipulation; }
 .group.collapsed .group-body { display: none; }
 .group-body::-webkit-scrollbar { width: 8px; }
 .group-body::-webkit-scrollbar-thumb { background: rgba(140,160,190,.35); border-radius: 8px; }
@@ -324,6 +337,8 @@ body.editing .group-head .title { background: var(--field-bg); }
   color: var(--text);
   position: relative;
   transition: background .16s, transform .12s;
+  /* 触屏上从链接起手的滑动优先识别为平移（滚动），而不是点按跳转 */
+  touch-action: pan-y;
 }
 .link:hover { background: var(--card-hover); }
 .link.dragging { opacity: .4; }
@@ -659,6 +674,9 @@ body.light .toast { background: rgba(24, 32, 48, .92); }
   .search input { width: 100%; max-width: none; }
   .btn .label { display: none; }
   .btn.mode-btn .label { display: inline; }
-  .btn { padding: 9px; }
+  .btn { padding: 9px; touch-action: manipulation; }
   .groups { grid-template-columns: 1fr; }
+  /* 手机端取消分组内层滚动：内层滚动 + overscroll-behavior: contain 会把
+     从书签起手的滑动困在分组里，页面整体无法滚动，滑动失败还会误触打开链接 */
+  .group-body { max-height: none; overflow: visible; overscroll-behavior: auto; }
 }

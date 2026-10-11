@@ -293,7 +293,7 @@ window.NAV_DEFAULT = {
         {
           "id": "lmtwpgy99jmyz",
           "title": "yylmzxcweb",
-          "url": "https://scwz.top/mod/yylmzxcweb/yylmzxc.html"
+          "url": "https://scwz.top/yylmzxcweb/yylmzxc.html"
         }
       ]
     },
@@ -510,8 +510,7 @@ window.NAV_DEFAULT = {
           "title": "iYouPort",
           "url": "https://www.iyouport.org"
         }
-      ],
-      "collapsed": true
+      ]
     },
     {
       "id": "g9",
