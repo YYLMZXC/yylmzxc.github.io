@@ -20,6 +20,7 @@ window.Nav = window.Nav || {};
   var account = Nav.account;
   var dnd = Nav.dnd;
   var feed = Nav.feed;
+  var touch = Nav.touch;
   var contract = Nav.contract;
   var sel = contract.sel;
   var data = contract.data;
@@ -126,40 +127,6 @@ window.Nav = window.Nav || {};
     actions.setGroupName(group, v);
   }
 
-  // 触屏手势守卫：手指移动超过阈值即视为「滑动」，
-  // 滑动结束后的那次 click 不再触发链接跳转，避免想滚动页面却打开了书签网站。
-  // 监听均为 passive，不拦截浏览器原生滚动。
-  function bindTouchGuard() {
-    if (!('ontouchstart' in window) && !window.matchMedia) return;
-    var coarse = 'ontouchstart' in window ||
-      (window.matchMedia && window.matchMedia('(pointer: coarse)').matches);
-    if (!coarse) return;
-
-    // 供 CSS 使用：触屏设备取消分组内层滚动，保证页面整体可滑动。
-    // 不依赖视口宽度（横屏 / 平板 / WebView 缩放时媒体查询宽度可能大于 760px）。
-    document.documentElement.classList.add('touch');
-
-    var moved = false, sx = 0, sy = 0;
-
-    document.addEventListener('touchstart', function (e) {
-      moved = false;
-      var t = e.changedTouches[0];
-      sx = t.clientX; sy = t.clientY;
-    }, { passive: true });
-
-    document.addEventListener('touchmove', function (e) {
-      if (moved) return;
-      var t = e.changedTouches[0];
-      if (Math.abs(t.clientX - sx) > 10 || Math.abs(t.clientY - sy) > 10) moved = true;
-    }, { passive: true });
-
-    // 捕获阶段拦截：抢在浏览器默认的链接导航与分组 click 分派之前
-    document.addEventListener('click', function (e) {
-      if (!moved) return;
-      if (e.target.closest('a, button')) { e.preventDefault(); e.stopPropagation(); }
-    }, true);
-  }
-
   /* ---------------- 全局绑定 ---------------- */
 
   function bindEvents() {
@@ -254,7 +221,7 @@ window.Nav = window.Nav || {};
     setTheme(storage.local.read(storage.KEYS.theme) || 'dark');
 
     // 尽早挂载：触屏检测 + 滑动/点击区分要在首屏渲染前就生效
-    bindTouchGuard();
+    touch.setup();
 
     // 先取回数据再渲染，避免先闪一下出厂数据
     store.load().then(function (data) {

@@ -25,7 +25,9 @@ window.Nav = window.Nav || {};
     rss: 'rss',               // 附加在条目上：数据里 link.rss 为真
     meta: 'meta',             // 条目里的文字区（名称 + 域名）
     latest: 'latest',         // feed 在 meta 里补的「最新一条」标题
-    grip: 'grip'              // 分组头上的拖动把手
+    grip: 'grip',             // 分组头上的拖动把手
+    // 触屏标记：touch.setup() 挂在 <html> 上，styles.css 据此关闭分组内层滚动
+    touch: 'touch'            // （保证手机端页面整体可滑动）
   };
 
   // dataset 的字段名：dataset[data.gid] 即 data-gid

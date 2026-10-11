@@ -130,7 +130,7 @@
 
   <!--
     应用脚本：按依赖方向从下往上加载，越靠下依赖越多。
-      基础层：纯净无依赖（工具 / DOM 原语 / 存储 / 接口 / 静态数据来源 / 视图契约）
+      基础层：纯净无依赖（工具 / DOM 原语 / 存储 / 接口 / 静态数据来源 / 视图契约 / 触屏手势）
       视图与数据：icon → store → render → modal → feed
       业务层：bookmark（书签编解码，只依赖 util）→ auth → actions → transfer → account → dnd
       装配层：main（唯一横向引用各模块，并注入 account / dnd 所需回调，必须最后加载）
@@ -141,6 +141,7 @@
   <script src="res/js/api.js"></script>
   <script src="res/js/source.js"></script>
   <script src="res/js/contract.js"></script>
+  <script src="res/js/touch.js"></script>
   <script src="res/js/icon.js"></script>
   <script src="res/js/store.js"></script>
   <script src="res/js/render.js"></script>
