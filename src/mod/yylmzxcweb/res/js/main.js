@@ -210,6 +210,9 @@ window.Nav = window.Nav || {};
 
   /* ---------------- 启动 ---------------- */
 
+  // 排到浏览器空闲帧：非关键任务不与首屏争带宽 / 主线程
+  var idle = window.requestIdleCallback || function (fn) { return setTimeout(fn, 400); };
+
   function init() {
     // 数据层只广播事实，界面如何呈现由装配层决定
     store.subscribe(function (evt) {
@@ -223,11 +226,27 @@ window.Nav = window.Nav || {};
     // 尽早挂载：触屏检测 + 滑动/点击区分要在首屏渲染前就生效
     touch.setup();
 
-    // 先取回数据再渲染，避免先闪一下出厂数据
-    store.load().then(function (data) {
-      store.setData(data);
+    // 工具栏 / 搜索 / 快捷键只依赖静态 DOM，与数据无关，先绑好即可用
+    bindEvents();
+
+    // 乐观首屏：用本机立即可得的数据先渲染，慢网络下不再白屏等后端
+    var preview = store.preview();
+    if (preview) {
+      store.setData(preview);
       render.header();
       render.groups();
+    }
+
+    // 先取回数据再渲染，避免先闪一下出厂数据
+    store.load().then(function (data) {
+      // 与乐观渲染内容一致就不重绘（省一次整树重建 + 图标全部重新请求）
+      if (!preview || JSON.stringify(data) !== JSON.stringify(preview)) {
+        store.setData(data);
+        render.header();
+        render.groups();
+      } else {
+        store.setData(data);   // 仍以后端结果为准，只是无需重绘
+      }
       actions.setEditing(false);
       render.syncModeUI();
 
@@ -240,11 +259,10 @@ window.Nav = window.Nav || {};
       });
       dnd.setup({ moveGroupTo: actions.moveGroupTo, moveLinkTo: actions.moveLinkTo });
 
-      // 登录态以后端为准：账号密码存在数据库里，本机只有会话 Cookie
-      auth.refresh();
-
-      feed.setup();     // 观察书签列表，为 RSS 条目补「最新一条」标题
-      bindEvents();
+      // 登录态是小请求，空闲帧再发；RSS「最新一条」要抓外部慢速站点，
+      // 推得更靠后，把首屏带宽让给视口内的导航。
+      idle(function () { auth.refresh(); });
+      setTimeout(function () { feed.setup(); }, 1200);
     });
   }
 

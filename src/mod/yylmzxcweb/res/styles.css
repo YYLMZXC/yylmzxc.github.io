@@ -218,10 +218,12 @@ body.editing .brand:hover { background: var(--field-bg); }
   font-weight: 700;
   color: #fff;
 }
-.profile-links .ico img { width: 100%; height: 100%; object-fit: contain; }
-.profile-links .ico .fb { display: none; width: 100%; height: 100%; place-items: center; }
+/* 图标默认藏起、首字母先顶上；真图标到达（.loaded）才替换，慢网络下不再空着 */
+.profile-links .ico img { width: 100%; height: 100%; object-fit: contain; display: none; }
+.profile-links .ico .fb { display: grid; width: 100%; height: 100%; place-items: center; }
+.profile-links .ico.loaded img { display: block; }
+.profile-links .ico.loaded .fb { display: none; }
 .profile-links .ico.failed img { display: none; }
-.profile-links .ico.failed .fb { display: grid; }
 
 /* ---------- 分组网格 ---------- */
 .groups {
@@ -359,10 +361,11 @@ html.touch a, html.touch button, html.touch .group-head, html.touch label { touc
   font-weight: 700;
   color: #fff;
 }
-.link .ico img { width: 100%; height: 100%; object-fit: contain; }
-.link .ico .fb { display: none; width: 100%; height: 100%; place-items: center; }
+.link .ico img { width: 100%; height: 100%; object-fit: contain; display: none; }
+.link .ico .fb { display: grid; width: 100%; height: 100%; place-items: center; }
+.link .ico.loaded img { display: block; }
+.link .ico.loaded .fb { display: none; }
 .link .ico.failed img { display: none; }
-.link .ico.failed .fb { display: grid; }
 
 .link .meta { min-width: 0; flex: 1; }
 .link .name {
@@ -539,7 +542,10 @@ body.editing .group-foot { display: flex; }
   width: 30px; height: 30px; border-radius: 9px; display: grid; place-items: center;
   background: var(--field-bg); border: 1px solid var(--card-border); overflow: hidden;
 }
-.modal-body .preview .ico img { width: 100%; height: 100%; object-fit: contain; }
+.modal-body .preview .ico img { width: 100%; height: 100%; object-fit: contain; display: none; }
+.modal-body .preview .ico .fb { display: grid; width: 100%; height: 100%; place-items: center; }
+.modal-body .preview .ico.loaded img { display: block; }
+.modal-body .preview .ico.loaded .fb { display: none; }
 /* 字段级附加控件（背景图的选择图片 + 缩略图）：紧贴所属输入框 */
 .modal-body .field-extra { display: flex; align-items: center; gap: 10px; margin: -6px 0 13px; }
 .modal-body .field-extra .btn { flex: none; padding: 8px 14px; }

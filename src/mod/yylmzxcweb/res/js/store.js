@@ -180,6 +180,14 @@ window.Nav = window.Nav || {};
 
   function readPrefer() { return storage.local.read(KEY.mode) === 'static' ? 'static' : 'db'; }
 
+  // 乐观首屏数据：不访问网络，本机立刻可得的最快一份——
+  // 数据库模式用上次取回的镜像（每次保存 / 加载都会刷新），否则用静态数据文件。
+  // 它只用于「先把页面画出来」，最终仍以 load() 从后端取回的结果为准。
+  function preview() {
+    if (readPrefer() === 'db') return readData(KEY.dbCache) || localOrDefault();
+    return localOrDefault();
+  }
+
   /* ---------------- 保存与同步 ---------------- */
 
   // 数据库模式下串行写回，避免并发请求导致顺序错乱
@@ -395,6 +403,7 @@ window.Nav = window.Nav || {};
     setEditing: setEditing,
     setDrag: setDrag,
     load: load,
+    preview: preview,
     save: save,
     saveNow: saveNow,
     loadStatic: loadStatic,
