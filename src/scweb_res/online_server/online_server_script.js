@@ -2,10 +2,10 @@
  * 生存战争网 - 联机服务器列表管理器（门面 / 协调者）
  *
  * 只负责编排各子系统的协作，具体职责已拆分为：
- * - ServerApiClient（网络层：代理回退 / 超时重试 / 数据提取）
+ * - ServerApiClient（网络层：同源接口优先 / 代理回退 / 超时重试 / 数据提取）
  * - ServerCache（数据层：localStorage 缓存）
  * - ServerListView（视图层：列表渲染与交互）
- * - ServerLatencyChecker（延迟检测）
+ * - ServerLatencyChecker（延迟检测，暂未接线：延迟/人数先占位展示）
  *
  * 共享管理器（主题 / 语言 / 站点信息）由组合根 App 统一创建并通过构造注入
  */
@@ -59,18 +59,13 @@ class OnlineServerManager {
 
         this.cache = new ServerCache(10);
 
-        this.latencyChecker = new ServerLatencyChecker({
-            apiClient: this.apiClient,
-            getServerText: (key) => this.getServerText(key)
-        });
-
+        // 延迟 / 在线人数暂为占位展示（列表接口不返回，ping 上游也未开放），
+        // ServerLatencyChecker 保留未接线，后续恢复时重新注入即可。
         this.listView = new ServerListView({
             getServerText: (key) => this.getServerText(key),
             getStatsText: (key) => this.getStatsText(key),
             getTranslations: (lang) => this.getTranslations(lang),
-            onFilterChange: (filter) => this.loadServerList(filter),
-            onIpChange: (serverId) => this.latencyChecker.detectLatencyForServer(serverId),
-            onRendered: () => setTimeout(() => this.latencyChecker.detectLatency(), 100)
+            onFilterChange: (filter) => this.loadServerList(filter)
         });
 
         this.init();
@@ -87,11 +82,6 @@ class OnlineServerManager {
 
         // 版本列表以数据库为准（读接口开放）：连上后端时静默替换本地缓存/出厂默认
         this.syncVersionsFromServer();
-
-        // 每 30 秒自动重新检测延迟
-        setInterval(() => {
-            this.latencyChecker.detectLatency();
-        }, 30000);
 
         console.log('[OnlineServerManager] 初始化完成');
     }

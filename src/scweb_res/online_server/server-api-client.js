@@ -19,6 +19,21 @@ class ServerApiClient {
         this.useCorsProxy = useCorsProxy;
         this.fallbackVersion = fallbackVersion;
         this.selfHostedProxies = ServerApiClient.getSelfHostedProxies();
+        // Node 后端同源接口（线上由 Apache 反代 /api，本机跑 node server 时直连本进程）。
+        // 上游 api.sckey.net 只对 sckey.net 自有域名放开 CORS，第三方站点与本机
+        // 都读不到直连响应，因此同源代理是最优先、也是最稳的一条路。
+        this.nodeApiUrl = ServerApiClient.getNodeApiUrl();
+    }
+
+    /**
+     * Node 后端同源接口地址：跟随页面所在目录（兼容子目录部署）
+     * @returns {string|null} 接口地址；取不到时返回 null（走其余回退链）
+     */
+    static getNodeApiUrl() {
+        if (!window.SCUtils || typeof window.SCUtils.apiBase !== 'function') {
+            return null;
+        }
+        return window.SCUtils.apiBase() + '/api/serverlist';
     }
 
     /**
@@ -83,18 +98,26 @@ class ServerApiClient {
 
     /**
      * 带重试的 HTTP 请求
-     * 优先使用自建代理，失败后回退到直连和公共 CORS 代理
+     * 尝试顺序：Node 同源接口 → 自建代理（proxy.php）→ 直连 → 公共 CORS 代理
      * 每个请求都有超时保护
      * @param {string} apiUrl - 请求地址
-     * @returns {Promise<Object|string>} JSON 响应数据
+     * @returns {Promise<Object>} JSON 响应数据
      */
     async fetchWithRetry(apiUrl) {
         const attempts = [];
 
+        // 1) Node 后端同源接口：不受上游 CORS 白名单限制，本机开发与线上反代都能走
+        //    （目前后端只实现了服务器列表转发，其余请求跳过这一候选）
+        if (this.nodeApiUrl && apiUrl.includes('serverlist')) {
+            attempts.push({ type: 'node', url: this.nodeApiUrl, targetUrl: apiUrl });
+        }
+
+        // 2) 自建代理（proxy.php）：纯 PHP 托管（Apache 等）时的同源路径，外加备用域名
         this.selfHostedProxies.forEach(proxy => {
             attempts.push({ type: 'self', url: proxy, targetUrl: apiUrl });
         });
 
+        // 3) 直连：上游只对白名单域名放开 CORS，多数站点读不到，作为兜底保留
         attempts.push({ type: 'direct', url: apiUrl });
 
         if (this.useCorsProxy) {
@@ -111,7 +134,11 @@ class ServerApiClient {
             let fullUrl;
             let logLabel;
 
-            if (type === 'self') {
+            if (type === 'node') {
+                const versionParam = this.extractVersion(targetUrl);
+                fullUrl = `${url}?version=${encodeURIComponent(versionParam)}`;
+                logLabel = ' [同源接口]';
+            } else if (type === 'self') {
                 if (targetUrl.includes('serverlist')) {
                     const versionParam = this.extractVersion(targetUrl);
                     fullUrl = `${url}?action=serverlist&version=${encodeURIComponent(versionParam)}`;
@@ -153,22 +180,23 @@ class ServerApiClient {
 
                 const text = await response.text();
 
+                let parsed;
                 try {
-                    const parsed = JSON.parse(text);
-
-                    if (parsed.success === false && parsed.code !== undefined) {
-                        console.warn(`代理返回错误:`, parsed.msg);
-                        throw new Error(parsed.msg || '代理请求失败');
-                    }
-
-                    console.log(`✓ 成功 (${attempt + 1}/${totalAttempts})${logLabel}`);
-                    return parsed;
+                    parsed = JSON.parse(text);
                 } catch (e) {
-                    if (e.message && !e.message.includes('Unexpected token')) {
-                        throw e;
-                    }
-                    return text;
+                    // 非 JSON 的 200 响应（HTML 错误页、PHP 未被解释时回传的源码等）
+                    // 一律视为本次尝试失败，继续尝试下一个候选；
+                    // 绝不能把原文当成功结果带出去，否则会被解析成空列表。
+                    throw new Error('响应不是有效 JSON');
                 }
+
+                if (parsed.success === false && parsed.code !== undefined) {
+                    console.warn(`代理返回错误:`, parsed.msg);
+                    throw new Error(parsed.msg || '代理请求失败');
+                }
+
+                console.log(`✓ 成功 (${attempt + 1}/${totalAttempts})${logLabel}`);
+                return parsed;
 
             } catch (error) {
                 console.log(`尝试 ${attempt + 1} 失败:`, error.message);

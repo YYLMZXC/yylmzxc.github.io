@@ -197,7 +197,7 @@ class ServerListView {
         return `
             <div class="server-item" data-server-id="${serverId}" data-server-index="${index}">
                 <div class="server-header">
-                    <span class="server-status status-checking" title="${this.getServerText('checking')}">●</span>
+                    <span class="server-status status-unknown">●</span>
                     <span class="server-name">${server.name || '未知服务器'}</span>
                     ${serverTags}
                 </div>
@@ -231,7 +231,7 @@ class ServerListView {
                         <span class="label">${this.getServerText('network')}:</span>
                         <span class="value">${networkType}</span>
                         <span class="label">${this.getServerText('latency')}:</span>
-                        <span class="value latency-value" data-server-id="${serverId}">${this.getServerText('checking')}...</span>
+                        <span class="value latency-value" data-server-id="${serverId}">—</span>
                     </div>
                 </div>
 
