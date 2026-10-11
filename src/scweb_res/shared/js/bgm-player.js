@@ -115,7 +115,7 @@ var BgmAudio = (function () {
             try {
                 _audio.currentTime = t;
             } catch (e) {
-                console.warn('[BGM] seek failed, retrying...', e.message);
+                console.warn('[BGM] seek 失败，正在重试…', e.message);
                 // seek 失败时先 load 再重试
                 _audio.load();
                 var self = this;
@@ -183,7 +183,7 @@ var BgmAudio = (function () {
             try {
                 _audio.play();
             } catch (e) {
-                console.warn('[BGM] play() sync error:', e.message);
+                console.warn('[BGM] play() 同步调用出错：', e.message);
             }
         },
 
@@ -319,13 +319,13 @@ var BgmAudio = (function () {
             });
             // seek 完成后强制刷新进度条（timeupdate 在长歌曲 seek 后可能延迟）
             _audio.addEventListener('seeked', function () {
-                console.log('[BGM] seeked to', _audio.currentTime.toFixed(1));
+                console.log('[BGM] 已 seek 到', _audio.currentTime.toFixed(1));
                 if (_onTimeUpdate) _onTimeUpdate(_audio.currentTime, _audio.duration);
             });
             // 音频错误处理
             _audio.addEventListener('error', function () {
                 var err = _audio.error;
-                console.warn('[BGM] Audio error:', err ? ('code=' + err.code + ' msg=' + err.message) : 'unknown');
+                console.warn('[BGM] 音频出错：', err ? ('code=' + err.code + ' msg=' + err.message) : '未知错误');
             });
         }
     };

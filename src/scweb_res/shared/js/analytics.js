@@ -46,7 +46,7 @@ function initBaiduAnalytics(cfg) {
     } else {
         document.head.appendChild(script);
     }
-    console.log('[Analytics] Baidu Analytics initialized (token: ' + cfg.token.slice(0, 6) + '...)');
+    console.log('[统计] 百度统计已初始化（token：' + cfg.token.slice(0, 6) + '…）');
 }
 
 /* ================================================================
@@ -55,7 +55,7 @@ function initBaiduAnalytics(cfg) {
  * ================================================================ */
 function initClarity(cfg) {
     if (!cfg.enabled || !cfg.projectId || cfg.projectId === 'YOUR_CLARITY_ID_HERE') {
-        if (cfg.enabled) console.log('[Analytics] Clarity skipped (no project ID configured)');
+        if (cfg.enabled) console.log('[统计] 已跳过 Microsoft Clarity（未配置项目 ID）');
         return;
     }
 
@@ -69,7 +69,7 @@ function initClarity(cfg) {
         y = l.getElementsByTagName(r)[0];
         y.parentNode.insertBefore(t, y);
     })(window, document, 'clarity', 'script', cfg.projectId);
-    console.log('[Analytics] Microsoft Clarity initialized (id: ' + cfg.projectId + ')');
+    console.log('[统计] Microsoft Clarity 已初始化（ID：' + cfg.projectId + '）');
 }
 
 /* ================================================================

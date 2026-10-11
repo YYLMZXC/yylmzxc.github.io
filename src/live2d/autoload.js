@@ -47,7 +47,7 @@ const Live2DLoader = {
      * @returns {Promise<string>} 加载成功返回 url
      */
     load: function (url, type) {
-        console.log('[Live2D] Loading ' + type + ': ' + url);
+        console.log('[Live2D] 正在加载 ' + type + '：' + url);
         return new Promise(function (resolve, reject) {
             var tag;
             if (type === 'css') {
@@ -61,16 +61,16 @@ const Live2DLoader = {
             }
             if (tag) {
                 tag.onload  = function () {
-                    console.log('[Live2D] ✓ Loaded ' + type + ': ' + url);
+                    console.log('[Live2D] ✓ 已加载 ' + type + '：' + url);
                     resolve(url);
                 };
                 tag.onerror = function () {
-                    console.error('[Live2D] ✗ Failed to load ' + type + ': ' + url);
+                    console.error('[Live2D] ✗ 加载失败 ' + type + '：' + url);
                     reject(url);
                 };
                 document.head.appendChild(tag);
             } else {
-                console.error('[Live2D] Unknown resource type: ' + type);
+                console.error('[Live2D] 未知的资源类型：' + type);
                 reject(url);
             }
         });
@@ -82,11 +82,11 @@ const Live2DLoader = {
      * @returns {Promise<void>}
      */
     loadAll: function (items) {
-        console.log('[Live2D] Loading ' + items.length + ' resources...');
+        console.log('[Live2D] 正在加载 ' + items.length + ' 个资源…');
         return Promise.all(items.map(function (item) {
             return Live2DLoader.load(item.url, item.type);
         })).then(function () {
-            console.log('[Live2D] All resources loaded successfully');
+            console.log('[Live2D] 全部资源加载成功');
         });
     },
 
@@ -94,7 +94,7 @@ const Live2DLoader = {
      * 修复跨域 Image（Live2D Cubism 需要）
      */
     patchImageCORS: function () {
-        console.log('[Live2D] Patching Image constructor for CORS');
+        console.log('[Live2D] 正在为跨域修补 Image 构造器');
         var OrigImage = window.Image;
         window.Image = function () {
             var img = new (Function.prototype.bind.apply(OrigImage, [null].concat(Array.from(arguments))));
@@ -111,10 +111,10 @@ const Live2DLoader = {
     patchTouchDrag: function () {
         var waifu = document.getElementById('waifu');
         if (!waifu) {
-            console.warn('[Live2D] #waifu element not found, skipping touch drag patch');
+            console.warn('[Live2D] 未找到 #waifu 元素，跳过触摸拖拽补丁');
             return;
         }
-        console.log('[Live2D] Patching touch drag support');
+        console.log('[Live2D] 正在打触摸拖拽补丁');
 
         var startLeft = 0;
         var startTop = 0;
@@ -139,7 +139,7 @@ const Live2DLoader = {
             startY = t.clientY;
             dragging = false;
             moved = false;
-            console.log('[Live2D] Touch start at (' + t.clientX + ', ' + t.clientY + ')');
+            console.log('[Live2D] 触摸开始（' + t.clientX + ', ' + t.clientY + '）');
 
             document.addEventListener('touchmove', onTouchMove, { passive: false });
             document.addEventListener('touchend', onTouchEnd);
@@ -168,8 +168,8 @@ const Live2DLoader = {
         }
 
         function onTouchEnd() {
-            if (moved) console.log('[Live2D] Touch end — waifu moved to (' + waifu.style.left + ', ' + waifu.style.top + ')');
-            else console.log('[Live2D] Touch end — tap (no drag)');
+            if (moved) console.log('[Live2D] 触摸结束 — 看板娘已移动到（' + waifu.style.left + ', ' + waifu.style.top + '）');
+            else console.log('[Live2D] 触摸结束 — 轻点（未拖拽）');
             document.removeEventListener('touchmove', onTouchMove);
             document.removeEventListener('touchend', onTouchEnd);
         }
@@ -183,10 +183,10 @@ const Live2DLoader = {
     patchMobileTools: function () {
         var isMobile = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
         if (!isMobile) {
-            console.log('[Live2D] Desktop detected, skipping mobile tools patch');
+            console.log('[Live2D] 检测到桌面端，跳过移动端工具栏补丁');
             return;
         }
-        console.log('[Live2D] Mobile detected, applying tool bar patch');
+        console.log('[Live2D] 检测到移动端，正在应用工具栏补丁');
 
         var style = document.createElement('style');
         style.textContent =
@@ -206,8 +206,8 @@ const Live2DLoader = {
  * ================================================================ */
 const Live2DInit = (function () {
     function boot() {
-        console.log('[Live2D] Initializing...');
-        console.log('[Live2D] Config:', JSON.stringify({
+        console.log('[Live2D] 正在初始化…');
+        console.log('[Live2D] 配置：', JSON.stringify({
             modelId:   Live2DConfig.modelId,
             cdnPath:   Live2DConfig.cdnPath,
             localPath: Live2DConfig.localPath,
@@ -225,7 +225,7 @@ const Live2DInit = (function () {
             { url: C.waifuCss,    type: 'css' },
             { url: C.waifuTipsJs, type: 'js'  },
         ]).then(function () {
-            console.log('[Live2D] Resources ready, initializing widget...');
+            console.log('[Live2D] 资源就绪，正在初始化看板娘…');
             /* 3. 初始化看板娘 */
             initWidget({
                 waifuPath:           C.waifuJson,
@@ -237,14 +237,14 @@ const Live2DInit = (function () {
                 drag:                C.drag,
                 showToggleAfterQuit: C.showToggleAfterQuit,
             });
-            console.log('[Live2D] Widget initialized');
+            console.log('[Live2D] 看板娘已初始化');
 
             /* 4. 移动端增强：触摸拖拽 + 工具栏常驻 */
             Live2DLoader.patchTouchDrag();
             Live2DLoader.patchMobileTools();
-            console.log('[Live2D] ✓ All patches applied, ready!');
+            console.log('[Live2D] ✓ 全部补丁已应用，就绪！');
         }).catch(function (err) {
-            console.error('[Live2D] Initialization failed:', err);
+            console.error('[Live2D] 初始化失败：', err);
         });
     }
 

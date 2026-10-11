@@ -1,4 +1,0 @@
-[mod:WebBookmark] 数据库已就绪：web_bookmark
-[mod:yylmzxcweb] 数据库已就绪：yylmzxc_nav
-数据库已连接：scweb（接口与页面都由本进程提供，健康检查 http://127.0.0.1:8000/api/health）
-已加载 mod：WebBookmark → http://127.0.0.1:8000/WebBookmark/index.html，yylmzxcweb → http://127.0.0.1:8000/yylmzxcweb/yylmzxc.html
