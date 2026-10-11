@@ -387,8 +387,7 @@ window.NAV_DEFAULT = {
           "title": "未来网",
           "url": "https://www.k618.cn"
         }
-      ],
-      "collapsed": true
+      ]
     },
     {
       "id": "g7",
@@ -685,7 +684,8 @@ window.NAV_DEFAULT = {
           "title": "bilibili",
           "url": "https://www.bilibili.tv"
         }
-      ]
+      ],
+      "collapsed": true
     }
   ]
 };
