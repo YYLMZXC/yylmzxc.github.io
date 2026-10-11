@@ -5,7 +5,16 @@
    2) 提供 /api/* 接口：站点导航的读写与导出、站点全局设置的读写、账号登录与会话；
    3) 加载 mod：src/ 下带 mod.json 的子目录（如 yylmzxcweb 导航站）按 config.json 的
       mods 段决定加载与否，其接口在本进程内挂载——于是一个进程可同时连多个库。
-  启动：在仓库根目录执行 node src/server/server.js
+
+   本文件只做组装（composition root）与监听，各职责分在：
+     routes/       各领域接口路由（routes/index.js 统一挂到 /api 下）
+     logger.js     带时间戳的统一日志
+     http-util.js  客户端真实 IP 还原
+     bootstrap.js  空库播种（把业务默认值接进 db 的播种机制）
+     db.js         数据存取（不认识任何业务数据格式）
+     sitenav.js / settings.js  导航与设置的数据格式
+     account.js    账号与会话   mods.js  mod 加载
+   启动：在仓库根目录执行 node src/server/server.js
    （或双击 src/启动主页(带数据库).bat，脚本会把依赖装好并自动开浏览器）
    ============================================================ */
 'use strict';
@@ -17,10 +26,12 @@ const fs = require('fs');
 const express = require('express');
 const CONFIG = require('./config');
 const db = require('./db');
-const sitenav = require('./sitenav');
-const siteSettings = require('./settings');
+const bootstrap = require('./bootstrap');
 const account = require('./account');
 const mods = require('./mods');
+const api = require('./routes');
+const log = require('./logger').log;
+const clientIp = require('./http-util').clientIp;
 
 const PORT = CONFIG.server.port || 8000;
 
@@ -51,324 +62,7 @@ const WEB_ROOT = path.join(__dirname, '..');
 const app = express();
 app.use(express.json({ limit: '20mb' }));
 
-/* ---------------- 日志工具 ----------------
-   统一带本地时间戳，格式：[2026/10/11 20:30:00] 消息。
-   /api/health 会被前端周期性轮询，在请求日志里跳过，避免刷屏。 */
-function ts() {
-  const d = new Date();
-  function pad(n) { return (n < 10 ? '0' : '') + n; }
-  return d.getFullYear() + '/' + pad(d.getMonth() + 1) + '/' + pad(d.getDate()) +
-    ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes()) + ':' + pad(d.getSeconds());
-}
-const log = {
-  info: function (msg) { console.log('[' + ts() + '] ' + msg); },
-  warn: function (msg) { console.warn('[' + ts() + '] ' + msg); },
-  error: function (msg) { console.error('[' + ts() + '] ' + msg); }
-};
-
-// 接口路由集中在一个 Router 里，文件末尾统一挂到 /api 下
-const api = express.Router();
-
-// /api 请求日志：方法 路径 → 状态码（耗时，来源 IP）。
-// 挂在 Router 最前，res 的 finish 事件在响应发完时触发，能拿到最终状态码。
-// /api/health 会被前端周期性轮询，跳过以免刷屏。
-api.use(function (req, res, next) {
-  const start = Date.now();
-  res.on('finish', function () {
-    if (req.path === '/health') return;
-    log.info(req.method + ' ' + req.originalUrl + ' → ' + res.statusCode +
-      '（' + (Date.now() - start) + ' ms，来自 ' + clientIp(req) + '）');
-  });
-  next();
-});
-
-// 数据库类报错统一回应：把「哪种毛病 / 卡在哪一步 / 怎么处理」一起交给前端，
-// 控制台同时留下完整诊断。前端据此区分「服务没开」「账号不对」「没授权」这些不同情况。
-function failDb(res, e, tag) {
-  const d = db.explain(e);
-  console.error('[' + tag + '] ' + d.label + '：' + d.reason +
-    (d.stageText ? '（环节：' + d.stageText + '）' : '') +
-    (d.hint ? '（建议：' + d.hint + '）' : ''));
-  res.status(d.kind === 'unknown' ? 500 : 503).json({
-    ok: false,
-    error: d.reason,
-    code: d.code,
-    kind: d.kind,
-    label: d.label,
-    stage: d.stageText,
-    target: d.target,
-    hint: d.hint,
-    detail: d.detail
-  });
-}
-
-// 健康检查：真的探一次数据库。库 / 表被删掉时如实回答 false，
-// 前端才会显示「未连接」并转成只读，而不是显示正常却每次保存都失败。
-// 不通时连「为什么不通」一并返回（见 db.health），前端才能提示到点子上。
-api.get('/health', async function (req, res) {
-  const h = await db.health();
-  if (!h.ok) {
-    console.error('[GET /api/health] ' + h.label + '：' + h.reason +
-      (h.stageText ? '（环节：' + h.stageText + '）' : ''));
-  }
-  res.set('Cache-Control', 'no-store');
-  res.json(h);
-});
-
-/* ---------------- 客户端信息（服务器视角） ----------------
-   信息仪表板用它显示访客的真实 IP / 请求头 / 服务端软件等。
-   纯 PHP 托管时该页读 proxy.php?action=clientinfo；Node 后端运行时 PHP 不会被解释，
-   于是在这里提供等价接口，前端优先走本接口、失败再回退 proxy.php。 */
-
-// IPv4 映射地址（::ffff:127.0.0.1）还原成 IPv4，与 PHP 的 REMOTE_ADDR 观感一致
-function normIp(ip) {
-  return String(ip || '').replace(/^::ffff:/i, '');
-}
-
-// 取客户端真实 IP：转发头优先级与 proxy.php 的 getClientIp 保持一致
-function clientIp(req) {
-  const h = req.headers;
-  const forwarded = ['x-forwarded-for', 'x-real-ip', 'cf-connecting-ip', 'client-ip'];
-  for (const name of forwarded) {
-    const raw = h[name];
-    if (raw) {
-      const first = String(raw).split(',')[0].trim();
-      if (first) return normIp(first);
-    }
-  }
-  return normIp(req.socket.remoteAddress);
-}
-
-api.get('/clientinfo', function (req, res) {
-  const h = req.headers;
-  res.set('Cache-Control', 'no-store');
-  res.json({
-    success: true,
-    data: {
-      // 客户端地址信息
-      ip: clientIp(req),
-      remoteAddr: normIp(req.socket.remoteAddress),
-      xForwardedFor: h['x-forwarded-for'] || '',
-      xRealIp: h['x-real-ip'] || '',
-      // 客户端请求头
-      userAgent: h['user-agent'] || '',
-      acceptLanguage: h['accept-language'] || '',
-      acceptEncoding: h['accept-encoding'] || '',
-      accept: h['accept'] || '',
-      referer: h['referer'] || '',
-      // 请求信息
-      requestMethod: req.method,
-      requestUri: req.originalUrl,
-      requestTime: Math.floor(Date.now() / 1000),
-      // 服务端信息
-      serverAddr: normIp(req.socket.localAddress),
-      serverName: String(h.host || '').split(':')[0],
-      serverSoftware: 'Node.js/' + process.version + ' (Express)',
-      serverProtocol: 'HTTP/' + req.httpVersion,
-      https: !!req.secure,
-      // Client Hints（Chrome 等浏览器可能携带，可能为空）
-      secChUa: h['sec-ch-ua'] || '',
-      secChUaPlatform: h['sec-ch-ua-platform'] || '',
-      secChUaMobile: h['sec-ch-ua-mobile'] || ''
-    }
-  });
-});
-
-/* ---------------- 站点导航数据（首页 / 关于页） ----------------
-   整份 JSON 存在 site_nav 表里，分组用 page 字段区分页面；
-   读接口开放（首页与关于页任何人都要能看到导航），写接口要求已登录。
-   老数据（v1 只有首页）在 db.loadSiteNav 里自动升级。 */
-
-// 写操作的统一门槛：未登录直接回 401，前端据此弹出「请先登录」的提示。
-// 返回登录态对象；未登录时已自行回应，调用方看到 falsy 直接 return 即可。
-async function requireLogin(req, res, message) {
-  const s = await account.session(account.tokenOf(req));
-  if (!s.loggedIn) {
-    res.status(401).json({ ok: false, code: 'UNAUTHORIZED', error: message || '请先登录后再操作' });
-    return null;
-  }
-  return s;
-}
-
-api.get('/site-nav', async function (req, res) {
-  try {
-    res.set('Cache-Control', 'no-store');
-    res.json({ ok: true, data: await db.loadSiteNav() });
-  } catch (e) {
-    failDb(res, e, 'GET /api/site-nav');
-  }
-});
-
-// 整份覆盖保存：分组页号 / 缺项由 sitenav.normalize 规整，前端不必自己做校验
-api.put('/site-nav', async function (req, res) {
-  const data = sitenav.normalize(req.body);
-  if (!data) {
-    res.status(400).json({ ok: false, error: '数据格式不正确' });
-    return;
-  }
-  try {
-    const s = await requireLogin(req, res, '请先登录后再修改导航数据');
-    if (!s) { log.warn('PUT /api/site-nav：未登录，已拒绝（来自 ' + clientIp(req) + '）'); return; }
-    await db.saveSiteNav(data);
-    let links = 0;
-    data.groups.forEach(function (g) { links += (g.links || []).length; });
-    log.info('站点导航已保存：' + data.groups.length + ' 组 / ' + links + ' 条链接（操作者：' + s.user + '）');
-    res.json({ ok: true });
-  } catch (e) {
-    failDb(res, e, 'PUT /api/site-nav');
-  }
-});
-
-// 数据库 → 静态前端：把站点导航（首页 + 关于页）固化成 web 模式的数据文件，
-// 使站点脱离数据库也能照常显示导航（不传 data 时直接取库里的数据写入）
-api.post('/site-nav/to-static', async function (req, res) {
-  try {
-    const s = await requireLogin(req, res, '请先登录后再修改导航数据');
-    if (!s) { log.warn('POST /api/site-nav/to-static：未登录，已拒绝（来自 ' + clientIp(req) + '）'); return; }
-    const body = req.body || {};
-    const data = sitenav.normalize(body.data) || await db.loadSiteNav();
-    if (!data || !Array.isArray(data.groups)) {
-      res.status(400).json({ ok: false, error: '没有可导出的数据' });
-      return;
-    }
-    sitenav.write(data);
-    let links = 0;
-    data.groups.forEach(function (g) { links += (g.links || []).length; });
-    log.info('站点导航已固化到静态文件：' + sitenav.rel + '（' + data.groups.length + ' 组 / ' + links + ' 条链接，操作者：' + s.user + '）');
-    res.json({
-      ok: true,
-      file: sitenav.rel,
-      groups: data.groups.length,
-      links: links,
-      data: data   // 回传实际写入文件的数据，前端据此同步本机副本
-    });
-  } catch (e) {
-    failDb(res, e, 'POST /api/site-nav/to-static');
-  }
-});
-
-/* ---------------- 站点全局设置 ----------------
-   启用 BGM / 自动播放 / 看板娘 / 默认主题，整份 JSON 存在 site_settings 表里。
-   读接口开放（每个访客都要按它决定 BGM / 看板娘 / 主题），
-   写接口要求已登录——这里改的是「所有访客的默认值」。
-   前端会把读到的一份缓存在本地，连不上后端时用缓存兜底。 */
-
-api.get('/site-settings', async function (req, res) {
-  try {
-    res.set('Cache-Control', 'no-store');
-    const data = await db.loadSiteSettings();
-    res.json({ ok: true, data: siteSettings.normalize(data || siteSettings.defaults()) });
-  } catch (e) {
-    failDb(res, e, 'GET /api/site-settings');
-  }
-});
-
-// 整份覆盖保存：缺项 / 脏值由 settings.normalize 补齐，前端不必自己做校验
-api.put('/site-settings', async function (req, res) {
-  const data = siteSettings.normalize(req.body);
-  try {
-    const s = await requireLogin(req, res, '请先登录后再修改站点设置');
-    if (!s) { log.warn('PUT /api/site-settings：未登录，已拒绝（来自 ' + clientIp(req) + '）'); return; }
-    await db.saveSiteSettings(data);
-    log.info('站点设置已保存（操作者：' + s.user + '）：' + JSON.stringify(data));
-    res.json({ ok: true, data: data });
-  } catch (e) {
-    failDb(res, e, 'PUT /api/site-settings');
-  }
-});
-
-/* ---------------- 账号与会话 ----------------
-   凭据只在数据库里，浏览器侧不保存账号密码：
-   登录成功下发一个 HttpOnly 会话 Cookie，令牌落库、可被撤销。 */
-
-api.post('/login', async function (req, res) {
-  const body = req.body || {};
-  try {
-    const r = await account.login(body.user, body.pass);
-    if (!r) {
-      log.warn('登录失败：账号「' + body.user + '」或密码不对（来自 ' + clientIp(req) + '）');
-      res.status(401).json({ ok: false, error: '账号或密码错误' });
-      return;
-    }
-    account.setCookie(res, r.token);
-    log.info('登录成功：' + r.user + '（来自 ' + clientIp(req) + '）');
-    res.set('Cache-Control', 'no-store');
-    res.json({ ok: true, user: r.user });
-  } catch (e) {
-    failDb(res, e, 'POST /api/login');
-  }
-});
-
-// 查询当前登录态：页面启动时确认会话是否仍然有效
-api.get('/session', async function (req, res) {
-  try {
-    const s = await account.session(account.tokenOf(req));
-    res.set('Cache-Control', 'no-store');
-    res.json({ ok: true, loggedIn: s.loggedIn, user: s.user });
-  } catch (e) {
-    failDb(res, e, 'GET /api/session');
-  }
-});
-
-api.post('/logout', async function (req, res) {
-  try {
-    const s = await account.session(account.tokenOf(req));
-    await account.logout(account.tokenOf(req));
-    account.clearCookie(res);
-    log.info('已登出：' + (s.loggedIn ? s.user : '（会话已失效）') + '（来自 ' + clientIp(req) + '）');
-    res.json({ ok: true });
-  } catch (e) {
-    failDb(res, e, 'POST /api/logout');
-  }
-});
-
-// 修改账号 / 密码（需已登录 + 当前密码）
-api.post('/account', async function (req, res) {
-  try {
-    const r = await account.update(account.tokenOf(req), req.body || {});
-    log.info('账号信息已更新（新用户名：' + r.user + '，来自 ' + clientIp(req) + '）');
-    res.json({ ok: true, user: r.user });
-  } catch (e) {
-    // 校验类错误（密码不对、账号为空）自带 status，按原样回报；
-    // 其余多半是连不上数据库，交给统一诊断。
-    if (e.status) {
-      log.warn('账号信息更新被拒绝：' + e.message + '（来自 ' + clientIp(req) + '）');
-      res.status(e.status).json({ ok: false, error: e.message });
-      return;
-    }
-    failDb(res, e, 'POST /api/account');
-  }
-});
-
-/* ---------------- mod 状态 ----------------
-   src/ 下带 mod.json 的子目录都是可插拔扩展（见 mods.js）。
-   前端据此显示 / 隐藏 mod 入口；未启用的 mod 其页面文件仍可直接访问，
-   但接口不会挂载，页面会像后端不在时一样退回只读模式。 */
-
-api.get('/mods', function (req, res) {
-  res.set('Cache-Control', 'no-store');
-  res.json({ ok: true, data: mods.list() });
-});
-
-/* ---------------- 前端日志上报 ----------------
-   浏览器侧的日志（logger.js 收集的 console 输出与报错）可通过
-   面板「上报后端」按钮 POST 到这里，转手打进本进程控制台，
-   排查「用户看到了什么」时不用让用户开 DevTools 截图。 */
-api.post('/client-log', function (req, res) {
-  const body = req.body || {};
-  const logs = Array.isArray(body.logs) ? body.logs : [];
-  log.info('收到前端日志上报：' + logs.length + ' 条（页面：' + (body.page || '未知') + '）');
-  // 上限兜底：异常情况下前端送来超量日志也不至于刷爆控制台
-  logs.slice(-200).forEach(function (e) {
-    if (!e || typeof e.text !== 'string') return;
-    const line = '[' + (e.time || '?') + '] [' + (e.level || 'log') + '] ' + e.text;
-    if (e.level === 'error') log.error('  ↳ ' + line);
-    else if (e.level === 'warn') log.warn('  ↳ ' + line);
-    else log.info('  ↳ ' + line);
-  });
-  res.json({ ok: true, received: logs.length });
-});
-
+// /api 路由：请求日志 + 各领域接口，见 routes/index.js
 app.use('/api', api);
 
 // mod 的后端接口：必须赶在静态托管之前挂上，否则会被当成文件路径。
@@ -418,7 +112,8 @@ function tlsMaterial() {
 
 (async function start() {
   try {
-    await db.init();
+    // 播种器（bootstrap.seed）只在这里递给 db：空库初始化与删库自愈重播都由它决定
+    await db.init(bootstrap.seed);
     await account.init();       // 账号表为空时建默认账号（见 config.json 的 auth 段）
   } catch (e) {
     // 启动失败是最需要看清楚的时刻：把毛病、环节、目标、原始报错、建议一次列全

@@ -1,12 +1,13 @@
 /* ============================================================
    生存战争网 · 数据访问层（MySQL）
-   自动建库建表；首次启动时用静态数据文件 scweb_res/nav/nav-default.js 填充。
+   自动建库建表；空库时该播什么数据由 bootstrap.js 递进来的播种器决定
+   （依赖倒置：本模块不认识任何业务数据格式，只提供「查空 + 写入」的机制）。
    库 / 表被删掉（例如手工 DROP DATABASE）后不必重启后端：
-   下一次请求会重新建库建表并重试，只是数据只能回到那份静态文件。
+   下一次请求会重新建库建表并重试，数据回到播种的那一份。
    数据模型：业务数据两张单行 JSON 表——site_nav（站点导航：首页 / 关于页）
    与 site_settings（站点全局设置：BGM / 自动播放 / 看板娘 / 默认主题），
    外加账号与会话两张表：账号密码只存在这里，浏览器不保存任何凭据。
-   静态数据文件本身的读写属于另一职责，见 sitenav.js / settings.js；
+   数据格式（规整 / 升级 / 默认值）属于业务模块，见 sitenav.js / settings.js；
    密码哈希与会话策略属于账号服务，见 account.js；
    连接参数统一读自 config.json，见 config.js。
    ============================================================ */
@@ -14,8 +15,6 @@
 
 const mysql = require('mysql2/promise');
 const CONFIG = require('./config');
-const sitenav = require('./sitenav');
-const settings = require('./settings');
 const dbDiagnosis = require('./db-diagnosis');
 
 const DB_NAME = CONFIG.mysql.database || 'scweb';
@@ -28,6 +27,7 @@ const diag = dbDiagnosis.create(DB_NAME);
 let pool = null;
 let ready = null;    // 建库建表的进行中 / 已完成状态（见 init）
 let lastError = null; // 最近一次连接失败的原因（见 diagnose），health 如实转述给前端
+let seedHook = null; // 空库播种器（见 bootstrap.js），init(seed) 时记下，自愈重建后重播
 
 /* ---------------- 建库 / 建表 ---------------- */
 
@@ -62,23 +62,23 @@ const DDL = [
      KEY idx_nav_sessions_expires (expires_at)
    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`,
 
-  // 站点导航数据（首页 / 关于页）：整份 JSON 存一行。
-  // 单行 JSON 而非拆表，是因为导航的数据结构（分页 + 分组 + 多语言标题键）还在演进，
+  // 站点导航数据（首页 / 关于页）与站点全局设置（启用 BGM / 自动播放 / 看板娘 / 默认主题）：
+  // 同一形状的两张单行 JSON 表，用 jsonTable(name) 生成。
+  // 单行 JSON 而非拆表，是因为数据结构（分页 + 分组 + 多语言标题键）还在演进，
   // 拆成列反而每次改结构都要动表；整份读写的语义也与「导入 / 导出 / 转换」天然对齐。
-  `CREATE TABLE IF NOT EXISTS site_nav (
-     id TINYINT UNSIGNED NOT NULL PRIMARY KEY,
-     data LONGTEXT,
-     updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-   ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`,
-
-  // 站点全局设置（启用 BGM / 自动播放 / 看板娘 / 默认主题）：同样整份 JSON 存一行。
-  // 与 site_nav 分表，是因为两者读写时机与权限含义不同：导航是页面内容，这里是站点开关。
-  `CREATE TABLE IF NOT EXISTS site_settings (
-     id TINYINT UNSIGNED NOT NULL PRIMARY KEY,
-     data LONGTEXT,
-     updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-   ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`
+  // 分成两张表，是因为两者读写时机与权限含义不同：导航是页面内容，设置是站点开关。
+  jsonTable('site_nav'),
+  jsonTable('site_settings')
 ];
+
+// 单行 JSON 表的建表语句（site_nav / site_settings 共用）
+function jsonTable(name) {
+  return `CREATE TABLE IF NOT EXISTS ${name} (
+     id TINYINT UNSIGNED NOT NULL PRIMARY KEY,
+     data LONGTEXT,
+     updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+   ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`;
+}
 
 /* ---------------- 连接失败的诊断 ----------------
    错误码翻译表与诊断函数都搬到 db-diagnosis.js 了：本模块只管存取数据。
@@ -122,23 +122,20 @@ async function connect() {
     pool = mysql.createPool(Object.assign({ database: DB_NAME }, baseOptions()));
     for (const sql of DDL) await pool.query(sql);
 
-    // 站点导航（首页 / 关于页）在首次启动时用静态文件填一次，
-    // 否则数据库模式下第一次打开页面会是空的。
+    // 空库播种：播什么、从哪读，是业务层的事（见 bootstrap.js）；
+    // 这里只决定时机（建表之后、对外服务之前）和「查空 + 写入」的机制。
+    // 自愈重建（见 run）走同一段，所以删库后数据也能回到播种的那一份。
     stage = 'seed';
-    const [siteRows] = await pool.query('SELECT id FROM site_nav WHERE id = 1');
-    if (!siteRows.length) {
-      const sd = sitenav.read();
-      if (sd) {
-        await writeSiteNav(pool, sitenav.normalize(sd) || sd);
-        console.log('已用静态数据文件初始化站点导航');
-      }
-    }
-
-    // 站点全局设置同理：空库时用 site-config.js 里的默认值填一次
-    const [setRows] = await pool.query('SELECT id FROM site_settings WHERE id = 1');
-    if (!setRows.length) {
-      await writeSiteSettings(pool, settings.defaults());
-      console.log('已用 site-config.js 的默认值初始化站点设置');
+    if (seedHook) {
+      await seedHook({
+        isEmpty: async function (table) {
+          const rows = await pool.query('SELECT id FROM ?? WHERE id = 1', [table]);
+          return !rows[0].length;
+        },
+        write: function (table, data) {
+          return writeJsonRow(pool, table, data);
+        }
+      });
     }
 
     lastError = null;
@@ -152,7 +149,10 @@ async function connect() {
 }
 
 // 初始化只做一次；失败不缓存，下一次请求还能再试。
-function init() {
+// seed 是空库播种器（见 bootstrap.js），由 server.js 启动时递进来；
+// 记在模块状态里，自愈重建时 init() 不带参数也能重播。
+function init(seed) {
+  if (typeof seed === 'function') seedHook = seed;
   if (!ready) {
     ready = connect().catch(function (e) {
       ready = null;
@@ -189,64 +189,39 @@ function safeParse(text, fallback) {
   try { return JSON.parse(text); } catch (e) { return fallback; }
 }
 
-/* ---------------- 站点导航数据（首页 / 关于页） ----------------
-   整份 JSON 存在 site_nav 单行里：读回来就是前端直接用的那份结构，
-   不做字段级拆解，因此导入 / 导出 / 转换三条路径 round-trip 完全一致。
-   分组带 page 字段标明归属页面，格式升级（v1 只有首页）见 sitenav.upgrade。 */
+/* ---------------- 单行 JSON 表的通用读写 ----------------
+   site_nav 与 site_settings 是同一形状的两张表：整份 JSON 存在 id = 1 的单行里，
+   读回来就是前端直接用的那份结构，不做字段级拆解，
+   因此导入 / 导出 / 转换三条路径 round-trip 完全一致。
+   「数据长什么样」（规整 / 升级 / 默认值）是业务模块的事
+   （见 sitenav.js / settings.js 及 routes/site-nav.js），这里只管存取。 */
 
-async function loadSiteNav() {
-  const rows = await q('SELECT data FROM site_nav WHERE id = 1');
+async function loadJsonRow(table) {
+  const rows = await q('SELECT data FROM ?? WHERE id = 1', [table]);
   if (!rows.length) return null;
-
-  const d = safeParse(rows[0].data, null);
-  if (!d || !Array.isArray(d.groups)) return null;
-
-  // 老数据（v1 只有首页）顺手升级并落库一次，之后读到的就是当前格式
-  const up = sitenav.upgrade(d);
-  if (up.changed) {
-    await saveSiteNav(up.data);
-    console.log('已把 site_nav 里的老数据升级为多页面格式（首页 + 关于页）');
-  }
-  return up.data;
+  return safeParse(rows[0].data, null);
 }
 
 // 真正落库的那一段，直接拿连接用。
 // 不能走 q()/run()：初始化时 connect() 自己也要写这一行，而 run() 会 await init()，
 // 那个时刻 init() 返回的正是「正在跑的 connect」——自己等自己，直接死锁。
-async function writeSiteNav(conn, data) {
+async function writeJsonRow(conn, table, data) {
   await conn.query(
-    `INSERT INTO site_nav (id, data) VALUES (1, ?)
+    `INSERT INTO ?? (id, data) VALUES (1, ?)
      ON DUPLICATE KEY UPDATE data = VALUES(data)`,
-    [JSON.stringify(data)]
+    [table, JSON.stringify(data)]
   );
 }
 
-async function saveSiteNav(data) {
-  await run(function (p) { return writeSiteNav(p, data); });
+async function saveJsonRow(table, data) {
+  await run(function (p) { return writeJsonRow(p, table, data); });
 }
 
-/* ---------------- 站点全局设置 ----------------
-   同样整份 JSON 存单行；读回来是前端直接用的那份结构（见 settings.js 的 normalize）。 */
-
-async function loadSiteSettings() {
-  const rows = await q('SELECT data FROM site_settings WHERE id = 1');
-  if (!rows.length) return null;
-  const d = safeParse(rows[0].data, null);
-  return (d && typeof d === 'object') ? d : null;
-}
-
-// 与 writeSiteNav 同理：初始化时 connect() 自己也要写这一行，不能走 run()（会自等死锁）
-async function writeSiteSettings(conn, data) {
-  await conn.query(
-    `INSERT INTO site_settings (id, data) VALUES (1, ?)
-     ON DUPLICATE KEY UPDATE data = VALUES(data)`,
-    [JSON.stringify(data)]
-  );
-}
-
-async function saveSiteSettings(data) {
-  await run(function (p) { return writeSiteSettings(p, data); });
-}
+/* 业务表的薄封装：调用方（路由 / 播种器）不必记表名 */
+async function loadSiteNav() { return loadJsonRow('site_nav'); }
+async function saveSiteNav(data) { return saveJsonRow('site_nav', data); }
+async function loadSiteSettings() { return loadJsonRow('site_settings'); }
+async function saveSiteSettings(data) { return saveJsonRow('site_settings', data); }
 
 /* ---------------- 账号与会话 ---------------- */
 async function loadAccount() {
