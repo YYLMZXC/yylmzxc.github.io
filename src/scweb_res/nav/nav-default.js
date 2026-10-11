@@ -344,7 +344,15 @@ window.SITE_NAV_DEFAULT = {
           "title": "Blockbench 3D编辑器",
           "url": "https://web.blockbench.net/",
           "external": true
-        },
+        }
+      ]
+    },
+    {
+      "id": "about-mods",
+      "page": "about",
+      "key": "modNavigation",
+      "name": "🧩 mod导航",
+      "links": [
         {
           "id": "lmtwyavas4l30",
           "title": "yylmzxc_web",
