@@ -35,6 +35,7 @@ class NavPanel {
             '<button type="button" class="settings-btn" data-nav-act="import">导入 JSON</button>' +
             '<button type="button" class="settings-btn" data-nav-act="export">导出 JSON</button>' +
             '<button type="button" class="settings-btn" data-nav-act="convert">转换：数据库 → 静态文件</button>' +
+            '<button type="button" class="settings-btn" data-nav-act="convert-from">转换：静态文件 → 数据库</button>' +
             '<div class="settings-hint" data-nav-hint></div>');
 
         if (!this.group) return;
@@ -76,6 +77,7 @@ class NavPanel {
         // 导入与转换都要走写接口（未登录后端会 401）：除了后端在线还要求已登录
         this._btn('import').disabled = !canWrite || !this._loggedIn();
         this._btn('convert').disabled = !s.online || !this._loggedIn();
+        this._btn('convert-from').disabled = !s.online || !this._loggedIn();
 
         if (this.hintEl) {
             this.hintEl.textContent = this._hintText(s, canWrite);
@@ -96,8 +98,8 @@ class NavPanel {
         if (!this._loggedIn()) {
             return '转换、导入与编辑都需要登录：请在设置下拉的「账号」里登录后再操作。';
         }
-        return '数据库模式下可以直接编辑导航，改动即时写回 MySQL；「编辑导航」里可切换首页 / 关于页，' +
-            '转换会把两个页面的数据一起写入静态文件，供 web 模式使用。';
+        return '数据库模式下可以直接编辑导航，改动即时写回 MySQL；「编辑导航」里可切换首页 / 关于页。' +
+            '「→ 静态文件」把库里的数据固化给 web 模式，「→ 数据库」用静态文件覆盖库里的旧数据。';
     }
 
     _btn(act) {
@@ -118,6 +120,7 @@ class NavPanel {
         else if (act === 'import') this._pickFile();
         else if (act === 'export') this._export();
         else if (act === 'convert') this._convert(btn);
+        else if (act === 'convert-from') this._convertFromStatic(btn);
     }
 
     _openEditor() {
@@ -231,6 +234,36 @@ class NavPanel {
             const g = (r && r.groups) || stats.groups;
             const l = (r && r.links) || stats.links;
             SCUtils.toast('ok', '转换完成：已写入 ' + ((r && r.file) || NavStore.STATIC_SRC) + '（' + g + ' 组 / ' + l + ' 条链接）');
+        }).catch(e => {
+            SCUtils.toast('error', '转换失败：' + (e.message || '未知错误'));
+        }).then(() => {
+            this._busy(btn, false, '');
+            this.sync();
+        });
+    }
+
+    /** 反向转换：把静态文件（web 模式的数据源）导入数据库，覆盖库里的旧数据 */
+    _convertFromStatic(btn) {
+        if (!this._loggedIn()) {
+            SCUtils.toast('error', '请先在设置下拉的「账号」里登录，登录后才能转换');
+            return;
+        }
+
+        const staticStats = NavStore.count(NavStore.staticFile().groups);
+        const dbStats = this.store.statsAll();
+        const ok = window.confirm(
+            '将把静态文件 scweb_res/nav/nav-default.js 的导航数据写入数据库\n' +
+            '（' + staticStats.groups + ' 组 / ' + staticStats.links + ' 条链接），替换数据库中现有的\n' +
+            dbStats.groups + ' 组 / ' + dbStats.links + ' 条链接。\n\n' +
+            '数据库里的数据会被整份覆盖（适用于「数据库是旧的、web 模式数据较新」的情况），是否继续？'
+        );
+        if (!ok) return;
+
+        this._busy(btn, true, '转换中…');
+        this.store.convertFromStatic().then(r => {
+            const g = (r && r.groups) || staticStats.groups;
+            const l = (r && r.links) || staticStats.links;
+            SCUtils.toast('ok', '转换完成：已把 ' + NavStore.STATIC_SRC + ' 写入数据库（' + g + ' 组 / ' + l + ' 条链接）');
         }).catch(e => {
             SCUtils.toast('error', '转换失败：' + (e.message || '未知错误'));
         }).then(() => {

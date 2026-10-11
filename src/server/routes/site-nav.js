@@ -90,4 +90,32 @@ router.post('/to-static', async function (req, res) {
   }
 });
 
+// 静态前端 → 数据库：把 nav-default.js 的数据整份导入 site_nav 表（覆盖库里的旧数据）。
+// 空库播种只在表为空时发生，库里有旧数据时切换到 db 模式看到的仍是旧内容，
+// 这条接口就是给「web 模式的数据比数据库新」的场景一个手动搬移的入口。
+router.post('/from-static', async function (req, res) {
+  try {
+    const s = await requireLogin(req, res, '请先登录后再修改导航数据');
+    if (!s) { log.warn('POST /api/site-nav/from-static：未登录，已拒绝（来自 ' + clientIp(req) + '）'); return; }
+    const data = sitenav.normalize(sitenav.read());
+    if (!data || !Array.isArray(data.groups)) {
+      res.status(400).json({ ok: false, error: '静态数据文件不可用（scweb_res/nav/nav-default.js 缺失或格式不正确）' });
+      return;
+    }
+    await db.saveSiteNav(data);
+    let links = 0;
+    data.groups.forEach(function (g) { links += (g.links || []).length; });
+    log.info('已用静态文件覆盖数据库导航：' + sitenav.rel + ' → site_nav（' + data.groups.length + ' 组 / ' + links + ' 条链接，操作者：' + s.user + '）');
+    res.json({
+      ok: true,
+      file: sitenav.rel,
+      groups: data.groups.length,
+      links: links,
+      data: data   // 回传实际入库的数据，前端据此刷新页面与本地镜像
+    });
+  } catch (e) {
+    failDb(res, e, 'POST /api/site-nav/from-static');
+  }
+});
+
 module.exports = router;

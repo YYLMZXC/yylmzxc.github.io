@@ -249,6 +249,7 @@ server.js（组装根）── 挂路由 / 托管静态 / 加载 mod / 监听
 | GET | `/api/site-nav` | 读取导航数据 |
 | PUT | `/api/site-nav` | 保存导航数据（需登录） |
 | POST | `/api/site-nav/to-static` | 导出为 `src/scweb_res/nav/nav-default.js`（需登录） |
+| POST | `/api/site-nav/from-static` | 用静态文件覆盖数据库中的导航数据（需登录；库里有旧数据时用它搬回 web 模式的最新数据） |
 | GET | `/api/site-settings` | 读取全局站点设置 |
 | PUT | `/api/site-settings` | 保存全局站点设置（需登录） |
 | POST | `/api/login` | 登录 |

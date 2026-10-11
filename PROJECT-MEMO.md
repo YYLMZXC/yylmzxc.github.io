@@ -58,6 +58,8 @@ Windows 双击：`src/scripts/启动主页(带数据库).bat`；主页+导航站
 
 前端逻辑：连不上后端自动退回 web 模式；设置按 localStorage 缓存兜底。
 
+**坑：数据库比静态文件旧**。空库播种只在表为空时发生——库里已有旧数据时切到 db 模式看到的仍是旧内容（像「数据丢了」）。解法：⚙️ 设置 →「🧭 导航数据」→「转换：静态文件 → 数据库」（`POST /api/site-nav/from-static`，需登录），用 nav-default.js 覆盖库里的 site_nav。反方向是「转换：数据库 → 静态文件」（`to-static`）。
+
 ## 后端架构（src/server/，2026-10-11 重构后）
 
 依赖只朝一个方向流动，无循环依赖：
@@ -122,6 +124,6 @@ server.js（组装根）── 挂路由 / 托管静态 / 加载 mod / 监听
 - **域名直连**：默认关。要 Node 自己监听 80/443 时用环境变量 `SCWEB_DOMAIN_HTTP_PORT` / `SCWEB_DOMAIN_HTTPS_PORT` / `SCWEB_TLS_KEY` / `SCWEB_TLS_CERT` / `SCWEB_TLS_CHAIN`，或写 config.json 的 `server.domain` 段
 - **删库自愈**：运行中 DROP DATABASE 不用重启后端，下次请求自动重建 + 重播（代价：数据回静态文件那份）
 - **前端日志上报**：浏览器 console 可 POST 到 `/api/client-log` 转手打进后端控制台，排查用户问题不用截图
-- **后端接口清单**：见 `README.md` 的「🔌 后端接口」表（/api/health、/api/mods、/api/site-nav(±to-static)、/api/site-settings、/api/login、/api/session、/api/logout、/api/account、/api/clientinfo、/api/client-log）
+- **后端接口清单**：见 `README.md` 的「🔌 后端接口」表（/api/health、/api/mods、/api/site-nav(±to-static、+from-static)、/api/site-settings、/api/login、/api/session、/api/logout、/api/account、/api/clientinfo、/api/client-log）
 - **BGM**：新专辑放 `src/bgm/专辑名/`，跑 `node src/tools/bgm-scan.mjs` 重新生成清单
 - **部署**：GitHub Actions 发 GitHub Pages 时会剔除 `server/`、`key/`（见 `.github/workflows/static.yml`）

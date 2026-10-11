@@ -1,7 +1,7 @@
 /**
  * 生存战争网 - 首页「社区导航」数据接口
  * 所有与后端打交道的 HTTP 都收在这里：
- *   /api/site-nav（读写）、/api/site-nav/to-static（转换），
+ *   /api/site-nav（读写）、/api/site-nav/to-static 与 /from-static（双向转换），
  *   以及账号相关的 /api/login、/api/session、/api/logout、/api/account。
  * 只回答「请求 → 数据 / 错误」，不持有任何应用状态。
  *
@@ -108,6 +108,15 @@ class NavApi {
     static exportStatic(data) {
         const payload = (data && Array.isArray(data.groups)) ? { data: data } : {};
         return NavApi.send(NavApi.path('/site-nav/to-static'), 'POST', payload);
+    }
+
+    /**
+     * 把静态数据文件导入数据库（覆盖 site_nav 表），
+     * 即「转换：web 模式 → 数据库」。用于数据库里是旧数据、
+     * 静态文件比它新的场景（空库播种只在表为空时发生，不会自动覆盖）。
+     */
+    static importStatic() {
+        return NavApi.send(NavApi.path('/site-nav/from-static'), 'POST', {});
     }
 
     /* ---------------- 账号 ----------------

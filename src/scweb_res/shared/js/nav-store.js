@@ -679,6 +679,27 @@ class NavStore {
             return r;
         });
     }
+
+    /**
+     * 转换：静态文件 → 数据库（覆盖 site_nav 表里的旧数据）。
+     * 空库播种只在表为空时发生：库里有旧数据时切到 db 模式看到的仍是旧内容，
+     * 这条路径就是「web 模式的数据比数据库新」时的手动搬移入口。
+     * 先等写回队列排空，避免与编辑器里的改动互相覆盖。
+     * @returns {Promise<Object>} 后端回包（含 file / groups / links / data）
+     */
+    convertFromStatic() {
+        return this._channel.then(() => this.api.importStatic()).then(r => {
+            this.setOnline(true);
+            this.state.lastError = null;
+            // 数据库现在就是静态文件这一份：页面与断网镜像都跟着刷新
+            if (r && r.data) {
+                this._write(this._KEYS.dbCache, JSON.stringify(r.data));
+                this.setData(r.data);
+            }
+            this.emit({ type: 'static', ok: true, result: r });
+            return r;
+        });
+    }
 }
 
 NavStore.STATIC_SRC = 'scweb_res/nav/nav-default.js';
