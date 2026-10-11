@@ -1,7 +1,7 @@
 /**
  * 生存战争网 - 设置管理器（⚙️ 设置下拉）
  *
- * 七项站点设置：启用 BGM / 自动播放 / 看板娘 / 默认主题 / 导航数据来源 / 短网址 / 版权年份，外加一个「个人 / 全局」模式开关。
+ * 八项站点设置：启用 BGM / 自动播放 / 看板娘 / 默认主题 / 显示模式 / 导航数据来源 / 短网址 / 版权年份，外加一个「个人 / 全局」模式开关。
  *   个人模式 —— 改动只写本机 localStorage，不写数据库；
  *   全局模式 —— 改动写入数据库（需登录），对所有访客生效。
  * 其中「短网址 / 版权年份」是站点展示信息，只有全局一份（个人模式下不可编辑）。
@@ -58,6 +58,7 @@ class SettingsManager {
                 bgmAutoPlay: SettingsStore.getBgmAutoPlay(),
                 live2dEnabled: SettingsStore.getLive2dEnabled(),
                 defaultTheme: SettingsStore.getDefaultTheme(),
+                displayMode: SettingsStore.getDisplayMode(),
                 navMode: SettingsStore.getNavMode()
             });
         }
@@ -107,6 +108,17 @@ class SettingsManager {
                     '</div>' +
                     '<div class="settings-divider"></div>' +
                     '<div class="settings-group">' +
+                        '<div class="settings-label">🖼️ 显示模式</div>' +
+                        '<label class="settings-row">' +
+                            '<span>站点默认</span>' +
+                            '<select class="settings-select" data-setting="displayMode">' +
+                                this._options('displayMode') +
+                            '</select>' +
+                        '</label>' +
+                        '<div class="settings-hint">完整模式照常显示 BGM 播放器与看板娘；简洁模式隐藏这些装饰浮层，只保留核心内容。改动刷新页面后生效。</div>' +
+                    '</div>' +
+                    '<div class="settings-divider"></div>' +
+                    '<div class="settings-group">' +
                         '<div class="settings-label">🧭 导航数据来源</div>' +
                         '<label class="settings-row">' +
                             '<span>站点默认</span>' +
@@ -147,13 +159,15 @@ class SettingsManager {
     }
 
     /**
-     * 生成下拉选项：取值与文案都来自 site-constants.js，增设主题 / 来源时这里不用改
-     * @param {'theme'|'navMode'} kind
+     * 生成下拉选项：取值与文案都来自 site-constants.js，增设主题 / 来源 / 显示模式时这里不用改
+     * @param {'theme'|'navMode'|'displayMode'} kind
      * @returns {string} <option> 串
      */
     _options(kind) {
         var C = window.SITE_CONSTANTS || {};
-        var list = (kind === 'theme' ? C.themes : C.navModes) || [];
+        var list = (kind === 'theme' ? C.themes
+            : kind === 'displayMode' ? C.displayModes
+            : C.navModes) || [];
         return list.map(function (o) {
             return '<option value="' + o.id + '">' + o.icon + ' ' + o.name + '</option>';
         }).join('');
@@ -230,6 +244,12 @@ class SettingsManager {
         if (sel) {
             sel.value = (store ? store.display('defaultTheme') : SettingsStore.getDefaultTheme()) || SettingsStore.FALLBACK_THEME;
             sel.disabled = !editable;
+        }
+
+        const displaySel = this._control('displayMode');
+        if (displaySel) {
+            displaySel.value = (store ? store.display('displayMode') : SettingsStore.getDisplayMode()) || SettingsStore.FALLBACK_DISPLAY_MODE;
+            displaySel.disabled = !editable;
         }
 
         const navSel = this._control('navMode');
@@ -352,6 +372,7 @@ class SettingsManager {
             return;
         }
 
+        // 显示模式（displayMode）与 BGM / 看板娘一样在初始化时读取，刷新页面生效
         location.reload();
     }
 

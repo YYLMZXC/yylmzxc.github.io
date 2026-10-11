@@ -261,10 +261,12 @@ const Live2DInit = (function () {
     var S = window.SettingsStore;
     var _live2dCfg = (window.SITE_CONFIG && window.SITE_CONFIG.live2d) || {};
     var enabled = S ? S.getLive2dEnabled() : _legacy('live2d_enabled', _live2dCfg.enabled !== false);
+    // 简洁模式下不加载看板娘，页面只保留核心内容
+    var concise = S ? S.isConciseMode() : false;
 
-    if (enabled) {
+    if (enabled && !concise) {
         Live2DInit.boot();
     } else {
-        console.log('[Live2D] 已禁用 (个人偏好 / 全局设置 / site-config.js live2d.enabled = false)');
+        console.log('[Live2D] 已禁用 (个人偏好 / 全局设置 / 显示模式=简洁 / site-config.js live2d.enabled = false)');
     }
 })();

@@ -1,7 +1,7 @@
 /**
  * 生存战争网 - 站点全局设置数据层
  *
- * 七项站点设置：启用 BGM / 自动播放 / 看板娘 / 默认主题 / 导航数据来源 / 短网址 / 版权年份。
+ * 八项站点设置：启用 BGM / 自动播放 / 看板娘 / 默认主题 / 显示模式 / 导航数据来源 / 短网址 / 版权年份。
  * 其中「短网址 / 版权年份」是站点展示信息，只有全局一份（没有个人覆盖），
  * 改动写入数据库后页脚实时刷新，无需重载页面。
  *
@@ -94,12 +94,25 @@ class SettingsStore {
         return (window.SITE_CONSTANTS && window.SITE_CONSTANTS.fallbackNavMode) || 'web';
     }
 
+    // 界面显示模式：'full' 完整（默认）/ 'concise' 简洁（隐藏 BGM 播放器与看板娘）
+    static get DISPLAY_MODES() {
+        return (window.SITE_CONSTANTS && window.SITE_CONSTANTS.displayModeIds) || [];
+    }
+
+    static get FALLBACK_DISPLAY_MODE() {
+        return (window.SITE_CONSTANTS && window.SITE_CONSTANTS.fallbackDisplayMode) || 'full';
+    }
+
     static isValidTheme(t) {
         return SettingsStore.THEMES.indexOf(String(t)) >= 0;
     }
 
     static isValidNavMode(m) {
         return SettingsStore.NAV_MODES.indexOf(String(m)) >= 0;
+    }
+
+    static isValidDisplayMode(m) {
+        return SettingsStore.DISPLAY_MODES.indexOf(String(m)) >= 0;
     }
 
     /** site-config.js 里的出厂默认（本模块的最终回退） */
@@ -114,6 +127,7 @@ class SettingsStore {
             bgmAutoPlay: bgm.autoPlay !== false,
             live2dEnabled: live2d.enabled !== false,
             defaultTheme: SettingsStore.isValidTheme(c.defaultTheme) ? String(c.defaultTheme) : SettingsStore.FALLBACK_THEME,
+            displayMode: SettingsStore.isValidDisplayMode(c.displayMode) ? String(c.displayMode) : SettingsStore.FALLBACK_DISPLAY_MODE,
             navMode: SettingsStore.isValidNavMode(nav.mode) ? String(nav.mode) : SettingsStore.FALLBACK_NAV_MODE,
             shortUrl: SettingsStore.normShortUrl(site.shortUrl),
             copyrightYear: SettingsStore.normCopyrightYear(site.copyrightYear)
@@ -143,6 +157,7 @@ class SettingsStore {
             bgmAutoPlay: typeof c.bgmAutoPlay === 'boolean' ? c.bgmAutoPlay : d.bgmAutoPlay,
             live2dEnabled: typeof c.live2dEnabled === 'boolean' ? c.live2dEnabled : d.live2dEnabled,
             defaultTheme: SettingsStore.isValidTheme(c.defaultTheme) ? String(c.defaultTheme) : d.defaultTheme,
+            displayMode: SettingsStore.isValidDisplayMode(c.displayMode) ? String(c.displayMode) : d.displayMode,
             navMode: SettingsStore.isValidNavMode(c.navMode) ? String(c.navMode) : d.navMode,
             shortUrl: SettingsStore.normShortUrl(c.shortUrl || d.shortUrl),
             copyrightYear: SettingsStore.normCopyrightYear(c.copyrightYear || d.copyrightYear)
@@ -157,6 +172,7 @@ class SettingsStore {
         if (typeof o.bgmAutoPlay === 'boolean') p.bgmAutoPlay = o.bgmAutoPlay;
         if (typeof o.live2dEnabled === 'boolean') p.live2dEnabled = o.live2dEnabled;
         if (SettingsStore.isValidNavMode(o.navMode)) p.navMode = String(o.navMode);
+        if (SettingsStore.isValidDisplayMode(o.displayMode)) p.displayMode = String(o.displayMode);
 
         const t = SettingsStore._read(SettingsStore.THEME_KEY);
         if (SettingsStore.isValidTheme(t)) p.defaultTheme = String(t);
@@ -175,18 +191,22 @@ class SettingsStore {
     static getLive2dEnabled() { return !!SettingsStore.effective('live2dEnabled'); }
     static getDefaultTheme() { return String(SettingsStore.effective('defaultTheme')); }
     static getNavMode() { return String(SettingsStore.effective('navMode') || SettingsStore.FALLBACK_NAV_MODE); }
+    static getDisplayMode() { return String(SettingsStore.effective('displayMode') || SettingsStore.FALLBACK_DISPLAY_MODE); }
+    /** 是否简洁模式：隐藏 BGM 播放器 / 看板娘等装饰浮层，只保留核心内容 */
+    static isConciseMode() { return SettingsStore.getDisplayMode() === 'concise'; }
     /** 站点短网址（页脚显示），没有设置层时由调用方兜底 */
     static getShortUrl() { return SettingsStore.normShortUrl(SettingsStore.effective('shortUrl')); }
     /** 版权年份（页脚显示），没有设置层时由调用方兜底 */
     static getCopyrightYear() { return SettingsStore.normCopyrightYear(SettingsStore.effective('copyrightYear')); }
 
-    /** 五项生效值的指纹，用来判断「这次读回的设置是否与页面已用的一致」 */
+    /** 生效值的指纹，用来判断「这次读回的设置是否与页面已用的一致」 */
     static signature() {
         return JSON.stringify([
             SettingsStore.effective('bgmEnabled'),
             SettingsStore.effective('bgmAutoPlay'),
             SettingsStore.effective('live2dEnabled'),
             SettingsStore.effective('defaultTheme'),
+            SettingsStore.effective('displayMode'),
             SettingsStore.effective('navMode')
         ]);
     }
@@ -200,6 +220,7 @@ class SettingsStore {
             bgmAutoPlay: typeof o.bgmAutoPlay === 'boolean' ? o.bgmAutoPlay : d.bgmAutoPlay,
             live2dEnabled: typeof o.live2dEnabled === 'boolean' ? o.live2dEnabled : d.live2dEnabled,
             defaultTheme: SettingsStore.isValidTheme(o.defaultTheme) ? String(o.defaultTheme) : d.defaultTheme,
+            displayMode: SettingsStore.isValidDisplayMode(o.displayMode) ? String(o.displayMode) : d.displayMode,
             navMode: SettingsStore.isValidNavMode(o.navMode) ? String(o.navMode) : d.navMode,
             shortUrl: SettingsStore.normShortUrl(o.shortUrl || d.shortUrl),
             copyrightYear: SettingsStore.normCopyrightYear(o.copyrightYear || d.copyrightYear)
@@ -410,6 +431,9 @@ class SettingsStore {
         });
         if (patch.navMode !== undefined) {
             map.navMode = SettingsStore.isValidNavMode(patch.navMode) ? String(patch.navMode) : SettingsStore.FALLBACK_NAV_MODE;
+        }
+        if (patch.displayMode !== undefined) {
+            map.displayMode = SettingsStore.isValidDisplayMode(patch.displayMode) ? String(patch.displayMode) : SettingsStore.FALLBACK_DISPLAY_MODE;
         }
         SettingsStore._write(SettingsStore.KEYS.personal, JSON.stringify(map));
 

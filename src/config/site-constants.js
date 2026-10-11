@@ -29,6 +29,13 @@
         { id: 'db',  icon: '🗄️', name: '数据库' }
     ];
 
+    // 界面显示模式表，同上：完整模式照常显示全部装饰（BGM 播放器 / 看板娘），
+    // 简洁模式隐藏这些浮层，只保留核心导航内容
+    var DISPLAY_MODES = [
+        { id: 'full',    icon: '🖼️', name: '完整模式' },
+        { id: 'concise', icon: '🧹', name: '简洁模式' }
+    ];
+
     var CONSTANTS = {
         // 主题：themes 供界面渲染，themeIds 供校验（前后端同用）
         themes: THEMES,
@@ -39,6 +46,11 @@
         navModes: NAV_MODES,
         navModeIds: NAV_MODES.map(function (m) { return m.id; }),
         fallbackNavMode: 'web',
+
+        // 界面显示模式：displayModes 供界面渲染，displayModeIds 供校验
+        displayModes: DISPLAY_MODES,
+        displayModeIds: DISPLAY_MODES.map(function (m) { return m.id; }),
+        fallbackDisplayMode: 'full',
 
         // 页面身份：id 用于数据归属与校验，name 用于界面标签（导航编辑器的页签）
         pages: [

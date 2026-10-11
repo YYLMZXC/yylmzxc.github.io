@@ -1,6 +1,6 @@
 /* ============================================================
    生存战争网 · 站点全局设置的静态默认值
-   七项全局设置（启用 BGM / 自动播放 / 看板娘 / 默认主题 / 导航数据来源 / 短网址 / 版权年份）落库在 site_settings 表，
+   八项全局设置（启用 BGM / 自动播放 / 看板娘 / 默认主题 / 显示模式 / 导航数据来源 / 短网址 / 版权年份）落库在 site_settings 表，
    数据库为空（首次启动）时用这里的默认值填充。
 
    默认值与 site-config.js 同源：这里直接解析那份文件里的 window.SITE_CONFIG，
@@ -28,6 +28,10 @@ const FALLBACK_THEME = SITE_CONSTANTS.fallbackTheme;
 const NAV_MODES = SITE_CONSTANTS.navModeIds;
 const FALLBACK_NAV_MODE = SITE_CONSTANTS.fallbackNavMode;
 
+// 界面显示模式：full 完整（默认）/ concise 简洁（隐藏 BGM 播放器与看板娘）
+const DISPLAY_MODES = SITE_CONSTANTS.displayModeIds;
+const FALLBACK_DISPLAY_MODE = SITE_CONSTANTS.fallbackDisplayMode;
+
 // 读取 site-config.js 里的 window.SITE_CONFIG
 function siteConfig() {
   if (!fs.existsSync(FILE)) return {};
@@ -44,6 +48,11 @@ function normalizeTheme(t) {
 function normalizeNavMode(m) {
   const v = String(m || '');
   return NAV_MODES.indexOf(v) >= 0 ? v : FALLBACK_NAV_MODE;
+}
+
+function normalizeDisplayMode(m) {
+  const v = String(m || '');
+  return DISPLAY_MODES.indexOf(v) >= 0 ? v : FALLBACK_DISPLAY_MODE;
 }
 
 // 短网址：页脚「短网址：」后显示的地址。可只写域名（自动补 https://），也可写完整 URL
@@ -70,6 +79,7 @@ function defaults() {
     bgmAutoPlay: bgm.autoPlay !== false,
     live2dEnabled: live2d.enabled !== false,
     defaultTheme: normalizeTheme(c.defaultTheme),
+    displayMode: normalizeDisplayMode(c.displayMode),
     navMode: normalizeNavMode(nav.mode),
     shortUrl: normalizeShortUrl(site.shortUrl),
     copyrightYear: normalizeCopyrightYear(site.copyrightYear)
@@ -89,6 +99,7 @@ function normalize(input) {
     bgmAutoPlay: bool(o.bgmAutoPlay, d.bgmAutoPlay),
     live2dEnabled: bool(o.live2dEnabled, d.live2dEnabled),
     defaultTheme: normalizeTheme(o.defaultTheme || d.defaultTheme),
+    displayMode: normalizeDisplayMode(o.displayMode || d.displayMode),
     navMode: normalizeNavMode(o.navMode || d.navMode),
     shortUrl: normalizeShortUrl(o.shortUrl || d.shortUrl),
     copyrightYear: normalizeCopyrightYear(o.copyrightYear || d.copyrightYear)
@@ -101,6 +112,7 @@ module.exports = {
   root: WEB_ROOT,
   themes: THEMES,
   navModes: NAV_MODES,
+  displayModes: DISPLAY_MODES,
   defaults: defaults,
   normalize: normalize
 };
