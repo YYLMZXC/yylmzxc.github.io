@@ -124,6 +124,14 @@ class OnlineServerManager {
         const dropdown = document.getElementById('versionManageDropdown');
         if (dropdown && this.app.dropdownManager) {
             this.app.dropdownManager.register('versionManageDropdown', dropdown, '#versionManageToggle');
+
+            // ✏️ 按钮负责展开/收起（DropdownManager 只提供互斥，不代绑开关点击）
+            const toggleBtn = document.getElementById('versionManageToggle');
+            if (toggleBtn) {
+                toggleBtn.addEventListener('click', () => {
+                    this.app.dropdownManager.toggle('versionManageDropdown');
+                });
+            }
         }
 
         this.updateVersionManageTexts();
