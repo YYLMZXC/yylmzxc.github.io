@@ -18,17 +18,31 @@ const UPSTREAM_TIMEOUT_MS = 15000;
 
 const router = express.Router();
 
-router.get('/serverlist', function (req, res) {
-  // version 是透传给上游的 ?version= 参数（tb_version.name），
-  // 上游对未知版本返回空列表，属于正常业务结果，这里不做校验
-  const version = String(req.query.version || '').trim();
-  const path = version
+/**
+ * 构建上游请求路径（纯函数：version 只透传，未知版本上游返回空列表属正常业务）
+ * @param {string} version - 前端传来的版本号（tb_version.name，可空）
+ * @returns {string} 上游路径（含查询串）
+ */
+function upstreamPath(version) {
+  return version
     ? UPSTREAM_PATH + '?version=' + encodeURIComponent(version)
     : UPSTREAM_PATH;
+}
 
+/**
+ * 统一的错误出口：格式、状态码、no-store 只在这一处定义
+ * @param {Object} res - Express 响应
+ * @param {string} msg - 人类可读的错误说明
+ */
+function sendUpstreamError(res, msg) {
+  res.set('Cache-Control', 'no-store');
+  res.status(502).json({ success: false, msg: msg, code: 502 });
+}
+
+router.get('/serverlist', function (req, res) {
   const upstream = https.request({
     hostname: UPSTREAM_HOST,
-    path: path,
+    path: upstreamPath(String(req.query.version || '').trim()),
     method: 'GET',
     timeout: UPSTREAM_TIMEOUT_MS,
     headers: {
@@ -38,8 +52,7 @@ router.get('/serverlist', function (req, res) {
   }, function (up) {
     if (up.statusCode !== 200) {
       up.resume();
-      res.set('Cache-Control', 'no-store');
-      res.status(502).json({ success: false, msg: '上游接口返回 ' + up.statusCode, code: 502 });
+      sendUpstreamError(res, '上游接口返回 ' + up.statusCode);
       return;
     }
 
@@ -54,7 +67,7 @@ router.get('/serverlist', function (req, res) {
       if (parsed !== null) {
         res.json(parsed);
       } else {
-        res.status(502).json({ success: false, msg: '上游返回的不是 JSON', code: 502 });
+        sendUpstreamError(res, '上游返回的不是 JSON');
       }
     });
   });
@@ -63,8 +76,7 @@ router.get('/serverlist', function (req, res) {
     upstream.destroy(new Error('timeout'));
   });
   upstream.on('error', function (e) {
-    res.set('Cache-Control', 'no-store');
-    res.status(502).json({ success: false, msg: '上游请求失败：' + e.message, code: 502 });
+    sendUpstreamError(res, '上游请求失败：' + e.message);
   });
   upstream.end();
 });
