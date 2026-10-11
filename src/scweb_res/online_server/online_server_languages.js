@@ -97,7 +97,7 @@ const ServerLanguageConfig = {
                 group4: '点击加入discord频道'
             },
             siteInfo: {
-                currentAddress: '本站地址：',
+                currentAddress: '当前访问地址：',
                 shortUrl: '短网址：'
             },
             footer: '© 2026 生存战争网'
@@ -172,7 +172,7 @@ const ServerLanguageConfig = {
                 group4: 'Click to join the discord channel'
             },
             siteInfo: {
-                currentAddress: 'Site Address: ',
+                currentAddress: 'Current Address: ',
                 shortUrl: 'Short URL: '
             },
             footer: '© 2026 SurvivalCraft Web'
@@ -247,7 +247,7 @@ const ServerLanguageConfig = {
                 group4: 'Присоединиться к каналу discord'
             },
             siteInfo: {
-                currentAddress: 'Адрес Сайта: ',
+                currentAddress: 'Текущий адрес: ',
                 shortUrl: 'Короткий URL: '
             },
             footer: '© 2026 SurvivalCraft Web'
@@ -322,7 +322,7 @@ const ServerLanguageConfig = {
                 group4: 'Haz clic para unirte al canal de discord'
             },
             siteInfo: {
-                currentAddress: 'Dirección del Sitio: ',
+                currentAddress: 'Dirección actual: ',
                 shortUrl: 'URL Corta: '
             },
             footer: '© 2026 SurvivalCraft Web'

@@ -50,7 +50,7 @@ class SiteInfoManager {
 
         const prefix = translations && translations.siteInfo && translations.siteInfo.currentAddress
             ? translations.siteInfo.currentAddress
-            : (translations && translations.site ? translations.site.currentAddress : '本站地址：');
+            : (translations && translations.site ? translations.site.currentAddress : '当前访问地址：');
 
         currentAddressEl.textContent = prefix + currentUrl;
     }
@@ -69,9 +69,7 @@ class SiteInfoManager {
 
         let html = prefix;
         this.shortUrls.forEach((site) => {
-            html += `<br><a href="${site.url}" target="_blank" rel="noopener">
-                ${site.name} <span class="site-info-short-url">${site.url}</span>
-            </a>`;
+            html += ` <a href="${site.url}" target="_blank" rel="noopener">${site.name}</a>`;
         });
 
         shortUrlEl.innerHTML = html;

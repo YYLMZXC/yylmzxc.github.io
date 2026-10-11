@@ -34,7 +34,7 @@ const SiteLanguageConfig = {
                 serverList: '联机服务器列表'
             },
             site: {
-                currentAddress: '本站地址：',
+                currentAddress: '当前访问地址：',
                 shortUrl: '短网址：',
                 shortUrl2: '短网址2：',
                 shortUrl3: '短网址3：'
@@ -59,7 +59,7 @@ const SiteLanguageConfig = {
                 serverList: 'Server List'
             },
             site: {
-                currentAddress: 'Site Address: ',
+                currentAddress: 'Current Address: ',
                 shortUrl: 'Short URL: ',
                 shortUrl2: 'Short URL 2: ',
                 shortUrl3: 'Short URL 3: '
@@ -84,7 +84,7 @@ const SiteLanguageConfig = {
                 serverList: 'Список Серверов'
             },
             site: {
-                currentAddress: 'Адрес Сайта: ',
+                currentAddress: 'Текущий адрес: ',
                 shortUrl: 'Короткий URL: ',
                 shortUrl2: 'Короткий URL 2: ',
                 shortUrl3: 'Короткий URL 3: '
@@ -109,7 +109,7 @@ const SiteLanguageConfig = {
                 serverList: 'Lista de Servidores'
             },
             site: {
-                currentAddress: 'Dirección del Sitio: ',
+                currentAddress: 'Dirección actual: ',
                 shortUrl: 'URL Corta: ',
                 shortUrl2: 'URL Corta 2: ',
                 shortUrl3: 'URL Corta 3: '
