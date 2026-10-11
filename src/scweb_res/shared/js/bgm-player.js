@@ -611,7 +611,8 @@ var BgmPlayer = (function () {
         var _bgmCfg = (window.SITE_CONFIG && window.SITE_CONFIG.bgm) || {};
 
         if (!(S ? S.getBgmEnabled() : _legacy('bgm_enabled', _bgmCfg.enabled !== false))) return;   // BGM 已禁用
-        if (S && S.isConciseMode()) return;   // 简洁模式：隐藏播放器浮层（含 FAB 按钮与面板）
+        // 简洁模式且开启锁定：不创建播放器（含 FAB 按钮与面板）；想用请切回完整模式或关闭锁定
+        if (S && S.isConciseMode() && S.getConciseLock()) return;
         var autoPlay = S ? S.getBgmAutoPlay() : _legacy('bgm_autoplay', _bgmCfg.autoPlay !== false);
 
         /* 1. 创建 DOM */

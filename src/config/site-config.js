@@ -12,6 +12,7 @@
  *   live2d.enabled — 是否加载看板娘（关闭后不加载任何 Live2D 资源）
  *   defaultTheme   — 站点默认主题：light / dark / wk-light / wk-dark
  *   displayMode    — 界面显示模式：'full'（完整，默认）/ 'concise'（简洁，隐藏 BGM 播放器与看板娘）
+ *   conciseLock    — 简洁模式锁定：true（默认，简洁模式下 BGM / 看板娘开关不可用）/ false（不锁定）
  *   nav.mode       — 导航数据来源：'web'（静态文件，默认）/ 'db'（数据库）
  *   site.shortUrl      — 页脚「短网址」显示的地址
  *   site.copyrightYear — 页脚版权「© 年份」显示的年份
@@ -26,6 +27,7 @@ window.SITE_CONFIG = {
     },
     defaultTheme: 'wk-light',   // 未个人选过主题的访客使用它
     displayMode: 'full',   // 界面显示模式：full（完整，含 BGM 播放器 / 看板娘）/ concise（简洁，隐藏装饰浮层）
+    conciseLock: true,   // 简洁模式锁定：开启时简洁模式下「BGM / 看板娘」开关不可用，切回完整模式才能开启
     nav: {
         mode: 'web',   // 未个人选过来源的访客读它：静态文件不用后端也能显示，故为默认
     },

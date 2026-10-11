@@ -1,7 +1,7 @@
 /**
  * 生存战争网 - 设置管理器（⚙️ 设置下拉）
  *
- * 八项站点设置：启用 BGM / 自动播放 / 看板娘 / 默认主题 / 显示模式 / 导航数据来源 / 短网址 / 版权年份，外加一个「个人 / 全局」模式开关。
+ * 九项站点设置：启用 BGM / 自动播放 / 看板娘 / 默认主题 / 显示模式 / 简洁锁定 / 导航数据来源 / 短网址 / 版权年份，外加一个「个人 / 全局」模式开关。
  *   个人模式 —— 改动只写本机 localStorage，不写数据库；
  *   全局模式 —— 改动写入数据库（需登录），对所有访客生效。
  * 其中「短网址 / 版权年份」是站点展示信息，只有全局一份（个人模式下不可编辑）。
@@ -115,7 +115,11 @@ class SettingsManager {
                                 this._options('displayMode') +
                             '</select>' +
                         '</label>' +
-                        '<div class="settings-hint">完整模式照常显示 BGM 播放器、看板娘与全部导航；简洁模式隐藏这些装饰浮层与「可能过时导航」，只保留核心内容。改动刷新页面后生效。</div>' +
+                        '<label class="settings-row settings-sub">' +
+                            '<span>锁定 BGM / 看板娘</span>' +
+                            '<input type="checkbox" class="settings-switch" data-setting="conciseLock">' +
+                        '</label>' +
+                        '<div class="settings-hint">完整模式照常显示 BGM 播放器、看板娘与全部导航；简洁模式隐藏装饰浮层与「可能过时导航」。锁定打开时，简洁模式下「BGM / 看板娘」开关不可用，切回完整模式或关闭锁定才能开启。改动刷新页面后生效。</div>' +
                     '</div>' +
                     '<div class="settings-divider"></div>' +
                     '<div class="settings-group">' +
@@ -233,12 +237,21 @@ class SettingsManager {
             modeBtn.disabled = (mode === 'personal') && (!online || !this._loggedIn());
         }
 
+        // 简洁模式 + 锁定：装饰开关（BGM / 看板娘）不可用，切回完整模式或关掉锁定才能改
+        const conciseLockOn = this._conciseLocked();
+
         ['bgmEnabled', 'bgmAutoPlay', 'live2dEnabled'].forEach(key => {
             const el = this._control(key);
             if (!el) return;
             el.checked = !!(store ? store.display(key) : SettingsStore.effective(key));
-            el.disabled = !editable;
+            el.disabled = !editable || conciseLockOn;
         });
+
+        const lockEl = this._control('conciseLock');
+        if (lockEl) {
+            lockEl.checked = !!(store ? store.display('conciseLock') : SettingsStore.getConciseLock());
+            lockEl.disabled = !editable;
+        }
 
         const sel = this._control('defaultTheme');
         if (sel) {
@@ -269,18 +282,32 @@ class SettingsManager {
         if (this.hintEl) this.hintEl.textContent = this._hintText(mode, online);
     }
 
+    /** 当前面板显示的状态下，简洁模式是否锁定了「BGM / 看板娘」开关 */
+    _conciseLocked() {
+        const store = this.store;
+        const dm = String(store ? store.display('displayMode') : SettingsStore.getDisplayMode());
+        const lock = store ? store.display('conciseLock') : SettingsStore.getConciseLock();
+        return dm === 'concise' && lock !== false;
+    }
+
     _hintText(mode, online) {
         const store = this.store;
         if (store && store.state.lastError) {
             const e = store.state.lastError;
             return e.label + '：' + e.reason + (e.hint ? '（' + e.hint + '）' : '');
         }
+        let text;
         if (mode === 'global') {
-            if (!online) return '当前未连上后端，暂时只能看上次缓存的全局设置。';
-            if (!this._loggedIn()) return '全局设置写入数据库，需要登录后才能修改：请在「账号」里登录。';
-            return '这里的值会写入数据库，作为所有访客的默认（访客在本机改过的仍以本机为准）。';
+            if (!online) text = '当前未连上后端，暂时只能看上次缓存的全局设置。';
+            else if (!this._loggedIn()) text = '全局设置写入数据库，需要登录后才能修改：请在「账号」里登录。';
+            else text = '这里的值会写入数据库，作为所有访客的默认（访客在本机改过的仍以本机为准）。';
+        } else {
+            text = '个人模式下只改本机；切到全局模式并登录后可修改站点默认值。BGM 与看板娘改动需要刷新页面生效。';
         }
-        return '个人模式下只改本机；切到全局模式并登录后可修改站点默认值。BGM 与看板娘改动需要刷新页面生效。';
+        if (this._conciseLocked()) {
+            text += '简洁模式已锁定「BGM / 看板娘」：切回完整模式或关闭锁定后才能开启。';
+        }
+        return text;
     }
 
     _btn(act) {

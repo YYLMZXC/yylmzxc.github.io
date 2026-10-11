@@ -1,7 +1,7 @@
 /**
  * 生存战争网 - 站点全局设置数据层
  *
- * 八项站点设置：启用 BGM / 自动播放 / 看板娘 / 默认主题 / 显示模式 / 导航数据来源 / 短网址 / 版权年份。
+ * 九项站点设置：启用 BGM / 自动播放 / 看板娘 / 默认主题 / 显示模式 / 简洁锁定 / 导航数据来源 / 短网址 / 版权年份。
  * 其中「短网址 / 版权年份」是站点展示信息，只有全局一份（没有个人覆盖），
  * 改动写入数据库后页脚实时刷新，无需重载页面。
  *
@@ -128,6 +128,7 @@ class SettingsStore {
             live2dEnabled: live2d.enabled !== false,
             defaultTheme: SettingsStore.isValidTheme(c.defaultTheme) ? String(c.defaultTheme) : SettingsStore.FALLBACK_THEME,
             displayMode: SettingsStore.isValidDisplayMode(c.displayMode) ? String(c.displayMode) : SettingsStore.FALLBACK_DISPLAY_MODE,
+            conciseLock: c.conciseLock !== false,
             navMode: SettingsStore.isValidNavMode(nav.mode) ? String(nav.mode) : SettingsStore.FALLBACK_NAV_MODE,
             shortUrl: SettingsStore.normShortUrl(site.shortUrl),
             copyrightYear: SettingsStore.normCopyrightYear(site.copyrightYear)
@@ -158,6 +159,7 @@ class SettingsStore {
             live2dEnabled: typeof c.live2dEnabled === 'boolean' ? c.live2dEnabled : d.live2dEnabled,
             defaultTheme: SettingsStore.isValidTheme(c.defaultTheme) ? String(c.defaultTheme) : d.defaultTheme,
             displayMode: SettingsStore.isValidDisplayMode(c.displayMode) ? String(c.displayMode) : d.displayMode,
+            conciseLock: typeof c.conciseLock === 'boolean' ? c.conciseLock : d.conciseLock,
             navMode: SettingsStore.isValidNavMode(c.navMode) ? String(c.navMode) : d.navMode,
             shortUrl: SettingsStore.normShortUrl(c.shortUrl || d.shortUrl),
             copyrightYear: SettingsStore.normCopyrightYear(c.copyrightYear || d.copyrightYear)
@@ -171,6 +173,7 @@ class SettingsStore {
         if (typeof o.bgmEnabled === 'boolean') p.bgmEnabled = o.bgmEnabled;
         if (typeof o.bgmAutoPlay === 'boolean') p.bgmAutoPlay = o.bgmAutoPlay;
         if (typeof o.live2dEnabled === 'boolean') p.live2dEnabled = o.live2dEnabled;
+        if (typeof o.conciseLock === 'boolean') p.conciseLock = o.conciseLock;
         if (SettingsStore.isValidNavMode(o.navMode)) p.navMode = String(o.navMode);
         if (SettingsStore.isValidDisplayMode(o.displayMode)) p.displayMode = String(o.displayMode);
 
@@ -194,6 +197,8 @@ class SettingsStore {
     static getDisplayMode() { return String(SettingsStore.effective('displayMode') || SettingsStore.FALLBACK_DISPLAY_MODE); }
     /** 是否简洁模式：隐藏 BGM 播放器 / 看板娘等装饰浮层，只保留核心内容 */
     static isConciseMode() { return SettingsStore.getDisplayMode() === 'concise'; }
+    /** 简洁模式是否锁定装饰开关（锁定时简洁模式下 BGM / 看板娘开关不可用） */
+    static getConciseLock() { return SettingsStore.effective('conciseLock') !== false; }
     /** 站点短网址（页脚显示），没有设置层时由调用方兜底 */
     static getShortUrl() { return SettingsStore.normShortUrl(SettingsStore.effective('shortUrl')); }
     /** 版权年份（页脚显示），没有设置层时由调用方兜底 */
@@ -207,6 +212,7 @@ class SettingsStore {
             SettingsStore.effective('live2dEnabled'),
             SettingsStore.effective('defaultTheme'),
             SettingsStore.effective('displayMode'),
+            SettingsStore.effective('conciseLock'),
             SettingsStore.effective('navMode')
         ]);
     }
@@ -221,6 +227,7 @@ class SettingsStore {
             live2dEnabled: typeof o.live2dEnabled === 'boolean' ? o.live2dEnabled : d.live2dEnabled,
             defaultTheme: SettingsStore.isValidTheme(o.defaultTheme) ? String(o.defaultTheme) : d.defaultTheme,
             displayMode: SettingsStore.isValidDisplayMode(o.displayMode) ? String(o.displayMode) : d.displayMode,
+            conciseLock: typeof o.conciseLock === 'boolean' ? o.conciseLock : d.conciseLock,
             navMode: SettingsStore.isValidNavMode(o.navMode) ? String(o.navMode) : d.navMode,
             shortUrl: SettingsStore.normShortUrl(o.shortUrl || d.shortUrl),
             copyrightYear: SettingsStore.normCopyrightYear(o.copyrightYear || d.copyrightYear)
@@ -426,7 +433,7 @@ class SettingsStore {
         }
 
         const map = SettingsStore._readJSON(SettingsStore.KEYS.personal, {}) || {};
-        ['bgmEnabled', 'bgmAutoPlay', 'live2dEnabled'].forEach(k => {
+        ['bgmEnabled', 'bgmAutoPlay', 'live2dEnabled', 'conciseLock'].forEach(k => {
             if (patch[k] !== undefined) map[k] = !!patch[k];
         });
         if (patch.navMode !== undefined) {

@@ -80,6 +80,7 @@ function defaults() {
     live2dEnabled: live2d.enabled !== false,
     defaultTheme: normalizeTheme(c.defaultTheme),
     displayMode: normalizeDisplayMode(c.displayMode),
+    conciseLock: c.conciseLock !== false,
     navMode: normalizeNavMode(nav.mode),
     shortUrl: normalizeShortUrl(site.shortUrl),
     copyrightYear: normalizeCopyrightYear(site.copyrightYear)
@@ -100,6 +101,7 @@ function normalize(input) {
     live2dEnabled: bool(o.live2dEnabled, d.live2dEnabled),
     defaultTheme: normalizeTheme(o.defaultTheme || d.defaultTheme),
     displayMode: normalizeDisplayMode(o.displayMode || d.displayMode),
+    conciseLock: bool(o.conciseLock, d.conciseLock),
     navMode: normalizeNavMode(o.navMode || d.navMode),
     shortUrl: normalizeShortUrl(o.shortUrl || d.shortUrl),
     copyrightYear: normalizeCopyrightYear(o.copyrightYear || d.copyrightYear)
