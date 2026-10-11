@@ -12,6 +12,8 @@
  *   live2d.enabled — 是否加载看板娘（关闭后不加载任何 Live2D 资源）
  *   defaultTheme   — 站点默认主题：light / dark / wk-light / wk-dark
  *   nav.mode       — 导航数据来源：'web'（静态文件，默认）/ 'db'（数据库）
+ *   site.shortUrl      — 页脚「短网址」显示的地址
+ *   site.copyrightYear — 页脚版权「© 年份」显示的年份
  */
 window.SITE_CONFIG = {
     bgm: {
@@ -24,5 +26,9 @@ window.SITE_CONFIG = {
     defaultTheme: 'wk-light',   // 未个人选过主题的访客使用它
     nav: {
         mode: 'web',   // 未个人选过来源的访客读它：静态文件不用后端也能显示，故为默认
+    },
+    site: {
+        shortUrl: 'scnet.top',   // 页脚「短网址」显示的地址（可只写域名，也可写完整 URL）
+        copyrightYear: '2026',   // 页脚版权「© 年份」显示的年份
     },
 };

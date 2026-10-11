@@ -42,9 +42,7 @@ Windows 双击：`src/scripts/启动主页(带数据库).bat`；主页+导航站
 | HTTP | `127.0.0.1:8000` |
 | MySQL | `127.0.0.1:3306`，默认 `root / root`，库名 `scweb` |
 | 默认账号 | `admin / admin`（会话 8 小时；改过密码后 config 不再生效） |
-| mod 开关 | `mods.enabled` 总开关，`mods.overrides.<名称>` 逐个指定 |
-
-- 健康检查：`http://127.0.0.1:8000/api/health`
+| mod 开关 | `mods.enabled` 总开关，`mods.overrides.<名称>` 逐个指定 |- 健康检查：`http://127.0.0.1:8000/api/health`
 - mod 状态：`http://127.0.0.1:8000/api/mods`
 - 端口被占用：双击仓库根目录 `kill_port_8000.bat`
 - **连不上数据库的报错是故意的**：后端会给出完整诊断（哪类毛病 / 哪个环节 / 建议），MySQL 没启动时提示「小皮面板里启动 MySQL」
@@ -117,6 +115,8 @@ server.js（组装根）── 挂路由 / 托管静态 / 加载 mod / 监听
 - 单个 mod 失败不拖垮主站
 
 ## 常见坑 / 备忘
+
+- **站点信息设置**：页脚「短网址」（如 scnet.top）与「© 年份」在 ⚙️ 设置的「🌐 站点信息」区编辑 —— 只有全局一份（个人模式不可改，需登录），存 `site_settings` 表，改完页脚实时刷新不用重载；出厂默认在 `src/config/site-config.js` 的 `site` 段（前 `site-info.js` 里写死，现已改为按设置渲染）
 
 - **静态托管屏蔽清单**：`server/`（主站与各 mod 的）、`key/`、`*.key`、`*.pem` —— 里面有数据库密码和证书，绝不能被下载
 - **域名直连**：默认关。要 Node 自己监听 80/443 时用环境变量 `SCWEB_DOMAIN_HTTP_PORT` / `SCWEB_DOMAIN_HTTPS_PORT` / `SCWEB_TLS_KEY` / `SCWEB_TLS_CERT` / `SCWEB_TLS_CHAIN`，或写 config.json 的 `server.domain` 段

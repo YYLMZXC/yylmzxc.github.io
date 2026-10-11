@@ -11,9 +11,37 @@ class SiteInfoManager {
      */
     constructor(languageManager) {
         this.languageManager = languageManager;
-        this.shortUrls = [
-            { url: 'https://scnet.top/', name: 'scnet.top' }
-        ];
+    }
+
+    /** 短网址的出厂兜底（页面没加载设置数据层时也照常显示） */
+    static DEFAULT_SHORT_URL = 'scnet.top';
+    static DEFAULT_YEAR = '2026';
+
+    /** 当前生效的短网址设置（加载了设置数据层时读数据库全局值，否则用出厂默认） */
+    getShortUrlSetting() {
+        if (window.SettingsStore) return SettingsStore.getShortUrl();
+        return SiteInfoManager.DEFAULT_SHORT_URL;
+    }
+
+    /** 当前生效的版权年份设置 */
+    getCopyrightYear() {
+        if (window.SettingsStore) return SettingsStore.getCopyrightYear();
+        return SiteInfoManager.DEFAULT_YEAR;
+    }
+
+    /**
+     * 把短网址设置整理成 { url, name }：
+     * 只写域名时自动补 https://，写完整 URL 时照原样用
+     * @param {string} raw - 短网址设置值
+     * @returns {{url: string, name: string}}
+     */
+    static formatShortUrl(raw) {
+        const s = String(raw || '').trim() || SiteInfoManager.DEFAULT_SHORT_URL;
+        const hasScheme = /^https?:\/\//i.test(s);
+        return {
+            url: hasScheme ? s : ('https://' + s + '/'),
+            name: s.replace(/^https?:\/\//i, '').replace(/\/+$/, '')
+        };
     }
 
     /**
@@ -37,6 +65,7 @@ class SiteInfoManager {
 
         this.updateCurrentAddress(currentUrl, translations);
         this.updateShortUrls(translations);
+        this.updateCopyright(translations);
     }
 
     /**
@@ -67,12 +96,27 @@ class SiteInfoManager {
             ? translations.siteInfo.shortUrl
             : (translations && translations.site ? translations.site.shortUrl : '短网址：');
 
-        let html = prefix;
-        this.shortUrls.forEach((site) => {
-            html += ` <a href="${site.url}" target="_blank" rel="noopener">${site.name}</a>`;
-        });
+        const site = SiteInfoManager.formatShortUrl(this.getShortUrlSetting());
+        shortUrlEl.innerHTML = prefix +
+            ` <a href="${site.url}" target="_blank" rel="noopener">${site.name}</a>`;
+    }
 
-        shortUrlEl.innerHTML = html;
+    /**
+     * 更新页脚版权「© 年份 站名」：文案取当前语言的 footer 翻译，
+     * 其中的年份替换为全局设置里的版权年份（可在 ⚙️ 设置里改）
+     * @param {Object} translations - 当前语言的翻译对象
+     */
+    updateCopyright(translations) {
+        const el = document.querySelector('.copyright a') || document.querySelector('.copyright');
+        if (!el) return;
+
+        const base = translations && typeof translations.footer === 'string'
+            ? translations.footer
+            : el.textContent;
+        const year = this.getCopyrightYear();
+        el.textContent = /(19|20)\d{2}/.test(base)
+            ? base.replace(/(19|20)\d{2}/, year)
+            : base;
     }
 }
 

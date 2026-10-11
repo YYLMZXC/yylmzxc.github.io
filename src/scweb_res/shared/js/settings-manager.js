@@ -1,9 +1,10 @@
 /**
  * 生存战争网 - 设置管理器（⚙️ 设置下拉）
  *
- * 五项站点设置：启用 BGM / 自动播放 / 看板娘 / 默认主题 / 导航数据来源，外加一个「个人 / 全局」模式开关。
+ * 七项站点设置：启用 BGM / 自动播放 / 看板娘 / 默认主题 / 导航数据来源 / 短网址 / 版权年份，外加一个「个人 / 全局」模式开关。
  *   个人模式 —— 改动只写本机 localStorage，不写数据库；
  *   全局模式 —— 改动写入数据库（需登录），对所有访客生效。
+ * 其中「短网址 / 版权年份」是站点展示信息，只有全局一份（个人模式下不可编辑）。
  * 离线（连不上后端）时按上次缓存的全局值运行，见 settings-store.js。
  *
  * 本模块只负责「把入口摆出来 + 把改动转给数据层」，取值与保存全在 SettingsStore。
@@ -115,6 +116,19 @@ class SettingsManager {
                         '</label>' +
                         '<div class="settings-hint">决定访客首次打开时从哪里读导航；若在本机「导航数据」里切换过模式，仍以本机选择的为准。</div>' +
                     '</div>' +
+                    '<div class="settings-divider"></div>' +
+                    '<div class="settings-group">' +
+                        '<div class="settings-label">🌐 站点信息</div>' +
+                        '<label class="settings-row">' +
+                            '<span>短网址</span>' +
+                            '<input type="text" class="settings-input" data-setting="shortUrl" placeholder="scnet.top">' +
+                        '</label>' +
+                        '<label class="settings-row">' +
+                            '<span>版权年份</span>' +
+                            '<input type="text" class="settings-input" data-setting="copyrightYear" placeholder="2026" maxlength="4">' +
+                        '</label>' +
+                        '<div class="settings-hint">页脚「短网址」与「© 年份」显示的内容，只有全局一份（无个人覆盖）；保存后页脚立即刷新。</div>' +
+                    '</div>' +
                     '<div class="settings-hint" data-settings-hint></div>' +
                 '</div>' +
             '</div>';
@@ -224,6 +238,14 @@ class SettingsManager {
             navSel.disabled = !editable;
         }
 
+        // 站点信息（短网址 / 版权年份）：只有全局一份，个人模式下不可改，切到全局模式（需登录）后开放
+        ['shortUrl', 'copyrightYear'].forEach(key => {
+            const el = this._control(key);
+            if (!el) return;
+            el.value = (store ? store.display(key) : SettingsStore.effective(key)) || '';
+            el.disabled = !(mode === 'global' && online && this._loggedIn());
+        });
+
         if (this.hintEl) this.hintEl.textContent = this._hintText(mode, online);
     }
 
@@ -307,6 +329,12 @@ class SettingsManager {
 
     /** 改完之后的收尾：主题可以直接应用，BGM / 看板娘 / 导航来源都在初始化时读一次，只能刷新页面生效 */
     _afterApply(key) {
+        // 站点信息（短网址 / 版权年份）由 SiteInfoManager 订阅设置变化实时刷新，不必重载页面
+        if (key === 'shortUrl' || key === 'copyrightYear') {
+            this.sync();
+            return;
+        }
+
         if (key === 'defaultTheme') {
             const theme = this.store ? this.store.display('defaultTheme') : SettingsStore.getDefaultTheme();
             const tm = this.app && this.app.themeManager;

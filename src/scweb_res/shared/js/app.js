@@ -71,6 +71,11 @@ class App {
             }
         }
 
+        // 站点信息（短网址 / 版权年份）跟着全局设置变化实时刷新，不必重载页面
+        if (this.siteInfoManager && this.settingsManager && this.settingsManager.store) {
+            this.settingsManager.store.subscribe(() => this.siteInfoManager.updateSiteInfo());
+        }
+
         // 站点导航数据层（web 模式 / 数据库模式）。脚本没加载时静默跳过，
         // 这样不含导航数据的页面（如 tools 子页）不必额外引这两个脚本。
         // navPage 决定本页面渲染哪一份分组（首页 / 关于页，见 NavStore.PAGES）

@@ -1,6 +1,6 @@
 /* ============================================================
    生存战争网 · 站点全局设置的静态默认值
-   五项全局设置（启用 BGM / 自动播放 / 看板娘 / 默认主题 / 导航数据来源）落库在 site_settings 表，
+   七项全局设置（启用 BGM / 自动播放 / 看板娘 / 默认主题 / 导航数据来源 / 短网址 / 版权年份）落库在 site_settings 表，
    数据库为空（首次启动）时用这里的默认值填充。
 
    默认值与 site-config.js 同源：这里直接解析那份文件里的 window.SITE_CONFIG，
@@ -46,18 +46,33 @@ function normalizeNavMode(m) {
   return NAV_MODES.indexOf(v) >= 0 ? v : FALLBACK_NAV_MODE;
 }
 
+// 短网址：页脚「短网址：」后显示的地址。可只写域名（自动补 https://），也可写完整 URL
+function normalizeShortUrl(v) {
+  const s = String(v == null ? '' : v).trim().slice(0, 200);
+  return s || 'scnet.top';
+}
+
+// 版权年份：页脚「© 年份」。只接受 4 位数字，脏值一律回默认
+function normalizeCopyrightYear(v) {
+  const s = String(v == null ? '' : v).trim();
+  return /^\d{4}$/.test(s) ? s : '2026';
+}
+
 // 出厂默认：site-config.js 里没写就是「开着」（与前端旧行为一致）
 function defaults() {
   const c = siteConfig();
   const bgm = c.bgm || {};
   const live2d = c.live2d || {};
   const nav = c.nav || {};
+  const site = c.site || {};
   return {
     bgmEnabled: bgm.enabled !== false,
     bgmAutoPlay: bgm.autoPlay !== false,
     live2dEnabled: live2d.enabled !== false,
     defaultTheme: normalizeTheme(c.defaultTheme),
-    navMode: normalizeNavMode(nav.mode)
+    navMode: normalizeNavMode(nav.mode),
+    shortUrl: normalizeShortUrl(site.shortUrl),
+    copyrightYear: normalizeCopyrightYear(site.copyrightYear)
   };
 }
 
@@ -74,7 +89,9 @@ function normalize(input) {
     bgmAutoPlay: bool(o.bgmAutoPlay, d.bgmAutoPlay),
     live2dEnabled: bool(o.live2dEnabled, d.live2dEnabled),
     defaultTheme: normalizeTheme(o.defaultTheme || d.defaultTheme),
-    navMode: normalizeNavMode(o.navMode || d.navMode)
+    navMode: normalizeNavMode(o.navMode || d.navMode),
+    shortUrl: normalizeShortUrl(o.shortUrl || d.shortUrl),
+    copyrightYear: normalizeCopyrightYear(o.copyrightYear || d.copyrightYear)
   };
 }
 

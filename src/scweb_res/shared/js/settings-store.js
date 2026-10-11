@@ -1,7 +1,9 @@
 /**
  * 生存战争网 - 站点全局设置数据层
  *
- * 五项站点设置：启用 BGM / 自动播放 / 看板娘 / 默认主题 / 导航数据来源。
+ * 七项站点设置：启用 BGM / 自动播放 / 看板娘 / 默认主题 / 导航数据来源 / 短网址 / 版权年份。
+ * 其中「短网址 / 版权年份」是站点展示信息，只有全局一份（没有个人覆盖），
+ * 改动写入数据库后页脚实时刷新，无需重载页面。
  *
  * 两种模式（用户在本机的选择，存在 localStorage）：
  *   个人模式 'personal'（默认）—— 改动只写本机，不写数据库；
@@ -106,13 +108,28 @@ class SettingsStore {
         const bgm = c.bgm || {};
         const live2d = c.live2d || {};
         const nav = c.nav || {};
+        const site = c.site || {};
         return {
             bgmEnabled: bgm.enabled !== false,
             bgmAutoPlay: bgm.autoPlay !== false,
             live2dEnabled: live2d.enabled !== false,
             defaultTheme: SettingsStore.isValidTheme(c.defaultTheme) ? String(c.defaultTheme) : SettingsStore.FALLBACK_THEME,
-            navMode: SettingsStore.isValidNavMode(nav.mode) ? String(nav.mode) : SettingsStore.FALLBACK_NAV_MODE
+            navMode: SettingsStore.isValidNavMode(nav.mode) ? String(nav.mode) : SettingsStore.FALLBACK_NAV_MODE,
+            shortUrl: SettingsStore.normShortUrl(site.shortUrl),
+            copyrightYear: SettingsStore.normCopyrightYear(site.copyrightYear)
         };
+    }
+
+    /* 短网址 / 版权年份的取值规则（与后端 settings.normalize 同规则）：
+       短网址可只写域名也可写完整 URL；版权年份只认 4 位数字 */
+    static normShortUrl(v) {
+        const s = String(v == null ? '' : v).trim().slice(0, 200);
+        return s || 'scnet.top';
+    }
+
+    static normCopyrightYear(v) {
+        const s = String(v == null ? '' : v).trim();
+        return /^\d{4}$/.test(s) ? s : '2026';
     }
 
     /** 全局值：数据库缓存优先，缺项用静态默认补齐 */
@@ -126,7 +143,9 @@ class SettingsStore {
             bgmAutoPlay: typeof c.bgmAutoPlay === 'boolean' ? c.bgmAutoPlay : d.bgmAutoPlay,
             live2dEnabled: typeof c.live2dEnabled === 'boolean' ? c.live2dEnabled : d.live2dEnabled,
             defaultTheme: SettingsStore.isValidTheme(c.defaultTheme) ? String(c.defaultTheme) : d.defaultTheme,
-            navMode: SettingsStore.isValidNavMode(c.navMode) ? String(c.navMode) : d.navMode
+            navMode: SettingsStore.isValidNavMode(c.navMode) ? String(c.navMode) : d.navMode,
+            shortUrl: SettingsStore.normShortUrl(c.shortUrl || d.shortUrl),
+            copyrightYear: SettingsStore.normCopyrightYear(c.copyrightYear || d.copyrightYear)
         };
     }
 
@@ -156,6 +175,10 @@ class SettingsStore {
     static getLive2dEnabled() { return !!SettingsStore.effective('live2dEnabled'); }
     static getDefaultTheme() { return String(SettingsStore.effective('defaultTheme')); }
     static getNavMode() { return String(SettingsStore.effective('navMode') || SettingsStore.FALLBACK_NAV_MODE); }
+    /** 站点短网址（页脚显示），没有设置层时由调用方兜底 */
+    static getShortUrl() { return SettingsStore.normShortUrl(SettingsStore.effective('shortUrl')); }
+    /** 版权年份（页脚显示），没有设置层时由调用方兜底 */
+    static getCopyrightYear() { return SettingsStore.normCopyrightYear(SettingsStore.effective('copyrightYear')); }
 
     /** 五项生效值的指纹，用来判断「这次读回的设置是否与页面已用的一致」 */
     static signature() {
@@ -177,7 +200,9 @@ class SettingsStore {
             bgmAutoPlay: typeof o.bgmAutoPlay === 'boolean' ? o.bgmAutoPlay : d.bgmAutoPlay,
             live2dEnabled: typeof o.live2dEnabled === 'boolean' ? o.live2dEnabled : d.live2dEnabled,
             defaultTheme: SettingsStore.isValidTheme(o.defaultTheme) ? String(o.defaultTheme) : d.defaultTheme,
-            navMode: SettingsStore.isValidNavMode(o.navMode) ? String(o.navMode) : d.navMode
+            navMode: SettingsStore.isValidNavMode(o.navMode) ? String(o.navMode) : d.navMode,
+            shortUrl: SettingsStore.normShortUrl(o.shortUrl || d.shortUrl),
+            copyrightYear: SettingsStore.normCopyrightYear(o.copyrightYear || d.copyrightYear)
         };
     }
 
