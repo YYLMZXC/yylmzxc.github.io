@@ -159,12 +159,20 @@ scweb/
 │   │   ├── res/                          # 页面资源（脚本 / 样式 / 出厂数据 / 上传图片）
 │   │   └── server/                       # mod 后端（独立运行入口 + 接口 + 数据层）
 │   ├── server/                           # 后端：静态托管 + /api/* + MySQL 持久化 + mod 加载
-│   │   ├── server.js                     # Express 入口与 /api/* 路由
-│   │   ├── mods.js                       # mod 加载器（扫描 mod.json，把 mod 后端挂进本进程）
-│   │   ├── db.js                         # MySQL 连接池
+│   │   ├── server.js                     # 组装入口：挂路由 / 托管静态 / 加载 mod / 监听
+│   │   ├── routes/                       # /api 路由（按领域一域一文件）
+│   │   │   ├── index.js                  # 总装：请求日志 + 各子路由挂载
+│   │   │   ├── helpers.js                # 路由共用件（数据库报错统一回应、登录门槛）
+│   │   │   ├── site-nav.js / site-settings.js / account.js   # 业务路由
+│   │   │   └── health.js / clientinfo.js / mods.js / client-log.js   # 其它接口
+│   │   ├── db.js                         # 数据访问层：连接池、建库建表、删库自愈、单行 JSON 表读写
+│   │   ├── bootstrap.js                  # 空库播种：把业务默认值接进 db 的播种机制
 │   │   ├── account.js                    # 登录 / 会话 / 改密
-│   │   ├── settings.js                   # 站点设置（site_settings 表）
-│   │   ├── sitenav.js                    # 站点导航（读写 + 同步到静态文件）
+│   │   ├── settings.js                   # 站点设置的数据格式（规整 / 默认值）
+│   │   ├── sitenav.js                    # 站点导航的数据格式（规整 / 升级 / 静态文件读写）
+│   │   ├── db-diagnosis.js               # 数据库错误码翻译与诊断（纯函数）
+│   │   ├── logger.js / http-util.js      # 统一时间戳日志 / 客户端真实 IP 还原
+│   │   ├── mods.js                       # mod 加载器（扫描 mod.json，把 mod 后端挂进本进程）
 │   │   ├── config.js / config.json       # 服务端口、数据库、账号、mod 开关
 │   │   └── package.json
 │   ├── 用Npm启动开发服务器.bat             # Windows 一键启动（npx live-server）
@@ -201,6 +209,31 @@ SCApp.create()            ← 组合根：创建并注入各管理器（app.js�
 - **依赖注入**：管理器之间不互相 `new`，由组合根创建后传入；跨模块状态通过公开方法（如 `AccountManager.isLoggedIn()`）而非直读内部字段。
 - **页面脚本只管渲染**：`index_script.js` / `online_server_script.js` 等只负责自身页面的渲染，共享的设置与导航数据统一向上述管理器索取。
 - **离线可用**：连不上后端时，设置按本机缓存的上次全局值运行，导航回退到 `nav-default.js`。
+
+## 🧱 后端架构
+
+`src/server` 按职责分层，依赖只朝一个方向流动（无循环依赖）：
+
+```
+server.js（组装根）── 挂路由 / 托管静态 / 加载 mod / 监听
+   │
+   ├── routes/*            接口层：一域一文件（site-nav / site-settings / account / …）
+   │      └── helpers.js   数据库报错统一回应、写操作登录门槛
+   │
+   ├── bootstrap.js        播种层：空库填什么由业务模块决定，db 只提供「查空 + 写入」机制
+   │
+   ├── account.js          账号服务（scrypt 哈希 / 会话 / Cookie 策略）
+   │
+   └── db.js               数据访问层：连接池、建库建表、删库自愈、单行 JSON 表读写
+          └── db-diagnosis.js    错误码翻译与诊断（纯函数，独立可测）
+```
+
+设计约定：
+
+- **分层单向**：接口层 → 业务模块 → 数据层。`db.js` 不认识任何业务数据格式——规整 / 升级 / 默认值都在 `sitenav.js` / `settings.js`，`site_nav` 与 `site_settings` 是同一形状的单行 JSON 表，db 只提供通用读写。
+- **依赖注入**：空库播种器由 `server.js` 启动时递给 `db.init(bootstrap.seed)`，删库自愈重建后自动重播；mod 后端复用宿主的 `express` / `mysql2`，整个进程只有一份依赖。
+- **双端契约**：主题 / 导航来源 / 页面身份的常量表在 `src/site-constants.js`（`window` + `module.exports` 双导出），前后端同源，避免改漏一处。
+- **横切关注点下沉**：日志（`logger.js`）与客户端 IP 还原（`http-util.js`）是独立工具模块，路由与拦截中间件共用同一份。
 
 ## 🔌 后端接口
 
@@ -290,7 +323,7 @@ Live2DInit（编排层）
 - **音频**: Web Audio API 自动播放解锁
 - **3D**: Live2D Cubism SDK（Cubism 2 + 5）
 - **代码编辑**: CodeMirror 5（Mod 开发工具）
-- **后端**: Node.js + Express + MySQL（mysql2，可选，用于导航/设置持久化）+ 可插拔 mod 加载器
+- **后端**: Node.js + Express + MySQL（mysql2，可选，用于导航/设置持久化）+ 可插拔 mod 加载器；接口 / 业务 / 数据三层单向依赖，播种与依赖均由组装根注入
 - **部署**: GitHub Pages 自动部署（GitHub Actions）
 
 ## 📄 页面说明
