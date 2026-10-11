@@ -18,11 +18,16 @@ class NavRender {
     static sections(container, store, translations) {
         if (!container || !store) return;
 
+        // 简洁模式隐藏「可能过时导航」分区（key 见 nav-default.js）：装饰性内容，
+        // 按语义 key 识别而非显示文案，改名 / 多语言 / 数据库模式都不影响
+        const concise = !!(window.SettingsStore && SettingsStore.isConciseMode());
+
         const fragment = document.createDocumentFragment();
 
         store.groups().forEach(group => {
             const links = (group.links || []).filter(link => link.url);
             if (!links.length) return;
+            if (concise && group.key === 'outdatedNavigation') return;
 
             const section = document.createElement('section');
             section.className = 'nav-section';

@@ -115,7 +115,7 @@ class SettingsManager {
                                 this._options('displayMode') +
                             '</select>' +
                         '</label>' +
-                        '<div class="settings-hint">完整模式照常显示 BGM 播放器与看板娘；简洁模式隐藏这些装饰浮层，只保留核心内容。改动刷新页面后生效。</div>' +
+                        '<div class="settings-hint">完整模式照常显示 BGM 播放器、看板娘与全部导航；简洁模式隐藏这些装饰浮层与「可能过时导航」，只保留核心内容。改动刷新页面后生效。</div>' +
                     '</div>' +
                     '<div class="settings-divider"></div>' +
                     '<div class="settings-group">' +
