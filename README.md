@@ -2,7 +2,7 @@
 
 一个多语言的生存战争（SurvivalCraft）社区网站，提供游戏资源下载、联机服务器信息、Mod 开发工具、社区交流等功能。
 
-- 线上地址：<https://sczsw.top/>
+- 线上地址：<https://scnet.top/>
 - 仓库镜像：[GitHub](https://github.com/YYLMZXC/yylmzxc.github.io) | [Gitee](https://gitee.com/yylmzxc/scweb) | [CNB](https://cnb.cool/SurvivalcraftTool/scweb) | [SC-GPS](https://github.com/SC-Survivalcraft-GPS/SC-Survivalcraft-GPS.github.io)
 
 ## 🌟 项目特性
@@ -315,4 +315,4 @@ Live2DInit（编排层）
 
 ---
 
-*最后更新：2026年9月11日*
+*最后更新：2026年10月11日*
