@@ -51,10 +51,10 @@
    npx live-server --port=8000    # 自动刷新
    ```
 
-   Windows 下可双击以下脚本一键启动：
-   - `src/用Npm启动开发服务器.bat` — `npx live-server`（自动刷新）
-   - `src/用Python启动开发服务器.bat` — `python tools/serve.py 8000`
-   - `src/扫描BGM目录.bat` — 扫描 BGM 目录生成音乐清单
+   Windows 下可双击以下脚本一键启动（位于 `src/scripts/`）：
+   - `src/scripts/用Npm启动开发服务器.bat` — `npx live-server`（自动刷新）
+   - `src/scripts/用Python启动开发服务器.bat` — `python tools/serve.py 8000`
+   - `src/scripts/扫描BGM目录.bat` — 扫描 BGM 目录生成音乐清单
 
    > 上面三个是**纯静态**服务：只托管页面，不连数据库、不加载 mod。需要后端能力时见下一节。
 
@@ -77,8 +77,8 @@ npm install
 npm start        # 监听 127.0.0.1:8000，同时托管 src/ 与 /api/*，并加载已启用的 mod
 ```
 
-Windows 下也可以直接双击 `src/启动主页(带数据库).bat`（自动装依赖并打开浏览器）；
-要同时打开主页与导航站，双击 `src/启动双数据库.bat` 即可 —— 两者启动的是同一个后端进程。
+Windows 下也可以直接双击 `src/scripts/启动主页(带数据库).bat`（自动装依赖并打开浏览器）；
+要同时打开主页与导航站，双击 `src/scripts/启动双数据库.bat` 即可 —— 两者启动的是同一个后端进程。
 
 - 服务配置：`src/server/config.json`（HTTP `127.0.0.1:8000`；MySQL `127.0.0.1:3306`，默认 `root / root`，库名 `scweb`）。
 - 后端首次启动会自动建库建表，并用 `src/scweb_res/nav/nav-default.js` 填充初始导航数据。
@@ -175,11 +175,13 @@ scweb/
 │   │   ├── mods.js                       # mod 加载器（扫描 mod.json，把 mod 后端挂进本进程）
 │   │   ├── config.js / config.json       # 服务端口、数据库、账号、mod 开关
 │   │   └── package.json
-│   ├── 用Npm启动开发服务器.bat             # Windows 一键启动（npx live-server）
-│   ├── 用Python启动开发服务器.bat          # Windows 一键启动（serve.py）
-│   ├── 启动主页(带数据库).bat               # 启动主页 + 后端（MySQL，并加载 mod）
-│   ├── 启动双数据库.bat                    # 同上，并额外打开导航站（库：scweb + yylmzxc_nav）
-│   └── 扫描BGM目录.bat                    # BGM 目录扫描脚本
+│   ├── scripts/                            # Windows 一键启动脚本（.bat）
+│   │   ├── 用Npm启动开发服务器.bat          # npx live-server（自动刷新）
+│   │   ├── 用Python启动开发服务器.bat       # serve.py（支持 Range / 禁缓存）
+│   │   ├── 启动主页(带数据库).bat            # 启动主页 + 后端（MySQL，并加载 mod）
+│   │   ├── 启动双数据库.bat                 # 同上，并额外打开导航站（库：scweb + yylmzxc_nav）
+│   │   ├── 启动域名直连(带数据库).bat        # Node 直连 80/443（域名访问，无需 Apache）
+│   │   └── 扫描BGM目录.bat                 # BGM 目录扫描脚本
 └── README.md
 ```
 
@@ -286,7 +288,7 @@ src/server/mods.js 扫描 src/*/mod.json
 
 ## 🎵 背景音乐系统
 
-**Windows 用户：** 双击 `src/扫描BGM目录.bat` 一键扫描。
+**Windows 用户：** 双击 `src/scripts/扫描BGM目录.bat` 一键扫描。
 
 ```
 BgmPlayer（编排层）

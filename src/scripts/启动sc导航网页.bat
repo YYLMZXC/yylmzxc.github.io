@@ -1,6 +1,6 @@
 @echo off
 chcp 65001 >nul
-cd /d "%~dp0"
+cd /d "%~dp0.."
 
 echo ============================================================
 echo   生存战争网 - 域名直连（Node 自己监听 80 / 443，无需 Apache）
@@ -19,9 +19,9 @@ rem    以 Apache 的 crt / pem 格式可直接使用
 rem ------------------------------------------------------------------
 set "SCWEB_DOMAIN_HTTP_PORT=80"
 set "SCWEB_DOMAIN_HTTPS_PORT=443"
-set "SCWEB_TLS_KEY=%~dp0key\example.key"
-set "SCWEB_TLS_CERT=%~dp0key\example.crt"
-rem set "SCWEB_TLS_CHAIN=%~dp0key\chain.crt"
+set "SCWEB_TLS_KEY=%~dp0..\key\example.key"
+set "SCWEB_TLS_CERT=%~dp0..\key\example.crt"
+rem set "SCWEB_TLS_CHAIN=%~dp0..\key\chain.crt"
 
 rem 80 / 443 被占多半是 IIS / Apache / 其它服务：本脚本会先结束占用进程
 rem 8000 是本进程同时监听的本地端口，一并释放，避免旧服务抢占

@@ -36,9 +36,10 @@ jobs:
       - name: Stage static site (exclude backend)
         # src/ 里现在含有后端目录（src/server 与 <mod>/server，内含数据库配置），
         # 不能随静态站点发布到 GitHub Pages：这里先剔除后端与证书，再上传纯静态站点。
+        # scripts/ 是本地开发用的一键启动脚本（.bat），也不需要发布。
         run: |
           mkdir -p _site
-          rsync -a --exclude 'server' --exclude 'node_modules' --exclude '/key' --exclude '*.key' --exclude '*.pem' ./src/ ./_site/
+          rsync -a --exclude 'server' --exclude 'node_modules' --exclude '/key' --exclude '*.key' --exclude '*.pem' --exclude '/scripts' ./src/ ./_site/
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:

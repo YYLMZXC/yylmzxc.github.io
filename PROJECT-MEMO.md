@@ -23,7 +23,7 @@ python tools/serve.py 8000     # 推荐（支持 Range / 禁缓存）
 # 或 npx live-server --port=8000
 ```
 
-Windows 双击：`src/用Python启动开发服务器.bat` / `src/用Npm启动开发服务器.bat`
+Windows 双击：`src/scripts/用Python启动开发服务器.bat` / `src/scripts/用Npm启动开发服务器.bat`
 
 ### 带数据库（db 模式，导航/设置可编辑，加载 mod）
 
@@ -33,7 +33,7 @@ npm install
 npm start        # 监听 127.0.0.1:8000
 ```
 
-Windows 双击：`src/启动主页(带数据库).bat`；主页+导航站一起：`src/启动双数据库.bat`
+Windows 双击：`src/scripts/启动主页(带数据库).bat`；主页+导航站一起：`src/scripts/启动双数据库.bat`
 
 ### 关键配置（src/server/config.json）
 
