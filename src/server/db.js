@@ -4,10 +4,11 @@
    （依赖倒置：本模块不认识任何业务数据格式，只提供「查空 + 写入」的机制）。
    库 / 表被删掉（例如手工 DROP DATABASE）后不必重启后端：
    下一次请求会重新建库建表并重试，数据回到播种的那一份。
-   数据模型：业务数据两张单行 JSON 表——site_nav（站点导航：首页 / 关于页）
-   与 site_settings（站点全局设置：BGM / 自动播放 / 看板娘 / 默认主题），
+   数据模型：业务数据三张单行 JSON 表——site_nav（站点导航：首页 / 关于页）、
+   site_settings（站点全局设置：BGM / 自动播放 / 看板娘 / 默认主题）
+   与 site_versions（联机服务器页的版本下拉可选项），
    外加账号与会话两张表：账号密码只存在这里，浏览器不保存任何凭据。
-   数据格式（规整 / 升级 / 默认值）属于业务模块，见 sitenav.js / settings.js；
+   数据格式（规整 / 升级 / 默认值）属于业务模块，见 sitenav.js / settings.js / versions.js；
    密码哈希与会话策略属于账号服务，见 account.js；
    连接参数统一读自 config.json，见 config.js。
    ============================================================ */
@@ -62,13 +63,15 @@ const DDL = [
      KEY idx_nav_sessions_expires (expires_at)
    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`,
 
-  // 站点导航数据（首页 / 关于页）与站点全局设置（启用 BGM / 自动播放 / 看板娘 / 默认主题）：
-  // 同一形状的两张单行 JSON 表，用 jsonTable(name) 生成。
+  // 站点导航数据（首页 / 关于页）、站点全局设置（启用 BGM / 自动播放 / 看板娘 / 默认主题）
+  // 与服务器版本列表（联机服务器页版本下拉）：
+  // 同一形状的单行 JSON 表，用 jsonTable(name) 生成。
   // 单行 JSON 而非拆表，是因为数据结构（分页 + 分组 + 多语言标题键）还在演进，
   // 拆成列反而每次改结构都要动表；整份读写的语义也与「导入 / 导出 / 转换」天然对齐。
-  // 分成两张表，是因为两者读写时机与权限含义不同：导航是页面内容，设置是站点开关。
+  // 分成多张表，是因为两者读写时机与权限含义不同：导航是页面内容，设置是站点开关，版本列表是联机页配置。
   jsonTable('site_nav'),
-  jsonTable('site_settings')
+  jsonTable('site_settings'),
+  jsonTable('site_versions')
 ];
 
 // 单行 JSON 表的建表语句（site_nav / site_settings 共用）
@@ -222,6 +225,8 @@ async function loadSiteNav() { return loadJsonRow('site_nav'); }
 async function saveSiteNav(data) { return saveJsonRow('site_nav', data); }
 async function loadSiteSettings() { return loadJsonRow('site_settings'); }
 async function saveSiteSettings(data) { return saveJsonRow('site_settings', data); }
+async function loadServerVersions() { return loadJsonRow('site_versions'); }
+async function saveServerVersions(data) { return saveJsonRow('site_versions', data); }
 
 /* ---------------- 账号与会话 ---------------- */
 async function loadAccount() {
@@ -310,6 +315,8 @@ module.exports = {
   saveSiteNav: saveSiteNav,
   loadSiteSettings: loadSiteSettings,
   saveSiteSettings: saveSiteSettings,
+  loadServerVersions: loadServerVersions,
+  saveServerVersions: saveServerVersions,
   loadAccount: loadAccount,
   saveAccount: saveAccount,
   createSession: createSession,

@@ -30,7 +30,7 @@
     <link rel="stylesheet" href="./scweb_res/shared/css/theme.css?v=20260821c">
     <link rel="stylesheet" href="./scweb_res/shared/css/layout.css?v=20261011">
     <link rel="stylesheet" href="./scweb_res/shared/css/bgm-player.css?v=20260827">
-    <link rel="stylesheet" href="./scweb_res/online_server/online_server_main.css?v=20260723">
+    <link rel="stylesheet" href="./scweb_res/online_server/online_server_main.css?v=20261011">
     <link rel="icon" type="image/x-icon" href="./scweb_res/favicon.ico">
     <link rel="canonical" href="online_server.html">
 </head>
@@ -83,6 +83,20 @@
                     <div class="post-content">
                         <div class="server-filters">
                             <select class="version-selector" id="versionSelector"></select>
+                            <div class="dropdown-section">
+                                <div class="dropdown" id="versionManageDropdown">
+                                    <button class="dropdown-toggle" id="versionManageToggle" title="管理版本">✏️ <span class="arrow">▼</span></button>
+                                    <div class="dropdown-menu version-manage-menu">
+                                        <div class="version-manage-list" id="versionManageList">
+                                            <!-- 版本条目由 online_server_script.js 依 server-version-store.js 渲染 -->
+                                        </div>
+                                        <div class="version-manage-add">
+                                            <input type="text" class="version-add-input" id="versionAddInput" placeholder="x26.10.01">
+                                            <button type="button" class="version-add-btn" id="versionAddBtn" title="添加版本">➕</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                             <button class="proxy-btn" id="proxyBtn">🔗 直连模式</button>
                             <button class="filter-btn active" data-filter="all" data-i18n="filters.all">全部</button>
                             <button class="filter-btn" data-filter="lobby" data-i18n="filters.lobby">大厅服</button>
@@ -177,13 +191,14 @@
     <script src="./scweb_res/shared/js/account-manager.js"></script>
     <script src="./scweb_res/shared/js/app.js?v=20260821"></script>
     <script src="./scweb_res/shared/js/bgm-player.js?v=20261011a"></script>
-    <script src="./scweb_res/online_server/online_server_languages.js?v=20260725"></script>
+    <script src="./scweb_res/online_server/online_server_languages.js?v=20261011a"></script>
+    <script src="./scweb_res/online_server/server-version-store.js?v=20261011a"></script>
     <script src="./scweb_res/online_server/server-utils.js"></script>
     <script src="./scweb_res/online_server/server-api-client.js?v=20260820"></script>
     <script src="./scweb_res/online_server/server-cache.js?v=20260820"></script>
     <script src="./scweb_res/online_server/server-latency-checker.js?v=20260820"></script>
     <script src="./scweb_res/online_server/server-list-view.js?v=20260820"></script>
-    <script src="./scweb_res/online_server/online_server_script.js?v=20260820"></script>
+    <script src="./scweb_res/online_server/online_server_script.js?v=20261011a"></script>
 
     <script src="./live2d/autoload.js"></script>
     <script src="./scweb_res/shared/js/analytics.js?v=20260827"></script>
