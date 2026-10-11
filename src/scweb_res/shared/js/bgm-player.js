@@ -181,7 +181,10 @@ var BgmAudio = (function () {
             // 即使有 .catch() 仍会报 "Uncaught (in promise)"）
             // 改用 addEventListener 监听 play/pause/error 事件
             try {
-                _audio.play();
+                // play() 返回的 Promise 也要挂 catch，否则「用户未交互就播放」等
+                // 异步拒绝会以 Uncaught (in promise) 形式刷控制台
+                var p = _audio.play();
+                if (p && typeof p.catch === 'function') p.catch(function () {});
             } catch (e) {
                 console.warn('[BGM] play() 同步调用出错：', e.message);
             }
