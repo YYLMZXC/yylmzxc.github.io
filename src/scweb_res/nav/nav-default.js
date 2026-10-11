@@ -86,6 +86,13 @@ window.SITE_NAV_DEFAULT = {
           "title": "JIIL论坛",
           "url": "https://bbs.jiil.top/",
           "external": true
+        },
+        {
+          "id": "cn-12",
+          "key": "scForge",
+          "title": "SCForge模组资源平台",
+          "url": "https://scforge.cldery.com/",
+          "external": true
         }
       ],
       "page": "index"

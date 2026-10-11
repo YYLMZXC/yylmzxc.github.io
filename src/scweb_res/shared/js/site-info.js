@@ -12,9 +12,7 @@ class SiteInfoManager {
     constructor(languageManager) {
         this.languageManager = languageManager;
         this.shortUrls = [
-            { url: 'https://scnet.top/', name: 'scnet.top' },
-            { url: 'https://schub.icu/', name: 'schub.icu' },
-            { url: 'https://scwz.top/', name: 'scwz.top' }
+            { url: 'https://scnet.top/', name: 'scnet.top' }
         ];
     }
 
