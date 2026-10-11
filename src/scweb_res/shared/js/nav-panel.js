@@ -71,13 +71,19 @@ class NavPanel {
         }
 
         const canWrite = s.mode === 'db' && s.online;
+        const loggedIn = this._loggedIn();
         this._btn('mode').textContent = s.mode === 'db' ? '切换回 web 模式' : '切换到数据库模式';
-        // 编辑还要求已登录：写接口要身份，没登录点了也存不下来
+
+        // 游客（未登录）看不到写操作入口：编辑 / 导入 / 转换直接隐藏，登录后恢复
+        ['edit', 'import', 'convert', 'convert-from'].forEach(act => {
+            const b = this._btn(act);
+            if (b) b.style.display = loggedIn ? '' : 'none';
+        });
+        // 后端在线但未登录（按钮已隐藏，这里保留置灰兜底）
         this._btn('edit').disabled = this.editor ? !this.editor.canEdit() : !canWrite;
-        // 导入与转换都要走写接口（未登录后端会 401）：除了后端在线还要求已登录
-        this._btn('import').disabled = !canWrite || !this._loggedIn();
-        this._btn('convert').disabled = !s.online || !this._loggedIn();
-        this._btn('convert-from').disabled = !s.online || !this._loggedIn();
+        this._btn('import').disabled = !canWrite || !loggedIn;
+        this._btn('convert').disabled = !s.online || !loggedIn;
+        this._btn('convert-from').disabled = !s.online || !loggedIn;
 
         if (this.hintEl) {
             this.hintEl.textContent = this._hintText(s, canWrite);
@@ -92,11 +98,11 @@ class NavPanel {
         if (s.mode === 'web') {
             return 'web 模式下导航读自静态文件 scweb_res/nav/nav-default.js，不受数据库影响。';
         }
+        if (!this._loggedIn()) {
+            return '当前为只读视图；如需编辑站点导航，请联系管理员登录。';
+        }
         if (!canWrite) {
             return '当前未连上后端，暂不能编辑或导入。';
-        }
-        if (!this._loggedIn()) {
-            return '转换、导入与编辑都需要登录：请在设置下拉的「账号」里登录后再操作。';
         }
         return '数据库模式下可以直接编辑导航，改动即时写回 MySQL；「编辑导航」里可切换首页 / 关于页。' +
             '「→ 静态文件」把库里的数据固化给 web 模式，「→ 数据库」用静态文件覆盖库里的旧数据。';

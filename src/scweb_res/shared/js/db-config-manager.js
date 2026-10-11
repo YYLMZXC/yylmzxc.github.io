@@ -51,11 +51,16 @@ class DbConfigManager {
      * ================================================================ */
 
     refresh() {
+        if (!this.group) return;
+
+        // 游客（未登录）看不到数据库配置：整个分区隐藏，登录后恢复
         if (!this._loggedIn()) {
             this.state.loaded = false;
-            this.render();
+            this.group.style.display = 'none';
             return;
         }
+        this.group.style.display = '';
+
         this.api.getDbConfig().then(cfg => {
             this.state.backend = true;
             this.state.loaded = true;

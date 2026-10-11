@@ -133,7 +133,7 @@ class SettingsManager {
                         '<div class="settings-hint">决定访客首次打开时从哪里读导航；若在本机「导航数据」里切换过模式，仍以本机选择的为准。</div>' +
                     '</div>' +
                     '<div class="settings-divider"></div>' +
-                    '<div class="settings-group">' +
+                    '<div class="settings-group" data-settings-group="siteInfo">' +
                         '<div class="settings-label">🌐 站点信息</div>' +
                         '<label class="settings-row">' +
                             '<span>短网址</span>' +
@@ -235,6 +235,19 @@ class SettingsManager {
             modeBtn.textContent = mode === 'global' ? '切换回个人模式' : '切换到全局模式';
             // 全局模式是「改站点默认值」，所以进去要登录；回个人模式不需要
             modeBtn.disabled = (mode === 'personal') && (!online || !this._loggedIn());
+            // 游客（未登录）不能进全局模式：隐藏入口；已在全局模式时保留「切回个人」
+            modeBtn.style.display = (this._loggedIn() || mode === 'global') ? '' : 'none';
+        }
+
+        // 🌐 站点信息（短网址 / 版权年份）只有全局一份、需登录才能改：游客整个分区隐藏
+        var siteInfoGroup = this.group.querySelector('[data-settings-group="siteInfo"]');
+        if (siteInfoGroup) {
+            var showSiteInfo = this._loggedIn();
+            siteInfoGroup.style.display = showSiteInfo ? '' : 'none';
+            var prevDivider = siteInfoGroup.previousElementSibling;
+            if (prevDivider && prevDivider.classList.contains('settings-divider')) {
+                prevDivider.style.display = showSiteInfo ? '' : 'none';
+            }
         }
 
         // 简洁模式 + 锁定：装饰开关（BGM / 看板娘）不可用，切回完整模式或关掉锁定才能改
@@ -302,7 +315,10 @@ class SettingsManager {
             else if (!this._loggedIn()) text = '全局设置写入数据库，需要登录后才能修改：请在「账号」里登录。';
             else text = '这里的值会写入数据库，作为所有访客的默认（访客在本机改过的仍以本机为准）。';
         } else {
-            text = '个人模式下只改本机；切到全局模式并登录后可修改站点默认值。BGM 与看板娘改动需要刷新页面生效。';
+            // 游客看不到「切换到全局模式」按钮，文案也不再引导
+            text = this._loggedIn()
+                ? '个人模式下只改本机；切到全局模式后可修改站点默认值。BGM 与看板娘改动需要刷新页面生效。'
+                : '个人模式下只改本机；BGM 与看板娘改动需要刷新页面生效。';
         }
         if (this._conciseLocked()) {
             text += '简洁模式已锁定「BGM / 看板娘」：切回完整模式或关闭锁定后才能开启。';
